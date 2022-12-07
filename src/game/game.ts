@@ -14,7 +14,7 @@ globalThis.dev = {
         playerStats
     }
 }
-
+console.log('test');
 export const gameLoop: Loop = new Loop();
 if (globalThis.isLocal) {
     document.addEventListener('keydown', x => {
