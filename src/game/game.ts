@@ -28,7 +28,7 @@ if (globalThis.isLocal) {
             }
         }
     });
-} else { gameLoop.start(); }
+}
 export async function init(module: GConfig) {
 
     gameLoop.reset();
@@ -51,4 +51,8 @@ export async function init(module: GConfig) {
 
 
     createStatisticsElements();
+    
+    if(!globalThis.isLocal){
+        gameLoop.start();   
+    }
 }
