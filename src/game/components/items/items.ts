@@ -31,7 +31,7 @@ const activeCraftData: { cost: number, id: CraftId } = {
     cost: 0, id: 'reforge'
 }
 
-visibilityObserver(document.querySelector('.p-items'), x => {updateCraftList()})
+visibilityObserver(document.querySelector('.p-items'), x => { updateCraftList() })
 
 export async function init(data: Items) {
 
@@ -51,9 +51,9 @@ export async function init(data: Items) {
         items.push(item);
 
         const isLocked = () => playerStats.level.get() < item.levelReq;
-        if(isLocked()){
+        if (isLocked()) {
             const id = playerStats.level.onChange.listen(level => {
-                if(!isLocked()){
+                if (!isLocked()) {
                     item.unlock();
                     playerStats.level.onChange.removeListener(id);
                 }
@@ -88,7 +88,7 @@ function createCraftListElements(craftList: CraftList) {
     });
     updateCraftList();
     playerStats.gold.onChange.listen(x => {
-        if(document.querySelector('.p-items').classList.contains('hidden')){
+        if (document.querySelector('.p-items').classList.contains('hidden')) {
             return;
         }
         updateCraftList();
@@ -144,13 +144,11 @@ function updateCraftList() {
 
     const ids = CraftPreset.active.ids;
     const elements = document.querySelectorAll('.p-items .s-craft-container [data-craft-id]');
-    const getSibling = (x: HTMLElement) => (x.previousElementSibling || x.nextElementSibling) as HTMLElement;
-
     elements.forEach(x => {
         const dataAttr = x.getAttribute('data-craft-id') as CraftId;
         const hide = !ids.includes(dataAttr);
         x.classList.toggle('hidden', hide);
-        if(!hide){
+        if (!hide) {
             const costElement = x.querySelector('i');
             const attr = costElement.getAttribute('data-cost');
             const cost = parseInt(attr);
@@ -159,7 +157,7 @@ function updateCraftList() {
         }
     });
     const selectedVisibleElement = document.querySelector('.p-items .s-craft-container .selected[data-craft-id]:not(.hidden)');
-    if(!selectedVisibleElement){
+    if (!selectedVisibleElement) {
         (document.querySelector('.p-items .s-craft-container [data-craft-id]:not(.hidden)') as HTMLElement)?.click();
     }
 }
@@ -207,7 +205,7 @@ function performCraft() {
     const template = templates[activeCraftData.id];
 
     const craftData = createCraftData();
-    Item.active.mods = [...template.getItemMods(craftData).map(x => x.copy())];
+    Item.active.mods = template.getItemMods(craftData);
     playerStats.gold.subtract(activeCraftData.cost);
 
     updateItemModList();
@@ -233,15 +231,13 @@ class Item {
     get levelReq() { return this.#levelReq; }
     get mods() { return [...this.#mods]; }
     set mods(v: ItemModifier[]) {
-        //apply mods to player
         modDB.removeBySource(this.#sourceName);
-        this.#mods = v.map(x => x.copy());
-        this.#mods.forEach(x => x.stats.forEach(x => x.randomizeValue()));
+        this.#mods = v;
         modDB.add(this.#mods.flatMap(x => x.stats), this.#sourceName);
     }
     get element() { return this.#element; }
 
-    unlock(){
+    unlock() {
         this.element.classList.remove('hidden');
     }
 

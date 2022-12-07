@@ -188,7 +188,10 @@ class Crafter {
             for (const mod of itemModList) {
                 weightSum -= mod.weight;
                 if (weightSum <= random) {
-                    newItemMods.push(mod);
+                    const copy = mod.copy();
+                    copy.stats.forEach(x => x.randomizeValue());
+                    console.log(copy.desc);
+                    newItemMods.push(copy);
                     break;
                 }
             }
