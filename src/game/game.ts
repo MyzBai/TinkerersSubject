@@ -28,7 +28,7 @@ if (globalThis.isLocal) {
             }
         }
     });
-}
+} else { gameLoop.start(); }
 export async function init(module: GConfig) {
 
     gameLoop.reset();
