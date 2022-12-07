@@ -10,13 +10,13 @@ type Validator = [RegExp, () => string, ((cur: number, target: number) => boolea
 
 const validators: Validator[] = [
     [/^Reach Level {(\d+)}$/, () => playerStats.level.get().toFixed()],
-    [/^Prestige {\d+} Times?$/, () => statistics["Prestige Count"].get().toFixed()],
-    [/^Deal {(\d+)} Total Damage$/, () => statistics["Total Damage"].get().toFixed()],
-    [/^Deal {(\d+)} Total Physical Damage$/, () => statistics["Total Physical Damage"].get().toFixed()],
-    [/^Perform {(\d+)} Total Hits?$/, () => statistics.Hits.get().toFixed()],
-    [/^Perform {(\d+)} Total Critical Hits?$/, () => statistics["Critical Hits"].get().toFixed()],
-    [/^Generate {(\d+)} Total Gold$/, () => statistics["Gold Generated"].get().toFixed()],
-    [/^Regenerate {(\d+)} Total Mana$/, () => statistics["Mana Generated"].get().toFixed()],
+    [/^Prestige {\d+}?$/, () => statistics["Prestige Count"].get().toFixed()],
+    [/^Deal Damage {(\d+)}$/, () => statistics["Total Damage"].get().toFixed()],
+    [/^Deal Physical Damage {(\d+)}$/, () => statistics["Total Physical Damage"].get().toFixed()],
+    [/^Perform Hits {(\d+)}$/, () => statistics.Hits.get().toFixed()],
+    [/^Perform Critical Hits {(\d+)}$/, () => statistics["Critical Hits"].get().toFixed()],
+    [/^Generate Gold {(\d+)}$/, () => statistics["Gold Generated"].get().toFixed()],
+    [/^Regenerate Mana {(\d+)}$/, () => statistics["Mana Generated"].get().toFixed()],
 ];
 
 const achievements: Achievement[] = [];
@@ -108,7 +108,7 @@ class Achievement {
         this.#element.querySelector('var').toggleAttribute(`data-valid`, this.#completed);
         console.log('test');
         registerHighlightHTMLElement(document.querySelector('.p-game menu [data-tab-target="achievements"]'), 'click');
-        registerHighlightHTMLElement(this.#element, 'click');
+        registerHighlightHTMLElement(this.#element, 'mouseover');
     }
 
     #applyModifiers() {
@@ -122,8 +122,6 @@ class Achievement {
         const endIndex = innerHTML.indexOf('</span>');
         varElement.innerHTML = innerHTML.substring(endIndex + 8);
     }
-
-
 
     #createElement() {
         const accordion = document.createElement('li');
