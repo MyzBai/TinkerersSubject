@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "target": "ESNext",
+        "lib": [ "DOM", "ES2021", "ES2021.String" ],
+        "strictNullChecks": false,
+        "skipLibCheck": true,
+        "moduleResolution": "Node",
+        "baseUrl": ".",
+        "paths": {
+            "@utils/*": [ "./src/utils/*" ],
+            "@game/*": [ "./src/game/*" ],
+            "@public/*": [ "./public/*" ]
+        }
+    },
+    "include": [ "**/*.ts" ],
+    "exclude": [ "node_modules", "dist" ]
+
+}
