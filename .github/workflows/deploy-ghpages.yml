@@ -19,9 +19,17 @@ jobs:
       - name: Install deps
         run: npm install
       - name: Build
-        run: npm run-script build:esbuild
+        run: | 
+          npm run-script build:esbuild
+          npm run-script build:sass
       - name: Prepare for deploy
         run: |
           rm -rf targetdir
           mkdir -p targetdir
-          mv dist index.html Synergism.css favicon.ico targetdir/
+          mv public index.html targetdir/
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: targetdir
