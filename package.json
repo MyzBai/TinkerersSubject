@@ -3,7 +3,8 @@
     "dev": "npm-run-all --parallel sass esbuild",
     "build": "esbuild ./src/main.ts --outfile=./build/main.min.js --bundle --minify",
     "esbuild": "node esbuild.js",
-    "sass": "sass ./src/styles/style.scss ./public/dist/style.css --watch"
+    "sass": "sass ./src/styles/style.scss ./public/dist/style.css --watch",
+    "build:esbuild": "npx esbuild src/Synergism.ts --bundle --minify --sourcemap --target=\"chrome58,firefox57,safari11,edge29\" --outfile=\"public/dist/out.js\""
   },
   "type": "module",
   "dependencies": {
