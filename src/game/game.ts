@@ -20,11 +20,11 @@ if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
     document.addEventListener('keydown', x => {
         if (x.code === 'Space') {
             if (gameLoop.running) {
-                document.title = 'ModSeeker (Stopped)';
+                document.title = `Tinkerers Subject (Stopped)`;
                 gameLoop.stop();
             } else {
                 gameLoop.start();
-                document.title = 'ModSeeker (Running)';
+                document.title = 'Tinkerers Subject (Running)';
             }
         }
     });
