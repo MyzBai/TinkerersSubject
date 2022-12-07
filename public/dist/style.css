@@ -1,0 +1,406 @@
+@charset "UTF-8";
+:root {
+  font-size: 20px;
+  font-family: serif;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-size: min(1rem, 1.7vw);
+  background-color: #0d1117;
+  color: #c9d1d9;
+  margin: 0 auto;
+  width: 80%;
+}
+
+@media only screen and (max-width: 1000px) {
+  body {
+    margin: 0;
+    width: 100vw;
+  }
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+i, var {
+  font-style: normal;
+}
+
+*.hidden {
+  display: none !important;
+}
+
+[disabled] {
+  filter: brightness(50%);
+}
+
+ul,
+menu {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+dialog {
+  color: inherit;
+}
+
+dialog[data-modal] {
+  padding: 0;
+  max-height: 80vh;
+  border-radius: 0.3em;
+}
+dialog[data-modal] > form {
+  padding: 2em;
+  max-height: 80vh;
+}
+dialog[data-modal] > form input[type=submit] {
+  background-color: #124191;
+}
+dialog[data-modal] > form input[type=submit][data-cancel] {
+  background-color: #8f0d0d;
+}
+
+input[type=text] {
+  display: block;
+  width: 100%;
+  outline: 0;
+}
+
+input[type=submit] {
+  border: 0;
+  font-size: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 0.6em;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(53, 53, 53);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(102, 102, 102);
+  border-left: rgb(53, 53, 53);
+  border-right: rgb(53, 53, 53);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(128, 128, 128);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgb(153, 153, 153);
+}
+
+/*#region Global*/
+.g-accordion {
+  position: relative;
+  cursor: default;
+}
+.g-accordion .header {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.0509803922);
+}
+.g-accordion .header:hover {
+  background-color: rgba(255, 255, 255, 0.1019607843);
+}
+.g-accordion .header :first-child {
+  flex: 1;
+}
+.g-accordion .header i:last-child::after {
+  content: "+";
+  position: absolute;
+  right: 0.3em;
+  color: #c9d1d9;
+}
+.g-accordion .header[data-open] i:last-child::after {
+  content: "−";
+}
+.g-accordion .header[data-open] ~ .content {
+  display: block;
+}
+.g-accordion .content {
+  display: none;
+}
+
+.g-toolbar {
+  display: flex;
+}
+.g-toolbar li {
+  color: #58a6ff;
+}
+.g-toolbar div {
+  display: inline-block;
+}
+
+.g-button {
+  display: inline-block;
+  padding: 0.3em;
+  cursor: default;
+  user-select: none;
+  border-radius: 3px;
+  color: #c9d1d9;
+  border-color: rgba(240, 246, 252, 0.1);
+}
+.g-button:hover {
+  background-color: rgba(255, 255, 255, 0.0509803922);
+}
+.g-button[disabled] {
+  pointer-events: none;
+}
+
+.g-button-toggle {
+  background: none;
+  text-decoration: underline;
+  text-decoration-color: red;
+}
+.g-button-toggle[enabled] {
+  text-decoration-color: green;
+}
+
+.g-list-v.g-list-v,
+.g-list-h.g-list-v {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  overflow-y: auto;
+}
+.g-list-v.g-list-h,
+.g-list-h.g-list-h {
+  display: flex;
+  text-align: center;
+  flex-wrap: wrap;
+}
+.g-list-v .g-list-item,
+.g-list-h .g-list-item {
+  padding: 0.3em;
+  cursor: default;
+  user-select: none;
+}
+.g-list-v .g-list-item.selected,
+.g-list-h .g-list-item.selected {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.1019607843);
+}
+.g-list-v .g-list-item:hover,
+.g-list-h .g-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.0509803922);
+}
+
+.g-field {
+  display: flex;
+  cursor: default;
+}
+.g-field > :nth-child(1) {
+  flex: 1;
+  word-wrap: break-word;
+}
+.g-field > :nth-child(2) {
+  padding-left: 1em;
+}
+
+.g-progressbar-background {
+  height: 1.5em;
+}
+.g-progressbar-background .g-progressbar {
+  height: 100%;
+}
+
+.g-mod-desc {
+  color: #8392bd;
+}
+
+.g-mod-desc-adv {
+  color: #ddd7bb;
+  font-size: 0.7rem;
+  line-height: 0.4em;
+}
+
+[data-insufficient-cost] {
+  color: #eb8686;
+}
+
+[data-highlight] {
+  border-left: 0.2em solid #bd7044;
+}
+
+/*#endregion Global*/
+body > header {
+  font-size: 1.3rem;
+  text-align: center;
+  grid-column: 1/4;
+  background-color: #161b22;
+  color: #d6a02c;
+  padding: 0.2em;
+  font-weight: bold;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
+
+.p-game {
+  display: grid;
+  grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
+  background-color: #010409;
+  min-height: 0;
+}
+.p-game > menu {
+  border-right: 3px ridge rgb(48, 48, 48);
+}
+.p-game > .s-stats {
+  border-left: 3px ridge rgb(48, 48, 48);
+}
+.p-game > menu,
+.p-game [data-tab-content], .p-game > .s-stats {
+  padding: 0.3em;
+}
+.p-game .p-combat .s-healthbar-background {
+  background-color: #771111;
+}
+.p-game .p-combat .s-healthbar-background .healthbar {
+  background-color: #a12525;
+  width: 60%;
+}
+.p-game .p-combat .s-manabar-background {
+  background-color: #225c7e;
+}
+.p-game .p-combat .s-manabar-background .manabar {
+  background-color: #307da1;
+  width: 45%;
+}
+.p-game .p-skills {
+  display: grid;
+  grid-template-columns: 1fr 0.6fr;
+}
+.p-game .p-skills ul.s-skill-list {
+  text-align: left;
+}
+.p-game .p-skills ul.s-skill-list li.enabled {
+  border-left: 0.3em solid #1a51a3;
+}
+.p-game .p-skills .s-skill-info {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  background-color: #0d1117;
+  padding: 0 1em;
+}
+.p-game .p-skills .s-skill-info [data-title] {
+  text-align: center;
+  font-size: 1rem;
+  padding: 0.3em;
+  color: #58a6ff;
+}
+.p-game .p-skills .s-skill-info .g-field {
+  white-space: nowrap;
+}
+.p-game .p-skills .s-skill-info [data-mod-list] {
+  text-align: center;
+  padding: 0.4em 0;
+}
+.p-game .p-skills .s-skill-info [data-enable] {
+  align-self: center;
+  margin-top: 12px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.p-game .p-skills .s-skill-info [data-enable][disabled] {
+  background-color: #1a51a3;
+}
+.p-game .p-skills .s-skill-info [data-enable]:not([disabled]) {
+  background-color: #1f6feb;
+}
+.p-game .p-items {
+  display: grid;
+  grid-template-rows: 40% 60%;
+  grid-template-columns: 0.4fr 1fr;
+  min-height: 0;
+}
+.p-game .p-items .s-item-container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+}
+.p-game .p-items .s-item-container [data-mod-list] {
+  text-align: center;
+  padding: 1em;
+  overflow-y: auto;
+}
+.p-game .p-items .s-craft-container {
+  display: flex;
+  flex-direction: column;
+}
+.p-game .p-items .s-craft-container ul {
+  flex: 1;
+  text-align: left;
+  border: 1px solid #2b2b2b;
+}
+.p-game .p-items .s-craft-container [data-craft-button] {
+  align-self: center;
+  width: 8em;
+  text-align: center;
+  background-color: #1f6feb;
+  margin-top: 1em;
+}
+.p-game .p-items .s-craft-container [data-craft-message] {
+  text-align: center;
+  color: rgb(148, 35, 35);
+  padding: 0.2em;
+}
+.p-game .p-items .s-craft-container [data-craft-message]::before {
+  content: "⁣";
+}
+.p-game .p-items [data-preset-modal] {
+  background-color: #0d1117;
+  border: 1px solid #545b64;
+}
+.p-game .p-items [data-preset-modal] form {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+}
+.p-game .p-items [data-preset-modal] [data-craft-list] {
+  text-align: left;
+  margin: 1em 0;
+  flex: 1;
+}
+.p-game .p-items [data-preset-modal] h2 {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 0.5em;
+}
+.p-game .p-items [data-preset-modal]::backdrop {
+  backdrop-filter: blur(1px);
+}
+.p-game .p-achievements {
+  display: grid;
+  min-height: 0;
+}
+.p-game .p-achievements ul {
+  overflow-y: auto;
+}
+.p-game .p-achievements .g-accordion .header {
+  padding: 0.3em;
+  margin-bottom: 1px;
+}
+.p-game .p-achievements .g-accordion .header var {
+  color: #eb8686;
+}
+.p-game .p-achievements .g-accordion .header var[data-valid] {
+  color: #54d354;
+}
+.p-game .p-achievements .g-accordion .content {
+  padding-left: 0.6em;
+}
+
+/*# sourceMappingURL=style.css.map */

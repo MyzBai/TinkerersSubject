@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/public/dist/style.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="public/favicons/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/favicons/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="public/favicons/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="public/favicons/favicon_io/site.webmanifest">
+    <title>Tinkerers Subject</title>
+</head>
+
+<body class="dark hidden">
+    <header>Tinkerers Subject</header>
+    <main class="p-game">
+        <menu class="s-menu g-list-v">
+            <li class="g-list-item" data-tab-target="combat">Combat</li>
+            <li class="g-list-item" data-tab-target="skills">Skills</li>
+            <li class="g-list-item" data-tab-target="items">Items</li>
+            <li class="g-list-item" data-tab-target="statistics">Statistics</li>
+            <li class="g-list-item" data-tab-target="achievements">Achievements</li>
+        </menu>
+        <div class="p-combat" data-tab-content="combat">
+            <div class="s-healthbar-background g-progressbar-background">
+                <div class="healthbar g-progressbar" data-healthbar></div>
+            </div>
+            <div class="s-manabar-background g-progressbar-background">
+                <div class="manabar g-progressbar" data-manabar></div>
+            </div>
+        </div>
+        <div class="p-skills" data-tab-content="skills">
+            <ul class="s-skill-list g-list-v" data-skill-list></ul>
+            <div class="s-skill-info" data-skill-info>
+                <div data-title></div>
+                <div class="g-field">
+                    <div>Attack Speed</div>
+                    <var data-stat="attackSpeed"></var>
+                </div>
+                <div class="g-field">
+                    <div>Mana Cost</div>
+                    <var data-stat="manaCost"></var>
+                </div>
+                <div class="g-field">
+                    <div>Base Damage Multiplier</div>
+                    <var data-stat="baseDamageMultiplier"></var>
+                </div>
+                <ul data-mod-list></ul>
+                <div class="g-button" data-enable>Enable</div>
+            </div>
+        </div>
+        <div class="p-items" data-tab-content="items">
+            <menu class="g-list-v" data-item-list></menu>
+            <div class="s-item-container">
+
+                <ul data-mod-list></ul>
+            </div>
+            <div class="s-preset-container">
+                <menu class="g-toolbar s-preset-toolbar g-list-h">
+                    <div class="g-list-item" data-new>New</div>
+                    <div class="g-list-item" data-edit>Edit</div>
+                    <div class="g-list-item" data-remove>Remove</div>
+                </menu>
+                <menu class="g-list-v" data-preset-list></menu>
+            </div>
+            <div class="s-craft-container">
+                <ul class="g-list-v" data-craft-list></ul>
+                <div class="g-button" data-craft-button>Craft</div>
+                <div data-craft-message></div>
+            </div>
+            <dialog data-modal data-preset-modal>
+                <form method="dialog">
+                    <h2>Craft Preset</h2>
+                    <input type="text" data-name>
+                    <div class="g-list-v" data-craft-list></div>
+                    <div>
+                        <input class="g-button" type="submit" value="Apply">
+                        <input class="g-button" type="submit" value="Cancel" data-cancel>
+                    </div>
+                </form>
+            </dialog>
+        </div>
+        <div class="p-achievements" data-tab-content="achievements">
+            <ul></ul>
+        </div>
+        <div class="p-statistics" data-tab-content="statistics">
+            <ul> </ul>
+        </div>
+
+        <aside class="s-stats">
+            <ul>
+                <li class="g-field">
+                    <div>Level</div>
+                    <var data-stat="level">1</var>
+                </li>
+                <li class="g-field">
+                    <div>Gold</div>
+                    <var data-stat="gold">0</var>
+                </li>
+                <li class="g-field">
+                    <div>Gold Per Second</div>
+                    <var data-stat="goldPerSecond">0</var>
+                </li>
+                <li class="g-field">
+                    <div>Dps</div>
+                    <var data-stat="dps">0</var>
+                </li>
+                <li class="g-field">
+                    <div>Hit Chance</div>
+                    <div><var data-stat="hitChance"></var><span>%</span></div>
+                </li>
+                <li class="g-field">
+                    <div>Attack Speed</div>
+                    <var data-stat="attackSpeed" data-digits="2"></var>
+                </li>
+                <li class="g-field">
+                    <div>Critical Hit Chance</div>
+                    <div><var data-stat="critChance" data-pct></var><span>%</span></div>
+                </li>
+                <li class="g-field">
+                    <div>Critical Hit Multiplier</div>
+                    <div><var data-stat="critMulti" data-pct></var><span>%</span></div>
+                </li>
+                <li class="g-field">
+                    <div>Mana</div>
+                    <var data-stat="maxMana"></var>
+                </li>
+                <li class="g-field">
+                    <div>Mana Regeneration</div>
+                    <var data-stat="manaRegen"></var>
+                </li>
+            </ul>
+        </aside>
+    </main>
+
+    <script>
+        {
+            document.querySelector('.p-items dialog[data-modal]').addEventListener('mousedown', x => {
+                if (x.target === x.currentTarget) {
+                    x.target.close();
+                }
+            });
+        }
+
+        document.querySelectorAll('.g-accordion').forEach(accordion => {
+            accordion.querySelector('.header').addEventListener('click', x => {
+                x.target.toggleAttribute('data-open');
+            });
+        });
+    </script>
+
+    <script src="./public/dist/main.js"></script>
+</body>
+
+</html>
