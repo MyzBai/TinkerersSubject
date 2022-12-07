@@ -19,8 +19,8 @@ async function init() {
 
     // const schema = await (await fetch('../public/gconfig/schema.json')).json();
     const baseUrl = globalThis.isLocal ? '' : 'Tinkerers-Subject';
-    const schema = await (await fetch('/public/gconfig/schema.json')).json();
-    const module: GConfig = await (await fetch('/public/gconfig/demo.json')).json();
+    const schema = await (await fetch('public/gconfig/schema.json')).json();
+    const module: GConfig = await (await fetch('public/gconfig/demo.json')).json();
 
     const valid = ajv.validate(schema, module);
     if (!valid) {
