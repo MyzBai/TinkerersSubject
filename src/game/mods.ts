@@ -68,11 +68,6 @@ interface StatModifierParams {
 
 export const modTemplates: ModTemplate[] = [
     {
-        desc: '+# Gold Per Second',
-        tags: ['Gold'],
-        stats: [{ name: 'GoldPerSecond', valueType: 'Base' }],
-    },
-    {
         desc: '#% Increased Physical Damage',
         tags: ['Physical'],
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical }]
@@ -126,7 +121,12 @@ export const modTemplates: ModTemplate[] = [
         desc: '+#% Critical Hit Multiplier',
         tags: ['Critical'],
         stats: [{ name: 'CritMulti', valueType: 'Base' }]
-    }
+    },
+    {
+        desc: '+# Gold Per Second',
+        tags: ['Gold'],
+        stats: [{ name: 'GoldPerSecond', valueType: 'Base' }],
+    },
 ];
 
 export class Modifier {
