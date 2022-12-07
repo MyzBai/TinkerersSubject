@@ -16,9 +16,6 @@ globalThis.isLocal = location.hostname === 'localhost' || location.hostname === 
 init();
 
 async function init() {
-
-    // const schema = await (await fetch('../public/gconfig/schema.json')).json();
-    const baseUrl = globalThis.isLocal ? '' : 'Tinkerers-Subject';
     const schema = await (await fetch('public/gconfig/schema.json')).json();
     const module: GConfig = await (await fetch('public/gconfig/demo.json')).json();
 

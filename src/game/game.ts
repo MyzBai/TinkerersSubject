@@ -16,7 +16,7 @@ globalThis.dev = {
 }
 
 export const gameLoop: Loop = new Loop();
-if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+if (globalThis.isLocal) {
     document.addEventListener('keydown', x => {
         if (x.code === 'Space') {
             if (gameLoop.running) {
