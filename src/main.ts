@@ -8,16 +8,18 @@ const ajv = new Ajv();
 declare global {
     var initTab: (btns: HTMLElement[], contents: HTMLElement[]) => void;
     var dev: { game: { playerStats } };
+    var isLocal: boolean;
 }
 globalThis.initTabs = initTabs;
-
+globalThis.isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 init();
 
 async function init() {
 
     // const schema = await (await fetch('../public/gconfig/schema.json')).json();
-    const schema = await (await fetch('/public/gconfig/schema.json')).json();
+    const baseUrl = globalThis.isLocal ? '' : 'Tinkerers-Subject';
+    const schema = await (await fetch(baseUrl + '/public/gconfig/schema.json')).json();
     const module: GConfig = await (await fetch('/public/gconfig/demo.json')).json();
 
     const valid = ajv.validate(schema, module);
