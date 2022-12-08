@@ -1,11 +1,10 @@
 {
   "scripts": {
-    "dev": "npm-run-all --parallel sass esbuild",
-    "build": "esbuild ./src/main.ts --outfile=./build/main.min.js --bundle --minify",
-    "esbuild": "node esbuild.js",
-    "sass": "sass ./src/styles/style.scss ./public/dist/style.css --watch",
-    "build:sass": "sass ./src/styles/style.scss ./public/dist/style.css",
-    "build:esbuild": "npx esbuild src/main.ts --bundle --minify --sourcemap --target=\"chrome58,firefox57,safari11,edge29\" --outfile=\"public/dist/main.js\""
+    "dev": "npm-run-all --parallel watch:sass watch:esbuild",
+    "watch:esbuild": "npx esbuild src/main.ts --bundle --sourcemap --target=\"chrome58,firefox57,safari11,edge29\" --outfile=\"./public/dist/main.js\" --watch",
+    "build:esbuild": "npx esbuild src/main.ts --bundle --minify --sourcemap --target=\"chrome58,firefox57,safari11,edge29\" --outfile=\"public/dist/main.js\"",
+    "watch:sass": "npx sass src/styles/style.scss public/dist/style.css --watch",
+    "build:sass": "npx sass src/styles/style.scss public/dist/style.css"
   },
   "type": "module",
   "dependencies": {
