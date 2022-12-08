@@ -1,4 +1,3 @@
-import EventEmitter from "./EventEmitter";
 
 type Callback = (dt: number) => void;
 interface Instance {

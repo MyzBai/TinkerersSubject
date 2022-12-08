@@ -164,21 +164,21 @@ function generateConversionTable(config: Configuration) {
         if (skillTotal > 100) {
             const fac = 100 / skillTotal;
             for (const key of Object.keys(skillConv)) {
-                skillConv[key] *= fac;
+                skillConv[key as DamageType] *= fac;
             }
 
         } else if (globalTotal + skillTotal > 100) {
             const fac = (100 - skillTotal) / globalTotal;
             for (const key of Object.keys(globalConv)) {
-                globalConv[key] *= fac;
+                globalConv[key as DamageType] *= fac;
             }
         }
 
         const conversionValues: ConversionValues = { multi: 1 };
         for (const [key, value] of Object.entries(globalConv)) {
-            const skillConvValue = skillConv[key] || 0;
-            const addValue = add[key] || 0;
-            conversionValues[key] = (value + skillConvValue + addValue) / 100;
+            const skillConvValue = skillConv[key as DamageType] || 0;
+            const addValue = add[key as DamageType] || 0;
+            conversionValues[key as DamageType] = (value + skillConvValue + addValue) / 100;
         }
         conversionValues.multi = 1 - Math.min((globalTotal + skillTotal) / 100, 1)
         conversionTable[damageType] = conversionValues;

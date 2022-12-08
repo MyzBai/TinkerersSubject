@@ -1,4 +1,4 @@
-import { ItemMod, Items } from '@src/types/gconfig';
+import GConfig, { ItemMod, Items } from '@src/types/gconfig';
 import { Modifier } from '@game/mods';
 import { templates, CraftId, CraftData } from './crafting';
 import { playerStats, modDB } from '@game/player';
@@ -16,13 +16,13 @@ document.querySelector('.p-items .s-preset-container [data-new]')!.addEventListe
 document.querySelector('.p-items .s-preset-container [data-edit]')!.addEventListener('click', () => CraftPreset.active?.edit());
 document.querySelector('.p-items .s-preset-container [data-remove]')!.addEventListener('click', () => CraftPreset.active?.delete());
 
-visibilityObserver(document.querySelector('.p-items'), x => { updateCraftList() });
+visibilityObserver(document.querySelector('.p-items'), () => { updateCraftList() });
 
 const generalMods: ItemModifier[] = [];
 const items: Item[] = [];
 let activeCraft: CraftList[number];
 
-export async function init(data: Items) {
+export function init(data: GConfig['items']) {
 
     for (const modGroup of data.modTables.general) {
         for (let i = 0; i < modGroup.length; i++) {
@@ -31,14 +31,13 @@ export async function init(data: Items) {
         }
     }
 
-    items.splice(0);
     for (const itemData of data.itemList) {
         const item = new Item(itemData);
         items.push(item);
 
         const isLocked = () => playerStats.level.get() < item.levelReq;
         if (isLocked()) {
-            const id = playerStats.level.onChange.listen(level => {
+            const id = playerStats.level.onChange.listen(() => {
                 if (!isLocked()) {
                     item.unlock();
                     playerStats.level.onChange.removeListener(id);
@@ -79,7 +78,7 @@ function createCraftListElements(craftList: CraftList) {
         });
     });
     updateCraftList();
-    playerStats.gold.onChange.listen(x => {
+    playerStats.gold.onChange.listen(() => {
         if (document.querySelector('.p-items').classList.contains('hidden')) {
             return;
         }
@@ -347,10 +346,6 @@ class CraftPreset {
         });
         presetModal.showModal();
 
-    }
-
-    #closeModal(apply: boolean) {
-        presetModal.close();
     }
 }
 

@@ -260,7 +260,7 @@ export class ModDB {
     get onChange() { return this.#onChange; }
 
 
-    add(statMods: StatModifier[], source) {
+    add(statMods: StatModifier[], source: string) {
         statMods.forEach(x => x.source = source);
         this.#modList.push(...statMods);
         this.#onChange.invoke([...this.modList]);

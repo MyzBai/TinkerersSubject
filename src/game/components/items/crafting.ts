@@ -199,8 +199,7 @@ class Crafter {
         return newItemMods;
     }
 
-    /**@param {number} min @param {number} max */
-    #randomRangeInt(min, max) {
+    #randomRangeInt(min: number, max: number) {
         return Math.floor(Math.random() * (max - min) + min);
     }
 }
