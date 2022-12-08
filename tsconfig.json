@@ -8,6 +8,7 @@
         "moduleResolution": "Node",
         "baseUrl": ".",
         "paths": {
+            "@src/*": ["./src/*"],
             "@utils/*": [ "./src/utils/*" ],
             "@game/*": [ "./src/game/*" ],
             "@public/*": [ "./public/*" ]
