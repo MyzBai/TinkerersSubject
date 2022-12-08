@@ -147,8 +147,8 @@ export function savePlayer(saveObj: Save) {
 }
 
 export function loadPlayer(saveObj: Save) {
-    setup();
     playerStats.level.set(saveObj.player.level);
     playerStats.gold.set(saveObj.player.gold);
     playerStats.curMana.set(saveObj.player.curMana);
+    setup();
 }
