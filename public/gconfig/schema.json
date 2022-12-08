@@ -116,12 +116,22 @@
                         "required": [ "description" ],
                         "properties": {
                             "description": {
-                                "$ref": "#/definitions/achievements"
+                                "anyOf": [
+                                    { "enum": [ "Reach Level {#}" ], "pattern": "^Reach Level \\{\\d+\\}$" },
+                                    { "enum": [ "Prestige {#}" ], "pattern": "^Prestige \\{\\d+?\\}$" },
+                                    { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                                    { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                                    { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                                    { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                                    { "enum": [ "Perform Critical Hits {#} Total Critical Hits" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+                                ]
                             },
                             "modList": {
                                 "type": "array",
                                 "description": "Each mod will be applied upon completing the achievement",
-                                "$ref": "#/definitions/modList"
+                                "items": {
+                                    "$ref": "#/definitions/mod"
+                                }
                             }
                         }
                     }
@@ -137,12 +147,6 @@
         }
     },
     "definitions": {
-        "modList": {
-            "type": "array",
-            "items": {
-                "$ref": "#/definitions/mod"
-            }
-        },
         "mod": {
             "type": "string",
             "oneOf": [
@@ -158,18 +162,6 @@
                 { "enum": [ "+{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
                 { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" }
-            ]
-        },
-        "achievements": {
-            "type": "string",
-            "anyOf": [
-                { "oneOf": [ { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" } ] },
-                { "oneOf": [ { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" } ] },
-                { "oneOf": [ { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" } ] },
-                { "oneOf": [ { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" } ] },
-                { "oneOf": [ { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" } ] },
-                { "oneOf": [ { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" } ] },
-                { "oneOf": [ { "enum": [ "Perform Critical Hits {#} Total Critical Hits" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" } ] }
             ]
         }
     }
