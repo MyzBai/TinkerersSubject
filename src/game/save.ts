@@ -1,9 +1,11 @@
+import localforage from 'localforage';
 import type { CraftId } from "@src/types/gconfig"
 import type { ModDescription } from "./mods";
 import { saveItems, loadItems } from "./components/items/items";
 import { saveStatistics, loadStatistics } from "./statistics";
 import { loadPlayer, savePlayer } from "./player";
 import { loadSkills, saveSkills } from "./skills";
+
 
 export type ModTemplate = { values: number[]; desc: ModDescription };
 
@@ -27,23 +29,31 @@ export interface Save {
 }
 
 
-export function save() {
+export async function save() {
     const saveObj: Save = {};
     savePlayer(saveObj);
     saveSkills(saveObj);
     saveItems(saveObj);
     saveStatistics(saveObj);
 
-    console.log('Save', saveObj);
-
-    sessionStorage.setItem('game', JSON.stringify(saveObj));
+    const save = btoa(JSON.stringify(saveObj));
+    if (save !== null) {
+        const saveBlob = new Blob([save], { type: 'text/plain' });
+        await localforage.setItem<Blob>('ts-game', saveBlob);
+    } else {
+        return false;
+    }
+    return true;
 }
 
-export function load() {
-    const saveObj = JSON.parse(sessionStorage.getItem('game'));
+export async function load() {
+    
+    const blob = await localforage.getItem<Blob>('ts-game');
+    const saveStr = await blob.text();
 
-    loadPlayer(saveObj);
+    const saveObj = JSON.parse(atob(saveStr)) as Save;
     loadSkills(saveObj);
     loadItems(saveObj);
     loadStatistics(saveObj);
+    loadPlayer(saveObj);
 }
