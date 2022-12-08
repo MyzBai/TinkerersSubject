@@ -19,9 +19,9 @@
         <menu class="s-menu g-list-v">
             <li class="g-list-item" data-tab-target="combat">Combat</li>
             <li class="g-list-item" data-tab-target="skills">Skills</li>
-            <li class="g-list-item" data-tab-target="items">Items</li>
-            <li class="g-list-item" data-tab-target="statistics">Statistics</li>
-            <li class="g-list-item" data-tab-target="achievements">Achievements</li>
+            <li class="g-list-item hidden" data-tab-target="items">Items</li>
+            <li class="g-list-item hidden" data-tab-target="statistics">Statistics</li>
+            <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>
         </menu>
         <div class="p-combat" data-tab-content="combat">
             <div class="s-healthbar-background g-progressbar-background">
@@ -51,7 +51,7 @@
                 <div class="g-button" data-enable>Enable</div>
             </div>
         </div>
-        <div class="p-items" data-tab-content="items">
+        <div class="p-items hidden" data-tab-content="items">
             <menu class="g-list-v" data-item-list></menu>
             <div class="s-item-container">
 
@@ -82,7 +82,7 @@
                 </form>
             </dialog>
         </div>
-        <div class="p-achievements" data-tab-content="achievements">
+        <div class="p-achievements hidden" data-tab-content="achievements">
             <ul></ul>
         </div>
         <div class="p-statistics" data-tab-content="statistics">
