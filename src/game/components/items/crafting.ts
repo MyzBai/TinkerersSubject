@@ -129,7 +129,7 @@ class CraftValidator {
     }
 
     itemCanCraftModWithTag(itemModList: ItemModifier[], itemMods: ItemModifier[], tag: ModifierTag) {
-        const filteredMods = itemMods.filter(x => x.tags?.includes(tag) && !itemModList.some(y => y === x));
+        const filteredMods = itemMods.filter(x => x.tags?.includes(tag) && !itemModList.some(y => y.compare(x)));
         if (filteredMods.length === 0) {
             this.errors.push(`There are no ${tag} modifiers available`);
         }
