@@ -24,7 +24,7 @@ async function init() {
         console.error(ajv.errors);
         return;
     }
-    console.log('%c Module is valid', 'color: #10782b');
+    // console.log('%c Module is valid', 'color: #10782b');
 
     await initGame(module);
 
