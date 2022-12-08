@@ -49,6 +49,9 @@ export async function save() {
 export async function load() {
     
     const blob = await localforage.getItem<Blob>('ts-game');
+    if(!blob){
+        return;
+    }
     const saveStr = await blob.text();
 
     const saveObj = JSON.parse(atob(saveStr)) as Save;
