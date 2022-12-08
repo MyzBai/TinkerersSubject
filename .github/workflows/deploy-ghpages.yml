@@ -1,13 +1,6 @@
 name: Deploy to GitHub pages branch
 on:
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'     
-        required: true
-        default: 'warning'
-      tags:
-        description: 'Test scenario tags'  
   push:
     branches: main
     
@@ -32,12 +25,11 @@ jobs:
           npm run-script build:sass
       - name: Prepare for deploy
         run: |
-          rm -rf targetdir
-          mkdir -p targetdir
-          mv public index.html targetdir/
+          mkdir -p build
+          mv public index.html build
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: targetdir
+          FOLDER: build
