@@ -7,7 +7,7 @@ const ajv = new Ajv();
 
 declare global {
     var initTab: (btns: HTMLElement[], contents: HTMLElement[]) => void;
-    var dev: { game: { playerStats } };
+    var dev: { game: { playerStats, save, load } };
     var isLocal: boolean;
 }
 globalThis.initTabs = initTabs;

@@ -6,15 +6,18 @@ import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
 import loadComponents from './components/loader';
+import { save, load } from './save';
 
 initTabs(document.querySelector('.p-game > menu'), document.querySelector('.p-game'));
 
 globalThis.dev = {
     game: {
-        playerStats
+        playerStats,
+        save, load
     }
 }
 export const gameLoop: Loop = new Loop();
+
 document.addEventListener('keydown', x => {
     if (!globalThis.isLocal) {
         return;
@@ -50,8 +53,8 @@ export async function init(module: GConfig) {
     await setupPlayer();
 
     createStatisticsElements();
-    
-    if(!globalThis.isLocal){
-        gameLoop.start();   
+
+    if (!globalThis.isLocal) {
+        gameLoop.start();
     }
 }

@@ -1,8 +1,9 @@
 import { visibilityObserver } from "@utils/Observers";
 import Value from "@utils/Value";
 import { gameLoop } from "./game";
+import { Save } from "./save";
 
-
+export type StatisticName = keyof typeof statistics;
 interface StatisticsProperties {
     value: Value<number>;
     formatType?: 'time'
@@ -68,7 +69,7 @@ function updateGameStatistics(key: StatisticKeys, value: Value<number>) {
     }
     const valueZero = value.get() === 0;
     element.parentElement.classList.toggle('hidden', valueZero);
-    if(valueZero){
+    if (valueZero) {
         return;
     }
     const type = element.getAttribute('data-format-type');
@@ -82,6 +83,19 @@ function updateGameStatistics(key: StatisticKeys, value: Value<number>) {
         default:
             element.textContent = value.get().toFixed(0);
     }
+}
+
+export function saveStatistics(saveObj: Save) {
+    saveObj.statistics = Object.entries(statistics).map(([key, value]) => {
+        return {
+            name: key,
+            value: value.value.get()
+        }
+    });
+}
+
+export function loadStatistics(saveObj: Save) {
+    saveObj.statistics.forEach(x => statistics[x.name].value.set(x.value));
 }
 
 export default Object.fromEntries(Object.keys(statistics).map(x => [x, statistics[x].value]));
