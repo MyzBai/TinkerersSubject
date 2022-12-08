@@ -10,7 +10,7 @@ import { save, load } from './save';
 
 initTabs(document.querySelector('.p-game > menu'), document.querySelector('.p-game'));
 
-if(isLocalHost){
+if (isLocalHost) {
     globalThis.dev = {
         game: {
             playerStats,
@@ -58,5 +58,11 @@ export async function init(module: GConfig) {
 
     if (!isLocalHost) {
         gameLoop.start();
+
+        gameLoop.subscribe(() => {
+            save();
+        }, { intervalMilliseconds: 6000 });
+
+        await load();
     }
 }
