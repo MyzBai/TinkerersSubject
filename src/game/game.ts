@@ -61,7 +61,7 @@ export async function init(module: GConfig) {
 
         gameLoop.subscribe(() => {
             save();
-        }, { intervalMilliseconds: 6000 });
+        }, { intervalMilliseconds: 60000 });
 
         await load();
     }
