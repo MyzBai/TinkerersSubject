@@ -14,7 +14,8 @@ if (isLocalHost) {
     globalThis.dev = {
         game: {
             playerStats,
-            save, load
+            save: () => save(),
+            load: () => load()
         }
     }
     document.addEventListener('keydown', x => {
@@ -59,7 +60,7 @@ export async function init(module: GConfig) {
     if (!isLocalHost) {
         gameLoop.start();
 
-        gameLoop.subscribe(() => {
+        gameLoop.subscribe(async () => {
             save();
         }, { intervalMilliseconds: 60000 });
 
