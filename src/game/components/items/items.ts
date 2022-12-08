@@ -4,6 +4,7 @@ import { templates, CraftId, CraftData } from './crafting';
 import { playerStats, modDB } from '@game/player';
 import { visibilityObserver } from '@utils/Observers';
 import type { ModTemplate, Save } from '@src/game/save';
+import { registerHighlightHTMLElement } from '@src/utils/helpers';
 
 type CraftList = Items['craftList'];
 
@@ -45,7 +46,6 @@ export function init(data: GConfig['items']) {
         }
         item.element.classList.toggle('hidden', isLocked());
     }
-    console.log(items);
     document.querySelector('.p-items [data-item-list]')?.replaceChildren(...items.map(x => x.element));
 
     createCraftListElements(data.craftList);
@@ -56,6 +56,20 @@ export function init(data: GConfig['items']) {
     items[0].element.click();
 
     playerStats.gold.onChange.listen(updateCraftButton);
+
+    const unlockLevelReq = data.unlockWhen?.level || 1;
+    if (unlockLevelReq <= playerStats.level.get()) {
+        document.querySelector('.p-game menu [data-tab-target="items"]').classList.remove('hidden');
+    } else {
+        const id = playerStats.level.onChange.listen(level => {
+            if (level >= unlockLevelReq) {
+                playerStats.level.onChange.removeListener(id);
+                const menuButton = document.querySelector<HTMLElement>('.p-game menu [data-tab-target="items"]');
+                menuButton.classList.remove('hidden');
+                registerHighlightHTMLElement(menuButton, 'click');
+            }
+        });
+    }
 }
 
 function createDefaultPreset() {

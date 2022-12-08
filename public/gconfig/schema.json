@@ -54,6 +54,7 @@
             "type": "object",
             "required": [ "itemList", "craftList", "modTables" ],
             "properties": {
+                "unlockWhen": { "$ref": "#/definitions/unlockWhen" },
                 "itemList": {
                     "type": "array",
                     "items": {
@@ -109,6 +110,7 @@
         "achievements": {
             "type": "object",
             "properties": {
+                "unlockWhen": { "$ref": "#/definitions/unlockWhen" },
                 "list": {
                     "type": "array",
                     "items": {
@@ -164,6 +166,13 @@
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
                 { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" }
             ]
+        },
+        "unlockWhen": {
+            "type": "object",
+            "description": "Will be hidden/locked until requirements are met",
+            "properties": {
+                "level": { "type": "integer", "minimum": 1 }
+            }
         }
     }
 }

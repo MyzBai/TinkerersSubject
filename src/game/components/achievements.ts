@@ -40,6 +40,20 @@ export function init(data: GConfig['achievements']) {
             }
         });
     }, { intervalMilliseconds: 1000 });
+
+    const unlockLevelReq = data.unlockWhen?.level || 1;
+    if (unlockLevelReq <= playerStats.level.get()) {
+        document.querySelector('.p-game menu [data-tab-target="achievements"]').classList.remove('hidden');
+    } else {
+        const id = playerStats.level.onChange.listen(level => {
+            if (level >= unlockLevelReq) {
+                playerStats.level.onChange.removeListener(id);
+                const menuButton = document.querySelector<HTMLElement>('.p-game menu [data-tab-target="achievements"]');
+                menuButton.classList.remove('hidden');
+                registerHighlightHTMLElement(menuButton, 'click');
+            }
+        });
+    }
 }
 
 function handleUpdateLoop(visible: boolean) {

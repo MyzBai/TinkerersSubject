@@ -35,7 +35,7 @@ export interface ItemMod {
     mod: Mod;
 }
 export interface Items {
-    levelReq: number;
+    unlockWhen?: UnlockWhen;
     itemList: {
         name: string;
         levelReq: number;
@@ -51,7 +51,7 @@ export interface Items {
     }[];
 }
 export interface Achievements {
-    levelReq: number;
+    unlockWhen?: UnlockWhen;
     list: {
         description: string;
         modList?: Mod[];
@@ -62,7 +62,9 @@ export interface Prestige {
     maxGoldMultiplier: number;
 }
 
-
+export interface UnlockWhen {
+    level?: number;
+}
 
 export type Mod = string;
 

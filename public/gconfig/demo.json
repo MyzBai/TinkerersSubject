@@ -127,6 +127,7 @@
         ]
     },
     "achievements": {
+        "unlockWhen": { "level": 3 },
         "list": [
             { "description": "Reach Level {10}" },
             { "description": "Deal Physical Damage {10000}", "modList": [ "{10}% More Physical Damage" ] },
