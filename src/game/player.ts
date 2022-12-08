@@ -6,6 +6,7 @@ import { calcAttack } from "./calc/calcDamage";
 import { gameLoop } from "./game";
 import { onDeath, takeDamage as dealDamageToEnemy } from './enemy';
 import statistics from "./statistics";
+import type { Save } from "./save";
 
 const playerStatsContainer = document.querySelector('.p-game > .s-stats');
 const manabar = document.querySelector<HTMLElement>('.p-combat [data-manabar]');
@@ -27,9 +28,9 @@ export const playerStats = Object.freeze({
 
 playerStats.level.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="level"]')!.textContent = x.toString());
 playerStats.gold.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="gold"]')!.textContent = x.toString());
-playerStats.curMana.onChange.listen(x => {
+playerStats.curMana.onChange.listen(() => {
     const maxMana = playerStats.maxMana.get();
-    if(playerStats.curMana.get() > maxMana){
+    if (playerStats.curMana.get() > maxMana) {
         playerStats.curMana.set(maxMana);
     }
     updateManabar();
@@ -37,7 +38,7 @@ playerStats.curMana.onChange.listen(x => {
 
 onDeath.listen(index => {
     const newLevel = index + 1;
-    if(newLevel !== playerStats.level.get()){
+    if (newLevel !== playerStats.level.get()) {
         playerStats.level.set(newLevel);
     }
 })
@@ -71,7 +72,7 @@ export async function setup() {
 }
 
 async function updateStats() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         clearTimeout(statsUpdateId);
         statsUpdateId = setTimeout(async () => {
             const statsResult = calcPlayerStats(modDB.modList);
@@ -82,7 +83,7 @@ async function updateStats() {
             playerStats.attackManaCost.set(statsResult.attackManaCost);
             playerStatsContainer.querySelector('[data-stat="dps"]')!.textContent = statsResult.dps.toFixed();
             playerStatsContainer.querySelectorAll('[data-stat]').forEach(x => {
-                const attr = x.getAttribute('data-stat')!;
+                const attr = x.getAttribute('data-stat')! as keyof typeof statsResult;
                 const stat = statsResult[attr] as number;
                 if (typeof stat === 'number') {
                     const numDecimals = Number(x.getAttribute('data-digits') || 0);
@@ -131,8 +132,23 @@ function performAttack() {
     statistics.Hits.add(1);
     statistics["Total Damage"].add(result.totalDamage);
     statistics["Total Physical Damage"].add(result.totalDamage);
-    if(result.crit){
+    if (result.crit) {
         statistics["Critical Hits"].add(1);
     }
     dealDamageToEnemy(result.totalDamage);
+}
+
+export function savePlayer(saveObj: Save) {
+    saveObj.player = {
+        level: playerStats.level.get(),
+        gold: playerStats.gold.get(),
+        curMana: playerStats.curMana.get()
+    }
+}
+
+export function loadPlayer(saveObj: Save) {
+    setup();
+    playerStats.level.set(saveObj.player.level);
+    playerStats.gold.set(saveObj.player.gold);
+    playerStats.curMana.set(saveObj.player.curMana);
 }

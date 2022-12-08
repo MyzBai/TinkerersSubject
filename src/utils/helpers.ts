@@ -4,6 +4,8 @@ export const randomRange = (min: number, max: number) => Math.random() * (max - 
 export const randomRangeInt = (min: number, max: number) => Math.floor(randomRange(min, max));
 export const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
 
+export const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
 export function initTabs(btnsParent: Element | null, contentsParent: Element | null) {
 
     if (!btnsParent || !contentsParent) {

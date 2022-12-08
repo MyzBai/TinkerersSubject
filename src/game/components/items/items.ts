@@ -23,7 +23,6 @@ const items: Item[] = [];
 let activeCraft: CraftList[number];
 
 export function init(data: GConfig['items']) {
-
     for (const modGroup of data.modTables.general) {
         for (let i = 0; i < modGroup.length; i++) {
             const itemMod = modGroup[i];
