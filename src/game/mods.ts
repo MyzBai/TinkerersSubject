@@ -2,6 +2,27 @@ import type { Mod } from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types
+export type ModifierTag = 'Gold' | 'Physical' | 'Speed' | 'Mana' | 'Critical';
+export type StatModifierValueType = 'Base' | 'Inc' | 'More';
+//#region Mod Description
+export type ModDescription =
+    '#% Increased Physical Damage' |
+    '#% More Physical Damage' |
+    'Adds # To # Physical Damage' |
+    '+#% Hit Chance' |
+    '#% Increased Attack Speed' |
+    '#% More Attack Speed' |
+    '#% Increased Maximum Mana' |
+    '+# Maximum Mana' |
+    '+# Mana Regeneration' |
+    '+#% Critical Hit Chance' |
+    '+#% Critical Hit Multiplier' |
+    '+# Gold Per Second'
+    ;
+
+//#endregion Mod Description
+
+//#region Stat Name
 export type StatName =
     'GoldPerSecond' |
     DamageStatName |
@@ -13,7 +34,9 @@ export type StatName =
     'ManaRegen' |
     'MaxMana' |
     'Gold';
+//#endregion Stat Name
 
+//#region Damage Stat Name
 type DamageStatName =
     'BaseDamageMultiplier' |
     'Damage' |
@@ -32,27 +55,17 @@ type DamageStatName =
 
 export type ConversionStatName = 'ElementalConvertedToPhysical' | 'ChaosConvertedToPhysical' | 'ChaosConvertedToElemental';
 export type GainAsStatName = 'ElementalGainAsPhysical' | 'ChaosGainAsElemental' | 'ChaosGainAsPhysical';
+//#endregion Damage Stat Name
 
-export type ModifierTag = 'Gold' | 'Physical' | 'Speed' | 'Mana' | 'Critical';
-export type StatModifierValueType = 'Base' | 'Inc' | 'More';
-
-//#endregion
-
-export const StatModifierFlags = {
-    None: 1 << 0,
-    Attack: 1 << 1,
-    Physical: 1 << 2,
-    Elemental: 1 << 3,
-    Chaos: 1 << 4
-} as const;
+//#endregion Types
 
 interface ModTemplate {
-    desc: string;
-    tags?: ModifierTag[],
-    stats: {
-        name: StatName;
-        valueType: StatModifierValueType;
-        flags?: number;
+    readonly desc: ModDescription;
+    readonly tags?: ModifierTag[],
+    readonly stats: {
+        readonly name: StatName;
+        readonly valueType: StatModifierValueType;
+        readonly flags?: number;
     }[];
 }
 
@@ -65,6 +78,17 @@ interface StatModifierParams {
     max?: number;
     source?: string;
 }
+
+
+export const StatModifierFlags = {
+    None: 1 << 0,
+    Attack: 1 << 1,
+    Physical: 1 << 2,
+    Elemental: 1 << 3,
+    Chaos: 1 << 4
+} as const;
+
+
 
 export const modTemplates: ModTemplate[] = [
     {
@@ -140,7 +164,7 @@ export class Modifier {
         this.#text = text;
         const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
         const desc = text.replace(/{[^}]+}/g, '#');
-        const template = modTemplates.find((x: ModTemplate) => x.desc === desc) as ModTemplate;
+        const template = modTemplates.find((x) => x.desc === desc);
 
         this.#template = template;
         this.#tags = [...template?.tags || []];
@@ -180,7 +204,7 @@ export class Modifier {
     compare(other: Modifier) {
         return modTemplates.findIndex(x => x.desc === this.templateDesc) - modTemplates.findIndex(x => x.desc === other.templateDesc);
     }
-    static compare(a: Modifier, b: Modifier){
+    static compare(a: Modifier, b: Modifier) {
         return a.compare(b);
     }
     copy() {
@@ -218,7 +242,7 @@ export class StatModifier {
     get source() { return this.#source; }
     set source(v: string | undefined) { this.#source = v; }
 
-    randomizeValue(){
+    randomizeValue() {
         this.#value = Math.random() * (this.#max - this.#min) + this.#min;
     }
 }
@@ -252,5 +276,5 @@ export class ModDB {
         this.#onChange.invoke([...this.modList]);
     }
 
- 
+
 }
