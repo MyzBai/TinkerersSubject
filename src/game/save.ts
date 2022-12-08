@@ -3,6 +3,7 @@ import type { ModDescription } from "./mods";
 import { saveItems, loadItems } from "./components/items/items";
 import { saveStatistics, loadStatistics } from "./statistics";
 import { loadPlayer, savePlayer } from "./player";
+import { loadSkills, saveSkills } from "./skills";
 
 export type ModTemplate = { values: number[]; desc: ModDescription };
 
@@ -29,6 +30,7 @@ export interface Save {
 export function save() {
     const saveObj: Save = {};
     savePlayer(saveObj);
+    saveSkills(saveObj);
     saveItems(saveObj);
     saveStatistics(saveObj);
 
@@ -41,6 +43,7 @@ export function load() {
     const saveObj = JSON.parse(sessionStorage.getItem('game'));
 
     loadPlayer(saveObj);
+    loadSkills(saveObj);
     loadItems(saveObj);
     loadStatistics(saveObj);
 }
