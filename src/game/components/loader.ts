@@ -1,6 +1,6 @@
 import { init as initItems } from './items/items';
 import { init as initAchievements } from './achievements';
-import GConfig from '@public/gconfig/schema';
+import type GConfig from '@src/types/gconfig';
 
 export type ComponentNames = keyof Pick<GConfig, 'items' | 'achievements'>;
 type Properties = Partial<Pick<GConfig, ComponentNames>>;

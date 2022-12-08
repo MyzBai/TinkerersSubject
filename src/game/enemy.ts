@@ -1,5 +1,5 @@
 import Value from "@utils/Value";
-import GConfig from "@public/gconfig/schema";
+import type GConfig from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 const healthbar = document.querySelector<HTMLElement>('.p-combat [data-healthbar]');

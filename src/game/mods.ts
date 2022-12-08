@@ -1,4 +1,4 @@
-import { Mod } from "@public/gconfig/schema";
+import type { Mod } from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types

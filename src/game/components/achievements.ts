@@ -1,6 +1,6 @@
 import statistics from "../statistics";
 import { modDB, playerStats } from "../player";
-import GConfig, { Mod } from "@public/gconfig/schema";
+import type { Mod, GConfig } from "@src/types/gconfig";
 import { gameLoop } from "../game";
 import { Modifier } from "@game/mods";
 import { visibilityObserver } from '@utils/Observers';
@@ -42,12 +42,12 @@ export function init(data: GConfig['achievements']) {
     }, { intervalMilliseconds: 1000 });
 }
 
-function handleUpdateLoop(visible: boolean){
-    if(visible){
+function handleUpdateLoop(visible: boolean) {
+    if (visible) {
         achievements.forEach(x => x.updateDescription());
         updateId = gameLoop.subscribe(() => achievements.forEach(x => x.updateDescription()),
             { intervalMilliseconds: 1000 });
-    } else{
+    } else {
         gameLoop.unsubscribe(updateId);
     }
 }

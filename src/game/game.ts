@@ -2,7 +2,7 @@ import { initTabs } from "@utils/helpers";
 import { init as initPlayer, setup as setupPlayer, playerStats } from './player';
 import { init as initEnemy } from './enemy';
 import { init as initSkills } from './skills';
-import GConfig from "@public/gconfig/schema";
+import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
 import loadComponents from './components/loader';

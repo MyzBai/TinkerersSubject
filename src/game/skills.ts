@@ -1,4 +1,4 @@
-import { Skills } from "@public/gconfig/schema";
+import type { Skills } from "@src/types/gconfig";
 import { Modifier, StatModifier } from "@game/mods";
 import { modDB, playerStats } from "@game/player";
 

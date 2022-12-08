@@ -1,7 +1,7 @@
 import { init as initGame } from './game/game';
 import Ajv from 'ajv';
 import { initTabs } from '@utils/helpers';
-import GConfig from '../public/gconfig/schema';
+import type GConfig from '@src/types/gconfig';
 
 const ajv = new Ajv();
 

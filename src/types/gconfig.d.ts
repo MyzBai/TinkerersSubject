@@ -1,5 +1,6 @@
 
-export default interface GConfig {
+export default GConfig;
+export interface GConfig {
     options?: Options;
     player?: Player;
     enemies: Enemies;
@@ -61,9 +62,9 @@ export interface Prestige {
     maxGoldMultiplier: number;
 }
 
-type Mod = string;
 
 
+export type Mod = string;
 
 export type CraftId =
     'reforge' | 'reforgeIncludePhysical' | 'reforgeIncludeMana' | 'reforgeIncludeCritical' | 'reforgeHigherChanceSameMods' | 'reforgeLowerChanceSameMods' |

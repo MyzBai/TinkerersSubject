@@ -1,4 +1,4 @@
-import type { Player } from "@public/gconfig/schema";
+import type { Player } from "@src/types/gconfig";
 import Value from '@utils/Value';
 import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
