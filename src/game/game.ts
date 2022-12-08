@@ -1,4 +1,4 @@
-import { initTabs } from "@utils/helpers";
+import { initTabs, isLocalHost } from "@utils/helpers";
 import { init as initPlayer, setup as setupPlayer, playerStats } from './player';
 import { init as initEnemy } from './enemy';
 import { init as initSkills } from './skills';
@@ -10,28 +10,30 @@ import { save, load } from './save';
 
 initTabs(document.querySelector('.p-game > menu'), document.querySelector('.p-game'));
 
-globalThis.dev = {
-    game: {
-        playerStats,
-        save, load
-    }
-}
-export const gameLoop: Loop = new Loop();
-
-document.addEventListener('keydown', x => {
-    if (!globalThis.isLocal) {
-        return;
-    }
-    if (x.code === 'Space') {
-        if (gameLoop.running) {
-            document.title = `Tinkerers Subject (Stopped)`;
-            gameLoop.stop();
-        } else {
-            gameLoop.start();
-            document.title = 'Tinkerers Subject (Running)';
+if(isLocalHost){
+    globalThis.dev = {
+        game: {
+            playerStats,
+            save, load
         }
     }
-});
+    document.addEventListener('keydown', x => {
+        if (x.code === 'Space') {
+            if (gameLoop.running) {
+                document.title = `Tinkerers Subject (Stopped)`;
+                gameLoop.stop();
+            } else {
+                gameLoop.start();
+                document.title = 'Tinkerers Subject (Running)';
+            }
+        }
+    });
+}
+
+
+export const gameLoop: Loop = new Loop();
+
+
 export async function init(module: GConfig) {
 
     gameLoop.reset();
@@ -46,7 +48,7 @@ export async function init(module: GConfig) {
         achievements: module.achievements,
     });
 
-    gameLoop.subscribe(dt => {
+    gameLoop.subscribe(() => {
         statistics["Time Played"].add(1);
     }, { intervalMilliseconds: 1000 })
 
@@ -54,7 +56,7 @@ export async function init(module: GConfig) {
 
     createStatisticsElements();
 
-    if (!globalThis.isLocal) {
+    if (!isLocalHost) {
         gameLoop.start();
     }
 }
