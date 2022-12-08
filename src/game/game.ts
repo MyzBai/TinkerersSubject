@@ -50,8 +50,8 @@ export async function init(module: GConfig) {
     await setupPlayer();
 
     createStatisticsElements();
-
-    if (!globalThis.isLocal) {
-        gameLoop.start();
+    
+    if(!globalThis.isLocal){
+        gameLoop.start();   
     }
 }
