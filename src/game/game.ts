@@ -14,21 +14,21 @@ globalThis.dev = {
         playerStats
     }
 }
-console.log('test');
 export const gameLoop: Loop = new Loop();
-if (globalThis.isLocal) {
-    document.addEventListener('keydown', x => {
-        if (x.code === 'Space') {
-            if (gameLoop.running) {
-                document.title = `Tinkerers Subject (Stopped)`;
-                gameLoop.stop();
-            } else {
-                gameLoop.start();
-                document.title = 'Tinkerers Subject (Running)';
-            }
+document.addEventListener('keydown', x => {
+    if (!globalThis.isLocal) {
+        return;
+    }
+    if (x.code === 'Space') {
+        if (gameLoop.running) {
+            document.title = `Tinkerers Subject (Stopped)`;
+            gameLoop.stop();
+        } else {
+            gameLoop.start();
+            document.title = 'Tinkerers Subject (Running)';
         }
-    });
-}
+    }
+});
 export async function init(module: GConfig) {
 
     gameLoop.reset();
@@ -49,6 +49,9 @@ export async function init(module: GConfig) {
 
     await setupPlayer();
 
-
     createStatisticsElements();
+
+    if (!globalThis.isLocal) {
+        gameLoop.start();
+    }
 }

@@ -129,7 +129,6 @@ export class Skill {
             return;
         }
         this.#element.classList.remove('hidden');
-        console.log('unlocked', this.sourceName);
 
         playerStats.level.onChange.removeListener(this.#unlockId);
     }

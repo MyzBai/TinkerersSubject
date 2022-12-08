@@ -28,7 +28,6 @@ let updateId: number = undefined;
 visibilityObserver(document.querySelector('.p-game .p-statistics'), handleUpdateLoop);
 
 function handleUpdateLoop(visible: boolean) {
-    console.log(visible);
     if (visible) {
         Object.entries(statistics).forEach(([key, value]) => updateGameStatistics(key, value.value));
         updateId = gameLoop.subscribe(() =>
