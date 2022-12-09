@@ -18,7 +18,6 @@
     <main class="p-game">
         <menu class="s-menu g-list-v">
             <li class="g-list-item" data-tab-target="combat">Combat</li>
-            <li class="g-list-item" data-tab-target="skills">Skills</li>
             <li class="g-list-item hidden" data-tab-target="items">Items</li>
             <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>
             <li class="g-list-item" data-tab-target="statistics">Statistics</li>
@@ -34,61 +33,41 @@
                     <div class="manabar g-progressbar" data-manabar></div>
                 </div>
                 <div class="s-skills">
-                    <div class="g-field" data-attack-skill>
-                        <div class="g-button" style="pointer-events: none;">Default Attack</div>
-                        <i class="g-button">Change</i>
+                    <div class="g-field" data-attack-skill data-skill>
+                        <div data-label>Default Attack</div>
+                        <button class="g-button">Change</button>
                     </div>
-                    <div class="g-field" data-buff>
-                        <div class="g-button">Supa Powa</div>
-                        <i class="g-button">Change</i>
-                    </div>
-                    <dialog data-modal data-skill-modal>
+                    <dialog data-modal data-attack-skill-modal>
                         <form method="dialog">
-                            <h2>Select Skill</h2>
-                            <ul class="g-list-v" data-skill-list></ul>
-                            <div class="s-submits">
-                                <input class="g-button" type="submit" value="Apply">
-                                <input class="g-button" type="submit" value="Cancel">
+                            <div class="header">
+                                <div class="g-list-item" data-active-skill></div>
                             </div>
-                            <div class="s-skill-info" data-skill-info>
-                                <div data-title></div>
-                                <div class="g-field">
-                                    <div>Attack Speed</div>
-                                    <var data-stat="attackSpeed"></var>
+                            <div class="content">
+                                <ul class="g-list-v" data-skill-list></ul>
+                                <div class="s-skill-info" data-skill-info>
+                                    <div data-title></div>
+                                    <div class="g-field">
+                                        <div>Attack Speed</div>
+                                        <i data-stat="attackSpeed"></i>
+                                    </div>
+                                    <div class="g-field">
+                                        <div>Mana Cost</div>
+                                        <i data-stat="manaCost"></i>
+                                    </div>
+                                    <div class="g-field">
+                                        <div>Base Damage Multiplier</div>
+                                        <i data-stat="baseDamageMultiplier"></i>
+                                    </div>
+                                    <ul data-mod-list></ul>
                                 </div>
-                                <div class="g-field">
-                                    <div>Mana Cost</div>
-                                    <var data-stat="manaCost"></var>
-                                </div>
-                                <div class="g-field">
-                                    <div>Base Damage Multiplier</div>
-                                    <var data-stat="baseDamageMultiplier"></var>
-                                </div>
-                                <ul data-mod-list></ul>
+                            </div>
+                            <div class="footer">
+                                <input class="g-button" type="submit" value="Apply" data-apply>
+                                <input class="g-button" type="submit" value="Cancel">
                             </div>
                         </form>
                     </dialog>
                 </div>
-            </div>
-        </div>
-        <div class="p-skills" data-tab-content="skills">
-            <ul class="s-skill-list g-list-v" data-skill-list></ul>
-            <div class="s-skill-info" data-skill-info>
-                <div data-title></div>
-                <div class="g-field">
-                    <div>Attack Speed</div>
-                    <var data-stat="attackSpeed"></var>
-                </div>
-                <div class="g-field">
-                    <div>Mana Cost</div>
-                    <var data-stat="manaCost"></var>
-                </div>
-                <div class="g-field">
-                    <div>Base Damage Multiplier</div>
-                    <var data-stat="baseDamageMultiplier"></var>
-                </div>
-                <ul data-mod-list></ul>
-                <div class="g-button" data-enable>Enable</div>
             </div>
         </div>
         <div class="p-items hidden" data-tab-content="items">
@@ -107,7 +86,7 @@
             </div>
             <div class="s-craft-container">
                 <ul class="g-list-v" data-craft-list></ul>
-                <div class="g-button" data-craft-button>Craft</div>
+                <button class="g-button" data-craft-button>Craft</button>
                 <div data-craft-message></div>
             </div>
             <dialog data-modal data-preset-modal>

@@ -13,38 +13,40 @@
         ]
     },
     "skills": {
-        "skillList": [
-            {
-                "name": "Default Attack",
-                "levelReq": 1,
-                "attackSpeed": 1,
-                "manaCost": 1,
-                "baseDamageMultiplier": 100,
-                "mods": [ "+{100}% Hit Chance" ]
-            },
-            {
-                "name": "Super Attack",
-                "levelReq": 2,
-                "attackSpeed": 0.65,
-                "manaCost": 3,
-                "baseDamageMultiplier": 250,
-                "mods": [
-                    "+{80}% Hit Chance"
-                ]
-            },
-            {
-                "name": "Critical Attack",
-                "levelReq": 3,
-                "attackSpeed": 1.2,
-                "manaCost": 5,
-                "baseDamageMultiplier": 180,
-                "mods": [
-                    "+{60}% Hit Chance",
-                    "+{20}% Critical Hit Chance",
-                    "+{80}% Critical Hit Multiplier"
-                ]
-            }
-        ]
+        "attackSkills": {
+            "skillList": [
+                {
+                    "name": "Default Attack",
+                    "levelReq": 1,
+                    "attackSpeed": 1,
+                    "manaCost": 1,
+                    "baseDamageMultiplier": 100,
+                    "mods": [ "+{100}% Hit Chance" ]
+                },
+                {
+                    "name": "Super Attack",
+                    "levelReq": 2,
+                    "attackSpeed": 0.65,
+                    "manaCost": 3,
+                    "baseDamageMultiplier": 250,
+                    "mods": [
+                        "+{80}% Hit Chance"
+                    ]
+                },
+                {
+                    "name": "Critical Attack",
+                    "levelReq": 3,
+                    "attackSpeed": 1.2,
+                    "manaCost": 5,
+                    "baseDamageMultiplier": 180,
+                    "mods": [
+                        "+{60}% Hit Chance",
+                        "+{20}% Critical Hit Chance",
+                        "+{80}% Critical Hit Multiplier"
+                    ]
+                }
+            ]
+        }
     },
     "items": {
         "itemList": [

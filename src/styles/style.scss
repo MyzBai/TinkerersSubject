@@ -28,6 +28,8 @@ $color-global-button-accent-disabled-bg: #1a51a3;
 
 $color-scrollbar-thumb-background: rgba(110, 118, 129, 0.4);
 
+$padding-button: 0.3em;
+
 :root {
     font-size: 20px;
     font-family: serif;
@@ -72,12 +74,20 @@ body {
     box-sizing: border-box;
 }
 
-i, var{
+i,
+var {
     font-style: normal;
 }
 
-h2{
+h2 {
     margin: 0;
+}
+
+button {
+    background-color: transparent;
+    border: 0;
+    font-size: inherit;
+    font-family: inherit;
 }
 
 *.hidden {
@@ -103,17 +113,24 @@ dialog[data-modal] {
     background-color: $color-canvas-default;
     border: 1px solid $color-modal-border;
     padding: 0;
-    max-height: 80vh;
+    height: clamp(60vh, 80vh, 95vh);
+    // max-height: 80vh;
     border-radius: 0.3em;
     & > form {
         padding: 2em;
-        max-height: 80vh;
-        input[type="submit"] {
-            background-color: $color-modal-confirm-bg;
-
-            &[data-cancel] {
+        // max-height: 80vh;
+        height: 100%;
+        input[type=submit] {
+            min-width: 5em;
+            &[value=Apply] {
+                background-color: $color-modal-confirm-bg;
+            }
+            &[value=Cancel] {
                 background-color: $color-modal-cancel-bg;
             }
+        }
+
+        .footer {
         }
     }
     &::backdrop {
@@ -153,32 +170,31 @@ input[type="submit"] {
 .g-accordion {
     position: relative;
     cursor: default;
-    .header{
+    .header {
         display: flex;
         background-color: $color-accordion-header-bg;
-        &:hover{
+        &:hover {
             background-color: $color-accordion-hover-bg;
         }
-        :first-child{
+        :first-child {
             flex: 1;
         }
-        i:last-child::after{
-            content: '\002B';
+        i:last-child::after {
+            content: "\002B";
             position: absolute;
             right: 0.3em;
             color: $color-fg-default;
-            
         }
-        &[data-open]{
-            i:last-child::after{
-                content: '\2212';
+        &[data-open] {
+            i:last-child::after {
+                content: "\2212";
             }
         }
-        &[data-open] ~ .content{
+        &[data-open] ~ .content {
             display: block;
         }
     }
-    .content{
+    .content {
         display: none;
     }
 }
@@ -195,7 +211,7 @@ input[type="submit"] {
 
 .g-button {
     display: inline-block;
-    padding: 0.3em;
+    padding: $padding-button;
     cursor: default;
     user-select: none;
     border-radius: 3px;
@@ -232,18 +248,18 @@ input[type="submit"] {
         text-align: center;
         flex-wrap: wrap;
     }
+}
 
-    .g-list-item {
-        padding: 0.3em;
-        cursor: default;
-        user-select: none;
-        &.selected {
-            position: relative;
-            background-color: $color-action-list-item-default-selected-bg;
-        }
-        &:hover {
-            background-color: $color-action-list-item-default-hover-bg;
-        }
+.g-list-item{
+    padding: $padding-button;
+    cursor: default;
+    user-select: none;
+    &.selected {
+        position: relative;
+        background-color: $color-action-list-item-default-selected-bg;
+    }
+    &:hover {
+        background-color: $color-action-list-item-default-hover-bg;
     }
 }
 
@@ -256,7 +272,7 @@ input[type="submit"] {
         word-wrap: break-word;
     }
     & > :nth-child(2) {
-        padding-left: 1em;
+        // padding-left: 1em;
     }
 }
 
@@ -276,10 +292,10 @@ input[type="submit"] {
     line-height: 0.4em;
 }
 
-[data-insufficient-cost]{
+[data-insufficient-cost] {
     color: $color-var-invalid-fg;
 }
-[data-highlight]{
+[data-highlight] {
     border-left: 0.2em solid $color-highlight-border-bg;
 }
 /*#endregion Global*/
@@ -313,14 +329,14 @@ body > header {
     & > menu,
     [data-tab-content],
     & > .s-stats {
-        padding: 0.3em;
+        padding: $padding-button;
     }
 
     .p-combat {
         display: grid;
         grid-template-rows: 1fr 1fr;
 
-        .s-enemy{
+        .s-enemy {
             .s-healthbar-background {
                 background-color: $color-healthbar-bg;
                 .healthbar {
@@ -330,7 +346,7 @@ body > header {
             }
         }
 
-        .s-player{
+        .s-player {
             .s-manabar-background {
                 background-color: $color-manabar-bg;
                 .manabar {
@@ -338,78 +354,55 @@ body > header {
                     width: 45%;
                 }
             }
-
-            [data-modal]{
-                form{
+            .s-skills {
+                [data-skill] {
+                    i:last-child {
+                        padding: $padding-button;
+                    }
+                }
+            }
+            [data-attack-skill] {
+                div:first-child {
+                    padding: $padding-button;
+                }
+            }
+            [data-modal] {
+                form {
                     display: grid;
-                    grid-template-columns: minmax(5em, 10em) auto;
                     grid-template-rows: auto 1fr auto;
+                    // height: 70vh;
 
-                    ul[data-skill-list]{
+                    .header {
+                        [data-active-skill] {
+                            display: block;
+                            margin-bottom: 0.3em;
+                            border-bottom: 1px solid rgb(48, 48, 48);
+                        }
                     }
-                    .s-skill-info{
-                        grid-column: 2;
-                        grid-row: 1 / span 3;
-                    }
+                    .content {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
 
-                    .s-submits{
+                        ul {
+                            text-align: left;
+                        }
+                        .s-skill-info {
+                            [data-title] {
+                                text-align: center;
+                                font-size: 1.1rem;
+                            }
+                            [data-mod-list] {
+                                text-align: center;
+                            }
+                        }
+                    }
+                    .footer {
                         margin-top: 1em;
-                        grid-column: span 2;
-                        grid-row: 4;
+
+                        .g-button {
+                            min-width: 5em;
+                        }
                     }
-                }
-
-        
-            }
-        }
-
-    }
-
-    .p-skills {
-        display: grid;
-        grid-template-columns: 1fr clamp(0.3fr, 0.6fr, 1fr);
-
-        ul.s-skill-list {
-            text-align: left;
-
-            li.enabled {
-                border-left: 0.3em solid $color-global-button-accent-disabled-bg;
-            }
-        }
-
-        .s-skill-info {
-            display: flex;
-            flex-direction: column;
-            justify-items: center;
-            background-color: $color-canvas-default;
-            padding: 0 1em;
-
-            [data-title] {
-                text-align: center;
-                font-size: 1rem;
-                padding: 0.3em;
-                color: $color-accent-fg;
-            }
-
-            .g-field {
-                white-space: nowrap;
-            }
-
-            [data-mod-list] {
-                text-align: center;
-                padding: 0.4em 0;
-            }
-            [data-enable] {
-                align-self: center;
-                margin-top: 12px;
-                padding-left: 12px;
-                padding-right: 12px;
-
-                &[disabled] {
-                    background-color: $color-global-button-accent-disabled-bg;
-                }
-                &:not([disabled]) {
-                    background-color: $color-global-button-accent-bg;
                 }
             }
         }
@@ -452,8 +445,8 @@ body > header {
                 color: rgb(148, 35, 35);
                 padding: 0.2em;
 
-                &::before{
-                    content: '\2063';
+                &::before {
+                    content: "\2063";
                 }
             }
         }
@@ -475,35 +468,35 @@ body > header {
                 padding: 0;
                 padding-bottom: 0.5em;
             }
-
-   
         }
     }
 
-    .p-achievements{
+    .p-achievements {
         display: grid;
         min-height: 0;
-        ul{
+        ul {
             overflow-y: auto;
         }
-        .g-accordion{
-            .header{
-                padding: 0.3em;
+        .g-accordion {
+            .header {
+                padding: $padding-button;
                 margin-bottom: 1px;
-                var{
+                var {
                     color: $color-var-invalid-fg;
-                    &[data-valid]{
+                    &[data-valid] {
                         color: $color-var-valid-fg;
                     }
                 }
             }
-            .content{
+            .content {
                 padding-left: 0.6em;
             }
         }
     }
 
-    // .s-stats {
-    
-    // }
+    .s-stats {
+        li > :last-child {
+            padding-left: 1em;
+        }
+    }
 }

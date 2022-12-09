@@ -21,21 +21,13 @@ export interface Enemies {
 }
 export interface Skills {
     attackSkills: {
-        name: string;
-        attackSpeed: number;
-        manaCost: number;
-        baseDamageMultiplier: number;
-        levelReq: number;
-        mods?: Mod[];
-    }[];
-    buffs: {
-        
-        buffList: {
+        skillList: {
             name: string;
-            baseDurationSeconds: number;
-            baseManaCost: number;
+            attackSpeed: number;
+            manaCost: number;
+            baseDamageMultiplier: number;
             levelReq: number;
-            mods: Mod[];
+            mods?: Mod[];
         }[]
     };
 }
