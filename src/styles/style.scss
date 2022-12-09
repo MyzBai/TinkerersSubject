@@ -76,6 +76,10 @@ i, var{
     font-style: normal;
 }
 
+h2{
+    margin: 0;
+}
+
 *.hidden {
     display: none !important;
 }
@@ -96,6 +100,8 @@ dialog {
 }
 
 dialog[data-modal] {
+    background-color: $color-canvas-default;
+    border: 1px solid $color-modal-border;
     padding: 0;
     max-height: 80vh;
     border-radius: 0.3em;
@@ -109,6 +115,9 @@ dialog[data-modal] {
                 background-color: $color-modal-cancel-bg;
             }
         }
+    }
+    &::backdrop {
+        backdrop-filter: blur(1px);
     }
 }
 
@@ -308,20 +317,52 @@ body > header {
     }
 
     .p-combat {
-        .s-healthbar-background {
-            background-color: $color-healthbar-bg;
-            .healthbar {
-                background-color: $color-healthbar-fg;
-                width: 60%;
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+
+        .s-enemy{
+            .s-healthbar-background {
+                background-color: $color-healthbar-bg;
+                .healthbar {
+                    background-color: $color-healthbar-fg;
+                    width: 60%;
+                }
             }
         }
-        .s-manabar-background {
-            background-color: $color-manabar-bg;
-            .manabar {
-                background-color: $color-manabar-fg;
-                width: 45%;
+
+        .s-player{
+            .s-manabar-background {
+                background-color: $color-manabar-bg;
+                .manabar {
+                    background-color: $color-manabar-fg;
+                    width: 45%;
+                }
+            }
+
+            [data-modal]{
+                form{
+                    display: grid;
+                    grid-template-columns: minmax(5em, 10em) auto;
+                    grid-template-rows: auto 1fr auto;
+
+                    ul[data-skill-list]{
+                    }
+                    .s-skill-info{
+                        grid-column: 2;
+                        grid-row: 1 / span 3;
+                    }
+
+                    .s-submits{
+                        margin-top: 1em;
+                        grid-column: span 2;
+                        grid-row: 4;
+                    }
+                }
+
+        
             }
         }
+
     }
 
     .p-skills {
@@ -418,11 +459,6 @@ body > header {
         }
 
         [data-preset-modal] {
-            background-color: $color-canvas-default;
-            border: 1px solid $color-modal-border;
-
-            // display: flex;
-            // flex-direction: column;
             form {
                 display: grid;
                 grid-template-rows: auto auto 1fr auto;
@@ -440,9 +476,7 @@ body > header {
                 padding-bottom: 0.5em;
             }
 
-            &::backdrop {
-                backdrop-filter: blur(1px);
-            }
+   
         }
     }
 

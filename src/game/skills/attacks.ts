@@ -1,47 +1,20 @@
-import type { Skills } from "@src/types/gconfig";
-import { Modifier, StatModifier } from "@game/mods";
-import { modDB, playerStats } from "@game/player";
-import { Save } from "./save";
-
-document.querySelector('.p-skills .s-skill-info [data-enable]')?.addEventListener('click', () => Skill.selected.enable());
+import type { GConfig } from "@src/types/gconfig";
+import { Modifier, StatModifier } from "../mods";
+import { modDB, playerStats } from "../player";
 
 const skills: Skill[] = [];
 
-export function init(data: Skills) {
-    data.skillList.sort((a, b) => a.levelReq - b.levelReq);
-    if (data.skillList[0].levelReq > 1) {
-        throw new Error('Skill levelReq at 0 index must have a minimum value of 1');
-    }
-
-    for (const skillData of data.skillList) {
-        const mods = skillData.mods?.map(x => new Modifier(x)) || [];
-        const skill = new Skill({
-            name: skillData.name,
-            levelReq: skillData.levelReq,
-            attackSpeed: skillData.attackSpeed,
-            manaCost: skillData.manaCost,
-            baseDamageMultiplier: skillData.baseDamageMultiplier,
-            mods
-        });
-
+export function init(data: GConfig['skills']['attackSkills']) {
+    for (const skillData of data) {
+        const skill = new Skill(skillData);
         skills.push(skill);
     }
-
-    document.querySelector('.p-skills ul[data-skill-list]')?.replaceChildren(...skills.map(x => x.element));
-    skills[0].select();
-    skills[0].enable();
 }
 
-interface SkillParams {
-    name: string;
-    levelReq: number;
-    attackSpeed: number;
-    baseDamageMultiplier: number;
-    manaCost: number;
-    mods: Modifier[];
-}
+export function 
 
-export class Skill {
+
+class Skill {
     static enabled: Skill;
     static selected: Skill;
     #name: string;
@@ -52,14 +25,9 @@ export class Skill {
     #mods: Modifier[];
     #element: HTMLElement;
     #unlockId: number;
-    constructor(params: SkillParams) {
-        this.#name = params.name;
-        this.#levelReq = params.levelReq;
-        this.#attackSpeed = params.attackSpeed;
-        this.#baseDamageMultiplier = params.baseDamageMultiplier;
-        this.#manaCost = params.manaCost;
-        this.#mods = params.mods;
-
+    constructor(args: GConfig['skills']['attackSkills'][number]) {
+        Object.assign(this, args);
+        
         this.#element = this.#createElement();
 
         this.#unlockId = playerStats.level.onChange.listen(() => this.#tryUnlock());
@@ -143,16 +111,4 @@ export class Skill {
         });
         return element;
     }
-}
-
-export function saveSkills(saveObj: Save) {
-    saveObj.skills = {
-        activeSkillName: Skill.enabled.name
-    }
-}
-
-export function loadSkills(saveObj: Save) {
-    const skill = skills.find(x => x.name === saveObj.skills.activeSkillName) || skills[0];
-    skill.select();
-    skill.enable();
 }

@@ -20,14 +20,24 @@ export interface Enemies {
     enemyList: number[];
 }
 export interface Skills {
-    skillList: {
+    attackSkills: {
         name: string;
         attackSpeed: number;
         manaCost: number;
         baseDamageMultiplier: number;
         levelReq: number;
         mods?: Mod[];
-    }[]
+    }[];
+    buffs: {
+        
+        buffList: {
+            name: string;
+            baseDurationSeconds: number;
+            baseManaCost: number;
+            levelReq: number;
+            mods: Mod[];
+        }[]
+    };
 }
 export interface ItemMod {
     levelReq: number;

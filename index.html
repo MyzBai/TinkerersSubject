@@ -24,11 +24,51 @@
             <li class="g-list-item" data-tab-target="statistics">Statistics</li>
         </menu>
         <div class="p-combat" data-tab-content="combat">
-            <div class="s-healthbar-background g-progressbar-background">
-                <div class="healthbar g-progressbar" data-healthbar></div>
+            <div class="s-enemy">
+                <div class="s-healthbar-background g-progressbar-background">
+                    <div class="healthbar g-progressbar" data-healthbar></div>
+                </div>
             </div>
-            <div class="s-manabar-background g-progressbar-background">
-                <div class="manabar g-progressbar" data-manabar></div>
+            <div class="s-player">
+                <div class="s-manabar-background g-progressbar-background">
+                    <div class="manabar g-progressbar" data-manabar></div>
+                </div>
+                <div class="s-skills">
+                    <div class="g-field" data-attack-skill>
+                        <div class="g-button" style="pointer-events: none;">Default Attack</div>
+                        <i class="g-button">Change</i>
+                    </div>
+                    <div class="g-field" data-buff>
+                        <div class="g-button">Supa Powa</div>
+                        <i class="g-button">Change</i>
+                    </div>
+                    <dialog data-modal data-skill-modal>
+                        <form method="dialog">
+                            <h2>Select Skill</h2>
+                            <ul class="g-list-v" data-skill-list></ul>
+                            <div class="s-submits">
+                                <input class="g-button" type="submit" value="Apply">
+                                <input class="g-button" type="submit" value="Cancel">
+                            </div>
+                            <div class="s-skill-info" data-skill-info>
+                                <div data-title></div>
+                                <div class="g-field">
+                                    <div>Attack Speed</div>
+                                    <var data-stat="attackSpeed"></var>
+                                </div>
+                                <div class="g-field">
+                                    <div>Mana Cost</div>
+                                    <var data-stat="manaCost"></var>
+                                </div>
+                                <div class="g-field">
+                                    <div>Base Damage Multiplier</div>
+                                    <var data-stat="baseDamageMultiplier"></var>
+                                </div>
+                                <ul data-mod-list></ul>
+                            </div>
+                        </form>
+                    </dialog>
+                </div>
             </div>
         </div>
         <div class="p-skills" data-tab-content="skills">
@@ -74,11 +114,11 @@
                 <form method="dialog">
                     <h2>Craft Preset</h2>
                     <input type="text" data-name>
-                    <div class="g-list-v" data-craft-list></div>
-                    <div>
+                    <div class="s-submits">
                         <input class="g-button" type="submit" value="Apply">
                         <input class="g-button" type="submit" value="Cancel" data-cancel>
                     </div>
+                    <div class="g-list-v" data-craft-list></div>
                 </form>
             </dialog>
         </div>
@@ -137,11 +177,11 @@
 
     <script>
         {
-            document.querySelector('.p-items dialog[data-modal]').addEventListener('mousedown', x => {
+            document.querySelectorAll('dialog[data-modal]').forEach(x => x.addEventListener('mousedown', x => {
                 if (x.target === x.currentTarget) {
                     x.target.close();
                 }
-            });
+            }));
         }
 
         document.querySelectorAll('.g-accordion').forEach(accordion => {

@@ -1,7 +1,7 @@
 import { initTabs, isLocalHost } from "@utils/helpers";
 import { init as initPlayer, setup as setupPlayer, playerStats } from './player';
 import { init as initEnemy } from './enemy';
-import { init as initSkills } from './skills';
+import { init as initSkills } from './skills/skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
