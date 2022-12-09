@@ -41,13 +41,4 @@ export default class Value<T>{
         this.#value = this.#defaultValue;
         this.#onChange.removeAllListeners();
     }
-
 }
-
-// export class Number extends Value<number>{
-//     constructor(defaultValue = 0){
-//         super(defaultValue);
-//     }
-
-
-// }

@@ -44,10 +44,7 @@ export async function init(module: GConfig) {
 
     initSkills(module.skills);
 
-    loadComponents({
-        items: module.items,
-        achievements: module.achievements,
-    });
+    loadComponents(module);
 
     gameLoop.subscribe(() => {
         statistics["Time Played"].add(1);
