@@ -164,24 +164,20 @@
         },
         "craftList": [
             { "id": "reforge", "cost": 10, "levelReq": 1 },
-            { "id": "reforgeIncludePhysical", "cost": 100, "levelReq": 1 },
-            { "id": "reforgeIncludeCritical", "cost": 100, "levelReq": 1 },
-            { "id": "reforgeIncludeMana", "cost": 100, "levelReq": 1 },
+            { "id": "reforgeIncludePhysical", "cost": 100, "levelReq": 5 },
+            { "id": "reforgeIncludeCritical", "cost": 100, "levelReq": 5 },
+            { "id": "reforgeIncludeMana", "cost": 100, "levelReq": 5 },
 
             { "id": "addRandom", "cost": 200, "levelReq": 1 },
-            { "id": "addPhysical", "cost": 200, "levelReq": 1 },
-            { "id": "addCritical", "cost": 200, "levelReq": 1 },
-            { "id": "addMana", "cost": 200, "levelReq": 1 },
+            { "id": "addPhysical", "cost": 200, "levelReq": 5 },
+            { "id": "addCritical", "cost": 200, "levelReq": 5 },
+            { "id": "addMana", "cost": 200, "levelReq": 5 },
 
-            { "id": "removeRandom", "cost": 200, "levelReq": 1 },
-
-            { "id": "removeRandomAddPhysical", "cost": 500, "levelReq": 1 },
-            { "id": "removeRandomAddCritical", "cost": 500, "levelReq": 1 },
-            { "id": "removeRandomAddMana", "cost": 500, "levelReq": 1 }
+            { "id": "removeRandom", "cost": 200, "levelReq": 5 }
         ]
     },
     "achievements": {
-        "unlockWhen": { "level": 3 },
+        "levelReq": 3,
         "list": [
             { "description": "Reach Level {10}" },
             { "description": "Deal Physical Damage {10000}", "modList": [ "{10}% More Physical Damage" ] },
