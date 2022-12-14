@@ -210,12 +210,20 @@ export class Modifier {
         });
     }
 
-    compare(other: Modifier) {
-        return modTemplates.findIndex(x => x.desc === this.templateDesc) - modTemplates.findIndex(x => x.desc === other.templateDesc);
-    }
     static compare(a: Modifier, b: Modifier) {
         return a.compare(b);
     }
+    static sort(a: Modifier, b: Modifier) {
+        return a.sort(b);
+    }
+    sort(other: Modifier){
+        return modTemplates.findIndex(x => x.desc === this.templateDesc) - modTemplates.findIndex(x => x.desc === other.templateDesc);
+    }
+
+    compare(other: Modifier) {
+        this.templateDesc === other.templateDesc;
+    }
+
     copy() {
         return new Modifier(this.text);
     }
