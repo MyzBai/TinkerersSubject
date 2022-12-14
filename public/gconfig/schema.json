@@ -64,7 +64,7 @@
                             "minItems": 1,
                             "items": {
                                 "type": "object",
-                                "required": ["levelReq"],
+                                "required": [ "levelReq" ],
                                 "properties": {
                                     "levelReq": {
                                         "type": "integer",
@@ -98,7 +98,7 @@
             "type": "object",
             "required": [ "itemList", "craftList", "modTables" ],
             "properties": {
-                "unlockWhen": { "$ref": "#/definitions/unlockWhen" },
+                "levelReq": { "$ref": "#/definitions/levelReq" },
                 "itemList": {
                     "type": "array",
                     "items": {
@@ -154,7 +154,7 @@
         "achievements": {
             "type": "object",
             "properties": {
-                "unlockWhen": { "$ref": "#/definitions/unlockWhen" },
+                "levelReq": { "$ref": "#/definitions/levelReq" },
                 "list": {
                     "type": "array",
                     "items": {
@@ -213,12 +213,9 @@
                 { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
             ]
         },
-        "unlockWhen": {
-            "type": "object",
-            "description": "Will be hidden/locked until requirements are met",
-            "properties": {
-                "level": { "type": "integer", "minimum": 1 }
-            }
+        "levelReq": {
+            "type": "integer",
+            "minimum": 1
         }
     }
 }
