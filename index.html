@@ -64,7 +64,7 @@
                             <button class="g-button" data-value="cancel">Cancel</button>
                         </footer>
                     </div>
-         
+
                 </div>
                 <div class="g-modal s-skill-modal hidden" data-buff-skill-modal data-modal-type="relative">
                     <div class="wrapper">
@@ -89,20 +89,16 @@
                             <button class="g-button" data-value="cancel">Cancel</button>
                         </footer>
                     </div>
-         
+
                 </div>
             </div>
             <div class="p-items hidden" data-tab-content="items">
                 <menu class="g-list-v" data-item-list></menu>
-                <div class="s-item-container">
-
-                    <ul data-mod-list></ul>
-                </div>
+                <ul data-mod-list></ul>
                 <div class="s-preset-container">
                     <menu class="g-toolbar s-preset-toolbar g-list-h">
                         <div class="g-list-item" data-new>New</div>
                         <div class="g-list-item" data-edit>Edit</div>
-                        <div class="g-list-item" data-remove>Remove</div>
                     </menu>
                     <menu class="g-list-v" data-preset-list></menu>
                 </div>
@@ -122,6 +118,20 @@
                         </footer>
                     </form>
                 </dialog>
+                <div class="g-modal hidden" data-craft-preset-modal data-modal-type="relative">
+                    <div class="wrapper">
+                        <section>
+                            <h2>Craft Preset</h2>
+                            <input type="text" data-name>
+                            <div class="g-list-v" data-craft-list></div>
+                        </section>
+                        <footer>
+                            <button class="g-button" data-value="apply">Apply</button>
+                            <button class="g-button" data-value="delete">Delete</button>
+                            <button class="g-button" data-value="cancel">Cancel</button>
+                        </footer>
+                    </div>
+                </div>
             </div>
             <div class="p-achievements hidden" data-tab-content="achievements">
                 <ul></ul>
@@ -187,7 +197,7 @@
         }
         {
             document.querySelectorAll('.g-modal').forEach(x => x.addEventListener('mousedown', x => {
-                if(x.target === x.currentTarget){
+                if (x.target === x.currentTarget) {
                     x.target.classList.add('hidden');
                 }
             }));
