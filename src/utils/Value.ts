@@ -1,44 +1,39 @@
 import EventEmitter from "./EventEmitter";
 
 export default class Value<T>{
-    #defaultValue: T;
-    #value: T;
-    #onChange: EventEmitter<T>;
+    private readonly defaultValue: T;
+    private value: T;
+    private _onChange: EventEmitter<T>;
     constructor(defaultValue: T) {
-        this.#defaultValue = defaultValue;
-        this.#value = defaultValue;
-        this.#onChange = new EventEmitter<T>();
+        this.defaultValue = defaultValue;
+        this.value = defaultValue;
+        this._onChange = new EventEmitter<T>();
     }
 
-    get value() {
-        return this.#value;
-    }
-    get onChange() {
-        return this.#onChange;
-    }
+    get onChange() { return this._onChange; }
 
     set(v: T) {
-        this.#value = v;
-        this.#onChange.invoke(this.#value);
+        this.value = v;
+        this.onChange.invoke(this.value);
     }
     get() {
-        return this.#value;
+        return this.value;
     }
     add(v: number) {
-        if (typeof this.#value === 'number') {
-            (this.#value as number) += v;
-            this.#onChange.invoke(this.#value);
+        if (typeof this.value === 'number') {
+            (this.value as number) += v;
+            this.onChange.invoke(this.value);
         }
     }
     subtract(v: number) {
-        if (typeof this.#value === 'number') {
-            (this.#value as number) -= v;
-            this.#onChange.invoke(this.#value);
+        if (typeof this.value === 'number') {
+            (this.value as number) -= v;
+            this.onChange.invoke(this.value);
         }
     }
 
-    reset(){
-        this.#value = this.#defaultValue;
-        this.#onChange.removeAllListeners();
+    reset() {
+        this.value = this.defaultValue;
+        this.onChange.removeAllListeners();
     }
 }

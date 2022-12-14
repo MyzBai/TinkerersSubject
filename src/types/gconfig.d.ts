@@ -30,6 +30,18 @@ export interface Skills {
             mods?: Mod[];
         }[]
     };
+    buffSkills: {
+        skillSlots?: {
+            levelReq: number;
+        }[]
+        skillList: {
+            name: string;
+            baseDuration: number;
+            manaCost: number;
+            levelReq: number;
+            mods?: Mod[];
+        }[]
+    }
 }
 export interface ItemMod {
     levelReq: number;

@@ -6,34 +6,38 @@ export type ModifierTag = 'Gold' | 'Physical' | 'Speed' | 'Mana' | 'Critical';
 export type StatModifierValueType = 'Base' | 'Inc' | 'More';
 //#region Mod Description
 export type ModDescription =
-    '#% Increased Physical Damage' |
-    '#% More Physical Damage' |
-    'Adds # To # Physical Damage' |
-    '+#% Hit Chance' |
-    '#% Increased Attack Speed' |
-    '#% More Attack Speed' |
-    '#% Increased Maximum Mana' |
-    '+# Maximum Mana' |
-    '+# Mana Regeneration' |
-    '+#% Critical Hit Chance' |
-    '+#% Critical Hit Multiplier' |
-    '+# Gold Per Second'
+    | '#% Increased Physical Damage'
+    | '#% More Physical Damage'
+    | '#% More Damage'
+    | 'Adds # To # Physical Damage'
+    | '+#% Hit Chance'
+    | '#% Increased Attack Speed'
+    | '#% More Attack Speed'
+    | '#% Increased Maximum Mana'
+    | '+# Maximum Mana'
+    | '+# Mana Regeneration'
+    | '+#% Critical Hit Chance'
+    | '+#% Critical Hit Multiplier'
+    | '+# Gold Per Second'
+    | '#% Increased Gold Per Second'
+    | '#% Increased Skill Duration'
     ;
 
 //#endregion Mod Description
 
 //#region Stat Name
 export type StatName =
-    'GoldPerSecond' |
-    DamageStatName |
-    'AttackManaCost' |
-    'AttackSpeed' |
-    'HitChance' |
-    'CritChance' |
-    'CritMulti' |
-    'ManaRegen' |
-    'MaxMana' |
-    'Gold';
+    | 'GoldPerSecond'
+    | DamageStatName
+    | 'AttackManaCost'
+    | 'AttackSpeed'
+    | 'HitChance'
+    | 'CritChance'
+    | 'CritMulti'
+    | 'ManaRegen'
+    | 'MaxMana'
+    | 'Gold'
+    | 'Duration';
 //#endregion Stat Name
 
 //#region Damage Stat Name
@@ -42,12 +46,6 @@ type DamageStatName =
     'Damage' |
     'MinDamage' |
     'MaxDamage' |
-    'MinPhysicalDamage' |
-    'MaxPhysicalDamage' |
-    'MinElementalDamage' |
-    'MaxElementalDamage' |
-    'MinChaosDamage' |
-    'MaxChaosDamage' |
     'ElementalConvertedToPhysical' |
     'ChaosConvertedToPhysical' |
     'ChaosConvertedToElemental' |
@@ -85,7 +83,8 @@ export const StatModifierFlags = {
     Attack: 1 << 1,
     Physical: 1 << 2,
     Elemental: 1 << 3,
-    Chaos: 1 << 4
+    Chaos: 1 << 4,
+    Skill: 1 << 5
 } as const;
 
 
@@ -100,6 +99,11 @@ export const modTemplates: ModTemplate[] = [
         desc: '#% More Physical Damage',
         tags: ['Physical'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical }]
+    },
+    {
+        desc: '#% More Damage',
+        tags: [],
+        stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical | StatModifierFlags.Elemental | StatModifierFlags.Chaos }]
     },
     {
         desc: 'Adds # To # Physical Damage',
@@ -151,26 +155,39 @@ export const modTemplates: ModTemplate[] = [
         tags: ['Gold'],
         stats: [{ name: 'GoldPerSecond', valueType: 'Base' }],
     },
+    {
+        desc: '#% Increased Gold Per Second',
+        tags: ['Gold'],
+        stats: [{ name: 'GoldPerSecond', valueType: 'Inc' }],
+    },
+    {
+        desc: '#% Increased Skill Duration',
+        tags: ['Gold'],
+        stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Skill }],
+    },
 ];
 
 export class Modifier {
 
-    #text: Mod;
-    #template: ModTemplate;
-    #tags: ModifierTag[] = [];
-    #stats: StatModifier[] = [];
-
+    readonly text: Mod;
+    readonly template: ModTemplate;
+    readonly tags: ModifierTag[] = [];
+    readonly stats: StatModifier[] = [];
     constructor(text: Mod) {
-        this.#text = text;
+        this.text = text;
         const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
         const desc = text.replace(/{[^}]+}/g, '#');
-        const template = modTemplates.find((x) => x.desc === desc);
+        this.template = modTemplates.find((x) => x.desc === desc);
+        if (!this.template) {
+            throw Error('Failed to find mod template. Invalid mod description');
+        }
+        this.tags = this.template.tags;
 
-        this.#template = template;
-        this.#tags = [...template?.tags || []];
+        // this.#template = template;
+        // this.#tags = [...template?.tags || []];
 
-        for (const statTemplate of template.stats) {
-            const groups = match[template.stats.indexOf(statTemplate)].groups;
+        for (const statTemplate of this.template.stats) {
+            const groups = match[this.template.stats.indexOf(statTemplate)].groups;
             if (!groups) {
                 throw Error();
             }
@@ -178,27 +195,19 @@ export class Modifier {
             const min = parseFloat(v1);
             const max = parseFloat(v2) || min;
             const value = min;
-            this.#stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
+            this.stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
         }
     }
+
+    get templateDesc() { return this.template.desc; }
 
     get desc() {
         let i = 0;
         return this.templateDesc.replace(/#+/g, (x) => {
-            const stat = this.#stats[i++];
+            const stat = this.stats[i++];
             const value = stat.value?.toFixed(x.length - 1) || '#';
             return value;
         });
-    }
-
-    get templateDesc() {
-        return this.#template.desc;
-    }
-    get tags() {
-        return [...this.#tags]
-    }
-    get stats() {
-        return this.#stats;
     }
 
     compare(other: Modifier) {
@@ -208,72 +217,52 @@ export class Modifier {
         return a.compare(b);
     }
     copy() {
-        return new Modifier(this.#text);
+        return new Modifier(this.text);
     }
 }
 
 export class StatModifier {
 
-    #name: StatName;
-    #valueType: StatModifierValueType;
-    #value: number;
-    #flags?: number;
-    #min?: number;
-    #max?: number;
-    #source?: string;
+    readonly name: StatName;
+    readonly valueType: StatModifierValueType;
+    value: number;
+    readonly flags?: number;
+    readonly min?: number;
+    readonly max?: number;
+    source?: string;
     constructor(params: StatModifierParams) {
-        this.#name = params.name;
-        this.#valueType = params.valueType;
-        this.#flags = params.flags;
-        this.#min = params.min;
-        this.#max = params.max;
-        this.#value = params.value;
-        this.#source = params.source;
+        Object.assign(this, params);
     }
 
-    get name() { return this.#name; }
-    get valueType() { return this.#valueType; }
-    get flags() { return this.#flags; }
-    get min() { return this.#min; }
-    get max() { return this.#max; }
-    get value() { return this.#value; }
-    set value(v) { this.#value = v; }
-
-    get source() { return this.#source; }
-    set source(v: string | undefined) { this.#source = v; }
-
     randomizeValue() {
-        this.#value = Math.random() * (this.#max - this.#min) + this.#min;
+        this.value = Math.random() * (this.max - this.min) + this.min;
     }
 }
 
 export class ModDB {
-    #modList: StatModifier[];
-    #onChange = new EventEmitter<StatModifier[]>();
+    private _modList: StatModifier[];
+    public readonly onChange: EventEmitter<StatModifier[]>;
     constructor() {
-        this.#modList = [];
+        this._modList = [];
+        this.onChange = new EventEmitter<StatModifier[]>();
     }
 
-    get modList() {
-        return this.#modList;
-    }
-    get onChange() { return this.#onChange; }
-
+    get modList() { return this._modList; }
 
     add(statMods: StatModifier[], source: string) {
         statMods.forEach(x => x.source = source);
-        this.#modList.push(...statMods);
-        this.#onChange.invoke([...this.modList]);
+        this.modList.push(...statMods);
+        this.onChange.invoke([...this.modList]);
     }
 
     removeBySource(source: string) {
-        this.#modList = this.#modList.filter(x => !x || x.source != source);
-        this.#onChange.invoke([...this.modList]);
+        this._modList = this.modList.filter(x => !x || x.source != source);
+        this.onChange.invoke([...this.modList]);
     }
 
     clear() {
-        this.#modList.splice(0);
-        this.#onChange.invoke([...this.modList]);
+        this._modList = [];
+        this.onChange.invoke([...this.modList]);
     }
 
 

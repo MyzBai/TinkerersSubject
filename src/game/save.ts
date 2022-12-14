@@ -3,8 +3,8 @@ import type { CraftId } from "@src/types/gconfig"
 import type { ModDescription } from "./mods";
 import { saveItems, loadItems } from "./components/items/items";
 import { saveStatistics, loadStatistics } from "./statistics";
-import { loadPlayer, savePlayer } from "./player";
-import { loadSkills, saveSkills } from "./skills/skills";
+import { loadPlayer, savePlayer, setup as setupPlayer } from "./player";
+import { loadSkills, saveSkills } from "./skills";
 
 
 export type ModTemplate = { values: number[]; desc: ModDescription };
@@ -16,7 +16,8 @@ export interface Save {
         curMana: number;
     },
     skills?: {
-        activeSkillName: string;
+        attackSkillName: string;
+        buffSkillNames?: string[];
     },
     items?: {
         items: {
@@ -55,8 +56,10 @@ export async function load() {
     const saveStr = await blob.text();
 
     const saveObj = JSON.parse(atob(saveStr)) as Save;
+    loadPlayer(saveObj);
     loadSkills(saveObj);
     loadItems(saveObj);
     loadStatistics(saveObj);
-    loadPlayer(saveObj);
+
+    setupPlayer();
 }

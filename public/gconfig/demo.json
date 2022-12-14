@@ -46,6 +46,58 @@
                     ]
                 }
             ]
+        },
+        "buffSkills": {
+            "skillSlots": [
+                {
+                    "levelReq": 2
+                },
+                {
+                    "levelReq": 5
+                }, 
+                {
+                    "levelReq": 7
+                }
+            ],
+            "skillList": [
+                {
+                    "name": "More Damage",
+                    "levelReq": 1,
+                    "baseDuration": 30,
+                    "manaCost": 20,
+                    "mods": [
+                        "{30}% More Damage"
+                    ]
+                },
+                {
+                    "name": "Attack Speed",
+                    "levelReq": 1,
+                    "baseDuration": 60,
+                    "manaCost": 50,
+                    "mods": [
+                       "{30}% More Attack Speed"
+                    ]
+                }, 
+                {
+                    "name": "Critical Strike",
+                    "levelReq": 1,
+                    "baseDuration": 30,
+                    "manaCost": 30,
+                    "mods": [
+                        "+{20}% Critical Hit Chance",
+                        "+{100}% Critical Hit Multiplier"
+                    ]
+                }, 
+                {
+                    "name": "Gold",
+                    "levelReq": 5,
+                    "baseDuration": 30,
+                    "manaCost": 100,
+                    "mods": [
+                        "{50}% Increased Gold Per Second"
+                    ]
+                }
+            ]
         }
     },
     "items": {

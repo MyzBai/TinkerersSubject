@@ -1,7 +1,7 @@
 import { initTabs, isLocalHost } from "@utils/helpers";
 import { init as initPlayer, setup as setupPlayer, playerStats } from './player';
 import { init as initEnemy } from './enemy';
-import { init as initSkills } from './skills/skills';
+import { init as initSkills } from './skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
@@ -15,7 +15,8 @@ if (isLocalHost) {
         game: {
             playerStats,
             save: () => save(),
-            load: () => load()
+            load: () => load(),
+            restartAndLoad: async () => { await init(moduleCache); load(); }
         }
     }
     document.addEventListener('keydown', x => {
@@ -34,9 +35,10 @@ if (isLocalHost) {
 
 export const gameLoop: Loop = new Loop();
 
+let moduleCache: GConfig;
 
 export async function init(module: GConfig) {
-
+    moduleCache = module;
     gameLoop.reset();
 
     initEnemy(module.enemies);

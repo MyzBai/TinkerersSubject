@@ -9,7 +9,7 @@ import statistics from "./statistics";
 import type { Save } from "./save";
 
 const playerStatsContainer = document.querySelector('.p-game > .s-stats');
-const manabar = document.querySelector<HTMLElement>('.p-combat [data-manabar]');
+const manaBar = document.querySelector<HTMLElement>('.p-combat [data-mana-bar]');
 let statsUpdateId: number;
 
 export const modDB = new ModDB();
@@ -23,17 +23,8 @@ export const playerStats = Object.freeze({
     attackManaCost: new Value<number>(0),
     maxMana: new Value<number>(0),
     curMana: new Value<number>(0),
-    manaRegen: new Value<number>(0)
-});
-
-playerStats.level.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="level"]')!.textContent = x.toString());
-playerStats.gold.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="gold"]')!.textContent = x.toString());
-playerStats.curMana.onChange.listen(() => {
-    const maxMana = playerStats.maxMana.get();
-    if (playerStats.curMana.get() > maxMana) {
-        playerStats.curMana.set(maxMana);
-    }
-    updateManabar();
+    manaRegen: new Value<number>(0),
+    skillDurationMultiplier: new Value<number>(1)
 });
 
 onDeath.listen(index => {
@@ -44,6 +35,17 @@ onDeath.listen(index => {
 })
 
 export function init(data?: Player) {
+
+    Object.values(playerStats).forEach(x => x.reset());
+    playerStats.level.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="level"]')!.textContent = x.toString());
+    playerStats.gold.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="gold"]')!.textContent = x.toString());
+    playerStats.curMana.onChange.listen(() => {
+        const maxMana = playerStats.maxMana.get();
+        if (playerStats.curMana.get() > maxMana) {
+            playerStats.curMana.set(maxMana);
+        }
+        updatemanaBar();
+    });
 
     if (data) {
         data.modList.forEach(x => {
@@ -81,6 +83,7 @@ async function updateStats() {
             playerStats.maxMana.set(statsResult.maxMana);
             playerStats.manaRegen.set(statsResult.manaRegen);
             playerStats.attackManaCost.set(statsResult.attackManaCost);
+            playerStats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
             playerStatsContainer.querySelector('[data-stat="dps"]')!.textContent = statsResult.dps.toFixed();
             playerStatsContainer.querySelectorAll('[data-stat]').forEach(x => {
                 const attr = x.getAttribute('data-stat')! as keyof typeof statsResult;
@@ -96,9 +99,9 @@ async function updateStats() {
     });
 }
 
-function updateManabar() {
+function updatemanaBar() {
     const pct = playerStats.curMana.get() / playerStats.maxMana.get() * 100;
-    manabar.style.width = pct + '%';
+    manaBar.style.width = pct + '%';
 }
 
 function startAutoAttack() {

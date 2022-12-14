@@ -2,7 +2,7 @@ import Value from "@utils/Value";
 import type GConfig from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
-const healthbar = document.querySelector<HTMLElement>('.p-combat [data-healthbar]');
+const healthBar = document.querySelector<HTMLElement>('.p-combat [data-health-bar]');
 
 
 const maxHealth = new Value<number>(0);
@@ -22,7 +22,7 @@ export function init(enemyData: GConfig['enemies']) {
             maxHealth.set(enemyData.enemyList[index]);
             curHealth.set(maxHealth.get());
         }
-        updateHealthbar();
+        updatehealthBar();
     });
 
     index = 0;
@@ -34,7 +34,7 @@ export function takeDamage(amount: number) {
     curHealth.subtract(amount);
 }
 
-function updateHealthbar() {
+function updatehealthBar() {
     const pct = curHealth.get() / maxHealth.get() * 100;
-    healthbar.style.width = pct + '%';
+    healthBar.style.width = pct + '%';
 }

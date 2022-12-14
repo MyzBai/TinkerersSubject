@@ -3,7 +3,7 @@ export const avg = (a: number, b: number) => (a + b) / 2;
 export const randomRange = (min: number, max: number) => Math.random() * (max - min) + min;
 export const randomRangeInt = (min: number, max: number) => Math.floor(randomRange(min, max));
 export const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
-
+export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 export const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 export function initTabs(btnsParent: Element | null, contentsParent: Element | null) {

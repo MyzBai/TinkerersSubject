@@ -1,85 +1,117 @@
 
 type Callback = (dt: number) => void;
+
 interface Instance {
     time: number;
     id: number;
     callback: Callback;
     options?: Options;
 }
-
+interface AnimInstance {
+    id: number;
+    callback: Callback;
+}
 interface Options {
     intervalMilliseconds: number;
-
 }
 
-
 const TARGET_FRAME_TIME = 1000 / 25;
+const DELTA_TIME_SECONDS = TARGET_FRAME_TIME / 1000;
 
 export default class Loop {
-    #instances = new Map<number, Instance>;
-    #running: boolean = false;
-    #loopId: number;
-    #counter = 0;
+    public running: boolean = false;
+    
+    private instances = new Map<number, Instance>();
+    private animInstances = new Map<number, AnimInstance>();
+    private loopId: number;
+    private animHandle: number;
+    private counter = 0;
+    private animCounter = 0;
     constructor() {
-    }
 
-    get running() {
-        return this.#running;
     }
 
     subscribe(callback: Callback, options?: Options) {
-        const id = this.#counter++;
+        const id = this.counter++;
         const instance: Instance = { callback, time: 0, id, options };
-        this.#instances.set(id, instance);
+        this.instances.set(id, instance);
+        return id;
+    }
+
+    subscribeAnim(callback: Callback) {
+        const id = this.animCounter++;
+        const instance: AnimInstance = { callback, id };
+        this.animInstances.set(id, instance);
         return id;
     }
 
     unsubscribe(id: number) {
-        this.#instances.delete(id);
+        this.instances.delete(id);
+    }
+
+    unsubscribeAnim(id: number){
+        this.animInstances.delete(id);
     }
 
     reset() {
-        this.#instances.clear();
-        this.#running = false;
+        this.instances.clear();
+        this.running = false;
     }
 
     start() {
         if (this.running) {
             return;
         }
-        this.#running = true;
+        this.running = true;
         this.beginLoop();
+        this.beginAnimationLoop();
     }
 
     stop() {
-        this.#running = false;
-        clearTimeout(this.#loopId);
+        this.running = false;
+        clearTimeout(this.loopId);
+        cancelAnimationFrame(this.animHandle);
     }
 
     private beginLoop() {
         let remainder = 0;
         let now = performance.now();
         const loop = () => {
-            clearTimeout(this.#loopId);
-            this.#loopId = setTimeout(() => {
+            clearTimeout(this.loopId);
+            this.loopId = setTimeout(() => {
                 let diff = performance.now() - now + remainder;
                 now = performance.now();
-                while (diff > TARGET_FRAME_TIME) {
-                    let dt = Math.min(diff, TARGET_FRAME_TIME);
+                while (diff >= TARGET_FRAME_TIME) {
                     diff -= TARGET_FRAME_TIME;
-                    const deltaTimeSeconds = dt / 1000;
-                    this.#instances.forEach(instance => {
-                        instance.time += dt;
+
+                    this.instances.forEach(instance => {
+                        instance.time += TARGET_FRAME_TIME;
                         let ms = instance.options?.intervalMilliseconds || 0;
                         if (instance.time > ms) {
-                            instance.callback(deltaTimeSeconds);
+                            instance.callback(DELTA_TIME_SECONDS);
                             instance.time -= ms || instance.time;
                         }
                     });
                 }
+                remainder = diff;
                 loop();
             }, TARGET_FRAME_TIME);
         }
         loop();
+    }
+
+    private beginAnimationLoop() {
+        let now = performance.now();
+        const loop = () => {
+            let diff = performance.now() - now;
+            now = performance.now();
+            const dt = diff / 1000;
+            for (const instance of this.animInstances.values()) {
+                instance.callback(dt);
+            }
+
+            this.animHandle = requestAnimationFrame(loop);
+        }
+        this.animHandle = requestAnimationFrame(loop);
     }
 }

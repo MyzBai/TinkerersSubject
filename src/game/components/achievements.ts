@@ -67,90 +67,86 @@ function handleUpdateLoop(visible: boolean) {
 }
 
 class Achievement {
-    #completed: boolean = false;
-    #validator: Validator;
-    #matchIndex: number;
-    #targetValue: number;
-    #description: string;
-    #modList: Mod[];
-    #element: HTMLElement;
+    completed: boolean = false;
+    private readonly validator: Validator;
+    private readonly matchIndex: number;
+    private readonly targetValue: number;
+    private readonly description: string;
+    private readonly modList: Mod[];
+    readonly element: HTMLElement;
     constructor(args: GConfig['achievements']['list'][number]) {
-        this.#description = args.description.replace(/[{}]/g, '');
-        this.#modList = [...args?.modList || []];
+        this.description = args.description.replace(/[{}]/g, '');
+        this.modList = [...args?.modList || []];
 
         const validator = validators.find(x => x[0].exec(args.description));
         if (!validator) {
             throw Error('no achievement validator found');
         }
-        this.#validator = validator;
+        this.validator = validator;
         const match = validator[0].exec(args.description);
-        this.#targetValue = Number(match[1]);
-        this.#matchIndex = args.description.match(/{\d+}/).index;
-        this.#element = this.#createElement();
+        this.targetValue = Number(match[1]);
+        this.matchIndex = args.description.match(/{\d+}/).index;
+        this.element = this.createElement();
     }
 
-    get completed() { return this.#completed }
-    get modList() { return this.#modList; }
-    get element() { return this.#element; }
-
     updateDescription() {
-        if (this.#completed) {
+        if (this.completed) {
             return;
         }
-        this.#element.querySelector('[data-cur-value]').textContent = this.#validator[1]();
+        this.element.querySelector('[data-cur-value]').textContent = this.validator[1]();
 
     }
 
     validate() {
-        if (this.#completed) {
+        if (this.completed) {
             return;
         }
-        const curValue = Number(this.#validator[1]());
+        const curValue = Number(this.validator[1]());
         let valid = false;
-        if (this.#validator[2]) {
-            valid = this.#validator[2](curValue, this.#targetValue);
+        if (this.validator[2]) {
+            valid = this.validator[2](curValue, this.targetValue);
         } else {
-            valid = curValue >= this.#targetValue;
+            valid = curValue >= this.targetValue;
         }
         return valid;
     }
 
     complete() {
-        this.#completed = true;
-        this.#applyModifiers();
-        this.#removeCurValueFromDesc();
-        this.#element.querySelector('var').toggleAttribute(`data-valid`, this.#completed);
+        this.completed = true;
+        this.applyModifiers();
+        this.removeCurValueFromDesc();
+        this.element.querySelector('var').toggleAttribute(`data-valid`, this.completed);
         console.log('test');
         registerHighlightHTMLElement(document.querySelector('.p-game menu [data-tab-target="achievements"]'), 'click');
-        registerHighlightHTMLElement(this.#element, 'mouseover');
+        registerHighlightHTMLElement(this.element, 'mouseover');
     }
 
-    #applyModifiers() {
-        const modifiers = this.#modList.map(x => new Modifier(x));
-        modDB.add(modifiers.flatMap(x => x.stats), 'Achievement/' + this.#description);
+    private applyModifiers() {
+        const modifiers = this.modList.map(x => new Modifier(x));
+        modDB.add(modifiers.flatMap(x => x.stats), 'Achievement/' + this.description);
     }
 
-    #removeCurValueFromDesc() {
-        const varElement = this.#element.querySelector('var');
+    private removeCurValueFromDesc() {
+        const varElement = this.element.querySelector('var');
         const innerHTML = varElement.innerHTML;
         const endIndex = innerHTML.indexOf('</span>');
         varElement.innerHTML = innerHTML.substring(endIndex + 8);
     }
 
-    #createElement() {
+    private createElement() {
         const accordion = document.createElement('li');
         accordion.classList.add('g-accordion');
         const header = document.createElement('div');
         accordion.appendChild(header);
         header.classList.add('header');
         // header.insertAdjacentHTML('beforeend', `<div>${this.#description}</div>`);
-        header.insertAdjacentHTML('beforeend', `<div>${this.#description.substring(0, this.#matchIndex)}<var><span data-cur-value>${this.#validator[1]()}</span>/${this.#targetValue.toString()}</var>${this.#description.substring(this.#matchIndex + this.#targetValue.toString().length)}</div>`)
+        header.insertAdjacentHTML('beforeend', `<div>${this.description.substring(0, this.matchIndex)}<var><span data-cur-value>${this.validator[1]()}</span>/${this.targetValue.toString()}</var>${this.description.substring(this.matchIndex + this.targetValue.toString().length)}</div>`)
 
-        if (this.#modList.length > 0) {
+        if (this.modList.length > 0) {
             const content = document.createElement('div');
             accordion.appendChild(content);
             content.classList.add('content');
-            for (const mod of this.#modList) {
+            for (const mod of this.modList) {
                 content.insertAdjacentHTML('beforeend', `<div class="g-mod-desc">${mod.replace(/[{}]/g, '')}</div>`);
             }
             header.insertAdjacentHTML('beforeend', `<i></i>`);

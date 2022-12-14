@@ -36,7 +36,7 @@ export const templates = {
         desc: 'Reforge the item with a higher chance of receiving the same modifiers',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modTables.general),
         getItemMods: (data: CraftData) => {
-            const mods = [...data.modTables.general].reduce((a, c) => {
+            const mods = [...data.modTables.general].map(x => x.copy()).reduce((a, c) => {
                 if (data.itemModList.some(x => x === c)) {
                     c.weight *= REFORGE_HIGHER_CHANCE_SAME_MODS;
                 }
@@ -50,7 +50,7 @@ export const templates = {
         desc: 'Reforge the item with a lower chance of receiving the same modifiers',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modTables.general),
         getItemMods: (data: CraftData) => {
-            const mods = [...data.modTables.general].reduce((a, c) => {
+            const mods = [...data.modTables.general].map(x => x.copy()).reduce((a, c) => {
                 if (data.itemModList.some(x => x === c)) {
                     c.weight *= REFORGE_LOWER_CHANCE_SAME_MODS;
                 }
@@ -158,27 +158,27 @@ class Crafter {
     }
 
     addOne(itemModList: ItemModifier[]) {
-        this.modList.push(...this.#generateMods(itemModList, this.modList, 1))
+        this.modList.push(...this.generateMods(itemModList, this.modList, 1))
         return this;
     }
     addOneByTag(itemModList: ItemModifier[], tag: ModifierTag) {
         itemModList = itemModList.filter(x => x.tags?.includes(tag));
-        this.modList.push(...this.#generateMods(itemModList, this.modList, 1));
+        this.modList.push(...this.generateMods(itemModList, this.modList, 1));
         return this;
     }
 
     addMultiple(itemModList: ItemModifier[], count: number) {
-        this.modList.push(...this.#generateMods(itemModList, this.modList, count));
+        this.modList.push(...this.generateMods(itemModList, this.modList, count));
         return this;
     }
 
     removeRandom() {
-        const randomIndex = this.#randomRangeInt(0, this.modList.length);
+        const randomIndex = this.randomRangeInt(0, this.modList.length);
         this.modList.splice(randomIndex, 1);
         return this;
     }
 
-    #generateMods(itemModList: ItemModifier[], filterMods: ItemModifier[] = [], count: number) {
+    private generateMods(itemModList: ItemModifier[], filterMods: ItemModifier[] = [], count: number) {
         const newItemMods: ItemModifier[] = [];
         for (let i = 0; i < count; i++) {
             const tempArr = [...newItemMods, ...filterMods];
@@ -198,7 +198,7 @@ class Crafter {
         return newItemMods;
     }
 
-    #randomRangeInt(min: number, max: number) {
+    private randomRangeInt(min: number, max: number) {
         return Math.floor(Math.random() * (max - min) + min);
     }
 }

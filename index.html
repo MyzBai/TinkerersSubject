@@ -22,92 +22,114 @@
             <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>
             <li class="g-list-item" data-tab-target="statistics">Statistics</li>
         </menu>
-        <div class="p-combat" data-tab-content="combat">
-            <div class="s-enemy">
-                <div class="s-healthbar-background g-progressbar-background">
-                    <div class="healthbar g-progressbar" data-healthbar></div>
-                </div>
-            </div>
-            <div class="s-player">
-                <div class="s-manabar-background g-progressbar-background">
-                    <div class="manabar g-progressbar" data-manabar></div>
-                </div>
-                <div class="s-skills">
-                    <div class="g-field" data-attack-skill data-skill>
-                        <div data-label>Default Attack</div>
-                        <button class="g-button">Change</button>
+        <div class="s-middle">
+            <div class="p-combat" data-tab-content="combat">
+                <div class="s-enemy">
+                    <div class="s-health-bar-background g-progress-bar-background">
+                        <div class="health-bar g-progress-bar" data-health-bar></div>
                     </div>
-                    <dialog data-modal data-attack-skill-modal>
-                        <form method="dialog">
-                            <div class="header">
-                                <div class="g-list-item" data-active-skill></div>
-                            </div>
-                            <div class="content">
-                                <ul class="g-list-v" data-skill-list></ul>
-                                <div class="s-skill-info" data-skill-info>
-                                    <div data-title></div>
-                                    <div class="g-field">
-                                        <div>Attack Speed</div>
-                                        <i data-stat="attackSpeed"></i>
-                                    </div>
-                                    <div class="g-field">
-                                        <div>Mana Cost</div>
-                                        <i data-stat="manaCost"></i>
-                                    </div>
-                                    <div class="g-field">
-                                        <div>Base Damage Multiplier</div>
-                                        <i data-stat="baseDamageMultiplier"></i>
-                                    </div>
-                                    <ul data-mod-list></ul>
+                </div>
+                <div class="s-player">
+                    <div class="s-mana-bar-background g-progress-bar-background">
+                        <div class="mana-bar g-progress-bar" data-mana-bar></div>
+                    </div>
+                    <div class="s-skills">
+                        <div data-attack-skill></div>
+                        <ul data-buff-skill-list></ul>
+                    </div>
+                </div>
+                <div class="g-modal s-skill-modal hidden" data-attack-skill-modal data-modal-type="relative">
+                    <div class="wrapper">
+                        <section>
+                            <ul class="g-list-v" data-skill-list></ul>
+                            <div class="s-skill-info" data-skill-info>
+                                <div data-title>Example Name</div>
+                                <div class="g-field">
+                                    <div>Attack Speed</div>
+                                    <i data-stat="attackSpeed"></i>
                                 </div>
+                                <div class="g-field">
+                                    <div>Mana Cost</div>
+                                    <i data-stat="manaCost"></i>
+                                </div>
+                                <div class="g-field">
+                                    <div>Base Damage Multiplier</div>
+                                    <i data-stat="baseDamageMultiplier"></i>
+                                </div>
+                                <ul data-mod-list></ul>
                             </div>
-                            <div class="footer">
-                                <input class="g-button" type="submit" value="Apply" data-apply>
-                                <input class="g-button" type="submit" value="Cancel">
+                        </section>
+                        <footer>
+                            <button class="g-button" data-value="apply">Apply</button>
+                            <button class="g-button" data-value="cancel">Cancel</button>
+                        </footer>
+                    </div>
+         
+                </div>
+                <div class="g-modal s-skill-modal hidden" data-buff-skill-modal data-modal-type="relative">
+                    <div class="wrapper">
+                        <section>
+                            <ul class="g-list-v" data-skill-list></ul>
+                            <div class="s-skill-info" data-skill-info>
+                                <div data-title></div>
+                                <div class="g-field">
+                                    <div>Base Duration</div>
+                                    <i data-stat="baseDuration"></i>
+                                </div>
+                                <div class="g-field">
+                                    <div>Mana Cost</div>
+                                    <i data-stat="manaCost"></i>
+                                </div>
+                                <ul data-mod-list></ul>
                             </div>
-                        </form>
-                    </dialog>
+                        </section>
+                        <footer>
+                            <button class="g-button" data-value="apply">Apply</button>
+                            <button class="g-button" data-value="remove">Remove</button>
+                            <button class="g-button" data-value="cancel">Cancel</button>
+                        </footer>
+                    </div>
+         
                 </div>
             </div>
-        </div>
-        <div class="p-items hidden" data-tab-content="items">
-            <menu class="g-list-v" data-item-list></menu>
-            <div class="s-item-container">
+            <div class="p-items hidden" data-tab-content="items">
+                <menu class="g-list-v" data-item-list></menu>
+                <div class="s-item-container">
 
-                <ul data-mod-list></ul>
+                    <ul data-mod-list></ul>
+                </div>
+                <div class="s-preset-container">
+                    <menu class="g-toolbar s-preset-toolbar g-list-h">
+                        <div class="g-list-item" data-new>New</div>
+                        <div class="g-list-item" data-edit>Edit</div>
+                        <div class="g-list-item" data-remove>Remove</div>
+                    </menu>
+                    <menu class="g-list-v" data-preset-list></menu>
+                </div>
+                <div class="s-craft-container">
+                    <ul class="g-list-v" data-craft-list></ul>
+                    <button class="g-button" data-craft-button>Craft</button>
+                    <div data-craft-message></div>
+                </div>
+                <dialog data-modal data-preset-modal>
+                    <form method="dialog">
+                        <h2>Craft Preset</h2>
+                        <input type="text" data-name>
+                        <div class="s-submits">
+                            <input class="g-button" type="submit" value="Apply">
+                            <input class="g-button" type="submit" value="Cancel" data-cancel>
+                        </div>
+                        <div class="g-list-v" data-craft-list></div>
+                    </form>
+                </dialog>
             </div>
-            <div class="s-preset-container">
-                <menu class="g-toolbar s-preset-toolbar g-list-h">
-                    <div class="g-list-item" data-new>New</div>
-                    <div class="g-list-item" data-edit>Edit</div>
-                    <div class="g-list-item" data-remove>Remove</div>
-                </menu>
-                <menu class="g-list-v" data-preset-list></menu>
+            <div class="p-achievements hidden" data-tab-content="achievements">
+                <ul></ul>
             </div>
-            <div class="s-craft-container">
-                <ul class="g-list-v" data-craft-list></ul>
-                <button class="g-button" data-craft-button>Craft</button>
-                <div data-craft-message></div>
+            <div class="p-statistics" data-tab-content="statistics">
+                <ul> </ul>
             </div>
-            <dialog data-modal data-preset-modal>
-                <form method="dialog">
-                    <h2>Craft Preset</h2>
-                    <input type="text" data-name>
-                    <div class="s-submits">
-                        <input class="g-button" type="submit" value="Apply">
-                        <input class="g-button" type="submit" value="Cancel" data-cancel>
-                    </div>
-                    <div class="g-list-v" data-craft-list></div>
-                </form>
-            </dialog>
         </div>
-        <div class="p-achievements hidden" data-tab-content="achievements">
-            <ul></ul>
-        </div>
-        <div class="p-statistics" data-tab-content="statistics">
-            <ul> </ul>
-        </div>
-
         <aside class="s-stats">
             <ul>
                 <li class="g-field">
@@ -152,6 +174,7 @@
                 </li>
             </ul>
         </aside>
+
     </main>
 
     <script>
@@ -162,12 +185,21 @@
                 }
             }));
         }
+        {
+            document.querySelectorAll('.g-modal').forEach(x => x.addEventListener('mousedown', x => {
+                if(x.target === x.currentTarget){
+                    x.target.classList.add('hidden');
+                }
+            }));
+
+        }
 
         document.querySelectorAll('.g-accordion').forEach(accordion => {
             accordion.querySelector('.header').addEventListener('click', x => {
                 x.target.toggleAttribute('data-open');
             });
         });
+
     </script>
 
     <script src="./public/dist/main.js"></script>

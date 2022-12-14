@@ -59,7 +59,8 @@ export function calcPlayerStats(statModList: StatModifier[]) {
         minPhysicalDamage: baseDamageResult.minPhysicalDamage,
         maxPhysicalDamage: baseDamageResult.maxPhysicalDamage,
 
-        goldPerSecond: calcModTotal('GoldPerSecond', config)
+        goldPerSecond: calcModTotal('GoldPerSecond', config),
+        skillDurationMultiplier: calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }))
     }
 }
 
@@ -98,7 +99,7 @@ export function calcModSum(valueType: StatModifierValueType, name: StatName | St
     }
 
     const filteredModList = config.statModList.filter(x => {
-        if(!name.includes(x.name)){
+        if (!name.includes(x.name)) {
             return false;
         }
         if (x.valueType !== valueType)
