@@ -45,7 +45,7 @@ export function init(data: GConfig['items']) {
             continue;
         }
         const id = playerStats.level.onChange.listen(level => {
-            if (level < itemData.levelReq) {
+            if (itemData.levelReq <= level) {
                 item.element.classList.remove('hidden');
                 playerStats.level.onChange.removeListener(id);
             }
