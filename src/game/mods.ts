@@ -77,7 +77,6 @@ interface StatModifierParams {
     source?: string;
 }
 
-
 export const StatModifierFlags = {
     None: 1 << 0,
     Attack: 1 << 1,
@@ -86,8 +85,6 @@ export const StatModifierFlags = {
     Chaos: 1 << 4,
     Skill: 1 << 5
 } as const;
-
-
 
 export const modTemplates: ModTemplate[] = [
     {
@@ -103,7 +100,7 @@ export const modTemplates: ModTemplate[] = [
     {
         desc: '#% More Damage',
         tags: [],
-        stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical | StatModifierFlags.Elemental | StatModifierFlags.Chaos }]
+        stats: [{ name: 'Damage', valueType: 'More' }]
     },
     {
         desc: 'Adds # To # Physical Damage',

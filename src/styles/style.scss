@@ -28,8 +28,6 @@ $color-modal-confirm-bg: $color-global-button-accent-bg;
 $color-modal-cancel-bg: #8f0d0d;
 $color-modal-border: #545b64;
 
-
-
 $color-scrollbar-thumb-background: rgba(110, 118, 129, 0.4);
 
 $padding-container: 0.3em;
@@ -80,7 +78,7 @@ body {
     box-sizing: border-box;
 }
 
-*:focus{
+*:focus {
     outline: 0;
 }
 
@@ -107,6 +105,7 @@ button {
 }
 
 [disabled] {
+    pointer-events: none;
     filter: brightness(50%);
 }
 
@@ -156,6 +155,7 @@ input[type="submit"] {
     font-size: inherit;
 }
 
+/*#region Scroll Bar*/
 ::-webkit-scrollbar {
     width: 0.6em;
 }
@@ -173,20 +173,23 @@ input[type="submit"] {
 ::-webkit-scrollbar-thumb:active {
     background: rgb(153, 153, 153);
 }
+/*#endregion Scroll Bar*/
+
 /*#region Global*/
 
 .g-modal {
     display: grid;
     position: fixed;
     margin: auto;
+    background-color: $color-canvas-default;
 
-    &:not([data-modal-type="relative"]){
-        & > .wrapper{
+    &:not([data-modal-type="relative"]) {
+        & > .wrapper {
             padding: $padding-modal;
         }
     }
 
-    & > .wrapper{
+    & > .wrapper {
         display: grid;
         grid-template-rows: 1fr auto;
     }
@@ -221,14 +224,15 @@ input[type="submit"] {
     }
 
     footer {
-        button[data-value="apply"]{
-            min-width: 5em;
-            background-color: $color-modal-confirm-bg;
-        }
-        button[data-value="cancel"]{
+        button[data-value]{
             min-width: 5em;
             background-color: $color-modal-cancel-bg;
         }
+        button[data-value="apply"] {
+            min-width: 5em;
+            background-color: $color-modal-confirm-bg;
+        }
+
     }
 }
 
@@ -421,21 +425,21 @@ body > header {
                     }
                 }
                 .s-skills {
-                    [data-skill-slot]{
+                    [data-skill-slot] {
                         display: flex;
                         cursor: default;
-                        [data-label]{
+                        [data-label] {
                             padding: $padding-button;
                             text-align: left;
                         }
 
-                        &[data-skill-slot="buff-skill"]{
-                            [data-trigger]{
+                        &[data-skill-slot="buff-skill"] {
+                            [data-trigger] {
                                 width: 100%;
                             }
-                            & :first-child{
+                            & :first-child {
                                 position: relative;
-                                [data-progress-bar]{
+                                [data-progress-bar] {
                                     pointer-events: none;
                                     position: absolute;
                                     top: 0;
@@ -523,7 +527,7 @@ body > header {
                         min-width: 5em;
                     }
 
-                    [data-value="remove"]{
+                    [data-value="remove"] {
                         background-color: $color-modal-confirm-bg;
                     }
                 }
@@ -531,20 +535,16 @@ body > header {
         }
 
         .p-items {
+            position: relative;
             display: grid;
             grid-template-rows: 40% 60%;
             grid-template-columns: clamp(0.3fr, 0.4fr, 1fr) 1fr;
             min-height: 0;
 
-            .s-item-container {
-                display: grid;
-                grid-template-rows: auto 1fr;
-                min-height: 0;
-                [data-mod-list] {
-                    text-align: center;
-                    padding: 1em;
-                    overflow-y: auto;
-                }
+            [data-mod-list] {
+                text-align: center;
+                padding: 1em;
+                overflow-y: auto;
             }
 
             .s-craft-container {
@@ -573,22 +573,18 @@ body > header {
                 }
             }
 
-            [data-preset-modal] {
-                form {
+            [data-craft-preset-modal]{
+                section{
                     display: grid;
-                    grid-template-rows: auto auto 1fr auto;
-                }
-                [data-craft-list] {
-                    text-align: left;
-                    margin: 1em 0;
-                    flex: 1;
-                }
-
-                h2 {
-                    text-align: center;
-                    margin: 0;
-                    padding: 0;
-                    padding-bottom: 0.5em;
+                    grid-template-rows: auto auto 1fr;
+                    h2{
+                        text-align: center;
+                    }
+                    [data-craft-list]{
+                        min-height: 0;
+                        text-align: left;
+                        overflow-y: auto;
+                    }
                 }
             }
         }
@@ -621,13 +617,5 @@ body > header {
         li > :last-child {
             padding-left: 1em;
         }
-    }
-}
-
-#test-dialog {
-    background-color: green;
-
-    &::backdrop {
-        background-color: red;
     }
 }
