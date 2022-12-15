@@ -73,8 +73,10 @@ export function init(data: GConfig['items']) {
     playerStats.level.onChange.listen(level => {
         crafts.forEach(craft => craft.tryUnlock(level));
     });
-    playerStats.gold.onChange.listen(updateCraftButton);
-
+    playerStats.gold.onChange.listen(() => {
+        updateCraftList();
+        updateCraftButton();
+    });
 
     if (data.levelReq > 1) {
         const id = playerStats.level.onChange.listen(level => {
@@ -118,11 +120,12 @@ function createCrafts(craftList: CraftList) {
             crafts.map(x => x.element).forEach(element => {
                 element.classList.toggle('selected', element === craft.element);
             });
-            activeCraft = craft;
+            craft.select();
             updateCraftButton();
         });
     }
     document.querySelector('.p-items .s-craft-container [data-craft-list]')?.replaceChildren(...crafts.map(x => x.element));
+    crafts.find(x => !x.locked).select();
 }
 
 function createDefaultPreset() {
@@ -162,18 +165,11 @@ function updateCraftList() {
 
     const filteredIds = getFilteredCraftIds();
     const ids = Preset.active.ids.filter(x => filteredIds.includes(x));
-    const elements = document.querySelectorAll('.p-items .s-craft-container [data-craft-id]');
-    elements.forEach(x => {
-        const dataAttr = x.getAttribute('data-craft-id') as CraftId;
-        const hide = !ids.includes(dataAttr);
-        x.classList.toggle('hidden', hide);
-        if (!hide) {
-            const costElement = x.querySelector('i');
-            const attr = costElement.getAttribute('data-cost');
-            const cost = parseInt(attr);
-            const canAfford = playerStats.gold.get() >= cost;
-            costElement.toggleAttribute('data-insufficient-cost', !canAfford);
-        }
+    crafts.forEach(craft => {
+        const canAfford = craft.cost <= playerStats.gold.get();
+        const costElement = craft.element.querySelector('[data-cost]');
+        costElement.toggleAttribute('data-insufficient-cost', !canAfford);
+        craft.element.classList.toggle('hidden', craft.locked || !ids.includes(craft.id));
     });
     const selectedVisibleElement = document.querySelector('.p-items .s-craft-container .selected[data-craft-id]:not(.hidden)');
     if (!selectedVisibleElement) {
@@ -191,18 +187,18 @@ function createCraftData(): CraftData {
 }
 
 function updateCraftButton() {
-    if (!Item.active || !templates[activeCraft.id]) {
+    if (!Item.active) {
         return;
     }
 
     let msg = '';
 
-    const template = templates[activeCraft.id];
+    const template = templates[Craft.active.id];
     if (!template) {
         console.error('invalid craft id');
         return;
     }
-    if (playerStats.gold.get() < activeCraft.cost) {
+    if (playerStats.gold.get() < Craft.active.cost) {
         msg = 'You cannot afford this craft';
     }
     const craftData = createCraftData();
@@ -216,17 +212,17 @@ function updateCraftButton() {
 }
 
 function performCraft() {
-    if (!Item.active || !templates[activeCraft.id]) {
+    if (!Item.active || !templates[Craft.active.id]) {
         return;
     }
 
-    const template = templates[activeCraft.id];
-
+    const template = templates[Craft.active.id];
     const craftData = createCraftData();
     Item.active.mods = template.getItemMods(craftData);
-    playerStats.gold.subtract(activeCraft.cost);
+    playerStats.gold.subtract(Craft.active.cost);
 
     updateItemModList();
+    updateCraftList();
 }
 
 
@@ -293,6 +289,7 @@ export class ItemModifier extends Modifier {
 }
 
 class Craft {
+    static active: Craft;
     readonly id: CraftId;
     readonly levelReq: number;
     readonly cost: number;
@@ -310,10 +307,15 @@ class Craft {
         if (this.locked && level >= this.levelReq) {
             registerHighlightHTMLElement(itemsMenuButton, 'click');
             registerHighlightHTMLElement(this.element, 'click');
-            Preset.active.select();
             registerHighlightHTMLElement(Preset.default.element, 'click');
+            updateCraftList();
             this._locked = false;
         }
+    }
+
+    select(){
+        Craft.active = this;
+        this.element.click();
     }
 
     private createElement() {
