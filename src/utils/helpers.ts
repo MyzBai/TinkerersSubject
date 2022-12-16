@@ -39,3 +39,65 @@ export function registerHighlightHTMLElement(element: HTMLElement, trigger: 'cli
             break;
     }
 }
+
+export const highlightHTMLElement = (() => {
+    type Trigger = 'click' | 'mouseover';
+    const attributeName = 'data-highlight-notification';
+
+    class Node {
+        element: HTMLElement;
+        parent: Node | null;
+        isRoot: boolean;
+        trigger: Trigger;
+        constructor(element: HTMLElement, parent: Node | null, isRoot: boolean, trigger: Trigger) {
+            this.element = element;
+            this.parent = parent;
+            this.isRoot = isRoot;
+            this.trigger = trigger;
+            if (!isRoot) {
+                const listener = () => {
+                    console.log(element.textContent);
+                    element.removeEventListener(trigger, listener);
+                    element.removeAttribute(attributeName);
+                    this.parent?.evaluate();
+                }
+                element.addEventListener(trigger, listener);
+            }
+
+        }
+        evaluate() {
+            const children = nodes.filter(x => x.parent === this);
+            console.log(children);
+            if (children.length === 0) {
+                return;
+            }
+            const test = children.some(x => x.element.hasAttribute(attributeName));
+            if (!test) {
+                this.element.removeAttribute(attributeName);
+                this.parent?.evaluate();
+            }
+        }
+    }
+    const nodes = [] as Node[];
+    function register(roots: HTMLElement[], elements: HTMLElement[], trigger: Trigger) {
+
+        let parent: Node = null;
+        for (const root of roots) {
+            let rootNode = nodes.find(x => x.element === root);
+            if(!rootNode){
+                rootNode = new Node(root, parent, true, trigger);
+                nodes.push(rootNode);
+            }
+            parent = rootNode;
+        }
+        for (const element of elements) {
+            const node = new Node(element, parent, false, 'click');
+            nodes.push(node);
+        }
+
+        [...roots, ...elements].forEach(x => x.setAttribute(attributeName, ''));
+    }
+    return {
+        register,
+    }
+})();

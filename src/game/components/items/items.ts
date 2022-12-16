@@ -4,7 +4,7 @@ import { templates, CraftId, CraftData } from './crafting';
 import { playerStats, modDB } from '@game/player';
 import { visibilityObserver } from '@utils/Observers';
 import type { ModTemplate, Save } from '@src/game/save';
-import { registerHighlightHTMLElement } from '@src/utils/helpers';
+import { highlightHTMLElement } from '@src/utils/helpers';
 
 type ItemList = Items['itemList'];
 type CraftList = Items['craftList'];
@@ -46,7 +46,6 @@ let generalMods: ItemModifier[];
 let items: Item[];
 let crafts: Craft[];
 let presets: Preset[];
-let activeCraft: CraftList[number];
 
 export function init(data: GConfig['items']) {
 
@@ -54,7 +53,6 @@ export function init(data: GConfig['items']) {
     items = [];
     crafts = [];
     presets = [];
-    activeCraft = undefined;
 
     for (const modGroup of data.modTables.general) {
         for (let i = 0; i < modGroup.length; i++) {
@@ -83,7 +81,7 @@ export function init(data: GConfig['items']) {
             if (data.levelReq <= level) {
                 playerStats.level.onChange.removeListener(id);
                 itemsMenuButton.classList.remove('hidden');
-                registerHighlightHTMLElement(itemsMenuButton, 'click');
+                highlightHTMLElement.register([itemsMenuButton], [], 'click');
             }
         });
     } else {
@@ -103,8 +101,7 @@ function createItemList(itemList: ItemList) {
         const id = playerStats.level.onChange.listen(level => {
             if (itemData.levelReq <= level) {
                 item.element.classList.remove('hidden');
-                registerHighlightHTMLElement(itemsMenuButton, 'click');
-                registerHighlightHTMLElement(item.element, 'click');
+                highlightHTMLElement.register([itemsMenuButton], [item.element], 'click');
                 playerStats.level.onChange.removeListener(id);
             }
         });
@@ -305,15 +302,16 @@ class Craft {
 
     tryUnlock(level: number) {
         if (this.locked && level >= this.levelReq) {
-            registerHighlightHTMLElement(itemsMenuButton, 'click');
-            registerHighlightHTMLElement(this.element, 'click');
-            registerHighlightHTMLElement(Preset.default.element, 'click');
+            // registerHighlightHTMLElement(itemsMenuButton, 'click');
+            // registerHighlightHTMLElement(this.element, 'click');
+            // registerHighlightHTMLElement(Preset.default.element, 'click');
+            highlightHTMLElement.register([itemsMenuButton, Preset.default.element], [this.element], 'click');
             updateCraftList();
             this._locked = false;
         }
     }
 
-    select(){
+    select() {
         Craft.active = this;
         this.element.click();
     }
