@@ -26,19 +26,19 @@ export function initTabs(btnsParent: Element | null, contentsParent: Element | n
 }
 
 
-export function registerHighlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {
-    const attr = 'data-highlight-notification';
-    const removeAttr = () => element.removeAttribute(attr);
-    element.setAttribute(attr, '');
-    switch (trigger) {
-        case 'click':
-            element.addEventListener('click', removeAttr);
-            break;
-        case 'mouseover':
-            element.addEventListener('mouseover', removeAttr);
-            break;
-    }
-}
+// export function registerHighlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {
+//     const attr = 'data-highlight-notification';
+//     const removeAttr = () => element.removeAttribute(attr);
+//     element.setAttribute(attr, '');
+//     switch (trigger) {
+//         case 'click':
+//             element.addEventListener('click', removeAttr);
+//             break;
+//         case 'mouseover':
+//             element.addEventListener('mouseover', removeAttr);
+//             break;
+//     }
+// }
 
 export const highlightHTMLElement = (() => {
     type Trigger = 'click' | 'mouseover';
