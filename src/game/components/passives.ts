@@ -35,6 +35,10 @@ export function init(data: GConfig['passives']) {
 
     playerStats.level.onChange.listen(() => {
         passives.forEach(x => x.tryUnlock());
+        const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * playerStats.level.get() - 2)) > 0;
+        if(pointsGained){
+            highlightHTMLElement(passivesMenuButton, 'click');
+        }
         updateList();
     });
 }
@@ -74,7 +78,7 @@ class Passive {
     get assigned() { return this._assigned; }
 
     tryUnlock() {
-        if(!this.locked || playerStats.level.get() < this.levelReq){
+        if (!this.locked || playerStats.level.get() < this.levelReq) {
             return;
         }
         this.locked = true;
