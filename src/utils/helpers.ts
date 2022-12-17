@@ -27,7 +27,7 @@ export function initTabs(btnsParent: Element | null, contentsParent: Element | n
 
 
 export function registerHighlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {
-    const attr = 'data-highlight';
+    const attr = 'data-highlight-notification';
     const removeAttr = () => element.removeAttribute(attr);
     element.setAttribute(attr, '');
     switch (trigger) {
