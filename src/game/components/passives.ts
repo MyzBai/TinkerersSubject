@@ -12,7 +12,7 @@ const maxPointsSpan = passivesPage.querySelector('.p-game .p-passives header [da
 const clearButton = passivesPage.querySelector<HTMLButtonElement>('header [data-clear]');
 
 clearButton.addEventListener('click', () => { passives.filter(x => x.assigned).forEach(x => x.unassign()); updateList() });
-const getMaxPoints = () => pointsPerLevel * (playerStats.level.get()-1);
+const getMaxPoints = () => pointsPerLevel * (playerStats.level.get() - 1);
 const getCurPoints = () => passives.filter(x => x.assigned).reduce((a, c) => a += c.points, 0);
 
 let passives: Passive[];
