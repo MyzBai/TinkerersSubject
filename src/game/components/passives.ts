@@ -48,7 +48,6 @@ function updateList() {
     curPointsSpan.textContent = curPoints.toFixed();
 
     for (const passive of passives) {
-        passive.tryUnlock();
         if (!passive.assigned) {
             passive.element.toggleAttribute('disabled', passive.points > diff);
         }
