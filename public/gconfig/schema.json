@@ -207,7 +207,7 @@
                 { "enum": [ "+{#}% Critical Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$" },
                 { "enum": [ "+{#}% Critical Hit Multiplier" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$" },
                 { "enum": [ "+{#} Maximum Mana" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
-                { "enum": [ "+{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
+                { "enum": [ "{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
                 { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
                 { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
