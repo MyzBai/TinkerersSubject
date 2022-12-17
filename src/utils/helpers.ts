@@ -56,7 +56,6 @@ export const highlightHTMLElement = (() => {
             this.trigger = trigger;
             if (!isRoot) {
                 const listener = () => {
-                    console.log(element.textContent);
                     element.removeEventListener(trigger, listener);
                     element.removeAttribute(attributeName);
                     this.parent?.evaluate();
@@ -67,7 +66,6 @@ export const highlightHTMLElement = (() => {
         }
         evaluate() {
             const children = nodes.filter(x => x.parent === this);
-            console.log(children);
             if (children.length === 0) {
                 return;
             }
