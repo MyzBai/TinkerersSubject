@@ -45,7 +45,6 @@ function updateList() {
     maxPointsSpan.textContent = maxPoints.toFixed();
     curPointsSpan.textContent = curPoints.toFixed();
 
-    console.log(diff);
     for (const passive of passives) {
         if (!passive.assigned) {
             passive.element.toggleAttribute('disabled', passive.points > diff);
