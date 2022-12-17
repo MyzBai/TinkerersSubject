@@ -18,6 +18,7 @@
     <main class="p-game">
         <menu class="s-menu g-list-v">
             <li class="g-list-item" data-tab-target="combat">Combat</li>
+            <li class="g-list-item hidden" data-tab-target="passives">Passives</li>
             <li class="g-list-item hidden" data-tab-target="items">Items</li>
             <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>
             <li class="g-list-item" data-tab-target="statistics">Statistics</li>
@@ -91,6 +92,15 @@
                     </div>
 
                 </div>
+            </div>
+            <div class="p-passives hidden" data-tab-content="passives">
+                <header>
+                    <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>
+                    <button class="g-button" data-clear>Clear</button>
+                </header>
+                <ul data-passives-list>
+
+                </ul>
             </div>
             <div class="p-items hidden" data-tab-content="items">
                 <menu class="g-list-v" data-item-list></menu>

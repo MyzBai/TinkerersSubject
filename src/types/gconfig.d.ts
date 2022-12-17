@@ -5,6 +5,7 @@ export interface GConfig {
     player?: Player;
     enemies: Enemies;
     skills: Skills;
+    passives?: Passives;
     items?: Items;
     achievements?: Achievements;
     prestige?: Prestige;
@@ -42,6 +43,14 @@ export interface Skills {
             mods?: Mod[];
         }[]
     }
+}
+export interface Passives{
+    levelReq: number;
+    passiveList: {
+        levelReq: number;
+        points: number;
+        mod: Mod;
+    }[];
 }
 export interface ItemMod {
     levelReq: number;

@@ -233,7 +233,6 @@ input[type="submit"] {
             min-width: 5em;
             background-color: $color-modal-confirm-bg;
         }
-
     }
 }
 
@@ -537,6 +536,14 @@ body > header {
                         background-color: $color-modal-confirm-bg;
                     }
                 }
+            }
+        }
+
+        .p-passives {
+            header{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
             }
         }
 

@@ -100,6 +100,77 @@
             ]
         }
     },
+    "passives": {
+        "levelReq": 1,
+        "passiveList": [
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "{20}% Increased Physical Damage"
+            },
+            {
+                "levelReq": 3,
+                "points": 2,
+                "mod": "{50}% Increased Physical Damage"
+            },
+            {
+                "levelReq": 1,
+                "points": 2,
+                "mod": "{10}% Increased Attack Speed"
+            },
+            {
+                "levelReq": 3,
+                "points": 3,
+                "mod": "{30}% Increased Attack Speed"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{5}% Hit Chance"
+            },
+            {
+                "levelReq": 3,
+                "points": 2,
+                "mod": "+{15}% Hit Chance"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{1} Mana Regeneration"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{2} Mana Regeneration"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "{20}% Increased Maximum Mana"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{5}% Critical Hit Chance"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{15}% Critical Hit Chance"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{20}% Critical Hit Multiplier"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{50}% Critical Hit Multiplier"
+            }
+
+        ]
+    },
     "items": {
         "itemList": [
             { "name": "Item 1", "levelReq": 1 },

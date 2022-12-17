@@ -94,6 +94,25 @@
                 }
             }
         },
+        "passives": {
+            "type": "object",
+            "required": [ "levelReq", "passiveList" ],
+            "properties": {
+                "levelReq": { "$ref": "#/definitions/levelReq" },
+                "passiveList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [ "levelReq", "mod", "points" ],
+                        "properties": {
+                            "levelReq": { "$ref": "#/definitions/levelReq" },
+                            "mod": { "$ref": "#/definitions/mod" },
+                            "points": { "type": "integer", "minimum": 1 }
+                        }
+                    }
+                }
+            }
+        },
         "items": {
             "type": "object",
             "required": [ "itemList", "craftList", "modTables" ],
