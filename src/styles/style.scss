@@ -108,6 +108,10 @@ button {
 [disabled] {
     pointer-events: none;
     filter: brightness(50%);
+
+    &[data-highlight-notification]{
+        pointer-events: all;
+    }
 }
 
 ul,
