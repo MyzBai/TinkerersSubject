@@ -26,76 +26,75 @@ export function initTabs(btnsParent: Element | null, contentsParent: Element | n
 }
 
 
-// export function registerHighlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {
-//     const attr = 'data-highlight-notification';
-//     const removeAttr = () => element.removeAttribute(attr);
-//     element.setAttribute(attr, '');
-//     switch (trigger) {
-//         case 'click':
-//             element.addEventListener('click', removeAttr);
-//             break;
-//         case 'mouseover':
-//             element.addEventListener('mouseover', removeAttr);
-//             break;
+export function highlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {
+    const attr = 'data-highlight-notification';
+    if(element.classList.contains('selected')){
+        return;
+    }
+    element.setAttribute(attr, '');
+    const listener = () => {
+        element.removeAttribute(attr);
+        element.removeEventListener(trigger, listener);
+    };
+    element.addEventListener(trigger, listener);
+}
+
+// export const highlightHTMLElement = (() => {
+//     type Trigger = 'click' | 'mouseover';
+//     const attributeName = 'data-highlight-notification';
+
+//     class Node {
+//         element: HTMLElement;
+//         parent: Node | null;
+//         isRoot: boolean;
+//         trigger: Trigger;
+//         constructor(element: HTMLElement, parent: Node | null, isRoot: boolean, trigger: Trigger) {
+//             this.element = element;
+//             this.parent = parent;
+//             this.isRoot = isRoot;
+//             this.trigger = trigger;
+//             if (!isRoot) {
+//                 const listener = () => {
+//                     element.removeEventListener(trigger, listener);
+//                     element.removeAttribute(attributeName);
+//                     this.parent?.evaluate();
+//                 }
+//                 element.addEventListener(trigger, listener);
+//             }
+
+//         }
+//         evaluate() {
+//             const children = nodes.filter(x => x.parent === this);
+//             if (children.length === 0) {
+//                 return;
+//             }
+//             const test = children.some(x => x.element.hasAttribute(attributeName));
+//             if (!test) {
+//                 this.element.removeAttribute(attributeName);
+//                 this.parent?.evaluate();
+//             }
+//         }
 //     }
-// }
+//     const nodes = [] as Node[];
+//     function register(roots: HTMLElement[], elements: HTMLElement[], trigger: Trigger) {
 
-export const highlightHTMLElement = (() => {
-    type Trigger = 'click' | 'mouseover';
-    const attributeName = 'data-highlight-notification';
+//         let parent: Node = null;
+//         for (const root of roots) {
+//             let rootNode = nodes.find(x => x.element === root);
+//             if (!rootNode) {
+//                 rootNode = new Node(root, parent, true, trigger);
+//                 nodes.push(rootNode);
+//             }
+//             parent = rootNode;
+//         }
+//         for (const element of elements) {
+//             const node = new Node(element, parent, false, trigger);
+//             nodes.push(node);
+//         }
 
-    class Node {
-        element: HTMLElement;
-        parent: Node | null;
-        isRoot: boolean;
-        trigger: Trigger;
-        constructor(element: HTMLElement, parent: Node | null, isRoot: boolean, trigger: Trigger) {
-            this.element = element;
-            this.parent = parent;
-            this.isRoot = isRoot;
-            this.trigger = trigger;
-            if (!isRoot) {
-                const listener = () => {
-                    element.removeEventListener(trigger, listener);
-                    element.removeAttribute(attributeName);
-                    this.parent?.evaluate();
-                }
-                element.addEventListener(trigger, listener);
-            }
-
-        }
-        evaluate() {
-            const children = nodes.filter(x => x.parent === this);
-            if (children.length === 0) {
-                return;
-            }
-            const test = children.some(x => x.element.hasAttribute(attributeName));
-            if (!test) {
-                this.element.removeAttribute(attributeName);
-                this.parent?.evaluate();
-            }
-        }
-    }
-    const nodes = [] as Node[];
-    function register(roots: HTMLElement[], elements: HTMLElement[], trigger: Trigger) {
-
-        let parent: Node = null;
-        for (const root of roots) {
-            let rootNode = nodes.find(x => x.element === root);
-            if(!rootNode){
-                rootNode = new Node(root, parent, true, trigger);
-                nodes.push(rootNode);
-            }
-            parent = rootNode;
-        }
-        for (const element of elements) {
-            const node = new Node(element, parent, false, trigger);
-            nodes.push(node);
-        }
-
-        [...roots, ...elements].forEach(x => x.setAttribute(attributeName, ''));
-    }
-    return {
-        register,
-    }
-})();
+//         [...roots, ...elements].forEach(x => x.setAttribute(attributeName, ''));
+//     }
+//     return {
+//         register,
+//     }
+// })();

@@ -47,7 +47,7 @@ export function init(data: GConfig['achievements']) {
             if (level >= data.levelReq) {
                 playerStats.level.onChange.removeListener(id);
                 achievementsMenuButton.classList.remove('hidden');
-                highlightHTMLElement.register([], [achievementsMenuButton], 'click');
+                highlightHTMLElement(achievementsMenuButton, 'click');
             }
         });
     }
@@ -113,7 +113,8 @@ class Achievement {
         this.applyModifiers();
         this.removeCurValueFromDesc();
         this.element.querySelector('var').toggleAttribute(`data-valid`, this.completed);
-        highlightHTMLElement.register([achievementsMenuButton], [this.element], 'mouseover');
+        highlightHTMLElement(achievementsMenuButton, 'click');
+        highlightHTMLElement(this.element, 'mouseover');
     }
 
     private applyModifiers() {

@@ -80,11 +80,8 @@ class Passive {
         }
         this.locked = true;
         this.element.classList.remove('hidden');
-        highlightHTMLElement.register(
-            [passivesMenuButton],
-            [this.element],
-            'mouseover'
-        );
+        highlightHTMLElement(passivesMenuButton, 'click');
+        highlightHTMLElement(this.element, 'mouseover');
     }
 
     assign() {
