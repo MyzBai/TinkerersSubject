@@ -34,6 +34,7 @@ export function init(data: GConfig['passives']) {
     passivesMenuButton.classList.toggle('hidden', data.levelReq > 1);
 
     playerStats.level.onChange.listen(() => {
+        passives.forEach(x => x.tryUnlock());
         updateList();
     });
 }
@@ -62,21 +63,22 @@ class Passive {
     readonly mod: Modifier;
     readonly element: HTMLLIElement;
     private _assigned: boolean;
-    private unlocked: boolean;
+    private locked: boolean;
     constructor(passiveData: GConfig['passives']['passiveList'][number]) {
         Object.assign(this, passiveData, { mod: new Modifier(passiveData.mod) });
         this.element = this.createElement();
-        setHTMLVisibility(this.element, false);
+        this.locked = this.levelReq > 1;
+        setHTMLVisibility(this.element, !this.locked);
         this._assigned = false;
     }
 
     get assigned() { return this._assigned; }
 
     tryUnlock() {
-        if(this.unlocked || playerStats.level.get() < this.levelReq){
+        if(!this.locked || playerStats.level.get() < this.levelReq){
             return;
         }
-        this.unlocked = true;
+        this.locked = true;
         setHTMLVisibility(this.element, true);
         highlightHTMLElement.register(
             [passivesMenuButton],
