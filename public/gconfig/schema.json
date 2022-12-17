@@ -213,6 +213,10 @@
                 { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
             ]
         },
+        "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z 0-9]{3,16}$"
+        },
         "levelReq": {
             "type": "integer",
             "default": 1,
