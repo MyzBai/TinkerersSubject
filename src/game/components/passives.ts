@@ -1,5 +1,5 @@
 import type GConfig from "@src/types/gconfig";
-import { highlightHTMLElement, setHTMLVisibility } from "@src/utils/helpers";
+import { highlightHTMLElement } from "@src/utils/helpers";
 import { Modifier } from "../mods";
 import { modDB, playerStats } from "../player";
 
@@ -68,7 +68,7 @@ class Passive {
         Object.assign(this, passiveData, { mod: new Modifier(passiveData.mod) });
         this.element = this.createElement();
         this.locked = this.levelReq > 1;
-        setHTMLVisibility(this.element, !this.locked);
+        this.element.classList.toggle('hidden', this.locked);
         this._assigned = false;
     }
 
@@ -79,7 +79,7 @@ class Passive {
             return;
         }
         this.locked = true;
-        setHTMLVisibility(this.element, true);
+        this.element.classList.add('hidden');
         highlightHTMLElement.register(
             [passivesMenuButton],
             [this.element],

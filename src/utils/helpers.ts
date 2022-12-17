@@ -6,8 +6,6 @@ export const clamp = (value: number, min: number, max: number) => Math.max(min, 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 export const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
-export const setHTMLVisibility = (element: HTMLElement, visible: boolean) => element.classList.toggle('hidden', !visible);
-
 export function initTabs(btnsParent: Element | null, contentsParent: Element | null) {
 
     if (!btnsParent || !contentsParent) {
