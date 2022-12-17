@@ -89,7 +89,7 @@ export const highlightHTMLElement = (() => {
             parent = rootNode;
         }
         for (const element of elements) {
-            const node = new Node(element, parent, false, 'click');
+            const node = new Node(element, parent, false, trigger);
             nodes.push(node);
         }
 
