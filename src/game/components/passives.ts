@@ -81,7 +81,7 @@ class Passive {
         if (!this.locked || playerStats.level.get() < this.levelReq) {
             return;
         }
-        this.locked = true;
+        this.locked = false;
         this.element.classList.remove('hidden');
         highlightHTMLElement(passivesMenuButton, 'click');
         highlightHTMLElement(this.element, 'mouseover');
