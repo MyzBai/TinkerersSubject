@@ -1,4 +1,5 @@
 import type GConfig from "@src/types/gconfig";
+import { highlightHTMLElement, setHTMLVisibility } from "@src/utils/helpers";
 import { Modifier } from "../mods";
 import { modDB, playerStats } from "../player";
 
@@ -46,6 +47,7 @@ function updateList() {
     curPointsSpan.textContent = curPoints.toFixed();
 
     for (const passive of passives) {
+        passive.tryUnlock();
         if (!passive.assigned) {
             passive.element.toggleAttribute('disabled', passive.points > diff);
         }
@@ -60,13 +62,28 @@ class Passive {
     readonly mod: Modifier;
     readonly element: HTMLLIElement;
     private _assigned: boolean;
+    private unlocked: boolean;
     constructor(passiveData: GConfig['passives']['passiveList'][number]) {
         Object.assign(this, passiveData, { mod: new Modifier(passiveData.mod) });
         this.element = this.createElement();
+        setHTMLVisibility(this.element, false);
         this._assigned = false;
     }
 
     get assigned() { return this._assigned; }
+
+    tryUnlock() {
+        if(this.unlocked || playerStats.level.get() < this.levelReq){
+            return;
+        }
+        this.unlocked = true;
+        setHTMLVisibility(this.element, true);
+        highlightHTMLElement.register(
+            [passivesMenuButton],
+            [this.element],
+            'mouseover'
+        );
+    }
 
     assign() {
         this._assigned = true;
@@ -90,7 +107,6 @@ class Passive {
         li.classList.add('g-list-item', 'g-field');
         li.insertAdjacentHTML('beforeend', `<div>${this.mod.desc}</div>`);
         li.insertAdjacentHTML('beforeend', `<var>${this.points}</var>`);
-
         li.addEventListener('click', () => {
             this.toggle();
             updateList();
