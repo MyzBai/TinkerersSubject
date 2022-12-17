@@ -79,7 +79,7 @@ class Passive {
             return;
         }
         this.locked = true;
-        this.element.classList.add('hidden');
+        this.element.classList.remove('hidden');
         highlightHTMLElement.register(
             [passivesMenuButton],
             [this.element],
