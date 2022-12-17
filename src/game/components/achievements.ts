@@ -4,7 +4,7 @@ import type { Mod, GConfig } from "@src/types/gconfig";
 import { gameLoop } from "../game";
 import { Modifier } from "@game/mods";
 import { visibilityObserver } from '@utils/Observers';
-import { registerHighlightHTMLElement } from "@utils/helpers";
+import { highlightHTMLElement } from "@utils/helpers";
 
 type Validator = [RegExp, () => string, ((cur: number, target: number) => boolean)?];
 
@@ -18,6 +18,7 @@ const validators: Validator[] = [
     [/^Generate Gold {(\d+)}$/, () => statistics["Gold Generated"].get().toFixed()],
     [/^Regenerate Mana {(\d+)}$/, () => statistics["Mana Generated"].get().toFixed()],
 ];
+const achievementsMenuButton = document.querySelector<HTMLElement>('.p-game > menu [data-tab-target="achievements"]');
 
 const achievements: Achievement[] = [];
 let updateId: number = -1;
@@ -45,9 +46,8 @@ export function init(data: GConfig['achievements']) {
         const id = playerStats.level.onChange.listen(level => {
             if (level >= data.levelReq) {
                 playerStats.level.onChange.removeListener(id);
-                const menuButton = document.querySelector<HTMLElement>('.p-game menu [data-tab-target="achievements"]');
-                menuButton.classList.remove('hidden');
-                registerHighlightHTMLElement(menuButton, 'click');
+                achievementsMenuButton.classList.remove('hidden');
+                highlightHTMLElement.register([], [achievementsMenuButton], 'click');
             }
         });
     }
@@ -113,9 +113,7 @@ class Achievement {
         this.applyModifiers();
         this.removeCurValueFromDesc();
         this.element.querySelector('var').toggleAttribute(`data-valid`, this.completed);
-        console.log('test');
-        registerHighlightHTMLElement(document.querySelector('.p-game menu [data-tab-target="achievements"]'), 'click');
-        registerHighlightHTMLElement(this.element, 'mouseover');
+        highlightHTMLElement.register([achievementsMenuButton], [this.element], 'mouseover');
     }
 
     private applyModifiers() {
@@ -136,7 +134,6 @@ class Achievement {
         const header = document.createElement('div');
         accordion.appendChild(header);
         header.classList.add('header');
-        // header.insertAdjacentHTML('beforeend', `<div>${this.#description}</div>`);
         header.insertAdjacentHTML('beforeend', `<div>${this.description.substring(0, this.matchIndex)}<var><span data-cur-value>${this.validator[1]()}</span>/${this.targetValue.toString()}</var>${this.description.substring(this.matchIndex + this.targetValue.toString().length)}</div>`)
 
         if (this.modList.length > 0) {
