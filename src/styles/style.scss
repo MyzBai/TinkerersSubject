@@ -31,6 +31,7 @@ $color-modal-border: #545b64;
 $color-scrollbar-thumb-background: rgba(110, 118, 129, 0.4);
 
 $padding-container: 0.3em;
+$padding-list-item: 0.3em;
 $padding-button: 0.3em;
 $padding-modal: 2em;
 
@@ -242,6 +243,9 @@ input[type="submit"] {
     .header {
         display: flex;
         background-color: $color-accordion-header-bg;
+        padding: $padding-list-item;
+        cursor: default;
+        user-select: none;
         &:hover {
             background-color: $color-accordion-hover-bg;
         }
@@ -261,6 +265,7 @@ input[type="submit"] {
         }
         &[data-open] ~ .content {
             display: block;
+            padding: $padding-container;
         }
     }
     .content {
