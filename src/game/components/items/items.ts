@@ -81,7 +81,7 @@ export function init(data: GConfig['items']) {
             if (data.levelReq <= level) {
                 playerStats.level.onChange.removeListener(id);
                 itemsMenuButton.classList.remove('hidden');
-                highlightHTMLElement.register([itemsMenuButton], [], 'click');
+                highlightHTMLElement.register([itemsMenuButton], [], 'mouseover');
             }
         });
     } else {
@@ -101,7 +101,7 @@ function createItemList(itemList: ItemList) {
         const id = playerStats.level.onChange.listen(level => {
             if (itemData.levelReq <= level) {
                 item.element.classList.remove('hidden');
-                highlightHTMLElement.register([itemsMenuButton], [item.element], 'click');
+                highlightHTMLElement.register([itemsMenuButton], [item.element], 'mouseover');
                 playerStats.level.onChange.removeListener(id);
             }
         });
@@ -302,10 +302,7 @@ class Craft {
 
     tryUnlock(level: number) {
         if (this.locked && level >= this.levelReq) {
-            // registerHighlightHTMLElement(itemsMenuButton, 'click');
-            // registerHighlightHTMLElement(this.element, 'click');
-            // registerHighlightHTMLElement(Preset.default.element, 'click');
-            highlightHTMLElement.register([itemsMenuButton, Preset.default.element], [this.element], 'click');
+            highlightHTMLElement.register([itemsMenuButton, Preset.default.element], [this.element], 'mouseover');
             updateCraftList();
             this._locked = false;
         }
