@@ -1,40 +1,42 @@
 import Value from "@utils/Value";
 import type GConfig from "@src/types/gconfig";
-import EventEmitter from "@utils/EventEmitter";
+import { clamp } from "@src/utils/helpers";
 
 const healthBar = document.querySelector<HTMLElement>('.p-combat [data-health-bar]');
 
+export const enemyStats = Object.freeze({
+    maxHealth: new Value<number>(0),
+    curHealth: new Value<number>(0),
+    index: new Value<number>(0),
+    maxIndex: new Value<number>(0)
+});
 
-const maxHealth = new Value<number>(0);
-const curHealth = new Value<number>(0);
-let index = 0;
+enemyStats.curHealth.onChange.listen(updateHealthBar);
 
-export const onDeath = new EventEmitter<number>();
-export const getListIndex = () => index;
-
+let enemyList: GConfig['enemies']['enemyList'];
 export function init(enemyData: GConfig['enemies']) {
+    enemyList = enemyData.enemyList;
+    enemyStats.index.set(0);
+    enemyStats.maxIndex.set(enemyList.length-1)
+}
 
-    curHealth.onChange.removeAllListeners();
-    curHealth.onChange.listen(x => {
-        if (x <= 0) {
-            index = Math.min(index + 1, enemyData.enemyList.length - 1);
-            onDeath.invoke(index);
-            maxHealth.set(enemyData.enemyList[index]);
-            curHealth.set(maxHealth.get());
-        }
-        updatehealthBar();
-    });
-
-    index = 0;
-    maxHealth.set(enemyData.enemyList[index]);
-    curHealth.set(maxHealth.get());
+export function spawn(level: number) {
+    const targetIndex = level - 1;
+    const maxIndex = enemyStats.maxIndex.get();
+    enemyStats.index.set(clamp(targetIndex, 0, maxIndex));
+    const health = enemyList[enemyStats.index.get()];
+    enemyStats.maxHealth.set(health);
+    enemyStats.curHealth.set(health);
+    updateHealthBar();
 }
 
 export function takeDamage(amount: number) {
-    curHealth.subtract(amount);
+    enemyStats.curHealth.subtract(amount);
 }
 
-function updatehealthBar() {
-    const pct = curHealth.get() / maxHealth.get() * 100;
+function updateHealthBar() {
+    const pct = enemyStats.curHealth.get() / enemyStats.maxHealth.get() * 100;
     healthBar.style.width = pct + '%';
 }
+
+export default { enemyStats, spawn, takeDamage }
