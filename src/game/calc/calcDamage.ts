@@ -54,7 +54,8 @@ export function calcAttack(statModList: StatModifier[]) {
     }
 
     config.flags = StatModifierFlags.Attack;
-    const baseDamage = calcBaseDamage(config).totalBaseDamage;
+    const baseDamage = calcBaseDamage(config);
+
 
     const critChance = Math.min(calcModTotal('CritChance', config), 100) / 100;
     const critFac = randomRange(0, 1);
@@ -70,11 +71,13 @@ export function calcAttack(statModList: StatModifier[]) {
     //finalize
     const finalMultiplier = (baseDamageMultiplier / 100) * critMultiplier;
 
-    const totalDamage = baseDamage * finalMultiplier;
+    const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
+    const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
     return {
         hit,
         crit,
-        totalDamage
+        totalDamage,
+        totalPhysicalDamage
     }
 }
 
