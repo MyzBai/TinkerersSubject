@@ -109,7 +109,7 @@ function updatemanaBar() {
 function startAutoAttack() {
     let deltaTotal = 0;
     gameLoop.subscribe(dt => {
-        const attackSpeed = playerStats.attackSpeed.get();
+        const attackSpeed = 1 / playerStats.attackSpeed.get();
         deltaTotal += dt;
         if (deltaTotal >= attackSpeed) {
             const curMana = playerStats.curMana.get();
