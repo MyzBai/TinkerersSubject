@@ -109,18 +109,14 @@ function startAutoAttack() {
 
     gameLoop.subscribe(dt => {
         const attackSpeed = playerStats.attackSpeed.get();
-        if (typeof attackSpeed !== 'number') {
-            throw Error();
-        }
-
-        deltaTotal += dt * attackSpeed;
-        if (deltaTotal >= 1) {
+        deltaTotal += dt;
+        if (deltaTotal >= attackSpeed) {
             const curMana = playerStats.curMana.get();
             const manaCost = playerStats.attackManaCost.get();
             if (curMana > manaCost) {
-                deltaTotal -= 1;
                 playerStats.curMana.subtract(manaCost);
                 performAttack();
+                deltaTotal = 0;
             }
         }
     });
