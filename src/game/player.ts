@@ -4,7 +4,7 @@ import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
 import { gameLoop } from "./game";
-import { onDeath, takeDamage as dealDamageToEnemy } from './enemy';
+import enemy from './enemy';
 import statistics from "./statistics";
 import type { Save } from "./save";
 
@@ -27,10 +27,10 @@ export const playerStats = Object.freeze({
     skillDurationMultiplier: new Value<number>(1)
 });
 
-onDeath.listen(index => {
-    const newLevel = index + 1;
-    if (newLevel !== playerStats.level.get()) {
-        playerStats.level.set(newLevel);
+enemy.enemyStats.curHealth.onChange.listen(health => {
+    if(health <= 0){
+        playerStats.level.add(1);
+        spawnEnemy();
     }
 })
 
@@ -64,6 +64,8 @@ export function init(data?: Player) {
         playerStats.curMana.add(manaRegen);
         statistics["Mana Generated"].add(manaRegen);
     });
+
+    enemy.spawn(1);
 
     startAutoAttack();
 }
@@ -106,7 +108,6 @@ function updatemanaBar() {
 
 function startAutoAttack() {
     let deltaTotal = 0;
-
     gameLoop.subscribe(dt => {
         const attackSpeed = playerStats.attackSpeed.get();
         deltaTotal += dt;
@@ -122,19 +123,24 @@ function startAutoAttack() {
     });
 }
 
-
 function performAttack() {
     const result = calcAttack(modDB.modList);
     if (!result.hit) {
         return;
     }
+
     statistics.Hits.add(1);
     statistics["Total Damage"].add(result.totalDamage);
-    statistics["Total Physical Damage"].add(result.totalDamage);
+    statistics["Total Physical Damage"].add(result.totalPhysicalDamage);
     if (result.crit) {
         statistics["Critical Hits"].add(1);
     }
-    dealDamageToEnemy(result.totalDamage);
+
+    enemy.takeDamage(result.totalDamage);
+}
+
+function spawnEnemy(){
+    enemy.spawn(playerStats.level.get());
 }
 
 export function savePlayer(saveObj: Save) {
@@ -142,7 +148,7 @@ export function savePlayer(saveObj: Save) {
         level: playerStats.level.get(),
         gold: playerStats.gold.get(),
         curMana: playerStats.curMana.get()
-    }
+    };
 }
 
 export function loadPlayer(saveObj: Save) {
