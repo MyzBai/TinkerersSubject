@@ -218,7 +218,7 @@ export class Modifier {
     }
 
     compare(other: Modifier) {
-        this.templateDesc === other.templateDesc;
+        return this.templateDesc === other.templateDesc;
     }
 
     copy() {
