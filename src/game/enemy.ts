@@ -65,11 +65,10 @@ class Enemy {
 
     takeDamage(amount: number) {
         this.health = clamp(this.health - amount, 0, this.health);
+        this.updateHealthBar();
         if (this.health === 0) {
-            this.health = 0;
             onDeath.invoke(this);
         }
-        this.updateHealthBar();
     }
 
     updateHealthBar() {
