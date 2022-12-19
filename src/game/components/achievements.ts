@@ -34,12 +34,7 @@ export function init(data: GConfig['achievements']) {
 
     //validate loop
     gameLoop.subscribe(() => {
-        achievements.filter(x => !x.completed).forEach(achievement => {
-            const isComplete = achievement.validate();
-            if (isComplete) {
-                achievement.complete();
-            }
-        });
+        validateAchievements();
     }, { intervalMilliseconds: 1000 });
 
     if(data.levelReq > 1){
@@ -51,6 +46,15 @@ export function init(data: GConfig['achievements']) {
             }
         });
     }
+}
+
+function validateAchievements(){
+    achievements.forEach(achievement => {
+        const isComplete = achievement.validate();
+        if (isComplete) {
+            achievement.complete();
+        }
+    });
 }
 
 function handleUpdateLoop(visible: boolean) {
