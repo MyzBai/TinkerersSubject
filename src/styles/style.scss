@@ -419,8 +419,15 @@ body > header {
                 .s-health-bar-background {
                     background-color: $color-health-bar-bg;
                     .health-bar {
+                        position: relative;
+                        align-items: center;
                         background-color: $color-health-bar-fg;
-                        width: 60%;
+                        width: 100%;
+                    }
+
+                    .health-bar[data-damage]::after{
+                        content: attr(data-damage);
+                        margin: auto;
                     }
                 }
             }

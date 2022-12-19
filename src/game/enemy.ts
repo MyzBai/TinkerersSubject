@@ -11,7 +11,7 @@ let index: number;
 export const onDeath = new EventEmitter<Enemy>();
 onDeath.listen(x => {
     activeEnemy = enemies[++index];
-    activeEnemy.updateHealthBar();
+    activeEnemy.init();
 });
 
 export function init(data: GConfig['enemies']) {
@@ -22,7 +22,7 @@ export function init(data: GConfig['enemies']) {
     enemies.push(new Dummy());
 
     activeEnemy = enemies[index];
-    activeEnemy.updateHealthBar();
+    activeEnemy.init();
 }
 
 export function dealDamage(amount: number) {
@@ -31,6 +31,8 @@ export function dealDamage(amount: number) {
 
 export function spawnEnemyAt(level: number) {
     index = clamp(level - 1, 0, enemies.length - 1);
+    activeEnemy = enemies[index];
+    activeEnemy.init();
 }
 
 export function saveEnemy(saveObj: Save) {
@@ -48,13 +50,17 @@ export function loadEnemy(saveObj: Save) {
     if (activeEnemy instanceof Dummy) {
         activeEnemy.damage = saveObj.enemy.dummyDamage || 0;
     }
-    activeEnemy.updateHealthBar();
+    activeEnemy.init();
 }
 
 class Enemy {
     health: number;
     constructor(public readonly maxHealth: number) {
         this.health = maxHealth;
+    }
+
+    init(){
+        this.updateHealthBar();
     }
 
     takeDamage(amount: number) {
@@ -79,12 +85,17 @@ class Dummy extends Enemy {
         this.damage = 0;
     }
 
-    takeDamage(amount: number): void {
+    init(){
+        healthBar.style.width = '100%';
+        this.updateHealthBar();
+    }
+
+    takeDamage(amount: number) {
         this.damage += amount;
         this.updateHealthBar();
     }
 
-    updateHealthBar(): void {
+    updateHealthBar() {
         healthBar.setAttribute('data-damage', this.damage.toFixed());
     }
 }
