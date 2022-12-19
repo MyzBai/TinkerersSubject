@@ -418,13 +418,13 @@ export function saveItems(saveObj: Save) {
     const createItemModListData: (item: Item) => ModTemplate[] = (item) => item.mods.map(mod => { return { desc: mod.templateDesc, values: mod.stats.map(x => x.value) } });
     saveObj.items = {
         items: items.map(item => { return { name: item.name, modList: createItemModListData(item) } }),
-        craftPresets: presets.map(x => { return { name: x.name, ids: x.ids } })
+        craftPresets: presets.filter(x => !x.isDefault).map(x => { return { name: x.name, ids: x.ids } })
     }
 }
 
 export function loadItems(saveObj: Save) {
 
-    presets.forEach(x => x.delete());
+    presets.filter(x => !x.isDefault).forEach(x => x.delete());
 
     for (const itemData of saveObj.items.items) {
         const item = items.find(x => x.name === itemData.name);
