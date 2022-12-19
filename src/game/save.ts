@@ -5,7 +5,7 @@ import { loadPlayer, savePlayer, setup as setupPlayer } from "./player";
 import { loadEnemy, saveEnemy } from './enemy';
 import { saveItems, loadItems } from "./components/items/items";
 import { saveStatistics, loadStatistics } from "./statistics";
-import { loadSkills, saveSkills } from "./skills";
+import { loadSkills, saveSkills } from "./skills/skills";
 
 export type ModTemplate = { values: number[]; desc: ModDescription };
 
