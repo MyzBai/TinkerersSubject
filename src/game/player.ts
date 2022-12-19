@@ -151,9 +151,10 @@ export function savePlayer(saveObj: Save) {
     };
 }
 
-export function loadPlayer(saveObj: Save) {
-    playerStats.level.set(saveObj.player.level);
-    playerStats.gold.set(saveObj.player.gold);
-    playerStats.curMana.set(saveObj.player.curMana);
-    setup();
+export async function loadPlayer(saveObj: Save) {
+    playerStats.level.set(saveObj.player.level, true);
+    playerStats.gold.set(saveObj.player.gold, true);
+    playerStats.curMana.set(saveObj.player.curMana, true);
+
+    await updateStats();
 }

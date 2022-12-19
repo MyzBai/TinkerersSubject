@@ -12,9 +12,11 @@ export default class Value<T>{
 
     get onChange() { return this._onChange; }
 
-    set(v: T) {
+    set(v: T, suppressEvent = false) {
         this.value = v;
-        this.onChange.invoke(this.value);
+        if(!suppressEvent){
+            this.onChange.invoke(this.value);
+        }
     }
     get() {
         return this.value;
