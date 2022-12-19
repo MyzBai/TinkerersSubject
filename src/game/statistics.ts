@@ -3,16 +3,25 @@ import Value from "@utils/Value";
 import { gameLoop } from "./game";
 import { Save } from "./save";
 
-const statistics = Object.freeze({
-    'Time Played': new Value<number>(0),
-    'Gold Generated': new Value<number>(0),
-    'Mana Generated': new Value<number>(0),
-    'Hits': new Value<number>(0),
-    'Critical Hits': new Value<number>(0),
-    'Total Damage': new Value<number>(0),
-    'Total Physical Damage': new Value<number>(0),
-    'Prestige Count': new Value<number>(0),
-} as const);
+class Statistic<T> extends Value<T> {
+    readonly hidden: boolean;
+    constructor(defaultValue: T, hidden?: boolean) {
+        super(defaultValue);
+        this.hidden = hidden;
+    }
+}
+
+const statistics = {
+    'Time Played': new Statistic<number>(0),
+    'Gold Generated': new Statistic<number>(0),
+    'Mana Generated': new Statistic<number>(0),
+    'Hits': new Statistic<number>(0),
+    'Critical Hits': new Statistic<number>(0),
+    'Total Damage': new Statistic<number>(0),
+    'Total Physical Damage': new Statistic<number>(0),
+    'Prestige Count': new Statistic<number>(0),
+} as const;
+
 export default statistics;
 
 let updateId: number = undefined;
