@@ -424,7 +424,7 @@ export function saveItems(saveObj: Save) {
 
 export function loadItems(saveObj: Save) {
 
-    presets.forEach(x => !x.isDefault && x.delete());
+    presets.forEach(x => x.delete());
 
     for (const itemData of saveObj.items.items) {
         const item = items.find(x => x.name === itemData.name);
