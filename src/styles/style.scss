@@ -419,8 +419,7 @@ body > header {
                 .s-health-bar-background {
                     background-color: $color-health-bar-bg;
                     .health-bar {
-                        position: relative;
-                        align-items: center;
+                        display: flex;
                         background-color: $color-health-bar-fg;
                         width: 100%;
                     }
