@@ -11,6 +11,7 @@ let index: number;
 export const onDeath = new EventEmitter<Enemy>();
 onDeath.listen(x => {
     activeEnemy = enemies[++index];
+    activeEnemy.updateHealthBar();
 });
 
 export function init(data: GConfig['enemies']) {
@@ -59,6 +60,7 @@ class Enemy {
     takeDamage(amount: number) {
         this.health = clamp(this.health - amount, 0, this.health);
         if (this.health === 0) {
+            this.health = 0;
             onDeath.invoke(this);
         }
         this.updateHealthBar();
@@ -79,6 +81,7 @@ class Dummy extends Enemy {
 
     takeDamage(amount: number): void {
         this.damage += amount;
+        this.updateHealthBar();
     }
 
     updateHealthBar(): void {
