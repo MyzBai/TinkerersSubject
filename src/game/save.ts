@@ -1,11 +1,11 @@
 import localforage from 'localforage';
 import type { CraftId } from "@src/types/gconfig"
 import type { ModDescription } from "./mods";
+import { loadPlayer, savePlayer, setup as setupPlayer } from "./player";
+import { loadEnemy, saveEnemy } from './enemy';
 import { saveItems, loadItems } from "./components/items/items";
 import { saveStatistics, loadStatistics } from "./statistics";
-import { loadPlayer, savePlayer, setup as setupPlayer } from "./player";
 import { loadSkills, saveSkills } from "./skills";
-
 
 export type ModTemplate = { values: number[]; desc: ModDescription };
 
@@ -14,6 +14,11 @@ export interface Save {
         level: number;
         gold: number;
         curMana: number;
+    },
+    enemy?: {
+        index: number;
+        health: number;
+        dummyDamage: number;
     },
     skills?: {
         attackSkillName: string;
@@ -33,6 +38,7 @@ export interface Save {
 export async function save() {
     const saveObj: Save = {};
     savePlayer(saveObj);
+    saveEnemy(saveObj);
     saveSkills(saveObj);
     saveItems(saveObj);
     saveStatistics(saveObj);
@@ -57,6 +63,7 @@ export async function load() {
 
     const saveObj = JSON.parse(atob(saveStr)) as Save;
     loadPlayer(saveObj);
+    loadEnemy(saveObj);
     loadSkills(saveObj);
     loadItems(saveObj);
     loadStatistics(saveObj);

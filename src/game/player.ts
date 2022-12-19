@@ -4,7 +4,7 @@ import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
 import { gameLoop } from "./game";
-import enemy from './enemy';
+import enemy, { enemies } from "./enemy";
 import statistics from "./statistics";
 import type { Save } from "./save";
 
@@ -14,6 +14,12 @@ let statsUpdateId: number;
 
 export const modDB = new ModDB();
 modDB.onChange.listen(updateStats);
+
+enemy.onDeath.listen(() => {
+    if(playerStats.level.get() < enemies.length-1){
+        playerStats.level.add(1);
+    }
+});
 
 export const playerStats = Object.freeze({
     level: new Value<number>(1),
@@ -27,15 +33,7 @@ export const playerStats = Object.freeze({
     skillDurationMultiplier: new Value<number>(1)
 });
 
-enemy.enemyStats.curHealth.onChange.listen(health => {
-    if(health <= 0){
-        playerStats.level.add(1);
-        spawnEnemy();
-    }
-})
-
-export function init(data?: Player) {
-
+export function init(playerData?: Player) {
     Object.values(playerStats).forEach(x => x.reset());
     playerStats.level.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="level"]')!.textContent = x.toString());
     playerStats.gold.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="gold"]')!.textContent = x.toString());
@@ -47,8 +45,8 @@ export function init(data?: Player) {
         updatemanaBar();
     });
 
-    if (data) {
-        data.modList.forEach(x => {
+    if (playerData) {
+        playerData.modList.forEach(x => {
             modDB.add(new Modifier(x).stats, 'Player');
         });
     }
@@ -64,8 +62,6 @@ export function init(data?: Player) {
         playerStats.curMana.add(manaRegen);
         statistics["Mana Generated"].add(manaRegen);
     });
-
-    enemy.spawn(1);
 
     startAutoAttack();
 }
@@ -136,11 +132,7 @@ function performAttack() {
         statistics["Critical Hits"].add(1);
     }
 
-    enemy.takeDamage(result.totalDamage);
-}
-
-function spawnEnemy(){
-    enemy.spawn(playerStats.level.get());
+    enemy.dealDamage(result.totalDamage);
 }
 
 export function savePlayer(saveObj: Save) {
