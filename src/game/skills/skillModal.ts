@@ -34,7 +34,13 @@ export class Modal<T extends Skill> {
             const skill = this.skills.find(x => x.name === nameAttr);
             element.classList.toggle('hidden', skill.levelReq > playerStats.level.get());
         }
-        this.skillListElements.find(x => !x.classList.contains('.hidden'))?.click();
+       
+        if(skillSlot.skill){
+            this.skillListElements.find(x => x.getAttribute('data-skill-name') === this.skillSlot.skill.name)?.click();
+        } else{
+            this.skillListElements.find(x => !x.classList.contains('.hidden'))?.click();
+        }
+        
         this.modalElement.classList.remove('hidden');
     }
 
