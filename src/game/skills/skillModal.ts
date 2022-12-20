@@ -1,3 +1,4 @@
+import { playerStats } from "../player";
 import { AttackSkill, BuffSkill, Skill, } from "./skills";
 import { SkillSlot, AttackSkillSlot, BuffSkillSlot } from "./skillSlots";
 
@@ -30,6 +31,8 @@ export class Modal<T extends Skill> {
             const nameAttr = element.getAttribute('data-skill-name');
             const isUsed = skillSlotNames.some(x => x === nameAttr);
             element.toggleAttribute('disabled', isUsed);
+            const skill = this.skills.find(x => x.name === nameAttr);
+            element.classList.toggle('hidden', skill.levelReq > playerStats.level.get());
         }
         this.skillListElements.find(x => !x.classList.contains('.hidden'))?.click();
         this.modalElement.classList.remove('hidden');
