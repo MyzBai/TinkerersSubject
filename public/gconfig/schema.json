@@ -57,7 +57,7 @@
                 },
                 "buffSkills": {
                     "type": "object",
-                    "required": [ "skillList" ],
+                    "required": [ "skillList", "skillSlot" ],
                     "properties": {
                         "skillSlots": {
                             "type": "array",
