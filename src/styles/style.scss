@@ -109,7 +109,7 @@ button {
     pointer-events: none;
     filter: brightness(50%);
 
-    &[data-highlight-notification]{
+    &[data-highlight-notification] {
         pointer-events: all;
     }
 }
@@ -229,7 +229,7 @@ input[type="submit"] {
     }
 
     footer {
-        button[data-value]{
+        button[data-value] {
             min-width: 5em;
             background-color: $color-modal-cancel-bg;
         }
@@ -346,7 +346,9 @@ input[type="submit"] {
     & > :nth-child(1) {
         flex: 1;
         word-wrap: break-word;
-        padding-right: 1em;
+    }
+    & > :last-child {
+        padding-left: 1em;
     }
 }
 
@@ -424,7 +426,7 @@ body > header {
                         width: 100%;
                     }
 
-                    .health-bar[data-damage]::after{
+                    .health-bar[data-damage]::after {
                         content: attr(data-damage);
                         margin: auto;
                     }
@@ -443,27 +445,33 @@ body > header {
                     [data-skill-slot] {
                         display: flex;
                         cursor: default;
+                        
                         [data-label] {
                             padding: $padding-button;
                             text-align: left;
                         }
 
                         &[data-skill-slot="buff-skill"] {
-                            [data-trigger] {
-                                width: 100%;
-                            }
-                            & :first-child {
+                            .wrapper{
                                 position: relative;
-                                [data-progress-bar] {
+                                [data-progress-bar]{
                                     pointer-events: none;
                                     position: absolute;
-                                    top: 0;
                                     left: 0;
-                                    width: 100%;
+                                    top: 0;
+                                    width: 0%;
                                     height: 100%;
                                     background-color: $color-skill-slot-progress-bg;
                                 }
                             }
+
+                            [data-label] {
+                                width: 100%;
+                            }
+                        }
+                        [data-edit]{
+                            width: 4em;
+                            padding: 0;
                         }
                     }
                 }
@@ -478,7 +486,7 @@ body > header {
                     ul {
                         text-align: left;
 
-                        li{
+                        li {
                             pointer-events: all;
                         }
                     }
@@ -506,7 +514,7 @@ body > header {
         }
 
         .p-passives {
-            header{
+            header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -552,14 +560,14 @@ body > header {
                 }
             }
 
-            [data-craft-preset-modal]{
-                section{
+            [data-craft-preset-modal] {
+                section {
                     display: grid;
                     grid-template-rows: auto auto 1fr;
-                    h2{
+                    h2 {
                         text-align: center;
                     }
-                    [data-craft-list]{
+                    [data-craft-list] {
                         min-height: 0;
                         text-align: left;
                         overflow-y: auto;
@@ -589,12 +597,6 @@ body > header {
                     padding-left: 0.6em;
                 }
             }
-        }
-    }
-
-    .s-stats {
-        li > :last-child {
-            padding-left: 1em;
         }
     }
 }
