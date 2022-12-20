@@ -2,6 +2,7 @@ import type GConfig from "@src/types/gconfig";
 import { highlightHTMLElement } from "@src/utils/helpers";
 import { Modifier } from "../mods";
 import { modDB, playerStats } from "../player";
+import { Save } from "../save";
 
 const SOURCE_NAME: string = 'Passives';
 
@@ -12,7 +13,7 @@ const curPointsSpan = passivesPage.querySelector('.p-game .p-passives header [da
 const maxPointsSpan = passivesPage.querySelector('.p-game .p-passives header [data-max-points]');
 const clearButton = passivesPage.querySelector<HTMLButtonElement>('header [data-clear]');
 
-clearButton.addEventListener('click', () => { passives.filter(x => x.assigned).forEach(x => x.unassign()); updateList() });
+clearButton.addEventListener('click', () => clearPassives());
 const getMaxPoints = () => pointsPerLevel * (playerStats.level.get() - 1);
 const getCurPoints = () => passives.filter(x => x.assigned).reduce((a, c) => a += c.points, 0);
 
@@ -36,11 +37,16 @@ export function init(data: GConfig['passives']) {
     playerStats.level.onChange.listen(() => {
         passives.forEach(x => x.tryUnlock());
         const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * playerStats.level.get() - 2)) > 0;
-        if(pointsGained){
+        if (pointsGained) {
             highlightHTMLElement(passivesMenuButton, 'click');
         }
         updateList();
     });
+}
+
+function clearPassives() {
+    passives.filter(x => x.assigned).forEach(x => x.unassign());
+    updateList();
 }
 
 function updateList() {
@@ -56,6 +62,31 @@ function updateList() {
             passive.element.toggleAttribute('disabled', passive.points > diff);
         }
         passive.element.classList.toggle('selected', passive.assigned);
+    }
+}
+
+export function savePassives(save: Save) {
+    save.passives = {
+        list: passives.filter(x => x.assigned).map(x => {
+            return {
+                index: passives.indexOf(x),
+                desc: x.mod.desc
+            }
+        })
+    };
+}
+
+export function loadPassives(save: Save) {
+    const valid = save.passives.list.every(x => {
+        const passive = passives[x.index];
+        return passive.mod.desc === x.desc;
+    });
+    if (valid) {
+        save.passives.list.forEach(x => {
+            const passive = passives[x.index];
+            passive.assign();
+        })
+        updateList();
     }
 }
 

@@ -3,6 +3,7 @@ import type { CraftId } from "@src/types/gconfig"
 import type { ModDescription } from "./mods";
 import { loadPlayer, savePlayer, setup as setupPlayer } from "./player";
 import { loadEnemy, saveEnemy } from './enemy';
+import { savePassives, loadPassives } from "./components/passives";
 import { saveItems, loadItems } from "./components/items/items";
 import { saveStatistics, loadStatistics } from "./statistics";
 import { loadSkills, saveSkills } from "./skills/skills";
@@ -24,6 +25,9 @@ export interface Save {
         attackSkillName: string;
         buffSkillNames?: string[];
     },
+    passives?: {
+        list: {index: number; desc: string}[]
+    }
     items?: {
         items: {
             name: string;
@@ -37,11 +41,7 @@ export interface Save {
 
 export async function save() {
     const saveObj: Save = {};
-    savePlayer(saveObj);
-    saveEnemy(saveObj);
-    saveSkills(saveObj);
-    saveItems(saveObj);
-    saveStatistics(saveObj);
+    [savePlayer, saveEnemy, saveSkills, savePassives, saveItems, saveStatistics].forEach(x => x(saveObj));
 
     const save = btoa(JSON.stringify(saveObj));
     if (save !== null) {
@@ -62,11 +62,7 @@ export async function load() {
     const saveStr = await blob.text();
 
     const saveObj = JSON.parse(atob(saveStr)) as Save;
-    loadPlayer(saveObj);
-    loadEnemy(saveObj);
-    loadSkills(saveObj);
-    loadItems(saveObj);
-    loadStatistics(saveObj);
+    [loadPlayer, loadEnemy, loadSkills, loadPassives, loadItems, loadStatistics].forEach(x => x(saveObj));
 
     setupPlayer();
 }
