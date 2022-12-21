@@ -224,6 +224,13 @@ export class Modifier {
     copy() {
         return new Modifier(this.text);
     }
+    setStatValues(values: number[]){
+        if(this.stats.length !== values.length){
+            return;
+        }
+        this.stats.forEach((x,i) => x.value = values[i]);
+        return true;
+    }
 }
 
 export class StatModifier {
