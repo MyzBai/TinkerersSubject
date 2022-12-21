@@ -8,15 +8,15 @@ import enemy, { enemies } from "./enemy";
 import statistics from "./statistics";
 import type { Save } from "./save";
 
-const playerStatsContainer = document.querySelector('.p-game > .s-stats');
-const manaBar = document.querySelector<HTMLElement>('.p-combat [data-mana-bar]');
+const playerStatsContainer = document.querySelector<HTMLElement>('.p-game > .s-stats')!;
+const manaBar = document.querySelector<HTMLElement>('.p-combat [data-mana-bar]')!;
 let statsUpdateId: number;
 
 export const modDB = new ModDB();
 modDB.onChange.listen(updateStats);
 
 enemy.onDeath.listen(() => {
-    if(playerStats.level.get() < enemies.length-1){
+    if (playerStats.level.get() < enemies.length - 1) {
         playerStats.level.add(1);
     }
 });
@@ -121,7 +121,7 @@ function startAutoAttack() {
 
 function performAttack() {
     const result = calcAttack(modDB.modList);
-    if (!result.hit) {
+    if (!result) {
         return;
     }
 
@@ -144,9 +144,9 @@ export function savePlayer(saveObj: Save) {
 }
 
 export async function loadPlayer(saveObj: Save) {
-    playerStats.level.set(saveObj.player.level, true);
-    playerStats.gold.set(saveObj.player.gold, true);
-    playerStats.curMana.set(saveObj.player.curMana, true);
+    playerStats.level.set(saveObj.player?.level || 1);
+    playerStats.gold.set(saveObj.player?.gold || 0);
+    playerStats.curMana.set(saveObj.player?.curMana || 0);
 
     await updateStats();
 }

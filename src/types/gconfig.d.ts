@@ -7,8 +7,13 @@ export interface GConfig {
     skills: Skills;
     passives?: Passives;
     items?: Items;
-    achievements?: Achievements;
+    achievements: Achievements;
     prestige?: Prestige;
+    test?: {
+        test2?: {
+            test3: number;
+        }
+    }
 }
 
 export interface Options {
@@ -32,7 +37,7 @@ export interface Skills {
         }[]
     };
     buffSkills: {
-        skillSlots?: {
+        skillSlots: {
             levelReq: number;
         }[]
         skillList: {

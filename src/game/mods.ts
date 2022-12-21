@@ -59,7 +59,7 @@ export type GainAsStatName = 'ElementalGainAsPhysical' | 'ChaosGainAsElemental' 
 
 interface ModTemplate {
     readonly desc: ModDescription;
-    readonly tags?: ModifierTag[],
+    readonly tags: ModifierTag[],
     readonly stats: {
         readonly name: StatName;
         readonly valueType: StatModifierValueType;
@@ -110,6 +110,7 @@ export const modTemplates: ModTemplate[] = [
     },
     {
         desc: '+#% Hit Chance',
+        tags: [],
         stats: [{ name: 'HitChance', valueType: 'Base' }]
     },
     {
@@ -165,7 +166,6 @@ export const modTemplates: ModTemplate[] = [
 ];
 
 export class Modifier {
-
     readonly text: Mod;
     readonly template: ModTemplate;
     readonly tags: ModifierTag[] = [];
@@ -173,15 +173,12 @@ export class Modifier {
     constructor(text: Mod) {
         this.text = text;
         const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
-        const desc = text.replace(/{[^}]+}/g, '#');
-        this.template = modTemplates.find((x) => x.desc === desc);
-        if (!this.template) {
+        const desc = text.replace(/{[^}]+}/g, '#') as ModDescription;
+        if(!modTemplates.some(x => x.desc === desc)){
             throw Error('Failed to find mod template. Invalid mod description');
         }
+        this.template = modTemplates.find(x => x.desc === desc)!;
         this.tags = this.template.tags;
-
-        // this.#template = template;
-        // this.#tags = [...template?.tags || []];
 
         for (const statTemplate of this.template.stats) {
             const groups = match[this.template.stats.indexOf(statTemplate)].groups;
@@ -224,6 +221,7 @@ export class Modifier {
     copy() {
         return new Modifier(this.text);
     }
+
     setStatValues(values: number[]){
         if(this.stats.length !== values.length){
             return;
@@ -238,12 +236,18 @@ export class StatModifier {
     readonly name: StatName;
     readonly valueType: StatModifierValueType;
     value: number;
-    readonly flags?: number;
-    readonly min?: number;
-    readonly max?: number;
+    readonly flags: number;
+    readonly min: number;
+    readonly max: number;
     source?: string;
-    constructor(params: StatModifierParams) {
-        Object.assign(this, params);
+    constructor(data: StatModifierParams) {
+        this.name = data.name;
+        this.valueType = data.valueType;
+        this.value = data.value;
+        this.flags = data.flags || 0;
+        this.min = data.min || this.value;
+        this.max = data.max || this.value || this.min;
+        this.source = data.source;
     }
 
     randomizeValue() {
@@ -268,7 +272,7 @@ export class ModDB {
     }
 
     removeBySource(source: string) {
-        this._modList = this.modList.filter(x => !x || x.source != source);
+        this._modList = this.modList.filter(x => x.source !== source);
         this.onChange.invoke([...this.modList]);
     }
 

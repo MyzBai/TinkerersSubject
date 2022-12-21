@@ -43,7 +43,6 @@ export async function init(module: GConfig) {
 
     initEnemy(module.enemies);
     initPlayer(module.player);
-
     initSkills(module.skills);
 
     loadComponents(module);

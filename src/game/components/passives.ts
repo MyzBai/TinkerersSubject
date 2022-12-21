@@ -1,17 +1,17 @@
 import type GConfig from "@src/types/gconfig";
-import { highlightHTMLElement } from "@src/utils/helpers";
+import { highlightHTMLElement, queryHTML } from "@src/utils/helpers";
 import { Modifier } from "../mods";
 import { modDB, playerStats } from "../player";
 import { Save } from "../save";
 
 const SOURCE_NAME: string = 'Passives';
 
-const passivesMenuButton = document.querySelector<HTMLElement>('.p-game > menu [data-tab-target="passives"]');
-const passivesPage = document.querySelector('.p-game .p-passives');
-const passivesList = passivesPage.querySelector('.p-game .p-passives [data-passives-list]');
-const curPointsSpan = passivesPage.querySelector('.p-game .p-passives header [data-cur-points]');
-const maxPointsSpan = passivesPage.querySelector('.p-game .p-passives header [data-max-points]');
-const clearButton = passivesPage.querySelector<HTMLButtonElement>('header [data-clear]');
+const passivesMenuButton = queryHTML('.p-game > menu [data-tab-target="passives"]');
+const passivesPage = queryHTML('.p-game .p-passives');
+const passivesList = queryHTML('[data-passives-list]', passivesPage);
+const curPointsSpan = queryHTML('header [data-cur-points]', passivesPage);
+const maxPointsSpan = queryHTML('header [data-max-points]', passivesPage);
+const clearButton = queryHTML<HTMLButtonElement>('header [data-clear]', passivesPage);
 
 clearButton.addEventListener('click', () => clearPassives());
 const getMaxPoints = () => pointsPerLevel * (playerStats.level.get() - 1);
@@ -20,7 +20,9 @@ const getCurPoints = () => passives.filter(x => x.assigned).reduce((a, c) => a +
 let passives: Passive[];
 let pointsPerLevel: number;
 export function init(data: GConfig['passives']) {
-
+    if(!data){
+        return;
+    }
     passives = [];
     pointsPerLevel = 1;
 
@@ -34,14 +36,22 @@ export function init(data: GConfig['passives']) {
 
     passivesMenuButton.classList.toggle('hidden', data.levelReq > 1);
 
-    playerStats.level.onChange.listen(() => {
+    playerStats.level.addListener('add', level => {
         passives.forEach(x => x.tryUnlock());
-        const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * playerStats.level.get() - 2)) > 0;
+        const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * level - 2)) > 0;
         if (pointsGained) {
             highlightHTMLElement(passivesMenuButton, 'click');
         }
         updateList();
-    });
+    })
+    // playerStats.level.onChange.listen(() => {
+    //     passives.forEach(x => x.tryUnlock());
+    //     const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * playerStats.level.get() - 2)) > 0;
+    //     if (pointsGained) {
+    //         highlightHTMLElement(passivesMenuButton, 'click');
+    //     }
+    //     updateList();
+    // });
 }
 
 function clearPassives() {
@@ -77,12 +87,17 @@ export function savePassives(save: Save) {
 }
 
 export function loadPassives(save: Save) {
-    const valid = save.passives.list.every(x => {
+    const savedPassives = save.passives;
+    if(!savedPassives){
+        passives.forEach(x => x.unassign());
+        return;
+    }
+    const valid = savedPassives.list.every(x => {
         const passive = passives[x.index];
         return passive.mod.desc === x.desc;
     });
     if (valid) {
-        save.passives.list.forEach(x => {
+        savedPassives.list.forEach(x => {
             const passive = passives[x.index];
             passive.assign();
         })
@@ -98,8 +113,10 @@ class Passive {
     readonly element: HTMLLIElement;
     private _assigned: boolean;
     private locked: boolean;
-    constructor(passiveData: GConfig['passives']['passiveList'][number]) {
-        Object.assign(this, passiveData, { mod: new Modifier(passiveData.mod) });
+    constructor(passiveData: NonNullable<GConfig['passives']>['passiveList'][number]) {
+        this.levelReq = passiveData.levelReq;
+        this.points = passiveData.points;
+        this.mod = new Modifier(passiveData.mod);
         this.element = this.createElement();
         this.locked = this.levelReq > 1;
         this.element.classList.toggle('hidden', this.locked);

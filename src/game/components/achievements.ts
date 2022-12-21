@@ -18,19 +18,19 @@ const validators: Validator[] = [
     [/^Generate Gold {(\d+)}$/, () => statistics["Gold Generated"].get().toFixed()],
     [/^Regenerate Mana {(\d+)}$/, () => statistics["Mana Generated"].get().toFixed()],
 ];
-const achievementsMenuButton = document.querySelector<HTMLElement>('.p-game > menu [data-tab-target="achievements"]');
+const achievementsMenuButton = document.querySelector<HTMLElement>('.p-game > menu [data-tab-target="achievements"]')!;
 
 const achievements: Achievement[] = [];
 let updateId: number = -1;
 
-visibilityObserver(document.querySelector('.p-game .p-achievements'), handleUpdateLoop);
+visibilityObserver(document.querySelector('.p-game .p-achievements')!, handleUpdateLoop);
 
 export function init(data: GConfig['achievements']) {
     achievements.splice(0);
     for (const item of data.list) {
         achievements.push(new Achievement(item));
     }
-    document.querySelector('.p-achievements ul').replaceChildren(...achievements.map(x => x.element));
+    document.querySelector('.p-achievements ul')!.replaceChildren(...achievements.map(x => x.element));
 
     //validate loop
     gameLoop.subscribe(() => {
@@ -84,9 +84,9 @@ class Achievement {
             throw Error('no achievement validator found');
         }
         this.validator = validator;
-        const match = validator[0].exec(args.description);
+        const match = validator[0].exec(args.description) as RegExpMatchArray;
         this.targetValue = Number(match[1]);
-        this.matchIndex = args.description.match(/{\d+}/).index;
+        this.matchIndex = args.description.match(/{\d+}/)?.index as number;
         this.element = this.createElement();
     }
 
@@ -94,8 +94,7 @@ class Achievement {
         if (this.completed) {
             return;
         }
-        this.element.querySelector('[data-cur-value]').textContent = this.validator[1]();
-
+        this.element.querySelector('[data-cur-value]')!.textContent = this.validator[1]();
     }
 
     validate() {
@@ -116,7 +115,7 @@ class Achievement {
         this.completed = true;
         this.applyModifiers();
         this.removeCurValueFromDesc();
-        this.element.querySelector('var').toggleAttribute(`data-valid`, this.completed);
+        this.element.querySelector('var')!.toggleAttribute(`data-valid`, this.completed);
         highlightHTMLElement(achievementsMenuButton, 'click');
         highlightHTMLElement(this.element, 'mouseover');
     }
@@ -127,7 +126,7 @@ class Achievement {
     }
 
     private removeCurValueFromDesc() {
-        const varElement = this.element.querySelector('var');
+        const varElement = this.element.querySelector('var')!;
         const innerHTML = varElement.innerHTML;
         const endIndex = innerHTML.indexOf('</span>');
         varElement.innerHTML = innerHTML.substring(endIndex + 8);

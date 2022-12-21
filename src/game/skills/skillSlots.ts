@@ -1,3 +1,4 @@
+import { queryHTML } from "@src/utils/helpers";
 import { gameLoop } from "../game";
 import { playerStats, modDB } from "../player";
 import { AttackSkillModal, BuffSkillModal } from "./skillModal";
@@ -5,24 +6,24 @@ import { AttackSkill, BuffSkill, Skill } from "./skills";
 
 
 
-export class SkillSlot<T extends Skill> {
+export abstract class SkillSlot<T extends Skill> {
     public readonly element: HTMLElement;
     protected _skill?: T;
     constructor() {
         this.element = this.createElement();
     }
     get skill() { return this._skill; }
-    set(skill: T) {
+    set(skill: T | undefined) {
         this._skill = skill;
         const name = skill?.name || '[Empty]';
         this.element.setAttribute('data-skill-name', name);
-        this.element.querySelector('[data-label]').textContent = name;
+        queryHTML('[data-label]', this.element).textContent = name;
     }
-    protected createElement() { return undefined as HTMLElement; }
+    protected abstract createElement(): HTMLElement;
 }
 
 export class AttackSkillSlot extends SkillSlot<AttackSkill> {
-    private readonly skillSlotContainer = document.querySelector<HTMLElement>('.p-game .s-player .s-skills [data-attack-skill]');
+    private readonly skillSlotContainer = queryHTML('.p-game .s-player .s-skills [data-attack-skill]');
     private readonly modal: AttackSkillModal;
     readonly skills: AttackSkill[];
     constructor(attackSkills: AttackSkill[], modal: AttackSkillModal) {
@@ -47,16 +48,17 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
         element.setAttribute('data-skill-slot', 'attack-skill');
         element.insertAdjacentHTML('beforeend', `<div data-label></div>`);
         element.insertAdjacentHTML('beforeend', `<button class="g-button" data-edit>Edit</button>`);
-        element.querySelector('button').addEventListener('click', () => this.edit());
+        element.querySelector('button[data-edit]')!.addEventListener('click', () => this.edit());
         return element;
     }
 }
 
 export class BuffSkillSlot extends SkillSlot<BuffSkill> {
-    private readonly buffSkillList: HTMLUListElement = document.querySelector<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]');
+    private readonly buffSkillList = queryHTML<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]');
+    private readonly progressBar = queryHTML('[data-progress-bar]');
     readonly modal: BuffSkillModal;
     readonly skills: BuffSkill[];
-    private running: boolean;
+    private running: boolean = false;
 
     constructor(skills: BuffSkill[], modal: BuffSkillModal) {
         super();
@@ -79,12 +81,14 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
     }
 
     private start() {
-        const calcDuration = () => this._skill.baseDuration * playerStats.skillDurationMultiplier.get();
+        if (!this._skill) {
+            return;
+        }
+        const calcDuration = () => this._skill?.baseDuration || 0 * playerStats.skillDurationMultiplier.get();
         let time = calcDuration();
         let pct = 100;
         let duration = time;
         let loopId = -1;
-        const progressBar = this.element.querySelector<HTMLElement>('.wrapper [data-progress-bar]');
         const changeId = playerStats.skillDurationMultiplier.onChange.listen(() => {
             duration = calcDuration();
             time = duration * (pct / 100);
@@ -101,15 +105,17 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
                 }
                 time -= dt;
                 pct = Math.max(0, time / duration * 100);
-                progressBar.style.width = `${pct}%`;
+                this.progressBar.style.width = `${pct}%`;
             });
         }
 
         const stop = () => {
             playerStats.skillDurationMultiplier.onChange.removeListener(changeId);
-            modDB.removeBySource(this._skill.sourceName);
+            if(this._skill){
+                modDB.removeBySource(this._skill.sourceName);
+            }
             this.running = false;
-            progressBar.style.width = `0%`;
+            this.progressBar.style.width = `0%`;
         }
         startLoops();
         this.running = true;
@@ -130,8 +136,8 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
             <div class="g-button" data-label></div>
         </div>`);
         element.insertAdjacentHTML('beforeend', `<button class="g-button" data-edit>Edit</button>`);
-        element.querySelector('[data-edit]').addEventListener('click', () => this.edit());
-        element.querySelector('[data-label]').addEventListener('click', () => this.trigger());
+        queryHTML('[data-edit]', element).addEventListener('click', () => this.edit());
+        queryHTML('[data-label]', element).addEventListener('click', () => this.trigger());
         return element;
     }
 }

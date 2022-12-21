@@ -50,7 +50,7 @@ export function calcAttack(statModList: StatModifier[]) {
     const hitFac = randomRange(0, 1);
     const hit = hitChance >= hitFac;
     if (!hit) {
-        return { hit: false };
+        return false;
     }
 
     config.flags = StatModifierFlags.Attack;
@@ -83,7 +83,7 @@ export function calcAttack(statModList: StatModifier[]) {
 
 export function calcBaseDamage(config: Configuration) {
 
-    config.conversionTable = generateConversionTable(config);
+    const conversionTable = generateConversionTable(config);
     const output = {
         totalBaseDamage: 0,
         minPhysicalDamage: 0,
@@ -101,7 +101,7 @@ export function calcBaseDamage(config: Configuration) {
 
     {
         config.flags |= StatModifierFlags.Physical;
-        const { min, max } = calcDamage('Physical', config);
+        const { min, max } = calcDamage('Physical', config, conversionTable);
         output.minPhysicalDamage = min;
         output.maxPhysicalDamage = max;
         const baseDamage = config.calcMinMax(min, max);
@@ -114,7 +114,7 @@ export function calcBaseDamage(config: Configuration) {
 }
 
 
-function calcDamage(damageType: DamageType, config: Configuration, damageFlag = 0) {
+function calcDamage(damageType: DamageType, config: Configuration, conversionTable: ConversionTable, damageFlag = 0) {
 
     damageFlag |= DamageTypeFlags[damageType];
     let addMin = 0;
@@ -124,9 +124,9 @@ function calcDamage(damageType: DamageType, config: Configuration, damageFlag = 
         if (type === damageType) {
             break;
         }
-        const convMulti = (config.conversionTable?.[type] as ConversionValues)[damageType] as number;
+        const convMulti = (conversionTable[type] as ConversionValues)[damageType] as number;
         if (convMulti > 0) {
-            const { min, max } = calcDamage(type, config, damageFlag);
+            const { min, max } = calcDamage(type, config, conversionTable, damageFlag);
             addMin += Math.ceil(min * convMulti);
             addMax += Math.ceil(max * convMulti);
         }
@@ -164,17 +164,9 @@ function generateConversionTable(config: Configuration) {
             add[otherDamageType] = calcModBase(`${damageType}GainAs${otherDamageType}` as StatName, config);
         }
 
-        if (skillTotal > 100) {
-            const fac = 100 / skillTotal;
-            for (const key of Object.keys(skillConv)) {
-                skillConv[key as DamageType] *= fac;
-            }
-
-        } else if (globalTotal + skillTotal > 100) {
-            const fac = (100 - skillTotal) / globalTotal;
-            for (const key of Object.keys(globalConv)) {
-                globalConv[key as DamageType] *= fac;
-            }
+        const fac = skillTotal > 100 ? 100 / skillTotal : (100 - skillTotal) / globalTotal;
+        for (const key of Object.keys(skillConv)) {
+            skillConv[key as DamageType]! *= fac;
         }
 
         const conversionValues: ConversionValues = { multi: 1 };

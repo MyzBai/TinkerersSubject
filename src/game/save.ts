@@ -8,8 +8,6 @@ import { saveItems, loadItems } from "./components/items/items";
 import { saveStatistics, loadStatistics } from "./statistics";
 import { loadSkills, saveSkills } from "./skills/skills";
 
-export type ModTemplate = { values: number[]; desc: ModDescription };
-
 export interface Save {
     player?: {
         level: number;
@@ -31,7 +29,10 @@ export interface Save {
     items?: {
         items: {
             name: string;
-            modList: ModTemplate[];
+            modList: { 
+                values: number[];
+                desc: ModDescription 
+            }[];
         }[],
         craftPresets: { name: string, ids: CraftId[] }[]
     };

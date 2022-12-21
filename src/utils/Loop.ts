@@ -23,8 +23,8 @@ export default class Loop {
     
     private instances = new Map<number, Instance>();
     private animInstances = new Map<number, AnimInstance>();
-    private loopId: number;
-    private animHandle: number;
+    private loopId = 0;
+    private animLoopId = 0;
     private counter = 0;
     private animCounter = 0;
     constructor() {
@@ -70,7 +70,7 @@ export default class Loop {
     stop() {
         this.running = false;
         clearTimeout(this.loopId);
-        cancelAnimationFrame(this.animHandle);
+        cancelAnimationFrame(this.animLoopId || 0);
     }
 
     private beginLoop() {
@@ -110,8 +110,8 @@ export default class Loop {
                 instance.callback(dt);
             }
 
-            this.animHandle = requestAnimationFrame(loop);
+            this.animLoopId = requestAnimationFrame(loop);
         }
-        this.animHandle = requestAnimationFrame(loop);
+        this.animLoopId = requestAnimationFrame(loop);
     }
 }

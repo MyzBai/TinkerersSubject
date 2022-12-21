@@ -1,15 +1,15 @@
 import type GConfig from "@src/types/gconfig";
 import EventEmitter from "@src/utils/EventEmitter";
-import { clamp } from "@src/utils/helpers";
+import { clamp, queryHTML } from "@src/utils/helpers";
 import { Save } from "./save";
 
-const healthBar = document.querySelector<HTMLElement>('.p-game .s-enemy [data-health-bar]');
+const healthBar = queryHTML('.p-game .s-enemy [data-health-bar]');
 
 export let enemies: Enemy[];
 let activeEnemy: Enemy;
 let index: number;
 export const onDeath = new EventEmitter<Enemy>();
-onDeath.listen(x => {
+onDeath.listen(() => {
     activeEnemy = enemies[++index];
     activeEnemy.init();
 });
@@ -43,12 +43,17 @@ export function saveEnemy(saveObj: Save) {
     }
 }
 
-export function loadEnemy(saveObj: Save) {
-    index = saveObj.enemy.index;
+export function loadEnemy(save: Save) {
+    const savedEnemy = save.enemy;
+    if(!savedEnemy){
+
+        return;
+    }
+    index = savedEnemy.index;
     activeEnemy = enemies[index];
-    activeEnemy.health = saveObj.enemy.health;
+    activeEnemy.health = savedEnemy.health;
     if (activeEnemy instanceof Dummy) {
-        activeEnemy.damage = saveObj.enemy.dummyDamage || 0;
+        activeEnemy.damage = savedEnemy.dummyDamage || 0;
     }
     activeEnemy.init();
 }

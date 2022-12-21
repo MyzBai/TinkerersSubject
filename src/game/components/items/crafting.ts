@@ -1,7 +1,7 @@
 import type { ModifierTag } from "../../mods";
 import { ItemModifier, type ModTables } from "./items";
 
-export type CraftId = keyof typeof templates;
+export type CraftId = keyof typeof craftTemplates;
 export interface CraftData {
     itemModList: ItemModifier[];
     modTables: ModTables
@@ -11,7 +11,7 @@ const MAX_ITEM_MODS = 6;
 const REFORGE_HIGHER_CHANCE_SAME_MODS = 20;
 const REFORGE_LOWER_CHANCE_SAME_MODS = 0.02;
 
-export const templates = {
+export const craftTemplates = {
     reforge: {
         desc: 'Reforge the item with new random modifiers',
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modTables.general),

@@ -6,6 +6,14 @@ export const clamp = (value: number, min: number, max: number) => Math.max(min, 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 export const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
+export function queryHTML<T extends HTMLElement>(selectors: string, parent?: HTMLElement){
+    const element = (parent || document).querySelector<T>(selectors);
+    if(!element){
+        throw Error(`HTMLElement with selectors ${selectors} could not be found!`);
+    }
+    return element;
+}
+
 export function initTabs(btnsParent: Element | null, contentsParent: Element | null) {
 
     if (!btnsParent || !contentsParent) {

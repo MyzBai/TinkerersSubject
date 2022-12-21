@@ -7,7 +7,7 @@ class Statistic<T> extends Value<T> {
     readonly hidden: boolean;
     constructor(defaultValue: T, hidden?: boolean) {
         super(defaultValue);
-        this.hidden = hidden;
+        this.hidden = hidden || false;
     }
 }
 
@@ -24,9 +24,9 @@ const statistics = {
 
 export default statistics;
 
-let updateId: number = undefined;
+let updateId = 0;
 
-visibilityObserver(document.querySelector('.p-game .p-statistics'), handleUpdateLoop);
+visibilityObserver(document.querySelector('.p-game .p-statistics')!, handleUpdateLoop);
 
 function handleUpdateLoop(visible: boolean) {
     if (visible) {
@@ -59,7 +59,7 @@ export function createStatisticsElements() {
         const element = createField(key as string);
         elements.push(element);
     }
-    document.querySelector('.p-statistics ul').replaceChildren(...elements);
+    document.querySelector('.p-statistics ul')!.replaceChildren(...elements);
 }
 
 function getFormatType(key: keyof typeof statistics) {
@@ -75,14 +75,14 @@ function updateGameStatistics(key: string, value: Value<number>) {
         return;
     }
     const valueZero = value.get() === 0;
-    element.parentElement.classList.toggle('hidden', valueZero);
+    element.parentElement?.classList.toggle('hidden', valueZero);
     if (valueZero) {
         return;
     }
     const type = element.getAttribute('data-format-type');
     switch (type) {
         case 'time':
-            const date = new Date(null);
+            const date = new Date(0);
             date.setSeconds(value.get());
             const str = date.toISOString().substring(11, 19);
             element.textContent = str;
@@ -102,7 +102,7 @@ export function saveStatistics(saveObj: Save) {
 }
 
 export function loadStatistics(saveObj: Save) {
-    saveObj.statistics.forEach(x => {
+    saveObj.statistics?.forEach(x => {
         statistics[x.name as keyof typeof statistics]?.set(x.value);
     });
 }

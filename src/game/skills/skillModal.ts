@@ -1,58 +1,71 @@
+import { queryHTML } from "@src/utils/helpers";
 import { playerStats } from "../player";
 import { AttackSkill, BuffSkill, Skill, } from "./skills";
-import { SkillSlot, AttackSkillSlot, BuffSkillSlot } from "./skillSlots";
+import { SkillSlot, BuffSkillSlot } from "./skillSlots";
 
 
-export class Modal<T extends Skill> {
+export abstract class Modal<T extends Skill> {
     protected readonly modalElement: HTMLElement;
     protected readonly skillInfoContainer: HTMLElement;
     protected skillListElements: HTMLLIElement[];
-    protected skillSlot: SkillSlot<T>;
+    protected skillSlot: SkillSlot<T> | undefined;
     protected skills: T[];
     constructor(modalElement: HTMLElement) {
         this.modalElement = modalElement;
-        this.skillInfoContainer = this.modalElement.querySelector('[data-skill-info]');
-        this.modalElement.querySelector('[data-value="cancel"]').addEventListener('click', () => {
-            this.close();
-        });
+        this.skills = [];
+        this.skillInfoContainer = queryHTML('[data-skill-info]', this.modalElement);
+        this.skillListElements = [];
+        queryHTML('[data-value="cancel"]', this.modalElement).addEventListener('click', () => this.close());
     }
 
     init(skills: T[]) {
         this.skills = skills;
         this.skillListElements = this.createSkillListElements();
-        this.modalElement.querySelector('[data-skill-list]').replaceChildren(...this.skillListElements);
+        queryHTML('[data-skill-list]', this.modalElement).replaceChildren(...this.skillListElements);
     }
 
     open(skillSlot: SkillSlot<T>) {
         this.skillInfoContainer.classList.add('hidden');
         this.skillSlot = skillSlot;
-        const skillSlotNames = Array.from(skillSlot.element.parentElement.children).map(x => x.getAttribute('data-skill-name'));
+        const skillSlotParent = skillSlot.element.parentElement;
+        if (!skillSlotParent) {
+            throw Error('Skill slot has no parent');
+        }
+        const skillSlotNames = Array.from(skillSlotParent.children).map(x => x.getAttribute('data-skill-name'));
         for (const element of this.skillListElements) {
             const nameAttr = element.getAttribute('data-skill-name');
             const isUsed = skillSlotNames.some(x => x === nameAttr);
             element.toggleAttribute('disabled', isUsed);
             const skill = this.skills.find(x => x.name === nameAttr);
+            if (!skill) {
+                throw Error(`Could not find skill: ${nameAttr}`);
+            }
             element.classList.toggle('hidden', skill.levelReq > playerStats.level.get());
         }
-       
-        if(skillSlot.skill){
-            this.skillListElements.find(x => x.getAttribute('data-skill-name') === this.skillSlot.skill.name)?.click();
-        } else{
+
+        if (skillSlot.skill) {
+            const name = skillSlot.skill.name;
+            this.skillListElements.find(x => x.getAttribute('data-skill-name') === name)?.click();
+        } else {
             this.skillListElements.find(x => !x.classList.contains('.hidden'))?.click();
         }
-        
+
         this.modalElement.classList.remove('hidden');
     }
 
     protected apply() {
-        const selectedSkillNameAttr = this.modalElement.querySelector('[data-skill-list] [data-skill-name].selected').getAttribute('data-skill-name');
+        const selectedSkillNameAttr = queryHTML('[data-skill-list] [data-skill-name].selected', this.modalElement).getAttribute('data-skill-name');// this.modalElement.querySelector('[data-skill-list] [data-skill-name].selected').getAttribute('data-skill-name');
         const skill = this.skills.find(x => x.name === selectedSkillNameAttr);
-        this.skillSlot.set(skill);
+        if (this.skillSlot && skill) {
+            this.skillSlot.set(skill);
+        }
         this.close();
     }
 
     protected remove() {
-        this.skillSlot.set(undefined);
+        if (this.skillSlot) {
+            this.skillSlot.set(undefined);
+        }
         this.close();
     }
 
@@ -74,26 +87,25 @@ export class Modal<T extends Skill> {
 }
 
 export class AttackSkillModal extends Modal<AttackSkill> {
-    attackSkills: AttackSkill[];
-    private applyButton: HTMLElement;
+    private readonly applyButton: HTMLElement;
     constructor() {
-        const modalElement = document.querySelector<HTMLDialogElement>('.p-combat [data-attack-skill-modal]');
+        const modalElement = queryHTML('.p-combat [data-attack-skill-modal]');
         super(modalElement);
-
-        this.applyButton = this.modalElement.querySelector<HTMLElement>('[data-value="apply"]');
+        this.applyButton = queryHTML('[data-value="apply"]', this.modalElement);
         this.applyButton.addEventListener('click', () => this.apply());
     }
 
     private updateFooterButtons(selectedSkill: AttackSkill) {
-        this.applyButton.toggleAttribute('disabled', selectedSkill === this.skillSlot.skill);
+        this.applyButton.toggleAttribute('disabled', selectedSkill === this.skillSlot?.skill);
     }
 
     protected showInfo(skill: AttackSkill) {
         this.skillInfoContainer.classList.remove('hidden');
-        this.skillInfoContainer.querySelector('[data-title]').textContent = skill.name;
-        this.skillInfoContainer.querySelector('[data-stat="attackSpeed"]').textContent = skill.attackSpeed.toFixed(2);
-        this.skillInfoContainer.querySelector('[data-stat="manaCost"]').textContent = skill.manaCost.toFixed(0);
-        this.skillInfoContainer.querySelector('[data-stat="baseDamageMultiplier"]').textContent = skill.baseDamageMultiplier.toFixed(0) + '%';
+        queryHTML('[data-title]', this.skillInfoContainer).textContent = skill.name;
+        queryHTML('[data-stat="attackSpeed"]', this.skillInfoContainer).textContent = skill.attackSpeed.toFixed(2);
+        queryHTML('[data-stat="manaCost"]', this.skillInfoContainer).textContent = skill.manaCost.toFixed(0);
+        queryHTML('[data-stat="baseDamageMultiplier"]', this.skillInfoContainer).textContent = skill.baseDamageMultiplier.toFixed(0) + '%';
+
         const modElements: HTMLElement[] = [];
         for (const mod of skill.mods) {
             const modElement = document.createElement('div');
@@ -101,7 +113,7 @@ export class AttackSkillModal extends Modal<AttackSkill> {
             modElement.textContent = mod.desc;
             modElements.push(modElement);
         }
-        this.skillInfoContainer.querySelector('[data-mod-list]').replaceChildren(...modElements);
+        queryHTML('[data-mod-list]', this.skillInfoContainer).replaceChildren(...modElements);
     }
 
     protected createSkillListElements() {
@@ -110,8 +122,10 @@ export class AttackSkillModal extends Modal<AttackSkill> {
             this.skillListElements.forEach(x => x.classList.toggle('selected', x === li));
             const nameAttr = li.getAttribute('data-skill-name');
             const skill = this.skills.find(x => x.name === nameAttr);
-            this.showInfo(skill);
-            this.updateFooterButtons(skill);
+            if(skill){
+                this.showInfo(skill);
+                this.updateFooterButtons(skill);
+            }
         }));
         return elements;
     }
@@ -123,12 +137,11 @@ export class BuffSkillModal extends Modal<BuffSkill> {
     private removeButton: HTMLElement;
 
     constructor() {
-        const modalElement = document.querySelector<HTMLDialogElement>('.p-combat [data-buff-skill-modal]');
+        const modalElement = queryHTML('.p-combat [data-buff-skill-modal]');
         super(modalElement);
 
-        this.applyButton = this.modalElement.querySelector('[data-value="apply"]');
-        this.removeButton = this.modalElement.querySelector('[data-value="remove"]');
-
+        this.applyButton = queryHTML('[data-value="apply"]', this.modalElement);
+        this.removeButton = queryHTML('[data-value="remove"]', this.modalElement);
         this.applyButton.addEventListener('click', () => this.apply());
         this.removeButton.addEventListener('click', () => this.remove());
 
@@ -140,8 +153,7 @@ export class BuffSkillModal extends Modal<BuffSkill> {
     }
 
     private updateFooterButtons(selectedSkill: BuffSkill) {
-        this.applyButton.toggleAttribute('disabled', selectedSkill === this.skillSlot.skill);
-        // this.removeButton.toggleAttribute('disabled', selectedSkill !== this.skillSlot.skill);
+        this.applyButton.toggleAttribute('disabled', selectedSkill === this.skillSlot?.skill);
     }
 
     protected showInfo(skill: BuffSkill) {
@@ -150,9 +162,9 @@ export class BuffSkillModal extends Modal<BuffSkill> {
         if (!skill) {
             return;
         }
-        this.skillInfoContainer.querySelector('[data-title]').textContent = skill.name;
-        this.skillInfoContainer.querySelector('[data-stat="baseDuration"]').textContent = `${skill.baseDuration}s`;
-        this.skillInfoContainer.querySelector('[data-stat="manaCost"]').textContent = skill.manaCost.toFixed(0);
+        queryHTML('[data-title]', this.skillInfoContainer).textContent = skill.name;
+        queryHTML('[data-stat="baseDuration"', this.skillInfoContainer).textContent = `${skill.baseDuration}s`;
+        queryHTML('[data-stat="manaCost"]', this.skillInfoContainer).textContent = skill.manaCost.toFixed(0);
         const modElements: HTMLElement[] = [];
         for (const mod of skill.mods) {
             const modElement = document.createElement('div');
@@ -160,7 +172,7 @@ export class BuffSkillModal extends Modal<BuffSkill> {
             modElement.textContent = mod.desc;
             modElements.push(modElement);
         }
-        this.skillInfoContainer.querySelector('[data-mod-list]').replaceChildren(...modElements);
+        queryHTML('[data-mod-list]', this.skillInfoContainer).replaceChildren(...modElements);
     }
 
     protected createSkillListElements() {
@@ -169,8 +181,10 @@ export class BuffSkillModal extends Modal<BuffSkill> {
             this.skillListElements.forEach(x => x.classList.toggle('selected', x === li));
             const nameAttr = li.getAttribute('data-skill-name');
             const skill = this.skills.find(x => x.name === nameAttr);
-            this.showInfo(skill);
-            this.updateFooterButtons(skill);
+            if(skill){
+                this.showInfo(skill);
+                this.updateFooterButtons(skill);
+            }
         }));
         return elements;
     }

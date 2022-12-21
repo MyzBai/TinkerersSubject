@@ -6,8 +6,8 @@ import { calcBaseDamage, ConversionTable } from "./calcDamage";
 
 export interface Configuration {
     statModList: StatModifier[];
-    flags?: number;
-    calcMinMax?: (min: number, max: number) => number;
+    flags: number;
+    calcMinMax: (min: number, max: number) => number;
     conversionTable?: ConversionTable;
 }
 

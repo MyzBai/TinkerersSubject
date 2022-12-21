@@ -1,10 +1,10 @@
 import GConfig, { ItemMod, Items } from '@src/types/gconfig';
 import { Modifier } from '@game/mods';
-import { templates, CraftId, CraftData } from './crafting';
+import { craftTemplates, CraftId, CraftData } from './crafting';
 import { playerStats, modDB } from '@game/player';
 import { visibilityObserver } from '@utils/Observers';
-import type { ModTemplate, Save } from '@src/game/save';
-import { highlightHTMLElement } from '@src/utils/helpers';
+import type { Save } from '@src/game/save';
+import { highlightHTMLElement, queryHTML } from '@src/utils/helpers';
 
 type ItemList = Items['itemList'];
 type CraftList = Items['craftList'];
@@ -12,33 +12,36 @@ type CraftList = Items['craftList'];
 export type ModTables = { [K in keyof Items['modTables']]: ItemModifier[] }
 
 //Elements
-const itemsPage = document.querySelector('.p-game .p-items');
+const itemsPage = queryHTML('.p-game .p-items');
+const itemListContainer = queryHTML('menu[data-item-list]', itemsPage);
+const modListContainer = queryHTML('ul[data-mod-list]', itemsPage);
 //Presets
-const presetsContainer = itemsPage.querySelector<HTMLElement>('.s-preset-container');
-const presetNewElement = presetsContainer.querySelector<HTMLElement>('[data-new]');
-const presetEditElement = presetsContainer.querySelector<HTMLElement>('[data-edit]');
-const presetModal = document.querySelector<HTMLElement>('.p-items [data-craft-preset-modal]');
-const presetsModalCraftList = presetModal.querySelector('[data-craft-list]');
+const presetsContainer = queryHTML('.s-preset-container', itemsPage);
+const presetNewElement = queryHTML('[data-new]', presetsContainer);
+const presetEditElement = queryHTML('[data-edit]', presetsContainer);
+const presetListContainer = queryHTML('[data-preset-list]', presetsContainer);
+const presetModal = queryHTML('[data-craft-preset-modal]', itemsPage);
+const presetsModalCraftList = queryHTML('[data-craft-list]', presetModal);
 // const presetModalRemoveButton = presetModal2.querySelector('button[data-value="remove"]');
 //Crafting
-const craftContainer = itemsPage.querySelector<HTMLElement>('.s-craft-container');
-const craftButton = craftContainer.querySelector('button[data-craft-button]');
+const craftContainer = queryHTML('.s-craft-container', itemsPage);
+const craftButton = queryHTML('button[data-craft-button]', craftContainer);
 
 //events
-const itemsMenuButton = document.querySelector<HTMLElement>('.p-game > menu [data-tab-target="items"]');
-presetNewElement.addEventListener('click', () => { const newPreset = new Preset('New Preset'); newPreset.select(); newPreset.edit(); });
+const itemsMenuButton = queryHTML('.p-game > menu [data-tab-target="items"]');
+presetNewElement.addEventListener('click', () => { const preset = createNewPreset('New Preset', []); preset.edit(); });
 presetEditElement.addEventListener('click', () => Preset.active?.edit());
 
-presetModal.querySelector('footer [data-value="apply"]').addEventListener('click', () => Preset.active.apply());
-presetModal.querySelector('footer [data-value="delete"]').addEventListener('click', () => Preset.active.delete());
+queryHTML('footer [data-value="apply"]', presetModal).addEventListener('click', () => Preset.active?.apply());
+queryHTML('footer [data-value="delete"]', presetModal).addEventListener('click', () => Preset.active?.delete());
 
-presetModal.querySelector('footer [data-value="apply"]').addEventListener('click', () => { presetModal.classList.add('hidden'); });
-presetModal.querySelector('footer [data-value="delete"]').addEventListener('click', () => { presetModal.classList.add('hidden'); });
-presetModal.querySelector('footer [data-value="cancel"]').addEventListener('click', () => { presetModal.classList.add('hidden'); });
+queryHTML('footer [data-value="apply"]', presetModal).addEventListener('click', () => { presetModal.classList.add('hidden'); });
+queryHTML('footer [data-value="delete"]', presetModal).addEventListener('click', () => { presetModal.classList.add('hidden'); });
+queryHTML('footer [data-value="cancel"]', presetModal).addEventListener('click', () => { presetModal.classList.add('hidden'); });
 
 craftButton.addEventListener('click', () => performCraft());
 
-visibilityObserver(document.querySelector('.p-items'), () => { updateCraftList() });
+visibilityObserver(itemsPage, () => { updateCraftList() });
 
 const getFilteredCraftIds = () => crafts.filter(x => x.levelReq <= playerStats.level.get()).map(x => x.id);
 
@@ -54,6 +57,10 @@ export function init(data: GConfig['items']) {
     crafts = [];
     presets = [];
 
+    if (!data) {
+        return;
+    }
+
     for (const modGroup of data.modTables.general) {
         for (let i = 0; i < modGroup.length; i++) {
             const itemMod = modGroup[i];
@@ -63,7 +70,7 @@ export function init(data: GConfig['items']) {
 
     createItemList(data.itemList);
     createCrafts(data.craftList);
-    createDefaultPreset();
+    createNewPreset('All', Object.keys(craftTemplates) as CraftId[], true);
     createPresetModalCrafts();
 
     items[0].element.click();
@@ -107,7 +114,7 @@ function createItemList(itemList: ItemList) {
             }
         });
     }
-    document.querySelector('.p-items [data-item-list]')?.replaceChildren(...items.map(x => x.element));
+    itemListContainer.replaceChildren(...items.map(x => x.element));
 }
 
 function createCrafts(craftList: CraftList) {
@@ -122,13 +129,15 @@ function createCrafts(craftList: CraftList) {
             updateCraftButton();
         });
     }
-    document.querySelector('.p-items .s-craft-container [data-craft-list]')?.replaceChildren(...crafts.map(x => x.element));
-    crafts.find(x => !x.locked).select();
+    queryHTML('[data-craft-list]', craftContainer).replaceChildren(...crafts.map(x => x.element));
+    crafts.find(x => !x.locked)?.select();
 }
 
-function createDefaultPreset() {
-    const preset = new Preset('All', Object.keys(templates) as CraftId[], true);
+function createNewPreset(name: string, ids: CraftId[], isDefault = false) {
+    const preset = new Preset(name, ids, isDefault);
+    presetListContainer.appendChild(preset.element);
     preset.select();
+    return preset;
 }
 
 function createPresetModalCrafts() {
@@ -152,7 +161,7 @@ function updateItemModList() {
             element.textContent = desc;
             elements.push(element);
         }
-        document.querySelector('.p-items [data-mod-list]')?.replaceChildren(...elements);
+        modListContainer.replaceChildren(...elements);
     }
 
 }
@@ -165,13 +174,13 @@ function updateCraftList() {
     const ids = Preset.active.ids.filter(x => filteredIds.includes(x));
     crafts.forEach(craft => {
         const canAfford = craft.cost <= playerStats.gold.get();
-        const costElement = craft.element.querySelector('[data-cost]');
-        costElement.toggleAttribute('data-insufficient-cost', !canAfford);
+        const costElement = queryHTML('[data-cost]', craft.element);
+        costElement?.toggleAttribute('data-insufficient-cost', !canAfford);
         craft.element.classList.toggle('hidden', craft.locked || !ids.includes(craft.id));
     });
-    const selectedVisibleElement = document.querySelector('.p-items .s-craft-container .selected[data-craft-id]:not(.hidden)');
+    const selectedVisibleElement = craftContainer.querySelector('[data-craft-id].selected:not(.hidden)');
     if (!selectedVisibleElement) {
-        (document.querySelector('.p-items .s-craft-container [data-craft-id]:not(.hidden)') as HTMLElement)?.click();
+        craftContainer.querySelector<HTMLElement>('[data-craft-id]:not(.hidden)')?.click();
     }
 }
 
@@ -191,7 +200,7 @@ function updateCraftButton() {
 
     let msg = '';
 
-    const template = templates[Craft.active.id];
+    const template = craftTemplates[Craft.active.id];
     if (!template) {
         console.error('invalid craft id');
         return;
@@ -204,17 +213,16 @@ function updateCraftButton() {
     if (validator.errors.length > 0) {
         msg = validator.errors[0];
     }
-    // document.querySelector('.p-items .s-craft-container [data-craft-message]')?.setAttribute('data-craft-message', msg);
-    document.querySelector('.p-items .s-craft-container [data-craft-message]')!.textContent = msg;
-    document.querySelector('.p-items .s-craft-container [data-craft-button]')!.toggleAttribute('disabled', msg.length > 0);
+    queryHTML('[data-craft-message]', craftContainer).textContent = msg;
+    queryHTML('[data-craft-button]', craftContainer).toggleAttribute('disabled', msg.length > 0);
 }
 
 function performCraft() {
-    if (!Item.active || !templates[Craft.active.id]) {
+    if (!Item.active || !craftTemplates[Craft.active.id]) {
         return;
     }
 
-    const template = templates[Craft.active.id];
+    const template = craftTemplates[Craft.active.id];
     const craftData = createCraftData();
     Item.active.mods = template.getItemMods(craftData);
     playerStats.gold.subtract(Craft.active.cost);
@@ -248,11 +256,11 @@ class Item {
 
     private createElement() {
         const element = document.createElement('li');
-        element.classList.add('g-list-item', 'item', 'hidden');
+        element.classList.add('g-list-item', 'hidden');
         element.textContent = this.name;
         element.addEventListener('click', () => {
             Item.active = this;
-            document.querySelectorAll('.p-items [data-item-list] .item').forEach(x => {
+            itemListContainer.querySelectorAll('li').forEach(x => {
                 x.classList.toggle('selected', x === element);
             });
             updateItemModList();
@@ -293,8 +301,10 @@ class Craft {
     readonly cost: number;
     readonly element: HTMLElement;
     private _locked = true;
-    constructor(craftData: GConfig['items']['craftList'][number]) {
-        Object.assign(this, craftData);
+    constructor(data: NonNullable<GConfig['items']>['craftList'][number]) {
+        this.id = data.id;
+        this.levelReq = data.levelReq;
+        this.cost = data.cost;
         this.element = this.createElement();
         this._locked = this.levelReq > 1;
     }
@@ -319,7 +329,7 @@ class Craft {
     private createElement() {
         const element = document.createElement('li');
         element.classList.add('g-field', 'g-list-item', 'hidden');
-        const desc = templates[this.id].desc.replace(/\[\w+\]/g, (x) => {
+        const desc = craftTemplates[this.id].desc.replace(/\[\w+\]/g, (x) => {
             return `<span>${x.substring(1, x.length - 1)}</span>`;
         });
         element.insertAdjacentHTML('beforeend', `<div>${desc}</div>`);
@@ -378,7 +388,7 @@ class Preset {
     }
 
     apply() {
-        const name = presetModal.querySelector<HTMLInputElement>('input[data-name]').value;
+        const name = queryHTML<HTMLInputElement>('input[data-name]', presetModal).value;
         this.setName(name);
         const selectedElements = presetModal.querySelectorAll('[data-craft-list] [data-craft-id].selected');
         this.ids = Array.from(selectedElements).map(x => x.getAttribute('data-craft-id')) as CraftId[];
@@ -390,13 +400,13 @@ class Preset {
         element.classList.add('g-list-item', 'preset');
         element.addEventListener('click', () => {
             Preset.active = this;
-            document.querySelectorAll('.p-items [data-preset-list] li').forEach(x => {
+            presetListContainer.querySelectorAll('li').forEach(x => {
                 x.classList.toggle('selected', x === element);
             });
             presetEditElement.toggleAttribute('disabled', this.isDefault);
             updateCraftList();
         });
-        document.querySelector('.p-items [data-preset-list]')?.appendChild(element);
+        presetListContainer.appendChild(element);
         return element;
     }
 
@@ -415,28 +425,44 @@ class Preset {
 }
 
 export function saveItems(saveObj: Save) {
-    const createItemModListData: (item: Item) => ModTemplate[] = (item) => item.mods.map(mod => { return { desc: mod.templateDesc, values: mod.stats.map(x => x.value) } });
+    const createModList = (item: Item): NonNullable<Save['items']>['items'][number]['modList'] => item.mods.map(x => { 
+        return { 
+            desc: x.templateDesc, 
+            values: x.stats.map(stat => stat.value) 
+        }
+    });
+
     saveObj.items = {
-        items: items.map(item => { return { name: item.name, modList: createItemModListData(item) } }),
+        items: items.map(item => { return { name: item.name, modList: createModList(item) } }),
         craftPresets: presets.filter(x => !x.isDefault).map(x => { return { name: x.name, ids: x.ids } })
     }
 }
 
 export function loadItems(saveObj: Save) {
 
+    if (!saveObj.items) {
+        return;
+    }
     presets.filter(x => !x.isDefault).forEach(x => x.delete());
 
     for (const itemData of saveObj.items.items) {
         const item = items.find(x => x.name === itemData.name);
         if (!item) {
-            console.error('Invalid item name', itemData.name);
+            console.warn('Could not load Item with name: ', itemData.name);
             continue;
         }
-        item.mods = itemData.modList.map(mod => {
-            const itemModifier = generalMods.find(y => mod.desc === y.templateDesc)?.copy();
-            itemModifier.stats.forEach((stat, i) => stat.value = mod.values[i]);
-            return itemModifier;
-        });
+        const mods = [] as ItemModifier[];
+        for (const itemMod of itemData.modList) {
+            const itemModifier = generalMods.find(x => itemMod.desc === x.templateDesc)?.copy();
+            if (!itemModifier) {
+                continue;
+            }
+            const success = itemModifier.setStatValues(itemMod.values);
+            if (!success) {
+                continue;
+            }
+            mods.push(itemModifier);
+        }
     }
 
     for (const preset of saveObj.items.craftPresets) {

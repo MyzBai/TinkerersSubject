@@ -10,8 +10,8 @@ let buffSkills: BuffSkill[];
 let attackSkillSlot: AttackSkillSlot;
 let buffSkillSlots: BuffSkillSlot[];
 
-const attackSkillContainer = document.querySelector<HTMLElement>('.p-game .s-player .s-skills [data-attack-skill]');
-const buffSkillList = document.querySelector<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]');
+const attackSkillContainer = document.querySelector<HTMLElement>('.p-game .s-player .s-skills [data-attack-skill]')!;
+const buffSkillList = document.querySelector<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]')!;
 
 const attackSkillModal = new AttackSkillModal();
 const buffSkillModal = new BuffSkillModal();
@@ -56,16 +56,15 @@ export function init(data: Skills) {
 
 export function saveSkills(saveObj: Save) {
     saveObj.skills = {
-        attackSkillName: attackSkillSlot.skill.name,
-        buffSkillNames: buffSkillSlots.map(x => x.skill?.name).filter(x => x)
+        attackSkillName: attackSkillSlot.skill?.name || 'invalid name',
+        buffSkillNames: buffSkillSlots.map(x => x.skill?.name || '').filter(x => x?.length > 0)
     }
 }
 
 export function loadSkills(saveObj: Save) {
-    const attackSkill = attackSkills.find(x => x.name === saveObj.skills.attackSkillName);
+    const attackSkill = attackSkills.find(x => x.name === saveObj.skills?.attackSkillName);
     attackSkillSlot.set(attackSkill || attackSkills[0]);
-    // buffSkillSlots.forEach((x, i) => x?.set(saveObj.skills.buffSkillNames?.[i]));
-    buffSkillSlots.forEach((slot, index) => slot?.set(buffSkills.find(skill => skill.name === saveObj.skills.buffSkillNames?.[index])));
+    buffSkillSlots.forEach((slot, index) => slot?.set(buffSkills.find(skill => skill.name === saveObj.skills?.buffSkillNames?.[index])));
 }
 
 interface SkillParams {
@@ -91,7 +90,7 @@ export class Skill {
         this.name = args.name;
         this.levelReq = args.levelReq;
         this.manaCost = args.manaCost;
-        this.mods = args.mods.map(x => new Modifier(x));
+        this.mods = args.mods?.map(x => new Modifier(x)) || [];
     }
     get sourceName() { return `Skill/${this.name}`; }
 }
