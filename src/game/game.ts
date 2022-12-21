@@ -10,27 +10,39 @@ import { save, load } from './save';
 
 initTabs(document.querySelector('.p-game > menu'), document.querySelector('.p-game'));
 
-if (isLocalHost) {
-    globalThis.dev = {
-        game: {
-            playerStats,
+// if (isLocalHost) {
+//     globalThis.dev = {
+//         game: {
+//             playerStats,
+//             save: () => save(),
+//             load: () => load(),
+//             restartAndLoad: async () => { await init(moduleCache); load(); }
+//         }
+//     }
+//     document.addEventListener('keydown', x => {
+//         if (x.code === 'Space') {
+//             if (gameLoop.running) {
+//                 document.title = `Tinkerers Subject (Stopped)`;
+//                 gameLoop.stop();
+//             } else {
+//                 gameLoop.start();
+//                 document.title = 'Tinkerers Subject (Running)';
+//             }
+//         }
+//     });
+// }
+
+if(isLocalHost){
+    Object.defineProperty(window, 'dev', {
+        value: {
+            setLevel: (v: number) => playerStats.level.set(v),
+            setGold: (v: number) => playerStats.level.set(v),
             save: () => save(),
             load: () => load(),
-            restartAndLoad: async () => { await init(moduleCache); load(); }
-        }
-    }
-    document.addEventListener('keydown', x => {
-        if (x.code === 'Space') {
-            if (gameLoop.running) {
-                document.title = `Tinkerers Subject (Stopped)`;
-                gameLoop.stop();
-            } else {
-                gameLoop.start();
-                document.title = 'Tinkerers Subject (Running)';
-            }
         }
     });
 }
+
 
 
 export const gameLoop: Loop = new Loop();

@@ -5,8 +5,12 @@ import type GConfig from '@src/types/gconfig';
 const ajv = new Ajv();
 
 declare global{
-    var dev: {}
+    var TS: {
+        game?: any
+    }
 }
+
+globalThis.TS = {};
 
 init();
 

@@ -40,12 +40,12 @@ export function init(data: GConfig['achievements']) {
     if(data.levelReq > 1){
         const listener = (level: number) => {
             if (level >= data.levelReq) {
-                playerStats.level.removeListener('change', listener);
+                playerStats.level.removeListener('add', listener);
                 achievementsMenuButton.classList.remove('hidden');
                 highlightHTMLElement(achievementsMenuButton, 'click');
             }
         }
-        playerStats.level.addListener('change', listener);
+        playerStats.level.addListener('add', listener);
     }
 }
 

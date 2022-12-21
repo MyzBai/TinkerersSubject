@@ -75,7 +75,7 @@ export function init(data: GConfig['items']) {
 
     items[0].element.click();
 
-    playerStats.level.addListener('change', (level: number) => crafts.forEach(craft => craft.tryUnlock(level)));
+    playerStats.level.addListener('add', (level: number) => crafts.forEach(craft => craft.tryUnlock(level)));
     playerStats.gold.addListener('change', () => {
         updateCraftList();
         updateCraftButton();
@@ -109,10 +109,10 @@ function createItemList(itemList: ItemList) {
                 item.element.classList.remove('hidden');
                 highlightHTMLElement(itemsMenuButton, 'click');
                 highlightHTMLElement(item.element, 'mouseover');
-                playerStats.level.removeListener('change', listener);
+                playerStats.level.removeListener('add', listener);
             }
         }
-        playerStats.level.addListener('change', listener);
+        playerStats.level.addListener('add', listener);
     }
     itemListContainer.replaceChildren(...items.map(x => x.element));
 }
