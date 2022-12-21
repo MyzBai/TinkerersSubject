@@ -380,7 +380,7 @@ body > header {
     font-size: 1.3em;
     text-align: center;
     grid-column: 1/4;
-    background-color: #161b22;
+    // background-color: #161b22;
     color: #d6a02c;
     padding: $padding-container;
     font-weight: bold;
@@ -391,21 +391,15 @@ body > header {
 .p-game {
     display: grid;
     grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
-    background-color: $color-canvas-inset;
+    grid-gap: 0.3em;
+    background-color: $color-canvas-default;
     min-height: 0;
-
-    $color-main-border: rgb(48, 48, 48);
-    & > menu {
-        border-right: 3px ridge $color-main-border;
-    }
-    & > .s-stats {
-        border-left: 3px ridge $color-main-border;
-    }
 
     & > menu,
     .s-middle,
     & > .s-stats {
         padding: $padding-container;
+        background-color: $color-canvas-inset;
     }
 
     .s-middle {
