@@ -43,13 +43,14 @@ export function init(data: Skills) {
                 buffSkillSlots.push(new BuffSkillSlot(buffSkills, buffSkillModal));
                 continue;
             }
-            const id = playerStats.level.onChange.listen(level => {
+            const listener = (level: number) => {
                 if (level < skillSlot.levelReq) {
                     return;
                 }
                 buffSkillSlots.push(new BuffSkillSlot(buffSkills, buffSkillModal));
-                playerStats.level.onChange.removeListener(id);
-            });
+                playerStats.level.removeListener('change', listener);
+            };
+            playerStats.level.addListener('change', listener);
         }
     }
 }

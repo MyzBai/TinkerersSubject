@@ -3,23 +3,23 @@ import Value from "@utils/Value";
 import { gameLoop } from "./game";
 import { Save } from "./save";
 
-class Statistic<T> extends Value<T> {
+class Statistic extends Value {
     readonly hidden: boolean;
-    constructor(defaultValue: T, hidden?: boolean) {
+    constructor(defaultValue: number, hidden?: boolean) {
         super(defaultValue);
         this.hidden = hidden || false;
     }
 }
 
 const statistics = {
-    'Time Played': new Statistic<number>(0),
-    'Gold Generated': new Statistic<number>(0),
-    'Mana Generated': new Statistic<number>(0),
-    'Hits': new Statistic<number>(0),
-    'Critical Hits': new Statistic<number>(0),
-    'Total Damage': new Statistic<number>(0),
-    'Total Physical Damage': new Statistic<number>(0),
-    'Prestige Count': new Statistic<number>(0),
+    'Time Played': new Statistic(0),
+    'Gold Generated': new Statistic(0),
+    'Mana Generated': new Statistic(0),
+    'Hits': new Statistic(0),
+    'Critical Hits': new Statistic(0),
+    'Total Damage': new Statistic(0),
+    'Total Physical Damage': new Statistic(0),
+    'Prestige Count': new Statistic(0),
 } as const;
 
 export default statistics;
@@ -69,7 +69,7 @@ function getFormatType(key: keyof typeof statistics) {
     return '';
 }
 
-function updateGameStatistics(key: string, value: Value<number>) {
+function updateGameStatistics(key: string, value: Value) {
     const element = document.querySelector(`.p-statistics [data-stat="${key}"]`);
     if (!element) {
         return;

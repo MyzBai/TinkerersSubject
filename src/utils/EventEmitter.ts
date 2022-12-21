@@ -2,27 +2,21 @@ type Callback<T> = (args: T) => void;
 interface CallbackOptions {
     once?: boolean;
 }
-type Listener<T> = { id: number, callback: Callback<T>, opts?: CallbackOptions }
+type Listener<T> = { callback: Callback<T>, opts?: CallbackOptions }
 
 export default class EventEmitter<T>{
-    private listeners = new Map<number, Listener<T>>;
-    private counter = 0;
-    constructor() {
-
-    }
+    private readonly listeners = new Map<Callback<T>, Listener<T>>;
+    constructor() { }
 
     listen(callback: Callback<T>, opts?: CallbackOptions) {
-        const id = this.counter++;
-        const instance = { callback, id, opts };
-        this.listeners.set(id, instance);
-        return id;
+        const instance = { callback, opts };
+        this.listeners.set(callback, instance);
     }
-    removeListener(id: number) {
-        this.listeners.delete(id);
+    removeListener(callback: Callback<T>) {
+        this.listeners.delete(callback);
     }
     removeAllListeners() {
         this.listeners.clear();
-        this.counter = 0;
     }
 
     invoke(args: T) {

@@ -7,6 +7,7 @@ import { gameLoop } from "./game";
 import enemy, { enemies } from "./enemy";
 import statistics from "./statistics";
 import type { Save } from "./save";
+import { queryHTML } from "@src/utils/helpers";
 
 const playerStatsContainer = document.querySelector<HTMLElement>('.p-game > .s-stats')!;
 const manaBar = document.querySelector<HTMLElement>('.p-combat [data-mana-bar]')!;
@@ -22,24 +23,25 @@ enemy.onDeath.listen(() => {
 });
 
 export const playerStats = Object.freeze({
-    level: new Value<number>(1),
-    gold: new Value<number>(0),
-    goldPerSecond: new Value<number>(0),
-    attackSpeed: new Value<number>(0),
-    attackManaCost: new Value<number>(0),
-    maxMana: new Value<number>(0),
-    curMana: new Value<number>(0),
-    manaRegen: new Value<number>(0),
-    skillDurationMultiplier: new Value<number>(1)
+    level: new Value(1),
+    gold: new Value(0),
+    goldPerSecond: new Value(0),
+    attackSpeed: new Value(0),
+    attackManaCost: new Value(0),
+    maxMana: new Value(0),
+    curMana: new Value(0),
+    manaRegen: new Value(0),
+    skillDurationMultiplier: new Value(1)
 });
 
 export function init(playerData?: Player) {
     Object.values(playerStats).forEach(x => x.reset());
-    playerStats.level.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="level"]')!.textContent = x.toString());
-    playerStats.gold.onChange.listen(x => playerStatsContainer.querySelector('[data-stat="gold"]')!.textContent = x.toString());
-    playerStats.curMana.onChange.listen(() => {
+    playerStats.level.addListener('change', x => queryHTML('[data-stat="level"]', playerStatsContainer).textContent = x.toFixed());
+    playerStats.gold.addListener('change', x => queryHTML('[data-stat="gold"]', playerStatsContainer).textContent = x.toFixed());
+
+    playerStats.curMana.addListener('change', curMana => {
         const maxMana = playerStats.maxMana.get();
-        if (playerStats.curMana.get() > maxMana) {
+        if (curMana > maxMana) {
             playerStats.curMana.set(maxMana);
         }
         updatemanaBar();
@@ -144,9 +146,13 @@ export function savePlayer(saveObj: Save) {
 }
 
 export async function loadPlayer(saveObj: Save) {
-    playerStats.level.set(saveObj.player?.level || 1);
-    playerStats.gold.set(saveObj.player?.gold || 0);
-    playerStats.curMana.set(saveObj.player?.curMana || 0);
+    const playerSave = saveObj.player;
+    if(!playerSave){
+        return;
+    }
+    playerStats.level.set(playerSave.level || 1);
+    playerStats.gold.set(playerSave.gold || 0);
+    playerStats.curMana.set(playerSave.curMana || 0);
 
     await updateStats();
 }

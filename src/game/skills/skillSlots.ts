@@ -90,10 +90,11 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
         let pct = 100;
         let duration = time;
         let loopId = -1;
-        const changeId = playerStats.skillDurationMultiplier.onChange.listen(() => {
+        const updateTime = () => {
             duration = calcDuration();
             time = duration * (pct / 100);
-        });
+        };
+        playerStats.skillDurationMultiplier.addListener('change', updateTime);
 
         modDB.add(this._skill.mods.flatMap(x => x.stats), this._skill.sourceName);
 
@@ -111,7 +112,7 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
         }
 
         const stop = () => {
-            playerStats.skillDurationMultiplier.onChange.removeListener(changeId);
+            playerStats.skillDurationMultiplier.removeListener('change', updateTime)
             if(this._skill){
                 modDB.removeBySource(this._skill.sourceName);
             }

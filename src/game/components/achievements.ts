@@ -38,13 +38,14 @@ export function init(data: GConfig['achievements']) {
     }, { intervalMilliseconds: 1000 });
 
     if(data.levelReq > 1){
-        const id = playerStats.level.onChange.listen(level => {
+        const listener = (level: number) => {
             if (level >= data.levelReq) {
-                playerStats.level.onChange.removeListener(id);
+                playerStats.level.removeListener('change', listener);
                 achievementsMenuButton.classList.remove('hidden');
                 highlightHTMLElement(achievementsMenuButton, 'click');
             }
-        });
+        }
+        playerStats.level.addListener('change', listener);
     }
 }
 

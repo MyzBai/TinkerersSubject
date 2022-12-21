@@ -1,61 +1,51 @@
 import EventEmitter from "./EventEmitter";
 
-type EventType = 'set' | 'add' | 'subtract';
-type Callback<T> = (v: T) => void;
+type EventType = 'change' | 'set' | 'add' | 'subtract';
+type Callback = (v: number) => void;
 
-export default class Value<T>{
-    private readonly defaultValue: T;
-    private value: T;
-    private _onChange = new EventEmitter<T>();
-    private readonly listeners: Map<EventType, EventEmitter<T>>;
-    constructor(defaultValue: T) {
+export default class Value{
+    private readonly defaultValue: number;
+    private value: number;
+    private readonly listeners = new Map<EventType, EventEmitter<number>>([
+        ['change', new EventEmitter<number>()],
+        ['set', new EventEmitter<number>()],
+        ['add', new EventEmitter<number>()],
+        ['subtract', new EventEmitter<number>()],
+    ]);
+    constructor(defaultValue: number) {
         this.defaultValue = defaultValue;
         this.value = defaultValue;
-
-        this.listeners = new Map<EventType, EventEmitter<T>>([
-            ['set', new EventEmitter<T>()],
-            ['add', new EventEmitter<T>()],
-            ['subtract', new EventEmitter<T>()],
-        ]);
     }
 
-    get onChange() { return this._onChange; }
-
-    set(v: T) {
+    set(v: number) {
         this.value = v;
-        // if (!suppressEvent) {
-        //     this.onChange.invoke(this.value);
-        // }
         this.listeners.get('set')?.invoke(this.value);
+        this.listeners.get('change')?.invoke(this.value);
     }
     get() {
         return this.value;
     }
     add(v: number) {
-        if (typeof this.value === 'number') {
-            (this.value as number) += v;
-            this.onChange.invoke(this.value);
-        }
+        this.value += v;
         this.listeners.get('add')?.invoke(this.value);
+        this.listeners.get('change')?.invoke(this.value);
     }
     subtract(v: number) {
-        if (typeof this.value === 'number') {
-            (this.value as number) -= v;
-            this.onChange.invoke(this.value);
-        }
+        this.value -= v;
         this.listeners.get('subtract')?.invoke(this.value);
+        this.listeners.get('change')?.invoke(this.value);
     }
 
     reset() {
         this.value = this.defaultValue;
-        this.onChange.removeAllListeners();
+        this.listeners.forEach(x => x.removeAllListeners());
     }
 
-    addListener(type: EventType, callback: Callback<T>) {
+    addListener(type: EventType, callback: Callback) {
         this.listeners.get(type)?.listen(callback);
     }
 
-    removeListener(type: EventType, id: number) {
-        this.listeners.get(type)?.removeListener(id);
+    removeListener(type: EventType, callback: Callback) {
+        this.listeners.get(type)?.removeListener(callback);
     }
 }

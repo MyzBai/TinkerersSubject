@@ -75,22 +75,21 @@ export function init(data: GConfig['items']) {
 
     items[0].element.click();
 
-    playerStats.level.onChange.listen(level => {
-        crafts.forEach(craft => craft.tryUnlock(level));
-    });
-    playerStats.gold.onChange.listen(() => {
+    playerStats.level.addListener('change', (level: number) => crafts.forEach(craft => craft.tryUnlock(level)));
+    playerStats.gold.addListener('change', () => {
         updateCraftList();
         updateCraftButton();
     });
 
     if (data.levelReq > 1) {
-        const id = playerStats.level.onChange.listen(level => {
+        const listener = (level: number) => {
             if (data.levelReq <= level) {
-                playerStats.level.onChange.removeListener(id);
+                playerStats.level.removeListener('change', listener);
                 itemsMenuButton.classList.remove('hidden');
                 highlightHTMLElement(itemsMenuButton, 'mouseover');
             }
-        });
+        }
+        playerStats.level.addListener('change', listener);
     } else {
         itemsMenuButton.classList.remove('hidden');
     }
@@ -105,14 +104,15 @@ function createItemList(itemList: ItemList) {
             item.element.classList.remove('hidden');
             continue;
         }
-        const id = playerStats.level.onChange.listen(level => {
+        const listener = (level: number) => {
             if (itemData.levelReq <= level) {
                 item.element.classList.remove('hidden');
                 highlightHTMLElement(itemsMenuButton, 'click');
                 highlightHTMLElement(item.element, 'mouseover');
-                playerStats.level.onChange.removeListener(id);
+                playerStats.level.removeListener('change', listener);
             }
-        });
+        }
+        playerStats.level.addListener('change', listener);
     }
     itemListContainer.replaceChildren(...items.map(x => x.element));
 }
