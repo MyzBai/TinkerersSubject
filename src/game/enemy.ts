@@ -46,10 +46,9 @@ export function saveEnemy(saveObj: Save) {
 export function loadEnemy(save: Save) {
     const savedEnemy = save.enemy;
     if(!savedEnemy){
-
         return;
     }
-    index = savedEnemy.index;
+    index = savedEnemy.index || 0;
     activeEnemy = enemies[index];
     activeEnemy.health = savedEnemy.health;
     if (activeEnemy instanceof Dummy) {
