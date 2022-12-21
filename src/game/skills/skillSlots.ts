@@ -55,16 +55,17 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
 
 export class BuffSkillSlot extends SkillSlot<BuffSkill> {
     private readonly buffSkillList = queryHTML<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]');
-    private readonly progressBar = queryHTML('[data-progress-bar]');
+    private readonly progressBar: HTMLElement;
     readonly modal: BuffSkillModal;
     readonly skills: BuffSkill[];
     private running: boolean = false;
 
     constructor(skills: BuffSkill[], modal: BuffSkillModal) {
         super();
+        this.buffSkillList.appendChild(this.element);
+        this.progressBar = queryHTML('[data-progress-bar]', this.element);
         this.skills = skills;
         this.modal = modal;
-        this.buffSkillList.appendChild(this.element);
         this.set(undefined);
     }
 
