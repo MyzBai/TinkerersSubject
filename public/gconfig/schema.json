@@ -28,23 +28,86 @@
         },
         "skills": {
             "type": "object",
-            "required": [ "skillList" ],
+            "required": [ "attackSkills" ],
             "properties": {
-                "skillList": {
+                "attackSkills": {
+                    "type": "object",
+                    "required": [ "skillList" ],
+                    "properties": {
+                        "skillList": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq" ],
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "levelReq": { "type": "integer", "minimum": 1, "default": 1, "description": "Required player level\nNote - At least one skill must have a value of 1" },
+                                    "attackSpeed": { "type": "number", "minimum": 0.001, "maximum": 10, "default": 1, "description": "Number of attacks per second" },
+                                    "manaCost": { "type": "integer", "minimum": 0 },
+                                    "baseDamageMultiplier": { "type": "integer", "minimum": 1, "default": 100, "description": "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
+                                    "mods": {
+                                        "type": "array",
+                                        "items": { "$ref": "#/definitions/mod" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "buffSkills": {
+                    "type": "object",
+                    "required": [ "skillList", "skillSlots" ],
+                    "properties": {
+                        "skillSlots": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": [ "levelReq" ],
+                                "properties": {
+                                    "levelReq": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                }
+                            }
+                        },
+                        "skillList": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [ "name", "baseDuration", "manaCost", "levelReq" ],
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "levelReq": { "type": "number" },
+                                    "baseDuration": { "type": "integer" },
+                                    "manaCost": { "type": "integer" },
+                                    "mods": {
+                                        "type": "array",
+                                        "items": { "$ref": "#/definitions/mod" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "passives": {
+            "type": "object",
+            "required": [ "levelReq", "passiveList" ],
+            "properties": {
+                "levelReq": { "$ref": "#/definitions/levelReq" },
+                "passiveList": {
                     "type": "array",
                     "items": {
                         "type": "object",
-                        "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq" ],
+                        "required": [ "levelReq", "mod", "points" ],
                         "properties": {
-                            "name": { "type": "string" },
-                            "levelReq": { "type": "integer", "minimum": 1, "default": 1, "description": "Required player level\nNote - At least one skill must have a value of 1" },
-                            "attackSpeed": { "type": "number", "minimum": 0.001, "maximum": 10, "default": 1, "description": "Number of attacks per second" },
-                            "manaCost": { "type": "integer", "minimum": 0 },
-                            "baseDamageMultiplier": { "type": "integer", "minimum": 1, "default": 100, "description": "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
-                            "mods": {
-                                "type": "array",
-                                "items": { "$ref": "#/definitions/mod" }
-                            }
+                            "levelReq": { "$ref": "#/definitions/levelReq" },
+                            "mod": { "$ref": "#/definitions/mod" },
+                            "points": { "type": "integer", "minimum": 1 }
                         }
                     }
                 }
@@ -54,7 +117,7 @@
             "type": "object",
             "required": [ "itemList", "craftList", "modTables" ],
             "properties": {
-                "unlockWhen": { "$ref": "#/definitions/unlockWhen" },
+                "levelReq": { "$ref": "#/definitions/levelReq" },
                 "itemList": {
                     "type": "array",
                     "items": {
@@ -110,7 +173,7 @@
         "achievements": {
             "type": "object",
             "properties": {
-                "unlockWhen": { "$ref": "#/definitions/unlockWhen" },
+                "levelReq": { "$ref": "#/definitions/levelReq" },
                 "list": {
                     "type": "array",
                     "items": {
@@ -156,23 +219,27 @@
                 { "enum": [ "Adds {#} To {#} Physical Damage" ] }, { "pattern": "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Physical Damage$" },
                 { "enum": [ "{#}% Increased Physical Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Physical Damage$" },
                 { "enum": [ "{#}% More Physical Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Physical Damage$" },
-                { "enum": [ "{#}% More Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage Damage$" },
+                { "enum": [ "{#}% More Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
                 { "enum": [ "+{#}% Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$" },
                 { "enum": [ "{#}% Increased Attack Speed" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$" },
+                { "enum": [ "{#}% More Attack Speed" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Attack Speed$" },
                 { "enum": [ "+{#}% Critical Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$" },
                 { "enum": [ "+{#}% Critical Hit Multiplier" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$" },
                 { "enum": [ "+{#} Maximum Mana" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
-                { "enum": [ "+{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
+                { "enum": [ "{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
-                { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" }
+                { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
+                { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
             ]
         },
-        "unlockWhen": {
-            "type": "object",
-            "description": "Will be hidden/locked until requirements are met",
-            "properties": {
-                "level": { "type": "integer", "minimum": 1 }
-            }
+        "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z 0-9]{3,16}$"
+        },
+        "levelReq": {
+            "type": "integer",
+            "default": 1,
+            "minimum": 1
         }
     }
 }
