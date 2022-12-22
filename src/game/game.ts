@@ -32,7 +32,7 @@ initTabs(document.querySelector('.p-game > menu'), document.querySelector('.p-ga
 //     });
 // }
 
-if(isLocalHost){
+if (isLocalHost) {
     Object.defineProperty(window, 'dev', {
         value: {
             setLevel: (v: number) => playerStats.level.set(v),
@@ -41,6 +41,18 @@ if(isLocalHost){
             load: () => load(),
         }
     });
+
+    document.addEventListener('keydown', x => {
+        if (x.code === 'Space') {
+            if (gameLoop.running) {
+                document.title = `Tinkerers Subject (Stopped)`;
+                gameLoop.stop();
+            } else {
+                gameLoop.start();
+                document.title = 'Tinkerers Subject (Running)';
+            }
+        }
+    })
 }
 
 
