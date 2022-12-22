@@ -34,7 +34,15 @@ export function init(data: GConfig['passives']) {
     passivesList.replaceChildren(...passives.map(x => x.element));
     updateList();
 
-    passivesMenuButton.classList.toggle('hidden', data.levelReq > 1);
+    if(data.levelReq > 1){
+        const listener = (level: number) => {
+            if(level >= data.levelReq){
+                passivesMenuButton.classList.remove('hidden');
+                playerStats.level.removeListener('change', listener);
+            }
+        };
+        playerStats.level.addListener('change', listener);
+    }
 
     playerStats.level.addListener('add', level => {
         passives.forEach(x => x.tryUnlock());
@@ -43,15 +51,8 @@ export function init(data: GConfig['passives']) {
             highlightHTMLElement(passivesMenuButton, 'click');
         }
         updateList();
-    })
-    // playerStats.level.onChange.listen(() => {
-    //     passives.forEach(x => x.tryUnlock());
-    //     const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * playerStats.level.get() - 2)) > 0;
-    //     if (pointsGained) {
-    //         highlightHTMLElement(passivesMenuButton, 'click');
-    //     }
-    //     updateList();
-    // });
+    });
+
 }
 
 function clearPassives() {
