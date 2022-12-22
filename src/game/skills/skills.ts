@@ -2,7 +2,6 @@ import type { Skills } from "@src/types/gconfig";
 import { Modifier, StatModifier } from "../mods";
 import { modDB, playerStats } from "../player";
 import { Save } from "../save";
-import { AttackSkillModal, BuffSkillModal } from "./skillModal";
 import { AttackSkillSlot, BuffSkillSlot } from "./skillSlots";
 
 let attackSkills: AttackSkill[];
@@ -13,8 +12,6 @@ let buffSkillSlots: BuffSkillSlot[];
 const attackSkillContainer = document.querySelector<HTMLElement>('.p-game .s-player .s-skills [data-attack-skill]')!;
 const buffSkillList = document.querySelector<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]')!;
 
-const attackSkillModal = new AttackSkillModal();
-const buffSkillModal = new BuffSkillModal();
 
 export function init(data: Skills) {
 
@@ -30,24 +27,22 @@ export function init(data: Skills) {
     }
 
     attackSkills = data.attackSkills.skillList.map(x => new AttackSkill(x));
-    attackSkillModal.init(attackSkills);
-    attackSkillSlot = new AttackSkillSlot(attackSkills, attackSkillModal);
+    attackSkillSlot = new AttackSkillSlot(attackSkills);
     attackSkillSlot.set(attackSkills[0]);
 
 
     if (data.buffSkills) {
         buffSkills = data.buffSkills.skillList.map(x => new BuffSkill(x));
-        buffSkillModal.init(buffSkills);
         for (const skillSlot of data.buffSkills.skillSlots) {
             if (skillSlot.levelReq <= 1) {
-                buffSkillSlots.push(new BuffSkillSlot(buffSkills, buffSkillModal));
+                buffSkillSlots.push(new BuffSkillSlot(buffSkills));
                 continue;
             }
             const listener = (level: number) => {
                 if (level < skillSlot.levelReq) {
                     return;
                 }
-                buffSkillSlots.push(new BuffSkillSlot(buffSkills, buffSkillModal));
+                buffSkillSlots.push(new BuffSkillSlot(buffSkills));
                 playerStats.level.removeListener('change', listener);
             };
             playerStats.level.addListener('change', listener);

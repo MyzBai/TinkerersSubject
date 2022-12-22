@@ -1,10 +1,10 @@
 import { queryHTML } from "@src/utils/helpers";
 import { gameLoop } from "../game";
 import { playerStats, modDB } from "../player";
-import { AttackSkillModal, BuffSkillModal } from "./skillModal";
+import { Modal } from "./skillModal";
 import { AttackSkill, BuffSkill, Skill } from "./skills";
 
-
+const modal = new Modal();
 
 export abstract class SkillSlot<T extends Skill> {
     public readonly element: HTMLElement;
@@ -24,11 +24,9 @@ export abstract class SkillSlot<T extends Skill> {
 
 export class AttackSkillSlot extends SkillSlot<AttackSkill> {
     private readonly skillSlotContainer = queryHTML('.p-game .s-player .s-skills [data-attack-skill]');
-    private readonly modal: AttackSkillModal;
     readonly skills: AttackSkill[];
-    constructor(attackSkills: AttackSkill[], modal: AttackSkillModal) {
+    constructor(attackSkills: AttackSkill[]) {
         super();
-        this.modal = modal;
         this.skillSlotContainer.appendChild(this.element);
         this.skills = attackSkills;
     }
@@ -39,7 +37,7 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
     }
 
     edit() {
-        this.modal.open(this);
+        modal.open({ canRemove: false, skills: this.skills, skillSlot: this })
     }
 
     protected createElement() {
@@ -56,16 +54,14 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
 export class BuffSkillSlot extends SkillSlot<BuffSkill> {
     private readonly buffSkillList = queryHTML<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]');
     private readonly progressBar: HTMLElement;
-    readonly modal: BuffSkillModal;
     readonly skills: BuffSkill[];
     private running: boolean = false;
 
-    constructor(skills: BuffSkill[], modal: BuffSkillModal) {
+    constructor(skills: BuffSkill[]) {
         super();
         this.buffSkillList.appendChild(this.element);
         this.progressBar = queryHTML('[data-progress-bar]', this.element);
         this.skills = skills;
-        this.modal = modal;
         this.set(undefined);
     }
 
@@ -113,7 +109,7 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
 
         const stop = () => {
             playerStats.skillDurationMultiplier.removeListener('change', updateTime)
-            if(this._skill){
+            if (this._skill) {
                 modDB.removeBySource(this._skill.sourceName);
             }
             this.running = false;
@@ -124,7 +120,7 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
     }
 
     private edit() {
-        this.modal.open(this);
+        modal.open({ canRemove: true, skills: this.skills, skillSlot: this })
     }
 
     protected createElement() {
