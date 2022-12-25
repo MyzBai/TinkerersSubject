@@ -1,3 +1,3 @@
 # Tinkerers-Subject
 
-Website: [Tinkerers Subject](https://myzbai.github.io/tinkerers-subject)
+Website: [Tinkerers Subject](https://myzbai.github.io/Tinkerers-Subject)
