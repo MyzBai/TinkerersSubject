@@ -23,7 +23,6 @@ let activeConfig: GConfig;
 const remoteConfigMap = new Map<string, GConfig>();
 
 export async function init() {
-
     newButton.click();
 }
 

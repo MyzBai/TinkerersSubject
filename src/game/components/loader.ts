@@ -7,8 +7,8 @@ import type GConfig from '@src/types/gconfig';
 const componentNames = ['passives', 'items', 'achievements'] as const;
 type ComponentName = typeof componentNames[number];
 
-export default function load(module: GConfig) {
-    const components = Object.fromEntries(Object.entries(module).filter(([key]) => module[key as ComponentName] && componentNames.includes(key as ComponentName))) as Pick<GConfig, ComponentName>;
+export default function load(config: GConfig) {
+    const components = Object.fromEntries(Object.entries(config).filter(([key]) => config[key as ComponentName] && componentNames.includes(key as ComponentName))) as Pick<GConfig, ComponentName>;
     for (const key of Object.keys(components) as ComponentName[]) {
         if (!components[key]) {
             continue;

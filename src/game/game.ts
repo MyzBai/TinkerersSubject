@@ -38,13 +38,15 @@ if (isLocalHost) {
 export const gameLoop: Loop = new Loop();
 
 export async function init(module: GConfig) {
+
+export async function init(config: GConfig) {
     gameLoop.reset();
 
-    initEnemy(module.enemies);
-    initPlayer(module.player);
-    initSkills(module.skills);
+    initEnemy(config.enemies);
+    initPlayer(config.player);
+    initSkills(config.skills);
 
-    loadComponents(module);
+    loadComponents(config);
 
     gameLoop.subscribe(() => {
         statistics["Time Played"].add(1);
@@ -54,8 +56,6 @@ export async function init(module: GConfig) {
 
     createStatisticsElements();
 
-
-
     if (!isLocalHost) {
         gameLoop.start();
 
@@ -63,6 +63,9 @@ export async function init(module: GConfig) {
             saveGame();
         }, { intervalMilliseconds: 60000 });
 
-        await loadGame();
+        // await loadGame(config.meta.);
     }
+
+
+    gamePage.classList.remove('hidden');
 }
