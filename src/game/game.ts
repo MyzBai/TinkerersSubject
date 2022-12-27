@@ -6,7 +6,7 @@ import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
 import loadComponents from './components/loader';
-import { saveGame, loadGame } from './save';
+// import { saveGame, loadGame } from './save';
 
 const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
@@ -17,8 +17,8 @@ if (isLocalHost) {
         value: {
             setLevel: (v: number) => playerStats.level.set(v),
             setGold: (v: number) => playerStats.level.set(v),
-            save: () => saveGame(),
-            load: () => loadGame(),
+            // save: () => saveGame(),
+            // load: () => loadGame(),
         }
     });
 
@@ -36,8 +36,6 @@ if (isLocalHost) {
 }
 
 export const gameLoop: Loop = new Loop();
-
-export async function init(module: GConfig) {
 
 export async function init(config: GConfig) {
     gameLoop.reset();
@@ -59,13 +57,11 @@ export async function init(config: GConfig) {
     if (!isLocalHost) {
         gameLoop.start();
 
-        gameLoop.subscribe(async () => {
-            saveGame();
-        }, { intervalMilliseconds: 60000 });
+        // gameLoop.subscribe(async () => {
+        //     saveGame();
+        // }, { intervalMilliseconds: 60000 });
 
         // await loadGame(config.meta.);
     }
-
-
     gamePage.classList.remove('hidden');
 }
