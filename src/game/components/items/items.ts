@@ -50,11 +50,14 @@ let items: Item[];
 let crafts: Craft[];
 let presets: Preset[];
 
+
 export function init(data: GConfig['items']) {
 
     generalMods = [];
     items = [];
     crafts = [];
+
+    presets?.forEach(x => x.delete());
     presets = [];
 
     if (!data) {
@@ -70,7 +73,9 @@ export function init(data: GConfig['items']) {
 
     createItemList(data.itemList);
     createCrafts(data.craftList);
+
     createNewPreset('All', Object.keys(craftTemplates) as CraftId[], true);
+
     createPresetModalCrafts();
 
     items[0].element.click();
@@ -425,10 +430,10 @@ class Preset {
 }
 
 export function saveItems(saveObj: Save) {
-    const createModList = (item: Item): NonNullable<Save['items']>['items'][number]['modList'] => item.mods.map(x => { 
-        return { 
-            desc: x.templateDesc, 
-            values: x.stats.map(stat => stat.value) 
+    const createModList = (item: Item): NonNullable<Save['items']>['items'][number]['modList'] => item.mods.map(x => {
+        return {
+            desc: x.templateDesc,
+            values: x.stats.map(stat => stat.value)
         }
     });
 
