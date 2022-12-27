@@ -1,5 +1,8 @@
 {
     "$schema": "./schema.json",
+    "meta": {
+        "description": "This is a short configuration for demonstration purposes."
+    },
     "enemies": {
         "enemyList": [ 100, 300, 800, 2000, 5000, 10000, 30000, 50000, 100000, 200000 ]
     },
