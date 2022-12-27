@@ -6,6 +6,14 @@
         "meta": {
             "type": "object",
             "description": "Internal properties not used within the game",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "A short text used at the home screen when a user selects the configuration",
+                    "maxLength": 240,
+                    "pattern": "^[A-Za-z0-9 \\.]*$"
+                }
+            }
         },
         "enemies": {
             "type": "object",
