@@ -2,7 +2,7 @@ import type GConfig from "@src/types/gconfig";
 import { highlightHTMLElement, queryHTML } from "@src/utils/helpers";
 import { Modifier } from "../mods";
 import { modDB, playerStats } from "../player";
-import { Save } from "../save";
+import type { Save } from "../save";
 
 const SOURCE_NAME: string = 'Passives';
 

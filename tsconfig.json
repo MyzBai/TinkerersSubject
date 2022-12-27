@@ -3,6 +3,7 @@
         "module": "ESNext",
         "target": "ESNext",
         "lib": [ "DOM", "ESNext" ],
+        "importsNotUsedAsValues": "error",
         "skipLibCheck": true,
         "moduleResolution": "Node",
         "baseUrl": ".",
