@@ -1,6 +1,7 @@
 
 export default GConfig;
 export interface GConfig {
+    meta: Meta;
     options?: Options;
     player?: Player;
     enemies: Enemies;
@@ -9,6 +10,11 @@ export interface GConfig {
     items?: Items;
     achievements: Achievements;
     prestige?: Prestige;
+}
+
+export interface Meta{
+    name: string;
+    description: string;
 }
 
 export interface Options {

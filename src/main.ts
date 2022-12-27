@@ -1,10 +1,14 @@
-import { init as initGame } from './game/game';
-import Ajv from 'ajv';
-import type GConfig from '@src/types/gconfig';
+import { init as initHome } from './home/home';
+import { queryHTML, registerTabs, tabCallback } from './utils/helpers';
+import { visibilityObserver } from './utils/Observers';
 
-const ajv = new Ajv();
+const mainPageNavButton = queryHTML('body > header button');
+const homePage = queryHTML('.p-home');
+const gamePage = queryHTML('.p-game');
 
-declare global{
+registerTabs(mainPageNavButton.parentElement!, document.body, tabCallback);
+
+declare global {
     var TS: {
         game?: any
     }
@@ -15,18 +19,27 @@ globalThis.TS = {};
 init();
 
 async function init() {
-    const schema = await (await fetch('public/gconfig/schema.json')).json();
-    const module: GConfig = await (await fetch('public/gconfig/demo.json')).json();
 
-    const valid = ajv.validate(schema, module);
-    if (!valid) {
-        console.error(ajv.errors);
-        return;
-    }
+    await initHome();
 
-    await initGame(module);
-
-    document.querySelector<HTMLElement>('.p-game menu li:nth-child(1)[data-tab-target]')?.click();
+    setupUI();
 
     document.body.classList.remove('hidden');
+}
+
+function setupUI(){
+    visibilityObserver(homePage, visible => {
+        if(visible){
+            mainPageNavButton.textContent = 'Back';
+            mainPageNavButton.setAttribute('data-tab-target', 'game');
+        }
+    });
+    visibilityObserver(gamePage, visible => {
+        if(visible){
+            mainPageNavButton.textContent = 'Home';
+            mainPageNavButton.classList.remove('hidden');
+            mainPageNavButton.setAttribute('data-tab-target', 'home');
+        }
+    });
+
 }

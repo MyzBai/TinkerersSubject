@@ -1,0 +1,109 @@
+@forward "variables";
+@forward "globals";
+@use "variables" as *;
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+*:focus {
+    outline: 0;
+}
+
+i,
+var {
+    font-style: normal;
+    cursor: default;
+}
+
+h2, p {
+    margin: 0;
+}
+
+button {
+    background-color: transparent;
+    border: 0;
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+}
+
+*.hidden {
+    display: none !important;
+}
+
+[disabled] {
+    pointer-events: none;
+    filter: brightness(50%);
+
+    &[data-highlight-notification] {
+        pointer-events: all;
+    }
+}
+
+ul,
+menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+dialog {
+    color: inherit;
+}
+
+dialog[data-modal] {
+    background-color: $color-canvas-default;
+    border: 1px solid $color-modal-border;
+    padding: 0;
+    height: clamp(60vh, 80vh, 95vh);
+    border-radius: 0.3em;
+    & > form {
+        padding: $padding-modal;
+        // max-height: 80vh;
+        height: 100%;
+        input[type="submit"] {
+            min-width: 5em;
+            &[value="Apply"] {
+                background-color: $color-modal-confirm-bg;
+            }
+            &[value="Cancel"] {
+                background-color: $color-modal-cancel-bg;
+            }
+        }
+    }
+    &::backdrop {
+        backdrop-filter: blur(1px);
+    }
+}
+
+input[type="text"] {
+    display: block;
+    width: 100%;
+    outline: 0;
+}
+input[type="submit"] {
+    border: 0;
+    font-size: inherit;
+}
+
+/*#region Scroll Bar*/
+::-webkit-scrollbar {
+    width: 0.6em;
+}
+::-webkit-scrollbar-track {
+    background: rgb(53, 53, 53);
+}
+::-webkit-scrollbar-thumb {
+    background: rgb(102, 102, 102);
+    border-left: rgb(53, 53, 53);
+    border-right: rgb(53, 53, 53);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(128, 128, 128);
+}
+::-webkit-scrollbar-thumb:active {
+    background: rgb(153, 153, 153);
+}
+/*#endregion Scroll Bar*/

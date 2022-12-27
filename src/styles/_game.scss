@@ -1,0 +1,209 @@
+@use "common" as *;
+
+.p-game {
+    display: grid;
+    grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
+    grid-gap: 0.3em;
+    background-color: $color-canvas-default;
+    min-height: 0;
+
+    & > menu,
+    .s-middle,
+    & > .s-stats {
+        padding: $padding-container;
+        background-color: $color-canvas-inset;
+    }
+
+    .s-middle {
+        height: 100%;
+        min-height: 0;
+        display: grid;
+        .p-combat {
+            position: relative;
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+
+            .s-enemy {
+                .s-health-bar-background {
+                    background-color: $color-health-bar-bg;
+                    .health-bar {
+                        display: flex;
+                        background-color: $color-health-bar-fg;
+                        width: 100%;
+                    }
+
+                    .health-bar[data-damage]::after {
+                        content: attr(data-damage);
+                        margin: auto;
+                    }
+                }
+            }
+
+            .s-player {
+                .s-mana-bar-background {
+                    background-color: $color-mana-bar-bg;
+                    .mana-bar {
+                        background-color: $color-mana-bar-fg;
+                        width: 100%;
+                    }
+                }
+                .s-skills {
+                    [data-skill-slot] {
+                        display: flex;
+                        cursor: default;
+                        
+                        [data-label] {
+                            padding: $padding-button;
+                            text-align: left;
+                        }
+
+                        &[data-skill-slot="buff-skill"] {
+                            .wrapper{
+                                position: relative;
+                                [data-progress-bar]{
+                                    pointer-events: none;
+                                    position: absolute;
+                                    left: 0;
+                                    top: 0;
+                                    width: 0%;
+                                    height: 100%;
+                                    background-color: $color-skill-slot-progress-bg;
+                                }
+                            }
+
+                            [data-label] {
+                                width: 100%;
+                            }
+                        }
+                        [data-edit]{
+                            width: 4em;
+                            padding: 0;
+                        }
+                    }
+                }
+            }
+
+            .s-skill-modal {
+                background-color: $color-canvas-default;
+
+                section {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    ul {
+                        text-align: left;
+
+                        li {
+                            pointer-events: all;
+                        }
+                    }
+                    .s-skill-info {
+                        [data-title] {
+                            text-align: center;
+                            font-size: 1.1em;
+                        }
+                        [data-mod-list] {
+                            text-align: center;
+                        }
+                    }
+                }
+                footer {
+                    margin-top: 1em;
+                    .g-button {
+                        min-width: 5em;
+                    }
+
+                    [data-value="remove"] {
+                        background-color: $color-modal-confirm-bg;
+                    }
+                }
+            }
+        }
+
+        .p-passives {
+            header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .p-items {
+            position: relative;
+            display: grid;
+            grid-template-rows: 40% 60%;
+            grid-template-columns: clamp(0.3fr, 0.4fr, 1fr) 1fr;
+            min-height: 0;
+
+            [data-mod-list] {
+                text-align: center;
+                padding: 1em;
+                overflow-y: auto;
+            }
+
+            .s-craft-container {
+                display: flex;
+                flex-direction: column;
+                ul {
+                    flex: 1;
+                    text-align: left;
+                    border: 1px solid $color-scroll-container-border;
+                }
+                [data-craft-button] {
+                    align-self: center;
+                    width: 8em;
+                    text-align: center;
+                    background-color: $color-global-button-accent-bg;
+                    margin-top: 1em;
+                }
+                [data-craft-message] {
+                    text-align: center;
+                    color: rgb(148, 35, 35);
+                    padding: 0.2em;
+
+                    &::before {
+                        content: "\2063";
+                    }
+                }
+            }
+
+            [data-craft-preset-modal] {
+                section {
+                    display: grid;
+                    grid-template-rows: auto auto 1fr;
+                    h2 {
+                        text-align: center;
+                    }
+                    [data-craft-list] {
+                        min-height: 0;
+                        text-align: left;
+                        overflow-y: auto;
+                    }
+                }
+            }
+        }
+
+        .p-achievements {
+            display: grid;
+            min-height: 0;
+            ul {
+                overflow-y: auto;
+            }
+            .g-accordion {
+                .header {
+                    padding: $padding-button;
+                    margin-bottom: 1px;
+                    var {
+                        color: $color-var-invalid-fg;
+                        &[data-valid] {
+                            color: $color-var-valid-fg;
+                        }
+                    }
+                }
+                .content {
+                    padding-left: 0.6em;
+                }
+            }
+        }
+    }
+}
+
