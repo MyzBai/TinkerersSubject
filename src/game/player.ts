@@ -35,6 +35,7 @@ export const playerStats = Object.freeze({
 });
 
 export function init(playerData?: Player) {
+    modDB.clear();
     Object.values(playerStats).forEach(x => x.reset());
     playerStats.level.addListener('change', x => queryHTML('[data-stat="level"]', playerStatsContainer).textContent = x.toFixed());
     playerStats.gold.addListener('change', x => queryHTML('[data-stat="gold"]', playerStatsContainer).textContent = x.toFixed());
