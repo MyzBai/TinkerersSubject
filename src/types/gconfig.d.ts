@@ -9,11 +9,6 @@ export interface GConfig {
     items?: Items;
     achievements: Achievements;
     prestige?: Prestige;
-    test?: {
-        test2?: {
-            test3: number;
-        }
-    }
 }
 
 export interface Options {
