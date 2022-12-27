@@ -9,6 +9,10 @@ import { saveStatistics, loadStatistics } from "./statistics";
 import { loadSkills, saveSkills } from "./skills/skills";
 
 export interface Save {
+    meta?: {
+        name: string;
+        url: string;
+    };
     player?: {
         level: number;
         gold: number;
@@ -40,7 +44,7 @@ export interface Save {
 }
 
 
-export async function save() {
+export async function saveGame() {
     const saveObj: Save = {};
     [savePlayer, saveEnemy, saveSkills, savePassives, saveItems, saveStatistics].forEach(x => x(saveObj));
 
@@ -54,7 +58,7 @@ export async function save() {
     return true;
 }
 
-export async function load() {
+export async function loadGame() {
     
     const blob = await localforage.getItem<Blob>('ts-game');
     if(!blob){

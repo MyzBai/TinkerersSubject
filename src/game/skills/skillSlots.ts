@@ -2,7 +2,7 @@ import { queryHTML } from "@src/utils/helpers";
 import { gameLoop } from "../game";
 import { playerStats, modDB } from "../player";
 import { Modal } from "./skillModal";
-import { AttackSkill, BuffSkill, Skill } from "./skills";
+import type { AttackSkill, BuffSkill, Skill } from "./skills";
 
 const modal = new Modal();
 

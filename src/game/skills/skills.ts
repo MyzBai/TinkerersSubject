@@ -1,7 +1,7 @@
 import type { Skills } from "@src/types/gconfig";
 import { Modifier, StatModifier } from "../mods";
 import { modDB, playerStats } from "../player";
-import { Save } from "../save";
+import type { Save } from "../save";
 import { AttackSkillSlot, BuffSkillSlot } from "./skillSlots";
 
 let attackSkills: AttackSkill[];

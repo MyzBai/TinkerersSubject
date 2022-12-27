@@ -14,8 +14,28 @@
 </head>
 
 <body class="dark hidden">
-    <header>Tinkerers Subject</header>
-    <main class="p-game">
+    <header>
+        <div>
+            <button class="g-button hidden" data-tab-target="home">Home</button>
+        </div>
+        <p>Tinkerers Subject</p>
+        <div></div>
+    </header>
+    <main class="p-home" data-tab-content="home">
+        <menu class="g-list-h">
+            <li class="g-list-item" data-type="new">New</li>
+            <li class="g-list-item" data-type="load">Load</li>
+        </menu>
+        <ul class="g-list-v" data-config-list></ul>
+        <div class="s-info" data-config-info>
+            <div data-title></div>
+            <div data-desc></div>
+            <button class="g-button" data-start>Start</button>
+        </div>
+
+
+    </main>
+    <main class="p-game hidden" data-tab-content="game">
         <menu class="s-menu g-list-v">
             <li class="g-list-item" data-tab-target="combat">Combat</li>
             <li class="g-list-item hidden" data-tab-target="passives">Passives</li>
@@ -200,6 +220,7 @@
         });
 
     </script>
+
 
     <script src="./public/dist/main.js"></script>
 </body>

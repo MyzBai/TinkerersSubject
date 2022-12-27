@@ -1,7 +1,7 @@
 import { visibilityObserver } from "@utils/Observers";
 import Value from "@utils/Value";
 import { gameLoop } from "./game";
-import { Save } from "./save";
+import type { Save } from "./save";
 
 class Statistic extends Value {
     readonly hidden: boolean;

@@ -1,0 +1,37 @@
+@use "common" as *;
+
+.p-home {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    margin: 0 auto;
+    width: 70%;
+    height: 60%;
+    background-color: $color-canvas-inset;
+    padding: $padding-container;
+    min-height: 0;
+    menu {
+        display: flex;
+        background-color: $color-canvas-default;
+        grid-column: span 2
+    }
+    ul {
+        padding-top: $padding-container;
+        overflow-y: auto;
+        height: 100%;
+        min-height: 0;
+    }
+
+    [data-config-info] {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        text-align: center;
+        padding-top: $padding-container;
+        [data-title]{
+            padding: $padding-list-item;
+        }
+        [data-desc] {
+            padding: $padding-container;
+        }
+    }
+}

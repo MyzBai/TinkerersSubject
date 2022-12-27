@@ -1,4 +1,4 @@
-import GConfig, { ItemMod, Items } from '@src/types/gconfig';
+import type { GConfig, ItemMod, Items } from '@src/types/gconfig';
 import { Modifier } from '@game/mods';
 import { craftTemplates, CraftId, CraftData } from './crafting';
 import { playerStats, modDB } from '@game/player';
