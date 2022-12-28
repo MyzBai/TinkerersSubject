@@ -3,6 +3,7 @@ import { ConfigEntry, ConfigEntryHandler, EntryType } from "./configEntryHandler
 import { init as initGame } from '../game/game';
 import type GConfig from "@src/types/gconfig";
 import { validateRawUrl } from "./remoteConfigEntries";
+import { validateConfig } from "@src/utils/validateConfig";
 
 const newButton = queryHTML('[data-type="remote"]');
 const loadButton = queryHTML('[data-type="local"]');
@@ -37,8 +38,11 @@ async function startConfig(entry: ConfigEntry, config: GConfig) {
         config.meta.startTimeMS = Date.now();
     }
 
-async function startConfig(config: GConfig) {
-    console.log('start game with config:', config);
+    const valid = validateConfig(config);
+    if(!valid){
+        console.log('Configuration is not valid');
+        return;
+    }
 
     await initGame(config);
 
