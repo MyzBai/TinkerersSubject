@@ -8,14 +8,6 @@ const gamePage = queryHTML('.p-game');
 
 registerTabs(mainPageNavButton.parentElement!, document.body, tabCallback);
 
-declare global {
-    var TS: {
-        game?: any
-    }
-}
-
-globalThis.TS = {};
-
 init();
 
 async function init() {
