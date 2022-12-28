@@ -14,7 +14,7 @@ export async function loadEntries() {
         return entries;
     }
     for (const save of Object.values(blob)) {
-        const entry = { ...save.meta, type: 'load' };
+        const entry = { ...save.meta };
         entries.push(entry);
 
     }
