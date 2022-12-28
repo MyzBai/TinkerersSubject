@@ -27,6 +27,16 @@ export async function init() {
     newButton.click();
 }
 
+async function startConfig(entry: ConfigEntry, config: GConfig) {
+
+    config.meta = { ...config.meta, ...entry };
+    if(!config.meta.id){
+        config.meta.id = crypto.randomUUID();
+    }
+    if(!config.meta.startTimeMS){
+        config.meta.startTimeMS = Date.now();
+    }
+
 async function startConfig(config: GConfig) {
     console.log('start game with config:', config);
 
@@ -41,22 +51,13 @@ async function showConfig(entry: ConfigEntry) {
         console.error('invalid url');
         return;
     }
-    console.log('show config with entry:', entry);
-
-    config.meta = { ...config.meta, ...entry };
-    if(!config.meta.id){
-        config.meta.id = crypto.randomUUID();
-    }
-    if(!config.meta.startTimeMS){
-        config.meta.startTimeMS = Date.now();
-    }
 
     queryHTML('[data-title]', configInfoContainer).textContent = config.meta.name;
     queryHTML('[data-desc]', configInfoContainer).textContent = config.meta.description || '';
 
     startConfigButton.removeEventListener('click', startConfigListener);
     startConfigListener = () => {
-        startConfig(config);
+        startConfig(entry, config);
     };
     startConfigButton.addEventListener('click', startConfigListener);
 }
