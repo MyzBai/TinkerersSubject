@@ -17,6 +17,7 @@ export interface Meta{
     id: string;
     name: string;
     description?: string;
+    startTimeMS: number;
 }
 
 export interface Options {

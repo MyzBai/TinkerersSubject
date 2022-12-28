@@ -1,73 +1,58 @@
 import type GConfig from "@src/types/gconfig";
-import { queryHTML } from "@src/utils/helpers";
-import { type ConfigEntry, loadRemoteConfigEntries, loadConfigAtUrl, loadSavedConfigEntries } from "./configLoader";
-import { init as initGame } from '../game/game';
+import { loadEntries as loadRemoteEntries } from "./remoteConfigEntries";
+import { loadEntries as loadLocalEntries } from "./localConfigEntries";
 
-const configList = queryHTML('.p-home [data-config-list]');
-const configInfoContainer = queryHTML('.p-home [data-config-info]');
-const startButton = queryHTML('[data-start]', configInfoContainer);
-startButton.addEventListener('click', () => startConfig());
+export type EntryType = 'remote' | 'local';
 
-let activeConfig: GConfig | undefined;
-let activeEntry: ConfigEntry | undefined;
-
-async function startConfig() {
-    console.log(activeConfig, activeEntry);
-    if (!activeConfig || !activeEntry) {
-        return;
-    }
-
-    const configCopy = JSON.parse(JSON.stringify(activeConfig));
-    const entryCopy = JSON.parse(JSON.stringify(activeConfig));
-    assignMetaData(configCopy, entryCopy);
-
-    await initGame(configCopy);
-
-    queryHTML('body > header button[data-tab-target]').click();
+interface EntryHandler {
+    getEntries: () => Promise<ConfigEntry[]>;
+    getEntryListElements(): Promise<HTMLLIElement[]>;
 }
 
-function assignMetaData(config: GConfig, entry: ConfigEntry) {
-    console.log('assign meta data');
-    const meta = config.meta || { ...entry };
-    if (!meta.id) {
-        meta.id = crypto.randomUUID();
-    }
-    config.meta = meta;
+export interface ConfigEntry {
+    name: string;
+    url: string;
+    id?: string;
+    startTimeMS?: number;
 }
 
-export abstract class ConfigEntryHandler {
-    protected map = new Map<string, GConfig>();
-    protected config: GConfig | undefined;
-    protected configEntry: ConfigEntry | undefined;
+let activeEntry: ConfigEntry;
+
+export class ConfigEntryHandler {
+    config: GConfig | undefined;
+    private remoteEntryHandler = new RemoteEntryHandler();
+    private localEntryHandler = new LocalEntryHandler();
     constructor() { }
 
-    public abstract loadEntryDataList(): Promise<ConfigEntry[]>;
-    protected abstract populateConfigList(): void;
-
-    protected async showConfig(entry: ConfigEntry) {
-
-        this.config = await loadConfigAtUrl(entry.url);
-        startButton.toggleAttribute('disabled', typeof this.config !== 'object');
-        if (!this.config) {
-            return;
-        }
-
-        const { description } = this.config.meta;
-        queryHTML('[data-title]', configInfoContainer).textContent = entry.name;
-        queryHTML('[data-desc]', configInfoContainer).textContent = description || '';
-
-        activeConfig = this.config;
-        activeEntry = entry;
+    getActiveEntry(){
+        return activeEntry;
     }
 
-    protected createBaseListElements(entries: ConfigEntry[]) {
+    async getEntryListElements(type: 'remote' | 'local'){
+        switch(type){
+            case 'remote': return await this.remoteEntryHandler.getEntryListElements();
+            case 'local': return await this.localEntryHandler.getEntryListElements();
+        }
+    }
+}
+
+class RemoteEntryHandler implements EntryHandler {
+    constructor() { }
+
+    async getEntries() {
+        return await loadRemoteEntries();
+    }
+
+
+    async getEntryListElements(){
+        const entries = await this.getEntries();
         const elements = [] as HTMLLIElement[];
         for (const entry of entries) {
             const element = document.createElement('li');
             element.classList.add('g-list-item');
-            element.addEventListener('click', async () => {
-                elements.forEach(x => x.classList.toggle('selected', x === element));
-                this.showConfig(entry);
+            element.textContent = entry.name;
+            element.addEventListener('click', () => {
+                activeEntry = entry;
             });
             elements.push(element);
         }
@@ -75,57 +60,38 @@ export abstract class ConfigEntryHandler {
     }
 }
 
-export class RemoteConfigEntryHandler extends ConfigEntryHandler {
-
+class LocalEntryHandler implements EntryHandler {
     constructor() {
-        super();
+
     }
 
-    async loadEntryDataList(): Promise<ConfigEntry[]> {
-        return await loadRemoteConfigEntries();
+    async getEntries() {
+        return await loadLocalEntries();
     }
 
-    public async populateConfigList() {
-        const entries = await this.loadEntryDataList();
-        const elements = this.createBaseListElements(entries);
-
-        for (let i = 0; i < elements.length; i++) {
-            const element = elements[i];
-            const entry = entries[i];
-            if (!element || !entry) {
-                continue;
-            }
-            element.classList.add('save-element');
-            element.textContent = entry.name;
+    async getEntryListElements() {
+        const entries = await this.getEntries();
+        const elements = [] as HTMLLIElement[];
+        for (const entry of entries) {
+            const element = document.createElement('li');
+            element.classList.add('g-list-item');
+            const timeText = this.generateTimeText(entry.startTimeMS);
+            element.insertAdjacentHTML('beforeend', `<div>${entry.name}</div><div class="g-text-small">${timeText}</div>`);
+            element.addEventListener('click', () => {
+                activeEntry = entry;
+            });
+            elements.push(element);
         }
-        elements[0]?.click();
-        configList.replaceChildren(...elements);
-    }
-}
-
-export class LocalConfigEntryHandler extends ConfigEntryHandler {
-    constructor() {
-        super();
+        return elements;
     }
 
-    async loadEntryDataList(): Promise<ConfigEntry[]> {
-        return await loadSavedConfigEntries();
+    private generateTimeText(startTime = 0) {
+        const ms = Date.now() - startTime;
+        console.log(ms);
+        const days = Math.floor(ms / 86400000).toFixed();
+        const hours = (Math.floor(ms / 3600000) % 24).toFixed();
+        const mins = (Math.floor(ms / 60000) % 60).toFixed();
+        return `Last Played ${days}d ${hours}h ${mins}min`;
     }
 
-    public async populateConfigList() {
-        const entries = await this.loadEntryDataList();
-        const elements = this.createBaseListElements(entries);
-        for (let i = 0; i < elements.length; i++) {
-            const element = elements[i];
-            const entry = entries[i];
-            if (!element || !entry) {
-                console.error('entries out of sync with html elements');
-                continue;
-            }
-            element.classList.add('save-element');
-            element.insertAdjacentHTML('beforeend', `<div>${entry.name}</div><div>Test</div>`);
-        }
-        elements[0]?.click();
-        configList.replaceChildren(...elements);
-    }
 }
