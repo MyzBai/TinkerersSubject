@@ -13,8 +13,10 @@ export interface GConfig {
 }
 
 export interface Meta{
+    url: string;
+    id: string;
     name: string;
-    description: string;
+    description?: string;
 }
 
 export interface Options {

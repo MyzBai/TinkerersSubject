@@ -20,6 +20,11 @@
         overflow-y: auto;
         height: 100%;
         min-height: 0;
+
+        li.save-element{
+            display: flex;
+            justify-content: space-between;
+        }
     }
 
     [data-config-info] {

@@ -1,7 +1,7 @@
 import type GConfig from "@src/types/gconfig";
 import EventEmitter from "@src/utils/EventEmitter";
 import { clamp, queryHTML } from "@src/utils/helpers";
-import type { Save } from "./save";
+import type { Save } from "./saveGame";
 
 const healthBar = queryHTML('.p-game .s-enemy [data-health-bar]');
 

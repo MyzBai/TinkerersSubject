@@ -3,7 +3,7 @@ import { Modifier } from '@game/mods';
 import { craftTemplates, CraftId, CraftData } from './crafting';
 import { playerStats, modDB } from '@game/player';
 import { visibilityObserver } from '@utils/Observers';
-import type { Save } from '@src/game/save';
+import type { Save } from '@src/game/saveGame';
 import { highlightHTMLElement, queryHTML } from '@src/utils/helpers';
 
 type ItemList = Items['itemList'];
