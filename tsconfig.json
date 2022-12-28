@@ -27,7 +27,8 @@
             "@src/*": ["./src/*"],
             "@utils/*": [ "./src/utils/*" ],
             "@game/*": [ "./src/game/*" ],
-            "@public/*": [ "./public/*" ]
+            "@public/*": [ "./public/*" ],
+            "@types/*": [ "./src/types/*.d.ts" ]
         },
     },
     "include": [ "**/*.ts" ],
