@@ -1,7 +1,7 @@
 
 import type { Save } from '@src/game/saveGame';
 import saveManager from '@src/utils/saveManager';
-import type { ConfigEntry } from './configLoader';
+import type { ConfigEntry } from './configEntryHandlers';
 
 
 export async function loadEntries() {

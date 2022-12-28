@@ -72,7 +72,6 @@ export async function saveGame(meta: Pick<GConfig['meta'], keyof Save['meta']>) 
 
 export async function loadGame(config: GConfig) {
     const id = config.meta.id;
-    console.log(config.meta);
     let map = await loadAsMap();
     const saveObj = map.get(id);
     if (!saveObj) {

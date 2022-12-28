@@ -1,4 +1,4 @@
-import type { ConfigEntry } from './configLoader';
+import type { ConfigEntry } from "./configEntryHandlers";
 
 const configsReadmeUrl = 'https://raw.githubusercontent.com/TinkerersSubject/Configurations/main/README.md';
 const fullRegexp = /<a.+?(?=<\/a>)<\/a>/g
