@@ -73,5 +73,5 @@ export async function init(config: GConfig) {
     console.log(config.meta);
 
     queryHTML('.p-game > menu [data-tab-target="combat"]').click();
-    gamePage.classList.remove('hidden');
+    // gamePage.classList.remove('hidden');
 }

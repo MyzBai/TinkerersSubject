@@ -87,7 +87,6 @@ class LocalEntryHandler implements EntryHandler {
 
     private generateTimeText(startTime = 0) {
         const ms = Date.now() - startTime;
-        console.log(ms);
         const days = Math.floor(ms / 86400000).toFixed();
         const hours = (Math.floor(ms / 3600000) % 24).toFixed();
         const mins = (Math.floor(ms / 60000) % 60).toFixed();
