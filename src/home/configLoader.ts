@@ -1,17 +1,18 @@
 import type GConfig from '@src/types/gconfig';
 import * as remoteConfigEntries from './remoteConfigEntries';
-import * as localConfigEntries from './localConfigEntries';
+import * as localConfigEntries from './savedConfigEntries';
 
 export interface ConfigEntry {
     name: string;
     url: string;
+    id?: string;
 }
 
 export async function loadRemoteConfigEntries() {
     return remoteConfigEntries.loadEntries();
 }
 
-export async function loadLocalConfigEntries() {
+export async function loadSavedConfigEntries() {
     return localConfigEntries.loadEntries();
 }
 

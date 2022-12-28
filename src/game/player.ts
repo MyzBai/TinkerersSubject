@@ -6,7 +6,7 @@ import { calcAttack } from "./calc/calcDamage";
 import { gameLoop } from "./game";
 import enemy, { enemies } from "./enemy";
 import statistics from "./statistics";
-import type { Save } from "./save";
+import type { Save } from "./saveGame";
 import { queryHTML } from "@src/utils/helpers";
 
 const playerStatsContainer = document.querySelector<HTMLElement>('.p-game > .s-stats')!;

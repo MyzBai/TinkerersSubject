@@ -5,20 +5,21 @@ import { init as initSkills } from './skills/skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
-import loadComponents from './components/loader';
-// import { saveGame, loadGame } from './save';
+import { initComponents } from './components/loader';
+import { saveGame, loadGame } from "./saveGame";
+
 
 const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
 
 
 if (isLocalHost) {
-    Object.defineProperty(window, 'dev', {
+    Object.defineProperty(window, 'TS', {
         value: {
             setLevel: (v: number) => playerStats.level.set(v),
             setGold: (v: number) => playerStats.level.set(v),
-            // save: () => saveGame(),
-            // load: () => loadGame(),
+            save: () => { if (cachedConfig) { saveGame(cachedConfig.meta); } },
+            load: () => { if (cachedConfig) { loadGame(cachedConfig); } },
         }
     });
 
@@ -37,14 +38,18 @@ if (isLocalHost) {
 
 export const gameLoop: Loop = new Loop();
 
+let cachedConfig = undefined as GConfig | undefined;
+
 export async function init(config: GConfig) {
+    cachedConfig = config;
+
     gameLoop.reset();
 
     initEnemy(config.enemies);
     initPlayer(config.player);
     initSkills(config.skills);
 
-    loadComponents(config);
+    initComponents(config);
 
     gameLoop.subscribe(() => {
         statistics["Time Played"].add(1);
@@ -63,5 +68,10 @@ export async function init(config: GConfig) {
 
         // await loadGame(config.meta.);
     }
+
+    await loadGame(config);
+    console.log(config.meta);
+
+    queryHTML('.p-game > menu [data-tab-target="combat"]').click();
     gamePage.classList.remove('hidden');
 }
