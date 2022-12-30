@@ -13,29 +13,6 @@ const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
 
 
-if (envVariables.env !== 'production') {
-    Object.defineProperty(window, 'TS', {
-        value: {
-            setLevel: (v: number) => playerStats.level.set(v),
-            setGold: (v: number) => playerStats.level.set(v),
-            save: () => { if (cachedConfig) { saveGame(cachedConfig.meta); } },
-            load: () => { if (cachedConfig) { loadGame(cachedConfig); } },
-        }
-    });
-
-    document.addEventListener('keydown', x => {
-        if (x.code === 'Space') {
-            if (gameLoop.running) {
-                document.title = `Tinkerers Subject (Stopped)`;
-                gameLoop.stop();
-            } else {
-                gameLoop.start();
-                document.title = 'Tinkerers Subject (Running)';
-            }
-        }
-    })
-}
-
 export const gameLoop: Loop = new Loop();
 
 let cachedConfig = undefined as GConfig | undefined;
@@ -61,6 +38,34 @@ export async function init(config: GConfig) {
 
     if (envVariables.env === 'production') {
         gameLoop.start();
+    } else {
+        setupDevHelpers();
     }
     await loadGame(config);
+}
+
+
+function setupDevHelpers() {
+
+    Object.defineProperty(window, 'TS', {
+        value: {
+            setLevel: (v: number) => playerStats.level.set(v),
+            setGold: (v: number) => playerStats.level.set(v),
+            save: () => { if (cachedConfig) { saveGame(cachedConfig.meta); } },
+            load: () => { if (cachedConfig) { loadGame(cachedConfig); } },
+        }
+    });
+
+    console.log('Press Space to toggle GameLoop');
+    document.addEventListener('keydown', x => {
+        if (x.code === 'Space') {
+            if (gameLoop.running) {
+                document.title = `Tinkerers Subject (Stopped)`;
+                gameLoop.stop();
+            } else {
+                gameLoop.start();
+                document.title = 'Tinkerers Subject (Running)';
+            }
+        }
+    });
 }
