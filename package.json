@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "dev": "npm-run-all --parallel watch:sass node scripts/build.js -- --watch",
-    "build": "node scripts/build.js && sass src/styles/style.scss public/dist/style.css",
-    "dev:gconfig": "node scripts/build.js",
-    "build:scripts": "esbuild src/scripts/build.ts --outfile=scripts/build.js"
+    "dev": "run-p \"build:sass -- --watch\" \"build:esbuild -- --watch\"",
+    "build": "sass src/styles/style.scss public/dist/style.css && node scripts/build.js",
+    "build:esbuild": "node scripts/build.js",
+    "build:sass": "sass src/styles/style.scss public/dist/style.css"
   },
   "type": "module",
   "dependencies": {
