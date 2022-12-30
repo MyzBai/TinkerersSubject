@@ -62,7 +62,6 @@ async function initConfig() {
     const path = envVariables.gConfigPath;
     try {
         const result = await fetch(path);
-        console.log(result.status === 404);
         if (result.status === 404) {
             document.body.textContent = `${result.url} | ${result.statusText}`;
             return;

@@ -59,7 +59,6 @@ export async function saveGame(meta: Pick<GConfig['meta'], keyof Save['meta']>) 
         meta: Object.assign({}, meta)
     };
 
-    console.log('save meta', saveObj.meta);
     [savePlayer, saveEnemy, saveSkills,
         saveComponents].forEach(x => x(saveObj));
 
@@ -78,8 +77,6 @@ export async function loadGame(config: GConfig) {
         console.log('could not load', id);
         return false;
     }
-
-    console.log('load meta', saveObj.meta);
 
     config.meta = { ...config.meta, ...saveObj.meta };
 
