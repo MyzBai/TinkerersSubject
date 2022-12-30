@@ -10,6 +10,11 @@
     background-color: $color-canvas-inset;
     padding: $padding-container;
     min-height: 0;
+    @media screen and (max-height: 700px) {
+        width: 100%;
+        height: 100%;
+        font-size: 1.2em;
+    }
     menu {
         display: flex;
         background-color: $color-canvas-default;
@@ -40,3 +45,4 @@
         }
     }
 }
+
