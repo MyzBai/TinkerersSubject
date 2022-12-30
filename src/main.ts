@@ -1,4 +1,4 @@
-import { init as initHome } from './home/home';
+import './home/home';
 import { init as initGame } from './game/game';
 import { queryHTML, registerTabs, tabCallback } from './utils/helpers';
 import { visibilityObserver } from './utils/Observers';
@@ -6,8 +6,6 @@ import { validateConfig } from './utils/validateConfig';
 import type GConfig from './types/gconfig';
 import type { EnvironmentVariables } from './types/environmentVariables';
 import { loadEntries } from './home/localConfigEntries';
-import save from './utils/saveManager';
-import { loadGame } from './game/saveGame';
 
 const mainPageNavButton = queryHTML('body > header button');
 const homePage = queryHTML('.p-home');
@@ -19,43 +17,33 @@ declare global {
 
 registerTabs(mainPageNavButton.parentElement!, document.body, tabCallback);
 
+visibilityObserver(homePage, visible => {
+    if (visible) {
+        mainPageNavButton.textContent = 'Back';
+        mainPageNavButton.setAttribute('data-tab-target', 'game');
+    }
+});
+visibilityObserver(gamePage, visible => {
+    if (visible) {
+        mainPageNavButton.textContent = 'Home';
+        mainPageNavButton.classList.remove('hidden');
+        mainPageNavButton.setAttribute('data-tab-target', 'home');
+    }
+});
+
 init();
 
 async function init() {
 
     globalThis.envVariables = await (await fetch('/public/env.json')).json();
 
-    if (envVariables.env === 'local' && envVariables.gConfigPath) {
-        try {
-            await initConfig();
-        } catch (e) {
-            console.error(e);
-            document.body.textContent = e as any;
-        }
-    } else {
-        await initHome();
+    if(envVariables.env === 'dev-config'){
+        await initConfig();
+    } else{
+        queryHTML('.p-home').classList.remove('hidden');
     }
 
-    setupUI();
-
     document.body.classList.remove('hidden');
-}
-
-function setupUI() {
-    visibilityObserver(homePage, visible => {
-        if (visible) {
-            mainPageNavButton.textContent = 'Back';
-            mainPageNavButton.setAttribute('data-tab-target', 'game');
-        }
-    });
-    visibilityObserver(gamePage, visible => {
-        if (visible) {
-            mainPageNavButton.textContent = 'Home';
-            mainPageNavButton.classList.remove('hidden');
-            mainPageNavButton.setAttribute('data-tab-target', 'home');
-        }
-    });
-
 }
 
 async function initConfig() {
@@ -66,7 +54,6 @@ async function initConfig() {
             document.body.textContent = `${result.url} | ${result.statusText}`;
             return;
         }
-
         const config = await result.json() as GConfig;
 
         const valid = validateConfig(config);
