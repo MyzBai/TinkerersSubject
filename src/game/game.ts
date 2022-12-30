@@ -30,7 +30,11 @@ export async function init(config: GConfig) {
 
     gameLoop.subscribe(() => {
         statistics["Time Played"].add(1);
-    }, { intervalMilliseconds: 1000 })
+    }, { intervalMilliseconds: 1000 });
+
+    gameLoop.subscribe(() => {
+        saveGame(config.meta);
+    }, { intervalMilliseconds: 1000 * 60})
 
     await setupPlayer();
 
