@@ -78,7 +78,7 @@ export default class Loop {
         let now = performance.now();
         const loop = () => {
             clearTimeout(this.loopId);
-            this.loopId = setTimeout(() => {
+            this.loopId = window.setTimeout(() => {
                 let diff = performance.now() - now + remainder;
                 now = performance.now();
                 while (diff >= TARGET_FRAME_TIME) {

@@ -80,7 +80,7 @@ export async function setup() {
 async function updateStats() {
     return new Promise((resolve) => {
         clearTimeout(statsUpdateId);
-        statsUpdateId = setTimeout(async () => {
+        statsUpdateId = window.setTimeout(async () => {
             const statsResult = calcPlayerStats(modDB.modList);
             playerStats.attackSpeed.set(statsResult.attackSpeed);
             playerStats.goldPerSecond.set(statsResult.goldPerSecond);
