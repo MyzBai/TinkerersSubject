@@ -15,3 +15,9 @@ The game is initialized with a configuration json file. This allows for the comm
 * (Optional) Install Live Server to refresh browser automatially when you modify the file
 * Helper methods are available in your browsers devtools inside an object called TS
 
+### Include your *Configuration* in the *ConfigList.json*
+* Make sure you have a fork of this repo
+* Create a new branch
+* Add an object in *public/gconfig/configList.json* "list": []
+* Commit your changes
+* Make a Pull Request to merge your branch into this repo's main branch
