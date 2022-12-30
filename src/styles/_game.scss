@@ -125,6 +125,11 @@
                 align-items: center;
                 justify-content: space-between;
             }
+            ul{
+                li.selected{
+                    pointer-events: all;
+                }
+            }
         }
 
         .p-items {
