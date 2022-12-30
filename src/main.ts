@@ -35,7 +35,7 @@ init();
 
 async function init() {
 
-    globalThis.envVariables = await (await fetch('/public/env.json')).json();
+    globalThis.envVariables = await (await fetch('public/env.json')).json();
 
     if(envVariables.env === 'dev-config'){
         await initConfig();
