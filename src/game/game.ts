@@ -68,10 +68,5 @@ export async function init(config: GConfig) {
 
         // await loadGame(config.meta.);
     }
-
     await loadGame(config);
-    console.log(config.meta);
-
-    queryHTML('.p-game > menu [data-tab-target="combat"]').click();
-    // gamePage.classList.remove('hidden');
 }
