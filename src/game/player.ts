@@ -40,6 +40,9 @@ export function init(playerData?: Player) {
 
     playerStats.level.addListener('change', x => queryHTML('[data-stat="level"]', playerStatsContainer).textContent = x.toFixed());
     playerStats.gold.addListener('change', x => queryHTML('[data-stat="gold"]', playerStatsContainer).textContent = x.toFixed());
+    playerStats.level.set(1); //trigger event to update the ui
+    playerStats.gold.set(0);
+
 
     playerStats.curMana.addListener('change', curMana => {
         const maxMana = playerStats.maxMana.get();
@@ -71,8 +74,7 @@ export function init(playerData?: Player) {
 }
 
 export async function setup() {
-    playerStats.level.set(1);
-    playerStats.gold.set(0);
+
     await updateStats();
     playerStats.curMana.set(playerStats.maxMana.get());
 }
@@ -88,9 +90,8 @@ async function updateStats() {
             playerStats.manaRegen.set(statsResult.manaRegen);
             playerStats.attackManaCost.set(statsResult.attackManaCost);
             playerStats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
-            playerStatsContainer.querySelector('[data-stat="dps"]')!.textContent = statsResult.dps.toFixed();
             playerStatsContainer.querySelectorAll('[data-stat]').forEach(x => {
-                const attr = x.getAttribute('data-stat')! as keyof typeof statsResult;
+                const attr = x.getAttribute('data-stat') as keyof typeof statsResult;
                 const stat = statsResult[attr] as number;
                 if (typeof stat === 'number') {
                     const numDecimals = Number(x.getAttribute('data-digits') || 0);
@@ -151,7 +152,7 @@ export function savePlayer(saveObj: Save) {
 
 export async function loadPlayer(saveObj: Save) {
     const playerSave = saveObj.player;
-    if(!playerSave){
+    if (!playerSave) {
         return;
     }
     playerStats.level.set(playerSave.level || 1);
