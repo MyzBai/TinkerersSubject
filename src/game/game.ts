@@ -1,4 +1,4 @@
-import { registerTabs, tabCallback, isLocalHost, queryHTML } from "@utils/helpers";
+import { registerTabs, tabCallback, queryHTML } from "@utils/helpers";
 import { init as initPlayer, setup as setupPlayer, playerStats } from './player';
 import { init as initEnemy } from './enemy';
 import { init as initSkills } from './skills/skills';
@@ -13,7 +13,7 @@ const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
 
 
-if (isLocalHost) {
+if (envVariables.env !== 'production') {
     Object.defineProperty(window, 'TS', {
         value: {
             setLevel: (v: number) => playerStats.level.set(v),
@@ -59,14 +59,8 @@ export async function init(config: GConfig) {
 
     createStatisticsElements();
 
-    if (!isLocalHost) {
+    if (envVariables.env === 'production') {
         gameLoop.start();
-
-        // gameLoop.subscribe(async () => {
-        //     saveGame();
-        // }, { intervalMilliseconds: 60000 });
-
-        // await loadGame(config.meta.);
     }
     await loadGame(config);
 }

@@ -6,7 +6,6 @@ export const randomRange = (min: number, max: number) => Math.random() * (max - 
 export const randomRangeInt = (min: number, max: number) => Math.floor(randomRange(min, max));
 export const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-export const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 export function queryHTML<T extends HTMLElement>(selectors: string, parent?: HTMLElement) {
     const element = (parent || document).querySelector<T>(selectors);
