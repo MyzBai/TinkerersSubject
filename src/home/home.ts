@@ -4,6 +4,7 @@ import { init as initGame } from '../game/game';
 import type GConfig from "@src/types/gconfig";
 import { validateRawUrl } from "./remoteConfigEntries";
 import { validateConfig } from "@src/utils/validateConfig";
+import { visibilityObserver } from "@src/utils/Observers";
 
 const newButton = queryHTML('[data-type="remote"]');
 const loadButton = queryHTML('[data-type="local"]');
@@ -24,9 +25,12 @@ let startConfigListener: ((ev: MouseEvent) => void);
     });
 });
 
-export async function init() {
-    newButton.click();
-}
+visibilityObserver(queryHTML('.p-home'), (visible, observer) => {
+    if(visible){
+        newButton.click();
+        observer.disconnect();
+    }
+});
 
 async function startConfig(entry: ConfigEntry, config: GConfig) {
 
