@@ -26,6 +26,7 @@ jobs:
           node scripts/setup-production.js
       - name: Prepare for deploy
         run: |
+          rm -rf build
           mkdir -p build
           mv public index.html build
       - name: Deploy 🚀
