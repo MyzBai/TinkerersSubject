@@ -1,30 +1,18 @@
+import configList from '@public/gconfig/configList.json';
 import type { ConfigEntry } from "./configEntryHandlers";
-
-const fullRegexp = /<a.+?(?=<\/a>)<\/a>/g
-const rawUrlRegexp = /data\-raw\=\"([^\"]*)/;
-const nameRegexp = />(.+)<\/a>/
 
 export async function loadEntries() {
 
-    const text = await (await fetch(envVariables.configReadmeUrl)).text();
-    const entries = [...text.matchAll(fullRegexp)].map(x => x[0]);
-    const urls = [] as ConfigEntry[];
-    for (const entry of entries) {
-        const urlMatch = entry.match(rawUrlRegexp);
-        const nameMatch = entry.match(nameRegexp);
-
-        if (!urlMatch || !nameMatch) {
+    const entries = [] as ConfigEntry[];
+    for (const item of configList.list) {
+        const rawUrl = item.rawUrl;
+        const valid = validateRawUrl(rawUrl);
+        if (!valid) {
             continue;
         }
-        const url = urlMatch[1];
-        const name = nameMatch[1];
-        const valid = validateRawUrl(url);
-        if (valid) {
-            urls.push({ url: url, name });
-        }
+        entries.push({ name: item.name, url: item.rawUrl });
     }
-
-    return urls;
+    return entries;
 }
 
 export function validateRawUrl(url: string) {

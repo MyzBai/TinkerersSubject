@@ -1,0 +1,10 @@
+{
+    "$schema": "./configListSchema.json",
+    "list": [
+        {
+            "name": "Demo",
+            "rawUrl": "https://raw.githubusercontent.com/MyzBai/TinkerersSubject/main/public/gconfig/demo.json",
+            "description": "This is a short configuration for demonstration purposes"
+        }
+    ]
+}
