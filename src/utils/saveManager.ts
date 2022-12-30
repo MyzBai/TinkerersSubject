@@ -30,9 +30,8 @@ export async function load<T>(type: SaveType) {
     }
 }
 
-
 async function saveBlob(key: string, object: Object) {
-    const str = btoa(JSON.stringify(object));
+    const str = window.btoa(JSON.stringify(object));
     const blob = new Blob([str], { type: 'text/plain' });
     return await localforage.setItem<Blob>(key, blob);
 }
@@ -43,5 +42,5 @@ async function loadBlob(key: string) {
         return blob;
     }
     const str = await blob.text();
-    return JSON.parse(atob(str)) as Object;
+    return JSON.parse(window.atob(str)) as Object;
 }
