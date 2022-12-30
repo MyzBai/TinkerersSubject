@@ -1,13 +1,12 @@
 import type { ConfigEntry } from "./configEntryHandlers";
 
-const configsReadmeUrl = 'https://raw.githubusercontent.com/TinkerersSubject/Configurations/main/README.md';
 const fullRegexp = /<a.+?(?=<\/a>)<\/a>/g
 const rawUrlRegexp = /data\-raw\=\"([^\"]*)/;
 const nameRegexp = />(.+)<\/a>/
 
 export async function loadEntries() {
 
-    const text = await (await fetch(configsReadmeUrl)).text();
+    const text = await (await fetch(envVariables.configReadmeUrl)).text();
     const entries = [...text.matchAll(fullRegexp)].map(x => x[0]);
     const urls = [] as ConfigEntry[];
     for (const entry of entries) {

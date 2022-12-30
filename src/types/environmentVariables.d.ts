@@ -1,4 +1,5 @@
 export declare interface EnvironmentVariables{
-    env: 'local' | 'production';
+    env: 'dev' | 'dev-config' | 'production';
+    configReadmeUrl: string;
     gConfigPath: string;
 }
