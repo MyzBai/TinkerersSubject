@@ -1,6 +1,6 @@
 # Tinkerers-Subject
 
-Website: [Game](https://tinkererssubject.github.io/Game)
+Website: [Game](https://myzbai.github.io/TinkerersSubject)
 
 The game is initialized with a configuration json file. This allows for the community to create their own version of gameplay.
 
