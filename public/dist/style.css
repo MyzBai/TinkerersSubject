@@ -293,6 +293,13 @@ input[type=submit] {
   padding: 0.3em;
   min-height: 0;
 }
+@media screen and (max-height: 700px) {
+  .p-home {
+    width: 100%;
+    height: 100%;
+    font-size: 1.2em;
+  }
+}
 .p-home menu {
   display: flex;
   background-color: #0d1117;
