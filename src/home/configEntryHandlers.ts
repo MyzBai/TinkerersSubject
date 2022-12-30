@@ -72,7 +72,7 @@ class LocalEntryHandler implements EntryHandler {
     async getEntryListElements() {
         const entries = await this.getEntries();
         const elements = [] as HTMLLIElement[];
-        for (const entry of entries) {
+        for (const entry of entries.filter(x => x.url)) {
             const element = document.createElement('li');
             element.classList.add('g-list-item');
             const timeText = this.generateTimeText(entry.startTimeMS);
