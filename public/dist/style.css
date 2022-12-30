@@ -1,0 +1,538 @@
+@charset "UTF-8";
+/*#region Global*/
+.g-modal {
+  display: grid;
+  position: fixed;
+  margin: auto;
+  background-color: #0d1117;
+}
+.g-modal:not([data-modal-type=relative]) > .wrapper {
+  padding: 2em;
+}
+.g-modal > .wrapper {
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+.g-modal[data-modal-type=relative] {
+  position: absolute;
+  margin: 0;
+  padding: 0.3em;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+.g-modal * {
+  z-index: 10;
+}
+.g-modal::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: brightness(50%);
+  background-color: transparent;
+  z-index: 3;
+}
+.g-modal section {
+  z-index: 10;
+}
+.g-modal footer button[data-value] {
+  min-width: 5em;
+  background-color: #8f0d0d;
+}
+.g-modal footer button[data-value=apply] {
+  min-width: 5em;
+  background-color: #1f6feb;
+}
+
+.g-accordion {
+  position: relative;
+  cursor: default;
+}
+.g-accordion .header {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.0509803922);
+  padding: 0.3em;
+  cursor: default;
+  user-select: none;
+}
+.g-accordion .header:hover {
+  background-color: rgba(255, 255, 255, 0.1019607843);
+}
+.g-accordion .header :first-child {
+  flex: 1;
+}
+.g-accordion .header i:last-child::after {
+  content: "+";
+  position: absolute;
+  right: 0.3em;
+  color: #c9d1d9;
+}
+.g-accordion .header[data-open] i:last-child::after {
+  content: "−";
+}
+.g-accordion .header[data-open] ~ .content {
+  display: block;
+  padding: 0.3em;
+}
+.g-accordion .content {
+  display: none;
+}
+
+.g-toolbar {
+  display: flex;
+}
+.g-toolbar li {
+  color: #58a6ff;
+}
+.g-toolbar div {
+  display: inline-block;
+}
+
+.g-button {
+  display: inline-block;
+  padding: 0.3em;
+  cursor: default;
+  user-select: none;
+  border-radius: 3px;
+  color: #c9d1d9;
+  border-color: rgba(240, 246, 252, 0.1);
+}
+.g-button:hover {
+  background-color: rgba(255, 255, 255, 0.0509803922);
+}
+
+.g-list-v.g-list-v,
+.g-list-h.g-list-v {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  overflow-y: auto;
+}
+.g-list-v.g-list-h,
+.g-list-h.g-list-h {
+  display: flex;
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.g-list-item {
+  padding: 0.3em;
+  cursor: default;
+  user-select: none;
+}
+.g-list-item.selected {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.1019607843);
+}
+.g-list-item.selected:not([data-highlight-notification]) {
+  pointer-events: none;
+}
+.g-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.0509803922);
+}
+
+.g-field {
+  display: flex;
+}
+.g-field > :nth-child(1) {
+  flex: 1;
+  word-wrap: break-word;
+}
+.g-field > :last-child {
+  padding-left: 1em;
+}
+
+.g-progress-bar-background {
+  height: 1.5em;
+}
+.g-progress-bar-background .g-progress-bar {
+  height: 100%;
+}
+
+.g-mod-desc {
+  color: #8392bd;
+}
+
+.g-mod-desc-adv {
+  color: #ddd7bb;
+  font-size: 0.7em;
+  line-height: 0.4em;
+}
+
+[data-insufficient-cost] {
+  color: #eb8686;
+}
+
+[data-highlight-notification] {
+  border-left: 0.2em solid #bd7044;
+}
+
+/*#endregion Global*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+*:focus {
+  outline: 0;
+}
+
+i,
+var {
+  font-style: normal;
+  cursor: default;
+}
+
+h2, p {
+  margin: 0;
+}
+
+button {
+  background-color: transparent;
+  border: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+}
+
+*.hidden {
+  display: none !important;
+}
+
+[disabled] {
+  pointer-events: none;
+  filter: brightness(50%);
+}
+[disabled][data-highlight-notification] {
+  pointer-events: all;
+}
+
+ul,
+menu {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+dialog {
+  color: inherit;
+}
+
+dialog[data-modal] {
+  background-color: #0d1117;
+  border: 1px solid #545b64;
+  padding: 0;
+  height: 80vh;
+  border-radius: 0.3em;
+}
+dialog[data-modal] > form {
+  padding: 2em;
+  height: 100%;
+}
+dialog[data-modal] > form input[type=submit] {
+  min-width: 5em;
+}
+dialog[data-modal] > form input[type=submit][value=Apply] {
+  background-color: #1f6feb;
+}
+dialog[data-modal] > form input[type=submit][value=Cancel] {
+  background-color: #8f0d0d;
+}
+dialog[data-modal]::backdrop {
+  backdrop-filter: blur(1px);
+}
+
+input[type=text] {
+  display: block;
+  width: 100%;
+  outline: 0;
+}
+
+input[type=submit] {
+  border: 0;
+  font-size: inherit;
+}
+
+/*#region Scroll Bar*/
+::-webkit-scrollbar {
+  width: 0.6em;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(53, 53, 53);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(102, 102, 102);
+  border-left: rgb(53, 53, 53);
+  border-right: rgb(53, 53, 53);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(128, 128, 128);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgb(153, 153, 153);
+}
+
+/*#endregion Scroll Bar*/
+.p-home {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+  margin: 0 auto;
+  width: 70%;
+  height: 60%;
+  background-color: #010409;
+  padding: 0.3em;
+  min-height: 0;
+}
+.p-home menu {
+  display: flex;
+  background-color: #0d1117;
+  grid-column: span 2;
+}
+.p-home ul {
+  padding-top: 0.3em;
+  overflow-y: auto;
+  height: 100%;
+  min-height: 0;
+}
+.p-home ul li.save-element {
+  display: flex;
+  justify-content: space-between;
+}
+.p-home [data-config-info] {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  text-align: center;
+  padding-top: 0.3em;
+}
+.p-home [data-config-info] [data-title] {
+  padding: 0.3em;
+}
+.p-home [data-config-info] [data-desc] {
+  padding: 0.3em;
+}
+
+.p-game {
+  display: grid;
+  grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
+  grid-gap: 0.3em;
+  background-color: #0d1117;
+  min-height: 0;
+}
+.p-game > menu,
+.p-game .s-middle, .p-game > .s-stats {
+  padding: 0.3em;
+  background-color: #010409;
+}
+.p-game .s-middle {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+}
+.p-game .s-middle .p-combat {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+}
+.p-game .s-middle .p-combat .s-enemy .s-health-bar-background {
+  background-color: #771111;
+}
+.p-game .s-middle .p-combat .s-enemy .s-health-bar-background .health-bar {
+  display: flex;
+  background-color: #a12525;
+  width: 100%;
+}
+.p-game .s-middle .p-combat .s-enemy .s-health-bar-background .health-bar[data-damage]::after {
+  content: attr(data-damage);
+  margin: auto;
+}
+.p-game .s-middle .p-combat .s-player .s-mana-bar-background {
+  background-color: #225c7e;
+}
+.p-game .s-middle .p-combat .s-player .s-mana-bar-background .mana-bar {
+  background-color: #307da1;
+  width: 100%;
+}
+.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot] {
+  display: flex;
+  cursor: default;
+}
+.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot] [data-label] {
+  padding: 0.3em;
+  text-align: left;
+}
+.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot][data-skill-slot=buff-skill] .wrapper {
+  position: relative;
+}
+.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot][data-skill-slot=buff-skill] .wrapper [data-progress-bar] {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.0509803922);
+}
+.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot][data-skill-slot=buff-skill] [data-label] {
+  width: 100%;
+}
+.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot] [data-edit] {
+  width: 4em;
+  padding: 0;
+}
+.p-game .s-middle .p-combat .s-skill-modal {
+  background-color: #0d1117;
+}
+.p-game .s-middle .p-combat .s-skill-modal section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.p-game .s-middle .p-combat .s-skill-modal section ul {
+  text-align: left;
+}
+.p-game .s-middle .p-combat .s-skill-modal section ul li {
+  pointer-events: all;
+}
+.p-game .s-middle .p-combat .s-skill-modal section .s-skill-info [data-title] {
+  text-align: center;
+  font-size: 1.1em;
+}
+.p-game .s-middle .p-combat .s-skill-modal section .s-skill-info [data-mod-list] {
+  text-align: center;
+}
+.p-game .s-middle .p-combat .s-skill-modal footer {
+  margin-top: 1em;
+}
+.p-game .s-middle .p-combat .s-skill-modal footer .g-button {
+  min-width: 5em;
+}
+.p-game .s-middle .p-combat .s-skill-modal footer [data-value=remove] {
+  background-color: #1f6feb;
+}
+.p-game .s-middle .p-passives header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.p-game .s-middle .p-items {
+  position: relative;
+  display: grid;
+  grid-template-rows: 40% 60%;
+  grid-template-columns: 0.4fr 1fr;
+  min-height: 0;
+}
+.p-game .s-middle .p-items [data-mod-list] {
+  text-align: center;
+  padding: 1em;
+  overflow-y: auto;
+}
+.p-game .s-middle .p-items .s-craft-container {
+  display: flex;
+  flex-direction: column;
+}
+.p-game .s-middle .p-items .s-craft-container ul {
+  flex: 1;
+  text-align: left;
+  border: 1px solid #2b2b2b;
+}
+.p-game .s-middle .p-items .s-craft-container [data-craft-button] {
+  align-self: center;
+  width: 8em;
+  text-align: center;
+  background-color: #1f6feb;
+  margin-top: 1em;
+}
+.p-game .s-middle .p-items .s-craft-container [data-craft-message] {
+  text-align: center;
+  color: rgb(148, 35, 35);
+  padding: 0.2em;
+}
+.p-game .s-middle .p-items .s-craft-container [data-craft-message]::before {
+  content: "⁣";
+}
+.p-game .s-middle .p-items [data-craft-preset-modal] section {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+}
+.p-game .s-middle .p-items [data-craft-preset-modal] section h2 {
+  text-align: center;
+}
+.p-game .s-middle .p-items [data-craft-preset-modal] section [data-craft-list] {
+  min-height: 0;
+  text-align: left;
+  overflow-y: auto;
+}
+.p-game .s-middle .p-achievements {
+  display: grid;
+  min-height: 0;
+}
+.p-game .s-middle .p-achievements ul {
+  overflow-y: auto;
+}
+.p-game .s-middle .p-achievements .g-accordion .header {
+  padding: 0.3em;
+  margin-bottom: 1px;
+}
+.p-game .s-middle .p-achievements .g-accordion .header var {
+  color: #eb8686;
+}
+.p-game .s-middle .p-achievements .g-accordion .header var[data-valid] {
+  color: #54d354;
+}
+.p-game .s-middle .p-achievements .g-accordion .content {
+  padding-left: 0.6em;
+}
+
+:root {
+  font-size: 20px;
+  font-family: serif;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-size: min(1em, 1.7vw);
+  background-color: #0d1117;
+  color: #c9d1d9;
+  margin: 0 auto;
+  width: 80%;
+}
+
+@media only screen and (max-width: 1600px) {
+  body {
+    margin: 0;
+    width: 100vw;
+  }
+}
+body > header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-size: 1.3em;
+  text-align: center;
+  grid-column: 1/4;
+  align-items: center;
+  color: #d6a02c;
+  padding: 0.3em;
+  font-weight: bold;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+}
+body > header .title {
+  padding: 0.3em;
+}
+
+/*# sourceMappingURL=style.css.map */

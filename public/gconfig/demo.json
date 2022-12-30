@@ -1,0 +1,324 @@
+{
+    "$schema": "./schema.json",
+    "meta": {
+        "description": "This is a short configuration for demonstration purposes."
+    },
+    "enemies": {
+        "enemyList": [ 100, 300, 800, 2000, 5000, 10000, 30000, 50000, 100000, 200000 ]
+    },
+    "player": {
+        "modList": [
+            "Adds {1} To {3} Physical Damage",
+            "+{100} Maximum Mana",
+            "+{1} Mana Regeneration",
+            "+{1} Gold Per Second",
+            "+{150}% Critical Hit Multiplier"
+        ]
+    },
+    "skills": {
+        "attackSkills": {
+            "skillList": [
+                {
+                    "name": "Default Attack",
+                    "levelReq": 1,
+                    "attackSpeed": 1,
+                    "manaCost": 1,
+                    "baseDamageMultiplier": 100,
+                    "mods": [ "+{100}% Hit Chance" ]
+                },
+                {
+                    "name": "Super Attack",
+                    "levelReq": 2,
+                    "attackSpeed": 0.65,
+                    "manaCost": 3,
+                    "baseDamageMultiplier": 250,
+                    "mods": [
+                        "+{80}% Hit Chance"
+                    ]
+                },
+                {
+                    "name": "Critical Attack",
+                    "levelReq": 3,
+                    "attackSpeed": 1.2,
+                    "manaCost": 5,
+                    "baseDamageMultiplier": 180,
+                    "mods": [
+                        "+{60}% Hit Chance",
+                        "+{20}% Critical Hit Chance",
+                        "+{80}% Critical Hit Multiplier"
+                    ]
+                },
+                {
+                    "name": "Mega Attack",
+                    "levelReq": 5,
+                    "attackSpeed": 0.6,
+                    "manaCost": 8,
+                    "baseDamageMultiplier": 500,
+                    "mods": [
+                        "+{50}% Hit Chance"
+                    ]
+                },
+                {
+                    "name": "Speed Attack",
+                    "levelReq": 5,
+                    "attackSpeed": 3,
+                    "manaCost": 5,
+                    "baseDamageMultiplier": 150,
+                    "mods": [
+                        "+{70}% Hit Chance"
+                    ]
+                }
+            ]
+        },
+        "buffSkills": {
+            "skillSlots": [
+                {
+                    "levelReq": 2
+                },
+                {
+                    "levelReq": 5
+                }, 
+                {
+                    "levelReq": 7
+                }
+            ],
+            "skillList": [
+                {
+                    "name": "More Damage",
+                    "levelReq": 1,
+                    "baseDuration": 30,
+                    "manaCost": 20,
+                    "mods": [
+                        "{30}% More Damage"
+                    ]
+                },
+                {
+                    "name": "Attack Speed",
+                    "levelReq": 1,
+                    "baseDuration": 60,
+                    "manaCost": 50,
+                    "mods": [
+                       "{30}% More Attack Speed"
+                    ]
+                }, 
+                {
+                    "name": "Critical Strike",
+                    "levelReq": 1,
+                    "baseDuration": 30,
+                    "manaCost": 30,
+                    "mods": [
+                        "+{20}% Critical Hit Chance",
+                        "+{100}% Critical Hit Multiplier"
+                    ]
+                }, 
+                {
+                    "name": "Gold",
+                    "levelReq": 5,
+                    "baseDuration": 30,
+                    "manaCost": 100,
+                    "mods": [
+                        "{50}% Increased Gold Per Second"
+                    ]
+                }
+            ]
+        }
+    },
+    "passives": {
+        "levelReq": 2,
+        "passiveList": [
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{1} Gold Per Second"
+            },
+            {
+                "levelReq": 3,
+                "points": 2,
+                "mod": "+{2} Gold Per Second"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{3} Gold Per Second"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "{20}% Increased Physical Damage"
+            },
+            {
+                "levelReq": 2,
+                "points": 2,
+                "mod": "{50}% Increased Physical Damage"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "{100}% Increased Physical Damage"
+            },
+            {
+                "levelReq": 1,
+                "points": 2,
+                "mod": "{10}% Increased Attack Speed"
+            },
+            {
+                "levelReq": 3,
+                "points": 3,
+                "mod": "{30}% Increased Attack Speed"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{5}% Hit Chance"
+            },
+            {
+                "levelReq": 3,
+                "points": 2,
+                "mod": "+{15}% Hit Chance"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{20}% Hit Chance"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{1} Mana Regeneration"
+            },
+            {
+                "levelReq": 3,
+                "points": 2,
+                "mod": "+{2} Mana Regeneration"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{3} Mana Regeneration"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "{20}% Increased Maximum Mana"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{5}% Critical Hit Chance"
+            },
+            {
+                "levelReq": 3,
+                "points": 2,
+                "mod": "+{10}% Critical Hit Chance"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{20}% Critical Hit Chance"
+            },
+            {
+                "levelReq": 1,
+                "points": 1,
+                "mod": "+{20}% Critical Hit Multiplier"
+            },
+            {
+                "levelReq": 3,
+                "points": 2,
+                "mod": "+{50}% Critical Hit Multiplier"
+            },
+            {
+                "levelReq": 5,
+                "points": 3,
+                "mod": "+{100}% Critical Hit Multiplier"
+            }
+        ]
+    },
+    "items": {
+        "itemList": [
+            { "name": "Item 1", "levelReq": 1 },
+            { "name": "Item 2", "levelReq": 2 },
+            { "name": "Item 3", "levelReq": 3 },
+            { "name": "Item 4", "levelReq": 5 },
+            { "name": "Item 5", "levelReq": 7 }
+        ],
+        "modTables": {
+            "general": [
+                [
+                    { "weight": 10, "levelReq": 1, "mod": "+{1} Gold Per Second" },
+                    { "weight": 5, "levelReq": 5, "mod": "+{2} Gold Per Second" }
+                ],
+                [
+                    { "weight": 100, "levelReq": 1, "mod": "Adds {1} To {3} Physical Damage" },
+                    { "weight": 100, "levelReq": 2, "mod": "Adds {3-4} To {4-6} Physical Damage" },
+                    { "weight": 100, "levelReq": 5, "mod": "Adds {5-8} To {8-12} Physical Damage" }
+                ],
+                [
+                    { "weight": 100, "levelReq": 1, "mod": "{30-40}% Increased Physical Damage" },
+                    { "weight": 100, "levelReq": 3, "mod": "{40-60}% Increased Physical Damage" },
+                    { "weight": 100, "levelReq": 5, "mod": "{80-100}% Increased Physical Damage" }
+                ],
+                [
+                    { "weight": 100, "levelReq": 1, "mod": "+{5}% Hit Chance" },
+                    { "weight": 100, "levelReq": 2, "mod": "+{6-8}% Hit Chance" },
+                    { "weight": 100, "levelReq": 3, "mod": "+{9-12}% Hit Chance" },
+                    { "weight": 100, "levelReq": 5, "mod": "+{13-15}% Hit Chance" },
+                    { "weight": 100, "levelReq": 7, "mod": "+{16-20}% Hit Chance" }
+                ],
+                [
+                    { "weight": 30, "levelReq": 1, "mod": "{5-10}% Increased Attack Speed" },
+                    { "weight": 30, "levelReq": 3, "mod": "{10-15}% Increased Attack Speed" }
+                ],
+                [
+                    { "weight": 70, "levelReq": 1, "mod": "+{10}% Critical Hit Chance" },
+                    { "weight": 70, "levelReq": 2, "mod": "+{20}% Critical Hit Chance" },
+                    { "weight": 70, "levelReq": 5, "mod": "+{30}% Critical Hit Chance" }
+                ],
+                [
+                    { "weight": 60, "levelReq": 1, "mod": "+{20}% Critical Hit Multiplier" },
+                    { "weight": 60, "levelReq": 3, "mod": "+{30}% Critical Hit Multiplier" },
+                    { "weight": 60, "levelReq": 5, "mod": "+{50}% Critical Hit Multiplier" }
+                ],
+                [
+                    { "weight": 100, "levelReq": 1, "mod": "+{10-20} Maximum Mana" },
+                    { "weight": 100, "levelReq": 2, "mod": "+{21-30} Maximum Mana" },
+                    { "weight": 100, "levelReq": 3, "mod": "+{31-40} Maximum Mana" },
+                    { "weight": 100, "levelReq": 5, "mod": "+{41-50} Maximum Mana" }
+                ],
+                [
+                    { "weight": 100, "levelReq": 1, "mod": "{20-30}% Increased Maximum Mana" },
+                    { "weight": 100, "levelReq": 3, "mod": "{30-40}% Increased Maximum Mana" },
+                    { "weight": 100, "levelReq": 5, "mod": "{40-50}% Increased Maximum Mana" }
+                ],
+                [
+                    { "weight": 100, "levelReq": 1, "mod": "+{1} Mana Regeneration" },
+                    { "weight": 100, "levelReq": 3, "mod": "+{2} Mana Regeneration" }
+                ]
+            ]
+        },
+        "craftList": [
+            { "id": "reforge", "cost": 10, "levelReq": 1 },
+            { "id": "reforgeIncludePhysical", "cost": 50, "levelReq": 3 },
+            { "id": "reforgeIncludeCritical", "cost": 50, "levelReq": 3 },
+            { "id": "reforgeIncludeMana", "cost": 50, "levelReq": 3 },
+
+            { "id": "addRandom", "cost": 100, "levelReq": 1 },
+            { "id": "addPhysical", "cost": 100, "levelReq": 3 },
+            { "id": "addCritical", "cost": 100, "levelReq": 5 },
+            { "id": "addMana", "cost": 100, "levelReq": 5 },
+
+            { "id": "removeRandom", "cost": 100, "levelReq": 5 }
+        ]
+    },
+    "achievements": {
+        "levelReq": 3,
+        "list": [
+            { "description": "Reach Level {10}" },
+            { "description": "Deal Physical Damage {200000}", "modList": [ "{10}% More Physical Damage" ] },
+            { "description": "Generate Gold {1000}", "modList": [ "+{1} Gold Per Second" ] },
+            { "description": "Perform Hits {1000}", "modList": [ "+{5}% Hit Chance" ] },
+            { "description": "Perform Critical Hits {1000}", "modList": [ "+{5}% Critical Hit Chance" ] },
+            { "description": "Regenerate Mana {2000}", "modList": [ "+{1} Mana Regeneration" ] }
+        ]
+    }
+
+}
