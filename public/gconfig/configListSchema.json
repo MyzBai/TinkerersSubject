@@ -17,7 +17,7 @@
                     },
                     "rawUrl": {
                         "type": "string",
-                        "pattern": "^https://raw.githubusercontent.com/.+?(?=\\.json)"
+                        "pattern": "^https://raw.githubusercontent.com/.+?(?=\\.json)\\.json$"
                     }
                 }
             }
