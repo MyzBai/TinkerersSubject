@@ -430,6 +430,9 @@ input[type=submit] {
   align-items: center;
   justify-content: space-between;
 }
+.p-game .s-middle .p-passives ul li.selected {
+  pointer-events: all;
+}
 .p-game .s-middle .p-items {
   position: relative;
   display: grid;
