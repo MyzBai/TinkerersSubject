@@ -23,6 +23,7 @@ jobs:
         run: | 
           npm run-script build:esbuild
           npm run-script build:sass
+          node scripts/setup-production.js
       - name: Prepare for deploy
         run: |
           mkdir -p build
