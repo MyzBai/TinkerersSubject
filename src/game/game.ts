@@ -54,7 +54,7 @@ function setupDevHelpers() {
     Object.defineProperty(window, 'TS', {
         value: {
             setLevel: (v: number) => playerStats.level.set(v),
-            setGold: (v: number) => playerStats.level.set(v),
+            setGold: (v: number) => playerStats.gold.set(v),
             save: () => { if (cachedConfig) { saveGame(cachedConfig.meta); } },
             load: () => { if (cachedConfig) { loadGame(cachedConfig); } },
         }
