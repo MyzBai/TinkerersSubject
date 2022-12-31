@@ -430,16 +430,15 @@ class Preset {
 }
 
 export function saveItems(saveObj: Save) {
-    const createModList = (item: Item): NonNullable<Save['items']>['items'][number]['modList'] => item.mods.map(x => {
-        return {
-            desc: x.templateDesc,
-            values: x.stats.map(stat => stat.value)
-        }
-    });
-
     saveObj.items = {
-        items: items.map(item => { return { name: item.name, modList: createModList(item) } }),
-        craftPresets: presets.filter(x => !x.isDefault).map(x => { return { name: x.name, ids: x.ids } })
+        items: items.map(item => <NonNullable<Save['items']>['items'][number]>({
+            name: item.name,
+            modList: item.mods.map(mod => ({
+                desc: mod.templateDesc,
+                values: mod.stats.map(stat => stat.value)
+            })),
+        })),
+        craftPresets: presets.filter(x => !x.isDefault).map(x => ({ name: x.name, ids: x.ids }))
     }
 }
 
