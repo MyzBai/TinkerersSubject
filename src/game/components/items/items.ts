@@ -114,10 +114,10 @@ function createItemList(itemList: ItemList) {
                 item.element.classList.remove('hidden');
                 highlightHTMLElement(itemsMenuButton, 'click');
                 highlightHTMLElement(item.element, 'mouseover');
-                playerStats.level.removeListener('add', listener);
+                playerStats.level.removeListener('change', listener);
             }
         }
-        playerStats.level.addListener('add', listener);
+        playerStats.level.addListener('change', listener);
     }
     itemListContainer.replaceChildren(...items.map(x => x.element));
 }

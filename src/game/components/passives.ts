@@ -44,7 +44,7 @@ export function init(data: GConfig['passives']) {
         playerStats.level.addListener('change', listener);
     }
 
-    playerStats.level.addListener('add', level => {
+    playerStats.level.addListener('change', level => {
         passives.forEach(x => x.tryUnlock());
         const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * level - 2)) > 0;
         if (pointsGained) {
