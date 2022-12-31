@@ -467,6 +467,7 @@ export function loadItems(saveObj: Save) {
             }
             mods.push(itemModifier);
         }
+        item.mods = mods;
     }
 
     for (const preset of saveObj.items.craftPresets) {
