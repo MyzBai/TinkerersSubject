@@ -5,6 +5,7 @@ import { loadPlayer, savePlayer, setup as setupPlayer } from "./player";
 import { loadEnemy, saveEnemy } from './enemy';
 import { saveComponents, loadComponents } from './components/loader';
 import { loadSkills, saveSkills } from "./skills/skills";
+import { loadStatistics, saveStatistics } from './statistics';
 
 type SaveObject = { [K: string]: Save };
 
@@ -59,7 +60,7 @@ export async function saveGame(meta: Pick<GConfig['meta'], keyof Save['meta']>) 
         meta: Object.assign({}, meta)
     };
 
-    [savePlayer, saveEnemy, saveSkills,
+    [savePlayer, saveEnemy, saveSkills, saveStatistics,
         saveComponents].forEach(x => x(saveObj));
 
     map.set(meta.id, saveObj);
@@ -80,7 +81,7 @@ export async function loadGame(config: GConfig) {
 
     config.meta = { ...config.meta, ...saveObj.meta };
 
-    [loadPlayer, loadEnemy, loadSkills, loadComponents].forEach(x => x(saveObj));
+    [loadPlayer, loadEnemy, loadSkills, loadStatistics, loadComponents].forEach(x => x(saveObj));
 
     setupPlayer();
     return true;
