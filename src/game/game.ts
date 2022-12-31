@@ -50,7 +50,9 @@ export async function init(config: GConfig) {
 
 
 function setupDevHelpers() {
-
+    if('TS' in window){
+        return;
+    }
     Object.defineProperty(window, 'TS', {
         value: {
             setLevel: (v: number) => playerStats.level.set(v),
