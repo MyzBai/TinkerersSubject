@@ -4,8 +4,9 @@ import { queryHTML, registerTabs, tabCallback } from './utils/helpers';
 import { visibilityObserver } from './utils/Observers';
 import { validateConfig } from './utils/validateConfig';
 import type GConfig from './types/gconfig';
-import type { EnvironmentVariables } from './types/environmentVariables';
 import { loadEntries } from './home/localConfigEntries';
+import { loadMostRecentSave, Save } from './game/saveGame';
+
 
 const mainPageNavButton = queryHTML('body > header button');
 const homePage = queryHTML('.p-home');
@@ -35,21 +36,21 @@ init();
 
 async function init() {
 
-    globalThis.envVariables = await (await fetch('public/env.json')).json();
-
-    if(envVariables.env === 'dev-config'){
-        await initConfig();
-    } else{
+    //get latest save file
+    //if no save present, go to home page
+    const lastSave = await loadMostRecentSave();
+    if (lastSave) {
+        await initConfig(lastSave);
+    } else {
         queryHTML('.p-home').classList.remove('hidden');
     }
 
     document.body.classList.remove('hidden');
 }
 
-async function initConfig() {
-    const path = envVariables.gConfigPath;
+async function initConfig(save: Save) {
     try {
-        const result = await fetch(path);
+        const result = await fetch(save.meta.url);
         if (result.status === 404) {
             document.body.textContent = `${result.url} | ${result.statusText}`;
             return;
@@ -63,7 +64,7 @@ async function initConfig() {
         }
 
         const entry = (await loadEntries()).find(x => x.id === 'temp');
-        config.meta = { ...config.meta, id: 'temp'};
+        config.meta = { ...config.meta, id: 'temp' };
         if (entry) {
             config.meta = { ...config.meta, ...entry };
         }

@@ -14,6 +14,8 @@ export interface Save {
         url: string;
         name: string;
         id: string;
+        createdAt: number;
+        lastSavedAt: number;
     };
     player?: {
         level: number;
@@ -57,7 +59,7 @@ export async function saveGame(meta: Pick<GConfig['meta'], keyof Save['meta']>) 
     let map = await loadAsMap();
 
     const saveObj = map.get(meta.id) || {
-        meta: Object.assign({}, meta)
+        meta: { ...meta, lastSavedAt: Date.now() }
     };
 
     [savePlayer, saveEnemy, saveSkills, saveStatistics,
@@ -85,4 +87,13 @@ export async function loadGame(config: GConfig) {
 
     setupPlayer();
     return true;
+}
+
+export async function loadMostRecentSave() {
+    try {
+        const map = await loadAsMap();
+        return [...map].map(x => x[1]).sort((a,b) => b.meta.lastSavedAt - a.meta.lastSavedAt)[0];
+    } catch (e) {
+        console.error(e);
+    }
 }

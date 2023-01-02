@@ -38,8 +38,8 @@ async function startConfig(entry: ConfigEntry, config: GConfig) {
     if(!config.meta.id){
         config.meta.id = crypto.randomUUID();
     }
-    if(!config.meta.startTimeMS){
-        config.meta.startTimeMS = Date.now();
+    if(!config.meta.createdAt){
+        config.meta.createdAt = Date.now();
     }
 
     const valid = validateConfig(config);
