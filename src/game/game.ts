@@ -1,4 +1,4 @@
-import { registerTabs, tabCallback, queryHTML } from "@utils/helpers";
+import { registerTabs, tabCallback, queryHTML, isLocalHost } from "@utils/helpers";
 import { init as initPlayer, setup as setupPlayer, playerStats } from './player';
 import { init as initEnemy } from './enemy';
 import { init as initSkills } from './skills/skills';
@@ -40,7 +40,8 @@ export async function init(config: GConfig) {
 
     createStatisticsElements();
 
-    if (envVariables.env === 'production') {
+
+    if (!isLocalHost) {
         gameLoop.start();
     } else {
         setupDevHelpers();
