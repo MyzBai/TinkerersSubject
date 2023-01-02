@@ -11,9 +11,9 @@ const mainPageNavButton = queryHTML('body > header button');
 const homePage = queryHTML('.p-home');
 const gamePage = queryHTML('.p-game');
 
-declare global {
-    var envVariables: EnvironmentVariables;
-}
+// declare global {
+//     var envVariables: EnvironmentVariables;
+// }
 
 registerTabs(mainPageNavButton.parentElement!, document.body, tabCallback);
 
