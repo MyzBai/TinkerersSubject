@@ -74,8 +74,13 @@ class SavedEntryHandler implements EntryHandler {
         if (!blob) {
             return [];
         }
-        const arr = Object.values(blob).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt);
-        return arr.map<ConfigEntry>(x => ({ ...x.meta, type: 'save' }));
+        try {
+            const arr = Object.values(blob).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt);
+            return arr.map<ConfigEntry>(x => ({ ...x.meta, type: 'save' }));
+        } catch (e) {
+            console.error(e);
+        }
+        return [];
     }
 
     async getEntryListElements() {
