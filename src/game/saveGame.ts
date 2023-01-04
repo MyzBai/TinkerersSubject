@@ -60,8 +60,11 @@ export async function saveGame(meta: Pick<GConfig['meta'], keyof Save['meta']>) 
     let map = await loadAsMap();
 
     const saveObj = map.get(meta.id) || {
-        meta: { ...meta, lastSavedAt: Date.now() }
-    };
+        meta: { ...meta }
+    } as Save;
+
+    saveObj.meta.lastSavedAt = Date.now();
+    
     console.log(meta);
     [savePlayer, saveEnemy, saveSkills, saveStatistics,
         saveComponents].forEach(x => x(saveObj));
