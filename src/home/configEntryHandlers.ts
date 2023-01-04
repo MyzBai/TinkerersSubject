@@ -95,10 +95,11 @@ class SavedEntryHandler implements EntryHandler {
 
     private generateTimeText(startTime = 0) {
         const ms = Date.now() - startTime;
-        const days = Math.floor(ms / 86400000).toFixed();
-        const hours = (Math.floor(ms / 3600000) % 24).toFixed();
+        // const days = Math.floor(ms / 86400000);
+        const hours = (Math.floor(ms / 3600000) % 24);
         const mins = (Math.floor(ms / 60000) % 60).toFixed();
-        return `Last Played ${days}d ${hours}h ${mins}min`;
+        return `Last played: ${hours > 0 ? hours + 'h ' : ''}${mins}min`;
+        // return `Last Played ${days}d ${hours}h ${mins}min`;
     }
 
 }
