@@ -4,6 +4,7 @@ import { init as initGame } from '../game/game';
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
 import { loadMostRecentSave } from '../game/saveGame';
+import { visibilityObserver } from "@src/utils/Observers";
 
 const newButton = queryHTML('menu [data-type="new"]');
 const loadButton = queryHTML('menu [data-type="save"]');
@@ -26,6 +27,12 @@ let startConfigListener: ((ev: MouseEvent) => void);
         x.click();
     }
 });
+
+visibilityObserver(queryHTML('.p-game'), visible => {
+    if(visible){
+        newButton.click();
+    }
+})
 
 export async function init() {
     await tryAutoLoad();
