@@ -17,6 +17,7 @@ export interface ConfigEntry {
     rawUrl: string;
     id?: string;
     createdAt?: number;
+    lastSavedAt?: number;
 }
 
 let activeEntry: ConfigEntry;
@@ -82,7 +83,7 @@ class SavedEntryHandler implements EntryHandler {
         for (const entry of entries.filter(x => x.rawUrl)) {
             const element = document.createElement('li');
             element.classList.add('g-list-item');
-            const timeText = this.generateTimeText(entry.createdAt);
+            const timeText = this.generateTimeText(entry.lastSavedAt);
             element.insertAdjacentHTML('beforeend', `<div>${entry.name}</div><div class="g-text-small">${timeText}</div>`);
             element.addEventListener('click', () => {
                 activeEntry = entry;
