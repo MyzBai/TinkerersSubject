@@ -6,6 +6,7 @@
             "type": "array",
             "items": {
                 "type": "object",
+                "required": ["name", "rawUrl"],
                 "properties": {
                     "name": {
                         "type": "string",
@@ -17,7 +18,8 @@
                     },
                     "rawUrl": {
                         "type": "string",
-                        "pattern": "^https://raw.githubusercontent.com/.+?(?=\\.json)\\.json$"
+                        "description": "Url to the raw json text. This url can also be a path to a file in this project",
+                        "pattern": "^([^/\\.].+|https://raw.githubusercontent.com/.+?)(?=\\.json)\\.json$"
                     }
                 }
             }
