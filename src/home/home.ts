@@ -22,7 +22,7 @@ let startConfigListener: ((ev: MouseEvent) => void);
         const type = x.getAttribute('data-type') as EntryType;
         populateEntryList(type);
     });
-    if(i === 0){
+    if (i === 0) {
         x.click();
     }
 });
@@ -36,7 +36,7 @@ async function tryAutoLoad() {
     if (!lastSave) {
         return false;
     }
-    await startConfig({ type: 'save', ...lastSave.meta });
+    await startConfig({ ...lastSave.meta, type: 'save' });
     return true;
 }
 
@@ -48,18 +48,17 @@ async function startConfig(entry: ConfigEntry) {
         return;
     }
     if (!validateConfig(config)) {
-        console.error();
+        console.error('invalid configuration');
         return;
     }
 
-    switch (entry.type) {
-        case 'new':
-            config.meta = { ...entry, createdAt: Date.now(), id: crypto.randomUUID() }
-            break;
-        case 'save':
-            config.meta = { ...entry } as Required<ConfigEntry>;
-            break;
-    }
+    config.meta = {
+        name: entry.name,
+        description: entry.description,
+        rawUrl: entry.rawUrl,
+        id: entry.id || crypto.randomUUID(),
+        createdAt: entry.createdAt || Date.now(),
+    };
 
     await initGame(config);
     const btn = queryHTML('header [data-tab-target="game"]');
