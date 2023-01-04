@@ -2,6 +2,7 @@ import type GConfig from "@src/types/gconfig";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
 import type { Save } from "@src/game/saveGame";
+import { queryHTML } from "@src/utils/helpers";
 
 export type EntryType = 'new' | 'save';
 
@@ -15,7 +16,7 @@ export interface ConfigEntry {
     name: string;
     description?: string;
     rawUrl: string;
-    id?: string;
+    id: string;
     createdAt?: number;
     lastSavedAt?: number;
 }
@@ -44,7 +45,7 @@ class NewEntryHandler implements EntryHandler {
     constructor() { }
 
     async getEntries() {
-        return configList.list.map<ConfigEntry>(x => ({ ...x, type: 'new' }));
+        return configList.list.map<ConfigEntry>(x => ({ ...x, id: crypto.randomUUID(), type: 'new' }));
     }
 
 
@@ -73,7 +74,7 @@ class SavedEntryHandler implements EntryHandler {
         if (!blob) {
             return [];
         }
-        const arr = Object.values(blob).sort((a,b) => b.meta.lastSavedAt - a.meta.lastSavedAt);
+        const arr = Object.values(blob).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt);
         return arr.map<ConfigEntry>(x => ({ ...x.meta, type: 'save' }));
     }
 
@@ -87,6 +88,7 @@ class SavedEntryHandler implements EntryHandler {
             element.insertAdjacentHTML('beforeend', `<div>${entry.name}</div><div class="g-text-small">${timeText}</div>`);
             element.addEventListener('click', () => {
                 activeEntry = entry;
+                queryHTML('[data-config-info] button[data-role="delete"]').setAttribute('data-id', entry.id);
             });
             elements.push(element);
         }

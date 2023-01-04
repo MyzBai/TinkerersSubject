@@ -118,6 +118,9 @@
     &:hover {
         background-color: $color-action-list-item-default-hover-bg;
     }
+    &[data-role=delete]{
+        background-color: $color-button-delete-bg;
+    }
 }
 
 .g-list-v,

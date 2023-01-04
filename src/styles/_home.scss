@@ -45,6 +45,10 @@
         [data-desc] {
             padding: $padding-container;
         }
+        
+        button[data-role=delete]{
+            margin-bottom: 0.3em;
+        }
     }
 }
 

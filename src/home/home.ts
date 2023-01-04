@@ -3,11 +3,23 @@ import { ConfigEntry, ConfigEntryHandler, EntryType } from "./configEntryHandler
 import { init as initGame } from '../game/game';
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
-import { loadMostRecentSave } from '../game/saveGame';
-import { visibilityObserver } from "@src/utils/Observers";
+import { loadMostRecentSave, Save } from '../game/saveGame';
+import saveManager from "@src/utils/saveManager";
 
 const newButton = queryHTML('menu [data-type="new"]');
 const loadButton = queryHTML('menu [data-type="save"]');
+
+const deleteSaveButton = queryHTML('.p-home [data-config-info] [data-role="delete"]');
+deleteSaveButton.addEventListener('click', async () => {
+    const id = deleteSaveButton.getAttribute('data-id');
+    if(!id){
+        return;
+    }
+    const save = await saveManager.load('Game') as { [K: string]: Save };
+    delete save[id];
+    await saveManager.save('Game', save);
+    loadButton.click();
+})
 
 const entryListContainer = queryHTML('[data-config-list]');
 const configInfoContainer = queryHTML('[data-config-info]');
@@ -27,12 +39,6 @@ let startConfigListener: ((ev: MouseEvent) => void);
         x.click();
     }
 });
-
-visibilityObserver(queryHTML('.p-game'), visible => {
-    if(visible){
-        newButton.click();
-    }
-})
 
 export async function init() {
     await tryAutoLoad();
@@ -63,7 +69,7 @@ async function startConfig(entry: ConfigEntry) {
         name: entry.name,
         description: entry.description,
         rawUrl: entry.rawUrl,
-        id: entry.id || crypto.randomUUID(),
+        id: entry.id,
         createdAt: entry.createdAt || Date.now(),
     };
 
@@ -102,6 +108,8 @@ async function populateEntryList(type: EntryType) {
         entryListContainer.textContent = msg;
         return;
     }
+
+    deleteSaveButton.classList.toggle('hidden', type !== 'save');
 
     for (const element of elements) {
         element.addEventListener('click', () => {
