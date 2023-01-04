@@ -62,7 +62,9 @@ async function startConfig(entry: ConfigEntry) {
     }
 
     await initGame(config);
-    queryHTML('header [data-tab-target="game"]').click();
+    const btn = queryHTML('header [data-tab-target="game"]');
+    btn.classList.remove('hidden');
+    btn.click();
     return true;
 }
 
