@@ -341,9 +341,6 @@ input[type=submit] {
 .p-home [data-config-info] button[data-role=delete] {
   margin-bottom: 0.3em;
 }
-.p-home [data-config-info] button[data-start] {
-  background-color: #1f6feb;
-}
 
 .p-game {
   display: grid;
