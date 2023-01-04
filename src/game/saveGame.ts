@@ -11,8 +11,9 @@ type SaveObject = { [K: string]: Save };
 
 export interface Save {
     meta: {
-        url: string;
         name: string;
+        description?:string;
+        rawUrl: string;
         id: string;
         createdAt: number;
         lastSavedAt: number;
@@ -61,7 +62,7 @@ export async function saveGame(meta: Pick<GConfig['meta'], keyof Save['meta']>) 
     const saveObj = map.get(meta.id) || {
         meta: { ...meta, lastSavedAt: Date.now() }
     };
-
+    console.log(meta);
     [savePlayer, saveEnemy, saveSkills, saveStatistics,
         saveComponents].forEach(x => x(saveObj));
 

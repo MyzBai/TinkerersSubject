@@ -2,12 +2,11 @@ import { queryHTML } from "../utils/helpers";
 import { ConfigEntry, ConfigEntryHandler, EntryType } from "./configEntryHandlers";
 import { init as initGame } from '../game/game';
 import type GConfig from "@src/types/gconfig";
-import { validateRawUrl } from "./remoteConfigEntries";
 import { validateConfig } from "@src/utils/validateConfig";
-import { visibilityObserver } from "@src/utils/Observers";
+import { loadMostRecentSave } from '../game/saveGame';
 
-const newButton = queryHTML('[data-type="remote"]');
-const loadButton = queryHTML('[data-type="local"]');
+const newButton = queryHTML('menu [data-type="new"]');
+const loadButton = queryHTML('menu [data-type="save"]');
 
 const entryListContainer = queryHTML('[data-config-list]');
 const configInfoContainer = queryHTML('[data-config-info]');
@@ -17,68 +16,80 @@ const configEntryHandler = new ConfigEntryHandler();
 
 let startConfigListener: ((ev: MouseEvent) => void);
 
-[newButton, loadButton].forEach((x, _i, arr) => {
+[newButton, loadButton].forEach((x, i, arr) => {
     x.addEventListener('click', async () => {
         arr.forEach(y => y.classList.toggle('selected', y === x));
         const type = x.getAttribute('data-type') as EntryType;
         populateEntryList(type);
     });
-});
-
-visibilityObserver(queryHTML('.p-home'), (visible, observer) => {
-    if(visible){
-        newButton.click();
-        observer.disconnect();
+    if(i === 0){
+        x.click();
     }
 });
 
-async function startConfig(entry: ConfigEntry, config: GConfig) {
-
-    config.meta = { ...config.meta, ...entry };
-    if(!config.meta.id){
-        config.meta.id = crypto.randomUUID();
-    }
-    if(!config.meta.createdAt){
-        config.meta.createdAt = Date.now();
-    }
-
-    const valid = validateConfig(config);
-    if(!valid){
-        console.log('Configuration is not valid');
-        return;
-    }
-
-    await initGame(config);
-
-    queryHTML('body > header [data-tab-target="game"]').click();
+export async function init() {
+    await tryAutoLoad();
 }
 
-async function showConfig(entry: ConfigEntry) {
-    const config = await loadConfigAtUrl(entry.url);
+async function tryAutoLoad() {
+    const lastSave = await loadMostRecentSave();
+    if (!lastSave) {
+        return false;
+    }
+    await startConfig({ type: 'save', ...lastSave.meta });
+    return true;
+}
+
+async function startConfig(entry: ConfigEntry) {
+
+    const config = await loadConfigAtUrl(entry.rawUrl);
     if (!config) {
         console.error('invalid url');
         return;
     }
+    if (!validateConfig(config)) {
+        console.error();
+        return;
+    }
 
-    queryHTML('[data-title]', configInfoContainer).textContent = config.meta.name;
-    queryHTML('[data-desc]', configInfoContainer).textContent = config.meta.description || '';
+    switch (entry.type) {
+        case 'new':
+            config.meta = { ...entry, createdAt: Date.now(), id: crypto.randomUUID() }
+            break;
+        case 'save':
+            config.meta = { ...entry } as Required<ConfigEntry>;
+            break;
+    }
+
+    await initGame(config);
+    queryHTML('header [data-tab-target="game"]').click();
+    return true;
+}
+
+async function showConfig(entry: ConfigEntry) {
+
+    queryHTML('[data-title]', configInfoContainer).textContent = entry.name;
+    queryHTML('[data-desc]', configInfoContainer).textContent = entry.description || '';
 
     startConfigButton.removeEventListener('click', startConfigListener);
-    startConfigListener = () => {
-        startConfig(entry, config);
+    startConfigListener = async () => {
+        const success = await startConfig(entry);
+        if (!success) {
+            //error msg, failed to load configuration, try again later
+        }
     };
     startConfigButton.addEventListener('click', startConfigListener);
 }
 
-async function populateEntryList(type: EntryType){
+async function populateEntryList(type: EntryType) {
     const elements = await configEntryHandler.getEntryListElements(type);
     configInfoContainer.classList.toggle('hidden', elements.length === 0);
 
-    if(elements.length === 0){
+    if (elements.length === 0) {
         let msg = '';
-        switch(type){
-            case 'remote': msg = 'Failed to load remote configurations'; break;
-            case 'local': msg = 'You do not have any saved games yet'; break;
+        switch (type) {
+            case 'new': msg = 'Failed to load any configurations'; break;
+            case 'save': msg = 'You do not have any saved games yet'; break;
         }
         entryListContainer.textContent = msg;
         return;
@@ -88,6 +99,7 @@ async function populateEntryList(type: EntryType){
         element.addEventListener('click', () => {
             elements.forEach(x => x.classList.toggle('selected', x === element));
             const entry = configEntryHandler.getActiveEntry();
+            entry.type = type;
             showConfig(entry);
         });
     }
@@ -96,12 +108,7 @@ async function populateEntryList(type: EntryType){
     elements[0].click();
 }
 
-export async function loadConfigAtUrl(url: string): Promise<GConfig | undefined> {
-    const validUrl = validateRawUrl(url);
-    if (!validUrl) {
-        console.error('invalid url');
-        return;
-    }
+async function loadConfigAtUrl(url: string): Promise<GConfig | undefined> {
     try {
         const json = await (await fetch(url)).json();
         return json as GConfig;

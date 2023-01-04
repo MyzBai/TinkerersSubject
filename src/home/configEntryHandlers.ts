@@ -1,8 +1,9 @@
 import type GConfig from "@src/types/gconfig";
-import { loadEntries as loadRemoteEntries } from "./remoteConfigEntries";
-import { loadEntries as loadLocalEntries } from "./localConfigEntries";
+import configList from '@public/gconfig/configList.json';
+import saveManager from "@src/utils/saveManager";
+import type { Save } from "@src/game/saveGame";
 
-export type EntryType = 'remote' | 'local';
+export type EntryType = 'new' | 'save';
 
 interface EntryHandler {
     getEntries: () => Promise<ConfigEntry[]>;
@@ -10,47 +11,50 @@ interface EntryHandler {
 }
 
 export interface ConfigEntry {
+    type: EntryType;
     name: string;
-    url: string;
+    description?: string;
+    rawUrl: string;
     id?: string;
-    startTimeMS?: number;
+    createdAt?: number;
 }
 
 let activeEntry: ConfigEntry;
 
 export class ConfigEntryHandler {
     config: GConfig | undefined;
-    private remoteEntryHandler = new RemoteEntryHandler();
-    private localEntryHandler = new LocalEntryHandler();
+    private remoteEntryHandler = new NewEntryHandler();
+    private savedEntryHandler = new SavedEntryHandler();
     constructor() { }
 
-    getActiveEntry(){
+    getActiveEntry() {
         return activeEntry;
     }
 
-    async getEntryListElements(type: 'remote' | 'local'){
-        switch(type){
-            case 'remote': return await this.remoteEntryHandler.getEntryListElements();
-            case 'local': return await this.localEntryHandler.getEntryListElements();
+    async getEntryListElements(type: EntryType) {
+        switch (type) {
+            case 'new': return await this.remoteEntryHandler.getEntryListElements();
+            case 'save': return await this.savedEntryHandler.getEntryListElements();
         }
     }
 }
 
-class RemoteEntryHandler implements EntryHandler {
+class NewEntryHandler implements EntryHandler {
     constructor() { }
 
     async getEntries() {
-        return await loadRemoteEntries();
+        return configList.list.map<ConfigEntry>(x => ({ ...x, type: 'new' }));
     }
 
 
-    async getEntryListElements(){
+    async getEntryListElements() {
         const entries = await this.getEntries();
         const elements = [] as HTMLLIElement[];
         for (const entry of entries) {
             const element = document.createElement('li');
             element.classList.add('g-list-item');
-            element.textContent = entry.name;
+            const suffix = entry.rawUrl.startsWith('https:') ? '' : ' (Local)';
+            element.textContent = entry.name + suffix;
             element.addEventListener('click', () => {
                 activeEntry = entry;
             });
@@ -60,22 +64,24 @@ class RemoteEntryHandler implements EntryHandler {
     }
 }
 
-class LocalEntryHandler implements EntryHandler {
-    constructor() {
-
-    }
+class SavedEntryHandler implements EntryHandler {
+    constructor() { }
 
     async getEntries() {
-        return await loadLocalEntries();
+        const blob = await saveManager.load('Game') as { [K: string]: Save };
+        if (!blob) {
+            return [];
+        }
+        return Object.values(blob).map<ConfigEntry>(x => ({ ...x.meta, type: 'save' }));
     }
 
     async getEntryListElements() {
         const entries = await this.getEntries();
         const elements = [] as HTMLLIElement[];
-        for (const entry of entries.filter(x => x.url)) {
+        for (const entry of entries.filter(x => x.rawUrl)) {
             const element = document.createElement('li');
             element.classList.add('g-list-item');
-            const timeText = this.generateTimeText(entry.startTimeMS);
+            const timeText = this.generateTimeText(entry.createdAt);
             element.insertAdjacentHTML('beforeend', `<div>${entry.name}</div><div class="g-text-small">${timeText}</div>`);
             element.addEventListener('click', () => {
                 activeEntry = entry;

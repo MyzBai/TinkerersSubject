@@ -3,7 +3,7 @@
     "list": [
         {
             "name": "Demo",
-            "rawUrl": "https://raw.githubusercontent.com/MyzBai/TinkerersSubject/main/public/gconfig/demo.json",
+            "rawUrl": "public/gconfig/my-configs/demo.json",
             "description": "This is a short configuration for demonstration purposes"
         }
     ]
