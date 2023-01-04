@@ -1,16 +1,7 @@
 import { init as initHome } from './home/home';
 import { queryHTML, registerTabs, tabCallback } from './utils/helpers';
-import { visibilityObserver } from './utils/Observers';
-
-
 
 const mainPageNavButton = queryHTML('body > header button');
-const homePage = queryHTML('.p-home');
-const gamePage = queryHTML('.p-game');
-
-// declare global {
-//     var envVariables: EnvironmentVariables;
-// }
 
 registerTabs(mainPageNavButton.parentElement!, document.body, (btn: HTMLElement, content: HTMLElement) => {
     tabCallback(btn, content);
@@ -26,22 +17,6 @@ registerTabs(mainPageNavButton.parentElement!, document.body, (btn: HTMLElement,
             break;
     }
 });
-
-// visibilityObserver(homePage, visible => {
-//     console.log('homePage visible:', visible);
-//     if (visible) {
-//         mainPageNavButton.textContent = 'Back';
-//         mainPageNavButton.setAttribute('data-tab-target', 'game');
-//     }
-// });
-// visibilityObserver(gamePage, visible => {
-//     console.log('gamePage visible:', visible);
-//     if (visible) {
-//         mainPageNavButton.textContent = 'Home';
-//         mainPageNavButton.classList.remove('hidden');
-//         mainPageNavButton.setAttribute('data-tab-target', 'home');
-//     }
-// });
 
 init();
 
