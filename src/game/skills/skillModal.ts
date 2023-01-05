@@ -1,4 +1,5 @@
 import { queryHTML } from "@src/utils/helpers";
+import { playerStats } from "../player";
 import { AttackSkill, BuffSkill, Skill, } from "./skills";
 import type { SkillSlot } from "./skillSlots";
 
@@ -39,6 +40,7 @@ export class Modal {
             const element = document.createElement('li');
             element.textContent = skill.name;
             element.classList.add('g-list-item');
+            element.classList.toggle('hidden', skill.levelReq > playerStats.level.get());
             element.setAttribute('data-skill-name', skill.name);
             const isUsed = skillSlotNames.some(x => x === skill.name);
             element.toggleAttribute('disabled', isUsed);
