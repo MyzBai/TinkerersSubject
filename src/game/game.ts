@@ -47,6 +47,7 @@ export async function init(config: GConfig) {
         setupDevHelpers();
     }
     await loadGame(config);
+    document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
 }
 
 
