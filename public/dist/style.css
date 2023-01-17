@@ -416,6 +416,7 @@ input[type=submit] {
 .p-game .s-middle .p-combat .s-skill-modal section {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 0.3em;
 }
 .p-game .s-middle .p-combat .s-skill-modal section ul {
   text-align: left;
