@@ -1,0 +1,15 @@
+## Learn how to create your own configuration
+
+
+### Develop your own configuration
+* [Fork](https://github.com/MyzBai/TinkerersSubject/fork) and [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) this repository.
+* Create a new json file and use [demo.json](gconfig/demo.json) as an example
+* Now include your new file in the [Config List](gconfig/configList.json), you can replace the value of `"rawUrl"` to point to your own file.
+
+
+### Include your configuration in the official game
+* [Sync](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)
+* Make a new branch.
+* Add a new element in the [Config List](gconfig/configList.json) like you've done before but now make the `"rawUrl"` be the url of your raw file in your repository.
+Example: `https://raw.githubusercontent.com/USERNAME/REPOSITORY_NAME/BRANCH_NAME/public/gconfig/your-file-name.json`
+* If you're new to Pull Requests, you can read about it [here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)
