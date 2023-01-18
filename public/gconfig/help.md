@@ -4,7 +4,7 @@
 ### Develop your own configuration
 * [Fork](https://github.com/MyzBai/TinkerersSubject/fork) and [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) this repository.
 * Create a new json file and use [demo.json](demo.json) as an example
-* Now include your new file in the [Config List](gconfig/configList.json), you can replace the value of `"rawUrl"` to point to your own file.
+* Now include your new file in the [Config List](configList.json), you can replace the value of `"rawUrl"` to point to your own file.
 
 
 ### Include your configuration in the official game
