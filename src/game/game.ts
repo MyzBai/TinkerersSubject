@@ -12,6 +12,13 @@ import { saveGame, loadGame } from "./saveGame";
 const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
 
+queryHTML('.p-settings [data-reset]', gamePage).addEventListener('click', () => {
+    if (cachedConfig) {
+        if (confirm('You will lose all progress, are you sure?')) {
+            init(cachedConfig);
+        }
+    }
+});
 
 export const gameLoop: Loop = new Loop();
 
