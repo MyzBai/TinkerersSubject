@@ -1,4 +1,4 @@
-## Learn how to create your own configuration
+## Create your own game configuration
 
 
 ### Develop your own configuration
