@@ -1,4 +1,4 @@
-# Tinkerers-Subject
+# Tinkerers Subject
 
 Website: [Game](https://myzbai.github.io/TinkerersSubject)
 
