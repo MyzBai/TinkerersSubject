@@ -6,7 +6,8 @@ import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
 import { initComponents } from './components/loader';
-import { saveGame, loadGame } from "./saveGame";
+import { saveGame, loadGame, Save } from "./saveGame";
+import saveManager from "@src/utils/saveManager";
 
 
 const gamePage = queryHTML('.p-game');
@@ -15,7 +16,7 @@ registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePa
 queryHTML('.p-settings [data-reset]', gamePage).addEventListener('click', () => {
     if (cachedConfig) {
         if (confirm('You will lose all progress, are you sure?')) {
-            init(cachedConfig);
+            resetGame();
         }
     }
 });
@@ -27,6 +28,7 @@ let cachedConfig = undefined as GConfig | undefined;
 export async function init(config: GConfig) {
     cachedConfig = config;
 
+    queryHTML('[data-tab-target="combat"]', gamePage).click();
     gameLoop.reset();
 
     initEnemy(config.enemies);
@@ -35,30 +37,41 @@ export async function init(config: GConfig) {
 
     initComponents(config);
 
+    Object.values(statistics).forEach(x => x.reset());
+
     gameLoop.subscribe(() => {
         statistics["Time Played"].add(1);
     }, { intervalMilliseconds: 1000 });
 
     gameLoop.subscribe(() => {
         saveGame(config.meta);
-    }, { intervalMilliseconds: 1000 * 60})
+    }, { intervalMilliseconds: 1000 * 60 })
 
     await setupPlayer();
 
     createStatisticsElements();
-
 
     if (!isLocalHost) {
         gameLoop.start();
     } else {
         setupDevHelpers();
     }
-    await loadGame(config);
 }
 
+async function resetGame() {
+    if (!cachedConfig) {
+        return;
+    }
+    const save = await saveManager.load<Save>('Game');
+    if (!save) {
+        return;
+    }
+    await init(cachedConfig);
+    document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
+}
 
 function setupDevHelpers() {
-    if('TS' in window){
+    if ('TS' in window) {
         return;
     }
     Object.defineProperty(window, 'TS', {
