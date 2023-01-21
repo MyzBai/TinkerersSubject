@@ -12,7 +12,6 @@ interface EntryHandler {
 }
 
 export interface ConfigEntry {
-    type: EntryType;
     name: string;
     description?: string;
     rawUrl: string;
@@ -45,7 +44,7 @@ class NewEntryHandler implements EntryHandler {
     constructor() { }
 
     async getEntries() {
-        return configList.list.map<ConfigEntry>(x => ({ ...x, id: crypto.randomUUID(), type: 'new' }));
+        return configList.list.map<ConfigEntry>(x => ({ ...x, id: crypto.randomUUID() }));
     }
 
 
@@ -76,7 +75,7 @@ class SavedEntryHandler implements EntryHandler {
         }
         try {
             const arr = Object.values(blob).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt);
-            return arr.map<ConfigEntry>(x => ({ ...x.meta, type: 'save' }));
+            return arr.map<ConfigEntry>(x => ({ ...x.meta }));
         } catch (e) {
             console.error(e);
         }

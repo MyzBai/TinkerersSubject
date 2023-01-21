@@ -3,7 +3,7 @@ import { ConfigEntry, ConfigEntryHandler, EntryType } from "./configEntryHandler
 import { init as initGame } from '../game/game';
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
-import { loadMostRecentSave, Save } from '../game/saveGame';
+import { loadGame, loadMostRecentSave, Save } from '../game/saveGame';
 import saveManager from "@src/utils/saveManager";
 
 const newButton = queryHTML('menu [data-type="new"]');
@@ -49,7 +49,7 @@ async function tryAutoLoad() {
     if (!lastSave) {
         return false;
     }
-    await startConfig({ ...lastSave.meta, type: 'save' });
+    await startConfig({ ...lastSave.meta });
     return true;
 }
 
@@ -66,10 +66,7 @@ async function startConfig(entry: ConfigEntry) {
     }
 
     config.meta = {
-        name: entry.name,
-        description: entry.description,
-        rawUrl: entry.rawUrl,
-        id: entry.id,
+        ...entry,
         createdAt: entry.createdAt || Date.now(),
     };
 
@@ -116,7 +113,6 @@ async function populateEntryList(type: EntryType) {
         element.addEventListener('click', () => {
             elements.forEach(x => x.classList.toggle('selected', x === element));
             const entry = configEntryHandler.getActiveEntry();
-            entry.type = type;
             showConfig(entry);
         });
     }

@@ -65,7 +65,6 @@ export async function saveGame(meta: Pick<GConfig['meta'], keyof Save['meta']>) 
 
     saveObj.meta.lastSavedAt = Date.now();
     
-    console.log(meta);
     [savePlayer, saveEnemy, saveSkills, saveStatistics,
         saveComponents].forEach(x => x(saveObj));
 
@@ -96,7 +95,7 @@ export async function loadGame(config: GConfig) {
 export async function loadMostRecentSave() {
     try {
         const map = await loadAsMap();
-        return [...map].map(x => x[1]).sort((a,b) => b.meta.lastSavedAt - a.meta.lastSavedAt)[0];
+        return [...map].map(x => x[1]).sort((a,b) => b.meta.lastSavedAt - a.meta.lastSavedAt)[0] as Save;
     } catch (e) {
         console.error(e);
     }
