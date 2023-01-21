@@ -74,6 +74,7 @@ async function startConfig(entry: ConfigEntry) {
     };
 
     await initGame(config);
+    await loadGame(config);
     const btn = queryHTML('header [data-tab-target="game"]');
     btn.classList.remove('hidden');
     btn.click();
