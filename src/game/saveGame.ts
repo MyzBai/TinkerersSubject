@@ -100,3 +100,13 @@ export async function loadMostRecentSave() {
         console.error(e);
     }
 }
+
+export async function deleteSave(id: string){
+    try {
+        const map = await loadAsMap();
+        map.delete(id);
+        saveManager.save('Game', Object.fromEntries(map));
+    } catch (e) {
+        console.log(e);
+    }
+}

@@ -6,18 +6,18 @@ import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import statistics, { createStatisticsElements } from "./statistics";
 import { initComponents } from './components/loader';
-import { saveGame, loadGame, Save } from "./saveGame";
-import saveManager from "@src/utils/saveManager";
-
+import { saveGame, loadGame, deleteSave, loadMostRecentSave } from "./saveGame";
 
 const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
 
-queryHTML('.p-settings [data-reset]', gamePage).addEventListener('click', () => {
-    if (cachedConfig) {
-        if (confirm('You will lose all progress, are you sure?')) {
-            resetGame();
-        }
+queryHTML('.p-settings [data-delete-save]', gamePage).addEventListener('click', async () => {
+    if (!cachedConfig) {
+        return;
+    }
+    if (confirm('Your save will be permanently deleted! Are you sure? (This will reload the page)')) {
+        await deleteSave(cachedConfig.meta.id);
+        location.reload();
     }
 });
 
@@ -58,17 +58,6 @@ export async function init(config: GConfig) {
     }
 }
 
-async function resetGame() {
-    if (!cachedConfig) {
-        return;
-    }
-    const save = await saveManager.load<Save>('Game');
-    if (!save) {
-        return;
-    }
-    await init(cachedConfig);
-    document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
-}
 
 function setupDevHelpers() {
     if ('TS' in window) {
@@ -79,7 +68,7 @@ function setupDevHelpers() {
             setLevel: (v: number) => playerStats.level.set(v),
             setGold: (v: number) => playerStats.gold.set(v),
             save: () => { if (cachedConfig) { saveGame(cachedConfig.meta); } },
-            load: () => { if (cachedConfig) { loadGame(cachedConfig); } },
+            load: () => { if (cachedConfig) { loadGame(cachedConfig); } }
         }
     });
 
