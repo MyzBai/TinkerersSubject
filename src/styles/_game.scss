@@ -85,7 +85,9 @@
 
             .s-skill-modal {
                 background-color: $color-canvas-default;
-
+                position: absolute;
+                inset: 0;
+                padding: $padding-container;
                 section {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
@@ -97,6 +99,7 @@
                         }
                     }
                     .s-skill-info {
+                        padding: $padding-container;
                         [data-title] {
                             text-align: center;
                             font-size: 1.1em;
