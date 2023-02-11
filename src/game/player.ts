@@ -3,7 +3,7 @@ import Value from '@utils/Value';
 import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
-import { gameLoop } from "./game";
+import gameLoop from "./gameLoop";
 import enemy, { enemies } from "./enemy";
 import statistics from "./statistics";
 import type { Save } from "./saveGame";

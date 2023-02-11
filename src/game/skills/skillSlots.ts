@@ -1,5 +1,5 @@
 import { queryHTML } from "@src/utils/helpers";
-import { gameLoop } from "../game";
+import gameLoop from "../gameLoop";
 import { playerStats, modDB } from "../player";
 import { Modal } from "./skillModal";
 import type { AttackSkill, BuffSkill, Skill } from "./skills";

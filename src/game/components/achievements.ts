@@ -1,7 +1,7 @@
 import statistics from "../statistics";
 import { modDB, playerStats } from "../player";
 import type { Mod, GConfig } from "@src/types/gconfig";
-import { gameLoop } from "../game";
+import gameLoop from "../gameLoop";
 import { Modifier } from "@game/mods";
 import { visibilityObserver } from '@utils/Observers';
 import { highlightHTMLElement } from "@utils/helpers";
@@ -37,7 +37,7 @@ export function init(data: GConfig['achievements']) {
         validateAchievements();
     }, { intervalMilliseconds: 1000 });
 
-    if(data.levelReq > 1){
+    if (data.levelReq > 1) {
         const listener = (level: number) => {
             if (level >= data.levelReq) {
                 playerStats.level.removeListener('change', listener);
@@ -49,7 +49,7 @@ export function init(data: GConfig['achievements']) {
     }
 }
 
-function validateAchievements(){
+function validateAchievements() {
     achievements.forEach(achievement => {
         const isComplete = achievement.validate();
         if (isComplete) {

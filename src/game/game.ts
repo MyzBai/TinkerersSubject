@@ -3,10 +3,10 @@ import { init as initPlayer, setup as setupPlayer, playerStats } from './player'
 import { init as initEnemy } from './enemy';
 import { init as initSkills } from './skills/skills';
 import type GConfig from "@src/types/gconfig";
-import Loop from "@utils/Loop";
+import gameLoop from "@src/game/gameLoop";
 import statistics, { createStatisticsElements } from "./statistics";
 import { initComponents } from './components/loader';
-import { saveGame, loadGame, deleteSave, loadMostRecentSave } from "./saveGame";
+import { saveGame, loadGame, deleteSave } from "./saveGame";
 
 const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
@@ -20,8 +20,6 @@ queryHTML('.p-settings [data-delete-save]', gamePage).addEventListener('click', 
         location.reload();
     }
 });
-
-export const gameLoop: Loop = new Loop();
 
 let cachedConfig = undefined as GConfig | undefined;
 
