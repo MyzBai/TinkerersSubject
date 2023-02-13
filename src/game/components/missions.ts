@@ -1,5 +1,6 @@
 import type GConfig from '@src/types/gconfig';
 import { highlightHTMLElement, queryHTML } from '@src/utils/helpers';
+import { visibilityObserver } from '@src/utils/Observers';
 import gameLoop from '../gameLoop';
 import { playerStats } from '../player';
 import type { Save } from '../saveGame';
@@ -8,10 +9,15 @@ import Task from '../Task';
 const missionListContainer = queryHTML('.p-game .p-missions ul[data-mission-list]');
 // type MissionData = Required<GConfig>['missions']['list'][number][number];
 let missionsData: GConfig['missions'];
+const missionSlots: MissionSlot[] = [];
+let updateId: string;
+
+visibilityObserver(missionListContainer, handleUpdateLoop);
 
 export function init(data: GConfig['missions']) {
     missionsData = data;
     missionListContainer.replaceChildren();
+    missionSlots.splice(0);
     if (!data) {
         return;
     }
@@ -26,6 +32,15 @@ export function init(data: GConfig['missions']) {
         } else {
             new MissionSlot(slot);
         }
+    }
+}
+
+function handleUpdateLoop(visible: boolean) {
+    if (visible) {
+        missionSlots.forEach(x => x.update());
+        updateId = gameLoop.subscribe(() => missionSlots.forEach(x => x.update()), { intervalMilliseconds: 1000 });
+    } else {
+        gameLoop.unsubscribe(updateId);
     }
 }
 
@@ -51,7 +66,27 @@ class MissionSlot {
         });
     }
 
+    update() {
+        if (!this.task) {
+            return;
+        }
+        if (this.task.completed) {
+            this.complete();
+        }
+        this.setLabel();
+    }
+
+    private complete() {
+        if (!this.task) {
+            return;
+        }
+        
+        this.setNewButton();
+        this.setClaimButton(true);
+    }
+
     private unlockSlot() {
+        missionSlots.push(this);
         this.element.querySelector<HTMLButtonElement>('[data-trigger="buy"]')!.remove();
 
         const buttonClaim = document.createElement('button');
@@ -82,8 +117,6 @@ class MissionSlot {
         }
         playerStats.gold.add(this.missionData.goldAmount);
         this.generateRandomMission();
-
-
         this.setClaimButton(false);
     }
 
@@ -122,7 +155,22 @@ class MissionSlot {
         if (!this.task) {
             return;
         }
-        this.element.querySelector<HTMLElement>('[data-label]')!.textContent = this.task?.description;
+        const label = this.element.querySelector('[data-label]')!;
+        const descElement = document.createElement('span');
+        descElement.textContent = this.task.textData.labelText + ' ';
+        descElement.setAttribute('data-desc', '');
+
+        const varElement = document.createElement('var');
+        if (!this.task.completed) {
+            varElement.insertAdjacentHTML('beforeend', `<span data-cur-value>${this.task.value.toFixed()}</span>`);
+            varElement.insertAdjacentHTML('beforeend', `<span>/</span>`);
+        } else {
+            varElement.setAttribute('data-valid', '');
+        }
+        varElement.insertAdjacentHTML('beforeend', `<span data-target-value>${this.task.textData.valueText}</span></var>`);
+
+
+        label.replaceChildren(descElement, varElement);
     }
     private setClaimButton(enabled: boolean) {
         if (!this.missionData) {
@@ -134,13 +182,13 @@ class MissionSlot {
     }
 
     private setNewButton() {
-        if (!this.missionData) {
+        if (!this.missionData || !this.task) {
             return;
         }
         const cost = Math.ceil(this.missionData.goldAmount * 0.1);
         const element = this.element.querySelector<HTMLButtonElement>('[data-trigger="new"]')!;
         element.querySelector<HTMLSpanElement>('[data-cost]')!.textContent = cost.toFixed();
-        element.disabled = playerStats.gold.get() < cost;
+        element.disabled = playerStats.gold.get() < cost || this.task!.completed;
     }
 
     private createElement() {

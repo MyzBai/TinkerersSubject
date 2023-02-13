@@ -51,16 +51,16 @@
                     [data-skill-slot] {
                         display: flex;
                         cursor: default;
-                        
+
                         [data-label] {
                             padding: $padding-button;
                             text-align: left;
                         }
 
                         &[data-skill-slot="buff-skill"] {
-                            .wrapper{
+                            .wrapper {
                                 position: relative;
-                                [data-progress-bar]{
+                                [data-progress-bar] {
                                     pointer-events: none;
                                     position: absolute;
                                     left: 0;
@@ -75,7 +75,7 @@
                                 width: 100%;
                             }
                         }
-                        [data-edit]{
+                        [data-edit] {
                             width: 4em;
                             padding: 0;
                         }
@@ -128,8 +128,8 @@
                 align-items: center;
                 justify-content: space-between;
             }
-            ul{
-                li.selected{
+            ul {
+                li.selected {
                     pointer-events: all;
                 }
             }
@@ -190,27 +190,36 @@
             }
         }
 
-        .p-missions{
-            ul{
+        .p-missions {
+            ul {
                 display: flex;
                 flex-direction: column;
                 flex-wrap: wrap;
-                li{
+                li {
                     flex: 1;
                     padding: $padding-container;
                     display: flex;
                     align-items: center;
-                    white-space: break-spaces;
+                    // white-space: break-spaces;
                     border: 1px solid grey;
                     border-top: 0;
-                    &:first-child{
+                    &:first-child {
                         border-top: 1px solid grey;
                     }
-                    :first-child{
+                    [data-label]{
                         flex: 1;
+                        display: flex;
+                        white-space: break-spaces;
                     }
-            
-                    button{
+      
+                    var {
+                        display: flex;
+                        color: $color-var-invalid-fg;
+                        &[data-valid] {
+                            color: $color-var-valid-fg;
+                        }
+                    }
+                    button {
                         display: flex;
                         flex-direction: column;
                         align-items: center;
@@ -244,4 +253,3 @@
         }
     }
 }
-
