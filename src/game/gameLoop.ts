@@ -3,12 +3,12 @@ type Callback = (dt: number) => void;
 
 interface Instance {
     time: number;
-    id: number;
+    id: string;
     callback: Callback;
     options?: Options;
 }
 interface AnimInstance {
-    id: number;
+    id: string;
     callback: Callback;
 }
 interface Options {
@@ -21,35 +21,36 @@ const DELTA_TIME_SECONDS = TARGET_FRAME_TIME / 1000;
 class Loop {
     public running: boolean = false;
     
-    private instances = new Map<number, Instance>();
-    private animInstances = new Map<number, AnimInstance>();
+    private instances = new Map<string, Instance>();
+    private animInstances = new Map<string, AnimInstance>();
     private loopId = 0;
     private animLoopId = 0;
-    private counter = 0;
-    private animCounter = 0;
     constructor() {
 
     }
 
     subscribe(callback: Callback, options?: Options) {
-        const id = this.counter++;
+        const id = crypto.randomUUID();
         const instance: Instance = { callback, time: 0, id, options };
         this.instances.set(id, instance);
         return id;
     }
 
     subscribeAnim(callback: Callback) {
-        const id = this.animCounter++;
+        const id = crypto.randomUUID();
         const instance: AnimInstance = { callback, id };
         this.animInstances.set(id, instance);
         return id;
     }
 
-    unsubscribe(id: number) {
+    unsubscribe(id: string) {
+        if(!id){
+            return;
+        }
         this.instances.delete(id);
     }
 
-    unsubscribeAnim(id: number){
+    unsubscribeAnim(id: string){
         this.animInstances.delete(id);
     }
 

@@ -85,7 +85,7 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
         let time = calcDuration();
         let pct = 100;
         let duration = time;
-        let loopId = -1;
+        let loopId: string;
         const updateTime = () => {
             duration = calcDuration();
             time = duration * (pct / 100);

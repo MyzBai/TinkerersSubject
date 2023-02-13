@@ -24,7 +24,7 @@ const statistics = {
 
 export default statistics;
 
-let updateId = 0;
+let updateId: string;
 
 visibilityObserver(document.querySelector('.p-game .p-statistics')!, handleUpdateLoop);
 
