@@ -24,7 +24,10 @@ export function init(data: GConfig['missions']) {
 
     for (const slot of data.slots) {
         if (slot.levelReq > 1) {
-            const listener = () => {
+            const listener = (level: number) => {
+                if(level < slot.levelReq){
+                    return;
+                }
                 new MissionSlot(slot);
                 playerStats.level.removeListener('change', listener);
             }
