@@ -48,11 +48,30 @@ function handleUpdateLoop(visible: boolean) {
 }
 
 export function saveMissions(saveObj: Save) {
-
+    saveObj.missions = {
+        list: missionSlots.map((slot, i) => {
+            if (!slot.task) {
+                return undefined;
+            }
+            const startValue = slot.task?.startValue;
+            const text = slot.task.text;
+            return {
+                index: i, startValue, text
+            }
+        })
+    }
 }
 
 export function loadMissions(saveObj: Save) {
+    saveObj.missions?.list.filter(x => x).forEach(x => {
+        if (x && missionSlots[x.index]) {
+            const { text, startValue } = x;
+            const task = new Task(text);
+            task.startValue = startValue;
+            missionSlots[x.index].task = task;
+        }
 
+    })
 }
 class MissionSlot {
 
