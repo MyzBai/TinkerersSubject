@@ -5,8 +5,9 @@ import { init as initSkills } from './skills/skills';
 import type GConfig from "@src/types/gconfig";
 import gameLoop from "@src/game/gameLoop";
 import statistics, { createStatisticsElements } from "./statistics";
-import { initComponents } from './components/loader';
+import { initComponents } from './components/componentLoader';
 import { saveGame, loadGame, deleteSave } from "./saveGame";
+import './Task';
 
 const gamePage = queryHTML('.p-game');
 registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
@@ -70,9 +71,10 @@ function setupDevHelpers() {
         }
     });
 
-    console.log('Press Space to toggle GameLoop');
+    console.log('%cPress G to toggle GameLoop', 'color: orange;background-color:black;padding:3px;');
     document.addEventListener('keydown', x => {
-        if (x.code === 'Space') {
+        console.log(x.code);
+        if (x.code === 'KeyG') {
             if (gameLoop.running) {
                 document.title = `Tinkerers Subject (Stopped)`;
                 gameLoop.stop();

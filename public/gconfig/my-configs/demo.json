@@ -74,7 +74,7 @@
                 },
                 {
                     "levelReq": 5
-                }, 
+                },
                 {
                     "levelReq": 7
                 }
@@ -95,9 +95,9 @@
                     "baseDuration": 60,
                     "manaCost": 50,
                     "mods": [
-                       "{30}% More Attack Speed"
+                        "{30}% More Attack Speed"
                     ]
-                }, 
+                },
                 {
                     "name": "Critical Strike",
                     "levelReq": 1,
@@ -107,7 +107,7 @@
                         "+{20}% Critical Hit Chance",
                         "+{100}% Critical Hit Multiplier"
                     ]
-                }, 
+                },
                 {
                     "name": "Gold",
                     "levelReq": 5,
@@ -304,6 +304,43 @@
             { "id": "addMana", "cost": 100, "levelReq": 5 },
 
             { "id": "removeRandom", "cost": 100, "levelReq": 5 }
+        ]
+    },
+    "missions": {
+        "levelReq": 1,
+        "cost": 10,
+        "slots": [
+            {
+                "levelReq": 1,
+                "cost": 0
+            },
+            {
+                "levelReq": 1,
+                "cost": 0
+            }
+        ],
+        "list": [
+            [
+                {
+                    "levelReq": 1,
+                    "goldAmount": 20,
+                    "description": "Deal Damage {5}"
+                }
+            ],
+            [
+                {
+                    "levelReq": 1,
+                    "goldAmount": 100,
+                    "description": "Generate Gold {100}"
+                }
+            ],
+            [
+                {
+                    "levelReq": 1,
+                    "goldAmount": 200,
+                    "description": "Perform Hits {100}"
+                }
+            ]
         ]
     },
     "achievements": {

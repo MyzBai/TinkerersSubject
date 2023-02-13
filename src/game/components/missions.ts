@@ -1,0 +1,174 @@
+import type GConfig from '@src/types/gconfig';
+import { highlightHTMLElement, queryHTML } from '@src/utils/helpers';
+import gameLoop from '../gameLoop';
+import { playerStats } from '../player';
+import type { Save } from '../saveGame';
+import Task from '../Task';
+
+const missionListContainer = queryHTML('.p-game .p-missions ul[data-mission-list]');
+// type MissionData = Required<GConfig>['missions']['list'][number][number];
+let missionsData: GConfig['missions'];
+
+export function init(data: GConfig['missions']) {
+    missionsData = data;
+    missionListContainer.replaceChildren();
+    if (!data) {
+        return;
+    }
+
+    for (const slot of data.slots) {
+        if (slot.levelReq > 1) {
+            const listener = () => {
+                new MissionSlot(slot);
+                playerStats.level.removeListener('change', listener);
+            }
+            playerStats.level.addListener('change', listener);
+        } else {
+            new MissionSlot(slot);
+        }
+    }
+}
+
+export function saveMissions(saveObj: Save) {
+
+}
+
+export function loadMissions(saveObj: Save) {
+
+}
+class MissionSlot {
+
+    private task: Task | undefined;
+    private missionData: Required<GConfig>['missions']['list'][number][number] | undefined;
+    private element: HTMLLIElement;
+    constructor(readonly slot: Required<GConfig>['missions']['slots'][number]) {
+        this.element = this.createElement();
+        highlightHTMLElement(queryHTML('.p-game .s-menu [data-tab-target="missions"]'), 'click');
+        highlightHTMLElement(this.element, 'mouseover');
+
+        playerStats.gold.addListener('change', () => {
+            this.setNewButton();
+        });
+    }
+
+    private unlockSlot() {
+        this.element.querySelector<HTMLButtonElement>('[data-trigger="buy"]')!.remove();
+
+        const buttonClaim = document.createElement('button');
+        buttonClaim.classList.add('g-button');
+        buttonClaim.setAttribute('data-trigger', 'claim');
+        buttonClaim.insertAdjacentHTML('beforeend', '<span>Claim</span>');
+        buttonClaim.insertAdjacentHTML('beforeend', `<span class="g-gold" data-cost></span>`);
+        buttonClaim.addEventListener('click', () => this.claim());
+
+        const buttonNew = document.createElement('button');
+        buttonNew.classList.add('g-button');
+        buttonNew.setAttribute('data-trigger', 'new');
+        buttonNew.insertAdjacentHTML('beforeend', '<span>New</span>');
+        buttonNew.insertAdjacentHTML('beforeend', `<span class="g-gold" data-cost></span>`);
+        buttonNew.addEventListener('click', () => {
+            this.generateRandomMission();
+        });
+
+        this.element.appendChild(buttonClaim);
+        this.element.appendChild(buttonNew);
+
+        this.generateRandomMission();
+    }
+
+    private claim() {
+        if (!this.missionData) {
+            return;
+        }
+        playerStats.gold.add(this.missionData.goldAmount);
+        this.generateRandomMission();
+
+
+        this.setClaimButton(false);
+    }
+
+    private generateRandomMission() {
+        if (!missionsData) {
+            return;
+        }
+        const missionDataArr = missionsData.list.reduce((a, c) => {
+            const missionData = c.filter(x => x.levelReq <= playerStats.level.get()).sort((a, b) => b.levelReq - a.levelReq)[0];
+            if (missionData) {
+                a.push(missionData);
+            }
+            return a;
+        }, []);
+        if (missionDataArr.length === 0) {
+            throw Error('No missions available');
+        }
+        const index = Math.floor(Math.random() * missionDataArr.length);
+        this.missionData = missionDataArr[index];
+        const description = this.missionData.description;
+        this.task = new Task(description);
+
+        const id = gameLoop.subscribe(() => {
+            if (this.task?.validate()) {
+                gameLoop.unsubscribe(id);
+                this.setClaimButton(true);
+            }
+        }, { intervalMilliseconds: 1000 });
+
+        this.setLabel();
+        this.setClaimButton(false);
+        this.setNewButton();
+    }
+
+    private setLabel() {
+        if (!this.task) {
+            return;
+        }
+        this.element.querySelector<HTMLElement>('[data-label]')!.textContent = this.task?.description;
+    }
+    private setClaimButton(enabled: boolean) {
+        if (!this.missionData) {
+            return;
+        }
+        const element = this.element.querySelector<HTMLButtonElement>('[data-trigger="claim"]')!;
+        element.querySelector('[data-cost]')!.textContent = this.missionData.goldAmount.toFixed();
+        element.disabled = !enabled;
+    }
+
+    private setNewButton() {
+        if (!this.missionData) {
+            return;
+        }
+        const cost = Math.ceil(this.missionData.goldAmount * 0.1);
+        const element = this.element.querySelector<HTMLButtonElement>('[data-trigger="new"]')!;
+        element.querySelector<HTMLSpanElement>('[data-cost]')!.textContent = cost.toFixed();
+        element.disabled = playerStats.gold.get() < cost;
+    }
+
+    private createElement() {
+        const li = document.createElement('li');
+        const label = document.createElement('div');
+        label.textContent = '[Locked]';
+        label.setAttribute('data-label', '');
+
+        const button = document.createElement('button');
+        button.classList.add('g-button');
+        button.insertAdjacentHTML('beforeend', `<span>Buy</span>`);
+        button.insertAdjacentHTML('beforeend', `<span class="g-gold" data-cost>${this.slot.cost}</span>`);
+        button.setAttribute('data-trigger', 'buy');
+        button.addEventListener('click', () => this.unlockSlot());
+
+        if (this.slot.cost > playerStats.gold.get()) {
+            const listener = (amount: number) => {
+                if (this.slot.cost > amount) {
+                    playerStats.gold.removeListener('change', listener);
+                    button.disabled = false;
+                }
+            }
+            playerStats.gold.addListener('change', listener);
+        }
+
+        li.appendChild(label);
+        li.appendChild(button);
+        missionListContainer.appendChild(li);
+        return li;
+    }
+}

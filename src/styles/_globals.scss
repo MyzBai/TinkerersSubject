@@ -101,14 +101,17 @@
     padding: $padding-button;
     cursor: default;
     user-select: none;
-    border-radius: 3px;
+    // border-radius: 3px;
     color: #c9d1d9;
     // background-color: #21262d;
-    border-color: rgba(240, 246, 252, 0.1);
+    // border-color: rgba(240, 246, 252, 0.1);
     &:hover {
         background-color: $color-action-list-item-default-hover-bg;
     }
 
+    &:active{
+        background-color: $color-global-button-bg-active;
+    }
     &[data-role=confirm]{
         background-color: $color-button-confirm-bg;
     }
@@ -185,5 +188,9 @@
 
 .g-text-small{
     font-size: 0.8em;
+}
+
+.g-gold{
+    color: $color-gold-fg;
 }
 /*#endregion Global*/

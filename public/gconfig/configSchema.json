@@ -170,6 +170,51 @@
                 }
             }
         },
+        "missions": {
+            "type": "object",
+            "required": [ "slots", "list" ],
+            "properties": {
+                "levelReq": { "$ref": "#/definitions/levelReq" },
+                "cost": { "$ref": "#/definitions/cost" },
+                "slots": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "levelReq": { "$ref": "#/definitions/levelReq" },
+                            "cost": { "$ref": "#/definitions/cost" }
+                        }
+                    }
+                },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [ "levelReq", "goldAmount", "description" ],
+                            "properties": {
+                                "levelReq": { "$ref": "#/definitions/levelReq" },
+                                "goldAmount": { "type": "integer" },
+                                "description": {
+                                    "type": "string",
+                                    "anyOf": [
+                                        { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
+                                        { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
+                                        { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                                        { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                                        { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                                        { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                                        { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+                                    ],
+                                    "pattern": "^[^#]*$"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "achievements": {
             "type": "object",
             "properties": {
@@ -189,8 +234,9 @@
                                     { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
                                     { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
                                     { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
-                                    { "enum": [ "Perform Critical Hits {#} Total Critical Hits" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
-                                ]
+                                    { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+                                ],
+                                "pattern": "^[^#]*$"
                             },
                             "modList": {
                                 "type": "array",
@@ -240,6 +286,11 @@
             "type": "integer",
             "default": 1,
             "minimum": 1
+        },
+        "cost": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0
         }
     }
 }

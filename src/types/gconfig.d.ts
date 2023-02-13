@@ -8,11 +8,12 @@ export interface GConfig {
     skills: Skills;
     passives?: Passives;
     items?: Items;
+    missions?: Missions;
     achievements: Achievements;
     prestige?: Prestige;
 }
 
-export interface Meta{
+export interface Meta {
     name: string;
     description?: string;
     rawUrl: string;
@@ -54,7 +55,7 @@ export interface Skills {
         }[]
     }
 }
-export interface Passives{
+export interface Passives {
     levelReq: number;
     passiveList: {
         levelReq: number;
@@ -82,6 +83,18 @@ export interface Items {
         levelReq: number;
         cost: number;
     }[];
+}
+export interface Missions {
+    levelReq: number;
+    slots: {
+        levelReq: number;
+        cost: number;
+    }[];
+    list: {
+        description: string;
+        levelReq: number;
+        goldAmount: number;
+    }[][];
 }
 export interface Achievements {
     levelReq: number;

@@ -3,7 +3,7 @@ import type { CraftId, GConfig } from "@src/types/gconfig"
 import type { ModDescription } from "./mods";
 import { loadPlayer, savePlayer, setup as setupPlayer } from "./player";
 import { loadEnemy, saveEnemy } from './enemy';
-import { saveComponents, loadComponents } from './components/loader';
+import { saveComponents, loadComponents } from './components/componentLoader';
 import { loadSkills, saveSkills } from "./skills/skills";
 import { loadStatistics, saveStatistics } from './statistics';
 
@@ -44,6 +44,9 @@ export interface Save {
             }[];
         }[],
         craftPresets: { name: string, ids: CraftId[] }[]
+    };
+    missions?: {
+        descriptions: string[];
     };
     statistics?: { name: string, value: number }[];
 }
@@ -89,6 +92,8 @@ export async function loadGame(config: GConfig) {
     [loadPlayer, loadEnemy, loadSkills, loadStatistics, loadComponents].forEach(x => x(saveObj));
 
     setupPlayer();
+
+    document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
     return true;
 }
 
