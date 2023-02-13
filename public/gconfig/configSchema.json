@@ -214,6 +214,7 @@
         },
         "achievements": {
             "type": "object",
+            "required": ["list"],
             "properties": {
                 "list": {
                     "type": "array",
