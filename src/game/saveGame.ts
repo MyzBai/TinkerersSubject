@@ -46,7 +46,11 @@ export interface Save {
         craftPresets: { name: string, ids: CraftId[] }[]
     };
     missions?: {
-        descriptions: string[];
+        list: ({
+            index: number;
+            text: string;
+            startValue: number;
+        } | undefined)[];
     };
     statistics?: { name: string, value: number }[];
 }
