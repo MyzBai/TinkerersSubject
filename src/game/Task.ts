@@ -47,6 +47,7 @@ export default class Task {
             valueText: match[1]
         }
     }
+
     get targetValue() {
         return this._targetValue;
     }
@@ -57,14 +58,5 @@ export default class Task {
     }
     get completed() {
         return this.value >= this._targetValue;
-    }
-    updateDescription() {
-        if (!this.completed) {
-            return;
-        }
-    }
-
-    validate() {
-        return this.completed;
     }
 }
