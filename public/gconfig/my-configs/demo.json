@@ -315,16 +315,30 @@
                 "cost": 0
             },
             {
-                "levelReq": 1,
-                "cost": 0
+                "levelReq": 3,
+                "cost": 100
+            },
+            {
+                "levelReq": 5,
+                "cost": 300
             }
         ],
         "list": [
             [
                 {
                     "levelReq": 1,
-                    "goldAmount": 20,
-                    "description": "Deal Damage {5}"
+                    "goldAmount": 50,
+                    "description": "Deal Damage {100}"
+                },
+                {
+                    "levelReq": 3,
+                    "goldAmount": 100,
+                    "description": "Deal Damage {500}"
+                },
+                {
+                    "levelReq": 5,
+                    "goldAmount": 500,
+                    "description": "Deal Damage {10000}"
                 }
             ],
             [
@@ -337,8 +351,27 @@
             [
                 {
                     "levelReq": 1,
-                    "goldAmount": 200,
+                    "goldAmount": 50,
                     "description": "Perform Hits {100}"
+                },
+                {
+                    "levelReq": 5,
+                    "goldAmount": 100,
+                    "description": "Perform Hits {200}"
+                }
+            ],
+            [
+                {
+                    "levelReq": 5,
+                    "goldAmount": 500,
+                    "description": "Perform Critical Hits {100}"
+                }
+            ],
+            [
+                {
+                    "levelReq": 5,
+                    "goldAmount": 500,
+                    "description": "Regenerate Mana {500}"
                 }
             ]
         ]
