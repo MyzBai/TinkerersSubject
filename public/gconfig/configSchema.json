@@ -96,9 +96,8 @@
         },
         "passives": {
             "type": "object",
-            "required": [ "levelReq", "passiveList" ],
+            "required": [ "passiveList" ],
             "properties": {
-                "levelReq": { "$ref": "#/definitions/levelReq" },
                 "passiveList": {
                     "type": "array",
                     "items": {
@@ -216,7 +215,6 @@
         "achievements": {
             "type": "object",
             "properties": {
-                "levelReq": { "$ref": "#/definitions/levelReq" },
                 "list": {
                     "type": "array",
                     "items": {

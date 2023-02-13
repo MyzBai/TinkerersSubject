@@ -121,7 +121,6 @@
         }
     },
     "passives": {
-        "levelReq": 2,
         "passiveList": [
             {
                 "levelReq": 1,
@@ -377,7 +376,6 @@
         ]
     },
     "achievements": {
-        "levelReq": 3,
         "list": [
             { "description": "Reach Level {10}" },
             { "description": "Deal Physical Damage {200000}", "modList": [ "{10}% More Physical Damage" ] },
