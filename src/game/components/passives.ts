@@ -20,7 +20,7 @@ const getCurPoints = () => passives.filter(x => x.assigned).reduce((a, c) => a +
 let passives: Passive[];
 let pointsPerLevel: number;
 export function init(data: GConfig['passives']) {
-    if(!data){
+    if (!data) {
         return;
     }
     passives = [];

@@ -14,6 +14,9 @@ let updateId: string;
 visibilityObserver(missionListContainer, handleUpdateLoop);
 
 export function init(data: GConfig['missions']) {
+    if(!data){
+        return;
+    }
     missionsData = data;
     missionListContainer.replaceChildren();
     missionSlots.splice(0);

@@ -52,7 +52,9 @@ let presets: Preset[];
 
 
 export function init(data: GConfig['items']) {
-
+    if(!data){
+        return;
+    }
     generalMods = [];
     items = [];
     crafts = [];

@@ -26,6 +26,9 @@ let updateId: string;
 visibilityObserver(document.querySelector('.p-game .p-achievements')!, handleUpdateLoop);
 
 export function init(data: GConfig['achievements']) {
+    if(!data){
+        return;
+    }
     achievements.splice(0);
     for (const item of data.list) {
         achievements.push(new Achievement(item));
