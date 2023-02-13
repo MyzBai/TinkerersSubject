@@ -199,8 +199,6 @@
                                 "description": {
                                     "type": "string",
                                     "anyOf": [
-                                        { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
-                                        { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
                                         { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
                                         { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
                                         { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
