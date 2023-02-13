@@ -7,6 +7,7 @@ import type { Save } from '../saveGame';
 import Task from '../Task';
 
 const missionListContainer = queryHTML('.p-game .p-missions ul[data-mission-list]');
+const missionsMenuButton = queryHTML('.p-game > menu [data-tab-target="missions"]')!;
 let missionsData: GConfig['missions'];
 const missionSlots: MissionSlot[] = [];
 let updateId: string;
@@ -30,13 +31,28 @@ export function init(data: GConfig['missions']) {
                 if (level < slot.levelReq) {
                     return;
                 }
-                new MissionSlot(slot);
+                const missionslot = new MissionSlot(slot);
+                highlightHTMLElement(queryHTML('.p-game .s-menu [data-tab-target="missions"]'), 'click');
+                highlightHTMLElement(missionslot.element, 'mouseover');
                 playerStats.level.removeListener('change', listener);
             }
             playerStats.level.addListener('change', listener);
         } else {
             new MissionSlot(slot);
         }
+    }
+
+    if (data.levelReq > 1) {
+        const listener = (level: number) => {
+            if (level >= data.levelReq) {
+                playerStats.level.removeListener('change', listener);
+                missionsMenuButton.classList.remove('hidden');
+                highlightHTMLElement(missionsMenuButton, 'click');
+            }
+        }
+        playerStats.level.addListener('change', listener);
+    } else {
+        missionsMenuButton.classList.remove('hidden');
     }
 }
 
@@ -82,18 +98,19 @@ class MissionSlot {
 
     task: Task | undefined;
     private missionData: Required<GConfig>['missions']['list'][number][number] | undefined;
-    private element: HTMLLIElement;
+    private _element: HTMLLIElement;
     private completed = false;
     constructor(readonly slot: Required<GConfig>['missions']['slots'][number]) {
-        this.element = this.createElement();
-        highlightHTMLElement(queryHTML('.p-game .s-menu [data-tab-target="missions"]'), 'click');
-        highlightHTMLElement(this.element, 'mouseover');
+        this._element = this.createElement();
+
 
         playerStats.gold.addListener('change', () => {
             this.setNewButton();
         });
     }
-
+    get element(){
+        return this._element;
+    }
     tryCompletion() {
         if (this.task && this.task.completed) {
             this.updateLabel();
@@ -113,7 +130,7 @@ class MissionSlot {
 
     private unlockSlot() {
         missionSlots.push(this);
-        this.element.querySelector<HTMLButtonElement>('[data-trigger="buy"]')!.remove();
+        this._element.querySelector<HTMLButtonElement>('[data-trigger="buy"]')!.remove();
 
         const buttonClaim = document.createElement('button');
         buttonClaim.classList.add('g-button');
@@ -131,8 +148,8 @@ class MissionSlot {
             this.generateRandomMission();
         });
 
-        this.element.appendChild(buttonClaim);
-        this.element.appendChild(buttonNew);
+        this._element.appendChild(buttonClaim);
+        this._element.appendChild(buttonNew);
 
         this.generateRandomMission();
     }
@@ -181,7 +198,7 @@ class MissionSlot {
         if (!this.task) {
             return;
         }
-        const label = this.element.querySelector('[data-label]')!;
+        const label = this._element.querySelector('[data-label]')!;
         const descElement = document.createElement('span');
         descElement.textContent = this.task.textData.labelText + ' ';
         descElement.setAttribute('data-desc', '');
@@ -202,7 +219,7 @@ class MissionSlot {
         if (!this.missionData) {
             return;
         }
-        const element = this.element.querySelector<HTMLButtonElement>('[data-trigger="claim"]')!;
+        const element = this._element.querySelector<HTMLButtonElement>('[data-trigger="claim"]')!;
         element.querySelector('[data-cost]')!.textContent = this.missionData.goldAmount.toFixed();
         element.disabled = !enabled;
     }
@@ -212,7 +229,7 @@ class MissionSlot {
             return;
         }
         const cost = Math.ceil(this.missionData.goldAmount * 0.1);
-        const element = this.element.querySelector<HTMLButtonElement>('[data-trigger="new"]')!;
+        const element = this._element.querySelector<HTMLButtonElement>('[data-trigger="new"]')!;
         element.querySelector<HTMLSpanElement>('[data-cost]')!.textContent = cost.toFixed();
         element.disabled = playerStats.gold.get() < cost || this.task!.completed;
     }
