@@ -50,6 +50,7 @@ export interface Save {
             index: number;
             text: string;
             startValue: number;
+            levelReq: number;
         } | undefined)[];
     };
     statistics?: { name: string, value: number }[];
@@ -98,6 +99,7 @@ export async function loadGame(config: GConfig) {
     setupPlayer();
 
     document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
+    console.log('clear highlights');
     return true;
 }
 
