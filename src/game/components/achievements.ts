@@ -21,7 +21,7 @@ const validators: Validator[] = [
 const achievementsMenuButton = document.querySelector<HTMLElement>('.p-game > menu [data-tab-target="achievements"]')!;
 
 const achievements: Achievement[] = [];
-let updateId: number = -1;
+let updateId: string;
 
 visibilityObserver(document.querySelector('.p-game .p-achievements')!, handleUpdateLoop);
 
