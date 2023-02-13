@@ -23,7 +23,7 @@ export default class Task {
     public text: string;
     public description: string;
     public textData: TextData;
-    private startValue: number;
+    public startValue: number;
     private _targetValue: number;
     private validator: TaskValidators;
 
