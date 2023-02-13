@@ -7,7 +7,6 @@ import type { Save } from '../saveGame';
 import Task from '../Task';
 
 const missionListContainer = queryHTML('.p-game .p-missions ul[data-mission-list]');
-// type MissionData = Required<GConfig>['missions']['list'][number][number];
 let missionsData: GConfig['missions'];
 const missionSlots: MissionSlot[] = [];
 let updateId: string;
@@ -25,7 +24,7 @@ export function init(data: GConfig['missions']) {
     for (const slot of data.slots) {
         if (slot.levelReq > 1) {
             const listener = (level: number) => {
-                if(level < slot.levelReq){
+                if (level < slot.levelReq) {
                     return;
                 }
                 new MissionSlot(slot);
@@ -40,8 +39,11 @@ export function init(data: GConfig['missions']) {
 
 function handleUpdateLoop(visible: boolean) {
     if (visible) {
-        missionSlots.forEach(x => x.update());
-        updateId = gameLoop.subscribe(() => missionSlots.forEach(x => x.update()), { intervalMilliseconds: 1000 });
+        missionSlots.forEach(x => {
+            x.updateLabel();
+            x.tryCompletion();
+        });
+        updateId = gameLoop.subscribe(() => missionSlots.forEach(x => x.updateLabel()), { intervalMilliseconds: 1000 });
     } else {
         gameLoop.unsubscribe(updateId);
     }
@@ -75,9 +77,10 @@ export function loadMissions(saveObj: Save) {
 }
 class MissionSlot {
 
-    private task: Task | undefined;
+    task: Task | undefined;
     private missionData: Required<GConfig>['missions']['list'][number][number] | undefined;
     private element: HTMLLIElement;
+    private completed = false;
     constructor(readonly slot: Required<GConfig>['missions']['slots'][number]) {
         this.element = this.createElement();
         highlightHTMLElement(queryHTML('.p-game .s-menu [data-tab-target="missions"]'), 'click');
@@ -88,21 +91,19 @@ class MissionSlot {
         });
     }
 
-    update() {
-        if (!this.task) {
-            return;
-        }
-        if (this.task.completed) {
+    tryCompletion() {
+        if (this.task && this.task.completed) {
+            this.updateLabel();
             this.complete();
         }
-        this.setLabel();
     }
 
     private complete() {
-        if (!this.task) {
+        if (!this.task || this.completed) {
             return;
         }
-        
+        this.completed = true;
+
         this.setNewButton();
         this.setClaimButton(true);
     }
@@ -162,18 +163,18 @@ class MissionSlot {
         this.task = new Task(description);
 
         const id = gameLoop.subscribe(() => {
-            if (this.task?.validate()) {
+            if (this.task?.completed) {
                 gameLoop.unsubscribe(id);
                 this.setClaimButton(true);
             }
         }, { intervalMilliseconds: 1000 });
 
-        this.setLabel();
+        this.updateLabel();
         this.setClaimButton(false);
         this.setNewButton();
     }
 
-    private setLabel() {
+    updateLabel() {
         if (!this.task) {
             return;
         }
