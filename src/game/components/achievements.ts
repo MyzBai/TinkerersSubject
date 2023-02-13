@@ -40,16 +40,7 @@ export function init(data: GConfig['achievements']) {
         validateAchievements();
     }, { intervalMilliseconds: 1000 });
 
-    if (data.levelReq > 1) {
-        const listener = (level: number) => {
-            if (level >= data.levelReq) {
-                playerStats.level.removeListener('change', listener);
-                achievementsMenuButton.classList.remove('hidden');
-                highlightHTMLElement(achievementsMenuButton, 'click');
-            }
-        }
-        playerStats.level.addListener('change', listener);
-    }
+    achievementsMenuButton.classList.remove('hidden');
 }
 
 function validateAchievements() {

@@ -34,15 +34,7 @@ export function init(data: GConfig['passives']) {
     passivesList.replaceChildren(...passives.map(x => x.element));
     updateList();
 
-    if(data.levelReq > 1){
-        const listener = (level: number) => {
-            if(level >= data.levelReq){
-                passivesMenuButton.classList.remove('hidden');
-                playerStats.level.removeListener('change', listener);
-            }
-        };
-        playerStats.level.addListener('change', listener);
-    }
+    passivesMenuButton.classList.remove('hidden');
 
     playerStats.level.addListener('change', level => {
         passives.forEach(x => x.tryUnlock());
@@ -89,7 +81,7 @@ export function savePassives(save: Save) {
 
 export function loadPassives(save: Save) {
     const savedPassives = save.passives;
-    if(!savedPassives){
+    if (!savedPassives) {
         passives.forEach(x => x.unassign());
         return;
     }

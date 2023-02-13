@@ -56,7 +56,6 @@ export interface Skills {
     }
 }
 export interface Passives {
-    levelReq: number;
     passiveList: {
         levelReq: number;
         points: number;
@@ -97,7 +96,6 @@ export interface Missions {
     }[][];
 }
 export interface Achievements {
-    levelReq: number;
     list: {
         description: string;
         modList?: Mod[];
