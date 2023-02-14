@@ -1,27 +1,70 @@
-import { registerTabs, tabCallback, queryHTML, isLocalHost } from "@utils/helpers";
+import { registerTabs, queryHTML, isLocalHost } from "@utils/helpers";
 import Player from './player';
 import Enemy from './enemy';
 import Skills from './skills/skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import Statistics from "./statistics";
+import type { Save } from "./saveGame";
+import EventEmitter from "@src/utils/EventEmitter";
+import { game } from "@src/home/home";
+import Items from "./components/items/items";
+import type Component from "./Component";
+import Passives from "./components/passives";
+import Achievements from "./components/achievements";
+import Missions from "./components/missions";
 
-const gamePage = queryHTML('.p-game');
-registerTabs(queryHTML(':scope > menu', gamePage), queryHTML('.s-middle', gamePage), tabCallback);
+type Entries<T> = {
+    [K in keyof T]: [K, T[K]];
+}[keyof T][];
+type ComponentsEntries = Entries<Required<GConfig>['components']>;
 
 export default class Game {
-    gameLoop: Loop = new Loop();
-    enemy: Enemy;
-    player: Player;
-    skills: Skills;
-    statistics: Statistics;
-
-    constructor(readonly config: GConfig) {
+    readonly gamePage = queryHTML('.p-game');
+    readonly gameLoop = new Loop();
+    readonly enemy: Enemy;
+    readonly player: Player;
+    readonly skills: Skills;
+    readonly statistics: Statistics;
+    readonly components: Component[] = [];
+    readonly onSave = new EventEmitter<Save>();
+    private _config: GConfig | undefined;
+    private _saveObj: Save | undefined;
+    constructor() {
         this.enemy = new Enemy(this);
         this.player = new Player(this);
         this.skills = new Skills(this);
 
         this.statistics = new Statistics(this);
+
+        if (isLocalHost) {
+            this.setupDevHelpers();
+        }
+
+        registerTabs(queryHTML('[data-main-menu]', this.gamePage), queryHTML('.s-middle', this.gamePage));
+    }
+    get config() {
+        return this._config!;
+    }
+    get saveObj() {
+        return this._saveObj!;
+    }
+
+    async init(config: GConfig, saveObj: Save) {
+        this._config = config;
+        this._saveObj = saveObj;
+
+        this.onSave.removeAllListeners();
+        this.gameLoop.reset();
+
+        this.enemy.init();
+        this.player.init();
+        this.skills.init();
+        this.statistics.init();
+
+        this.disposeComponents();
+        this.createComponents();
+
         this.gameLoop.subscribe(() => {
             this.statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
@@ -30,19 +73,54 @@ export default class Game {
         //     saveGame(config.meta);
         // }, { intervalMilliseconds: 1000 * 60 });
 
-        if (isLocalHost) {
-            this.setupDevHelpers();
-        }
+        await this.setup();
     }
     async setup() {
         this.player.setup();
 
         if (!isLocalHost) {
-            this.gameLoop.start();
+            // this.gameLoop.start();
         }
+        queryHTML('[data-tab-target="combat"]', this.gamePage).click();
         document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
     }
 
+
+    private disposeComponents() {
+        for (const component of this.components) {
+            component.dispose();
+        }
+        this.components.splice(0);
+    }
+    private createComponents() {
+        if (!this.config.components) {
+            return;
+        }
+        const entries = Object.entries(this.config.components) as Required<ComponentsEntries>;
+        const initComponent = (entry: Required<ComponentsEntries>[number]) => {
+            const name = entry![0];
+            switch (name) {
+                case 'items':
+                    this.components.push(new Items(game, entry[1]!));
+                    break;
+                case 'passives':
+                    this.components.push(new Passives(game, entry[1]!));
+                    break;
+                case 'achievements':
+                    this.components.push(new Achievements(game, entry[1]!));
+                    break;
+                case 'missions':
+                    this.components.push(new Missions(game, entry[1]!));
+                    break;
+            }
+        }
+        for (const entry of entries) {
+            const data = entry[1]!;
+            this.player.stats.level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
+                initComponent(entry);
+            });
+        }
+    }
 
     private setupDevHelpers() {
         if ('TS' in window) {
@@ -52,6 +130,19 @@ export default class Game {
             value: {
                 setLevel: (v: number) => this.player.stats.level.set(v),
                 setGold: (v: number) => this.player.stats.gold.set(v),
+                save: () => {
+                    this.onSave.invoke(this.saveObj);
+                    localStorage.setItem('save', JSON.stringify(this.saveObj));
+                    console.log(this.saveObj);
+                },
+                load: async () => {
+                    const str = localStorage.getItem('save');
+                    if (!str) {
+                        return;
+                    }
+                    const saveObj = JSON.parse(str) as Save;
+                    game.init(this.config, saveObj);
+                }
             }
         });
 

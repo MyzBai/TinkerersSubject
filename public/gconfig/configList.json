@@ -3,7 +3,7 @@
     "list": [
         {
             "name": "Demo",
-            "rawUrl": "public/gconfig/my-configs/demo.json",
+            "rawUrl": "public/gconfig/demo.json",
             "description": "This is a short configuration for demonstration purposes"
         }
     ]

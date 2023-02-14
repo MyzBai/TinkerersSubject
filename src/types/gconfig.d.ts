@@ -6,11 +6,7 @@ export interface GConfig {
     player?: Player;
     enemies: Enemies;
     skills: Skills;
-    passives?: Passives;
-    items?: Items;
-    missions?: Missions;
-    achievements: Achievements;
-    prestige?: Prestige;
+    components?: Components;
 }
 
 export interface Meta {
@@ -55,12 +51,22 @@ export interface Skills {
         }[]
     }
 }
+
+export interface Components {
+    passives?: Passives;
+    items?: Items;
+    missions?: Missions;
+    achievements: Achievements;
+    prestige?: Prestige;
+}
+
 export interface Passives {
-    passiveList: {
+    pointsPerLevel: number;
+    passiveLists: {
         levelReq: number;
         points: number;
         mod: Mod;
-    }[];
+    }[][];
 }
 export interface ItemMod {
     levelReq: number;
@@ -73,10 +79,7 @@ export interface Items {
         name: string;
         levelReq: number;
     }[];
-    modTables: {
-        general: ItemMod[][],
-        special?: ItemMod[][]
-    };
+    modLists: ItemMod[][];
     craftList: {
         id: CraftId;
         levelReq: number;
@@ -89,7 +92,7 @@ export interface Missions {
         levelReq: number;
         cost: number;
     }[];
-    list: {
+    missionLists: {
         description: string;
         levelReq: number;
         goldAmount: number;

@@ -1,25 +1,16 @@
 import EventEmitter from "@src/utils/EventEmitter";
-import { queryHTML } from "@src/utils/helpers";
+import { clamp, queryHTML } from "@src/utils/helpers";
 import type Game from "./game";
-// import type { Save } from "./saveGame";
-
-const healthBar = queryHTML('.p-game .s-enemy [data-health-bar]');
+import type { Save } from "./saveGame";
 
 export default class Enemy {
-    onDeath = new EventEmitter<Enemy>();
+    readonly onDeath = new EventEmitter<Enemy>();
     private _index: number;
-    private healthList: number[];
-    private _health: number;
+    private healthList: number[] = [];
+    private _health = 0;
+    private healthBar = queryHTML('.p-game .s-enemy [data-health-bar]');
     constructor(readonly game: Game) {
-        this.healthList = game.config.enemies.enemyList;
         this._index = 0;
-        this._health = this.maxHealth;
-
-        this.onDeath.listen(() => {
-            this._index++;
-        });
-
-
     }
     get index() {
         return this._index;
@@ -33,23 +24,39 @@ export default class Enemy {
     get health() {
         return this._health;
     }
-    dealDamage(amount: number) {
-        this._health -= amount;
+    private set health(v: number) {
+        this._health = clamp(v, 0, this.maxHealth);
+    }
 
-        if (this._health <= 0) {
-            this._health = 0;
+    init() {
+        this.healthList = this.game.config.enemies.enemyList;
+        this._index = this.game.saveObj.enemy?.index || 0;
+        this.health = this.game.saveObj.enemy?.health || this.maxHealth;
+        this.updateHealthBar();
+
+        this.onDeath.listen(() => {
+            this._index++;
+        });
+
+        this.game.onSave.listen(this.save.bind(this));
+    }
+
+    dealDamage(amount: number) {
+        this.health -= amount;
+
+        if (this.health === 0) {
             this.onDeath.invoke(this);
         }
         this.updateHealthBar();
     }
 
-    // save(saveObj: Save) {
-    //     saveObj.enemy = {
-    //         index: this.index,
-    //         health: this.health,
-    //         dummyDamage: 0
-    //     }
-    // }
+    save(saveObj: Save) {
+        saveObj.enemy = {
+            index: this.index,
+            health: this.health,
+            dummyDamage: 0
+        }
+    }
     // load(saveObj: Save) {
     //     const savedEnemy = saveObj.enemy;
     //     if (!savedEnemy) {
@@ -62,6 +69,6 @@ export default class Enemy {
 
     private updateHealthBar() {
         const pct = this.health / this.maxHealth * 100;
-        healthBar.style.width = `${pct}%`;
+        this.healthBar.style.width = `${pct}%`;
     }
 }

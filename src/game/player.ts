@@ -4,14 +4,15 @@ import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
 import { queryHTML } from "@src/utils/helpers";
 import type Game from './game';
-
-const playerStatsContainer = document.querySelector<HTMLElement>('.p-game > .s-stats')!;
-const manaBar = document.querySelector<HTMLElement>('.p-combat [data-mana-bar]')!;
-let statsUpdateId: number;
+import type { Save } from './saveGame';
+import { visibilityObserverLoop } from '@src/utils/Observers';
 
 export default class Player {
-    modDB = new ModDB();
-    stats = Object.freeze({
+    private playerStatsContainer = queryHTML('.p-game > .s-stats');
+    private manaBar = queryHTML('.p-combat [data-mana-bar]');
+    private statsUpdateId = -1;
+    readonly modDB = new ModDB();
+    readonly stats = {
         level: new Value(1),
         gold: new Value(0),
         goldPerSecond: new Value(0),
@@ -21,59 +22,70 @@ export default class Player {
         curMana: new Value(0),
         manaRegen: new Value(0),
         skillDurationMultiplier: new Value(1)
-    });
+    };
     constructor(readonly game: Game) {
-        this.modDB.onChange.listen(() => this.updateStats);
+        visibilityObserverLoop(this.manaBar, (visible) => { if (visible) { this.updateManaBar(); } });
+    }
 
-        game.enemy.onDeath.listen(() => {
-            if (this.stats.level.get() < game.enemy.maxIndex) {
+    init() {
+
+
+        this.modDB.clear();
+        this.modDB.onChange.listen(() => this.updateStats());
+
+        Object.values(this.stats).forEach(x => x.reset());
+
+        this.stats.level.addListener('change', x => queryHTML('[data-stat="level"]', this.playerStatsContainer).textContent = x.toFixed());
+        this.stats.gold.addListener('change', x => queryHTML('[data-stat="gold"]', this.playerStatsContainer).textContent = x.toFixed());
+        this.stats.level.set(this.game.saveObj.player?.level || 1);
+        this.stats.gold.set(this.game.saveObj.player?.gold || 0);
+
+        if (this.game.config.player) {
+            this.game.config.player.modList.forEach(x => {
+                this.modDB.add(new Modifier(x).stats, 'Player');
+            });
+        }
+
+        this.game.enemy.onDeath.listen(() => {
+            if (this.stats.level.get() < this.game.enemy.maxIndex) {
                 this.stats.level.add(1);
             }
         });
-
-        this.stats.level.addListener('change', x => queryHTML('[data-stat="level"]', playerStatsContainer).textContent = x.toFixed());
-        this.stats.gold.addListener('change', x => queryHTML('[data-stat="gold"]', playerStatsContainer).textContent = x.toFixed());
-        this.stats.level.set(1); //trigger event to update the ui
-        this.stats.gold.set(0);
 
         this.stats.curMana.addListener('change', curMana => {
             const maxMana = this.stats.maxMana.get();
             if (curMana > maxMana) {
                 this.stats.curMana.set(maxMana);
             }
-            this.updatemanaBar();
         });
 
-        if (game.config.player) {
-            game.config.player.modList.forEach(x => {
-                this.modDB.add(new Modifier(x).stats, 'Player');
-            });
-        }
-
-        game.gameLoop.subscribe(() => {
+        this.game.gameLoop.subscribe(() => {
             const amount = this.stats.goldPerSecond.get();
             this.stats.gold.add(amount);
-            game.statistics.statistics["Gold Generated"].add(amount);
+            this.game.statistics.statistics["Gold Generated"].add(amount);
         }, { intervalMilliseconds: 1000 });
 
-        game.gameLoop.subscribe((dt) => {
+        this.game.gameLoop.subscribe((dt) => {
             const manaRegen = this.stats.manaRegen.get() * dt;
             this.stats.curMana.add(manaRegen);
-            game.statistics.statistics["Mana Generated"].add(manaRegen);
+            this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
+
+        this.game.onSave.listen(this.save.bind(this));
 
         this.startAutoAttack();
     }
 
     async setup() {
         await this.updateStats();
-        this.stats.curMana.set(this.stats.maxMana.get());
+        this.stats.curMana.set(this.game.saveObj.player?.curMana || this.stats.maxMana.get());
     }
 
     updateStats() {
+
         return new Promise((resolve) => {
-            clearTimeout(statsUpdateId);
-            statsUpdateId = window.setTimeout(async () => {
+            clearTimeout(this.statsUpdateId);
+            this.statsUpdateId = window.setTimeout(async () => {
                 const statsResult = calcPlayerStats(this.modDB.modList);
                 this.stats.attackSpeed.set(statsResult.attackSpeed);
                 this.stats.goldPerSecond.set(statsResult.goldPerSecond);
@@ -81,7 +93,7 @@ export default class Player {
                 this.stats.manaRegen.set(statsResult.manaRegen);
                 this.stats.attackManaCost.set(statsResult.attackManaCost);
                 this.stats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
-                playerStatsContainer.querySelectorAll('[data-stat]').forEach(x => {
+                this.playerStatsContainer.querySelectorAll('[data-stat]').forEach(x => {
                     const attr = x.getAttribute('data-stat') as keyof typeof statsResult;
                     const stat = statsResult[attr] as number;
                     if (typeof stat === 'number') {
@@ -95,9 +107,9 @@ export default class Player {
         });
     }
 
-    private updatemanaBar() {
+    private updateManaBar() {
         const pct = this.stats.curMana.get() / this.stats.maxMana.get() * 100;
-        manaBar.style.width = pct + '%';
+        this.manaBar.style.width = pct + '%';
     }
 
     private startAutoAttack() {
@@ -133,13 +145,13 @@ export default class Player {
         this.game.enemy.dealDamage(result.totalDamage);
     }
 
-    // save(saveObj: Save) {
-    //     saveObj.player = {
-    //         level: this.stats.level.get(),
-    //         gold: this.stats.gold.get(),
-    //         curMana: this.stats.curMana.get()
-    //     };
-    // }
+    save(saveObj: Save) {
+        saveObj.player = {
+            level: this.stats.level.get(),
+            gold: this.stats.gold.get(),
+            curMana: this.stats.curMana.get()
+        };
+    }
 
     // async load(saveObj: Save) {
     //     const playerSave = saveObj.player;

@@ -37,24 +37,93 @@ export function queryHTML<T extends HTMLElement>(selectors: string, parent?: HTM
 //     });
 // }
 
-export function registerTabs(btnsParent: HTMLElement, contentsParent: HTMLElement, callback: (btn: HTMLElement, content: HTMLElement) => void) {
-    const btns = [...btnsParent.querySelectorAll<HTMLElement>(':scope > [data-tab-target]')];
-    for (const btn of btns) {
-        btn.addEventListener('click', () => {
-            btns.forEach(x => x.classList.toggle('selected', x === btn));
-            const targetAttr = btn.getAttribute('data-tab-target');
-            const target = queryHTML(`[data-tab-content="${targetAttr}"]`, contentsParent);
-            callback(btn, target);
-        });
-    }
+export function registerMutationObserver(parentElement: HTMLElement, options: MutationObserverInit, callback: (targetElement: HTMLElement, type: 'added' | 'removed' | 'selected') => void) {
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            const target = mutation.target as HTMLElement;
+            for (const node of mutation.addedNodes) {
+                if (node instanceof Element) {
+                    callback(target, 'added');
+                }
+            }
+            for (const node of mutation.removedNodes) {
+                if (node instanceof Element) {
+                    callback(target, 'removed');
+                }
+            }
+            if (mutation.attributeName === 'class') {
+                if (target.classList.contains('selected')) {
+                    callback(target, 'selected');
+                }
+            }
+        }
+    });
+    Array.from(parentElement.querySelectorAll<HTMLElement>('[data-tab-target]')).forEach(x => x.addEventListener('click', () => x.classList.add('selected')));
+    observer.observe(parentElement, options);
+    return observer;
 }
 
-export function tabCallback(btn: HTMLElement, content: HTMLElement) {
-    const targetAttr = btn.getAttribute('data-tab-target');
-    [...content.parentElement?.children || []].filter(x => x.hasAttribute('data-tab-content')).forEach(x => {
-        x.classList.toggle('hidden', x.getAttribute('data-tab-content') !== targetAttr);
+export function registerTabs(btnsParent: HTMLElement, contentsParent?: HTMLElement, callback?: (target: HTMLElement) => void, queryString = '[data-tab-target]') {
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            const target = mutation.target as HTMLElement;
+            for (const node of mutation.addedNodes) {
+                if (node instanceof HTMLElement) {
+                    addBtn(node);
+                }
+            }
+            if (mutation.attributeName === 'class') {
+                if (target.classList.contains('selected')) {
+                    const btns = Array.from(btnsParent.querySelectorAll<HTMLElement>(queryString));
+                    btns.forEach(x => x.classList.toggle('selected', x === target));
+                    if (contentsParent) {
+                        const contents = Array.from(contentsParent.querySelectorAll<HTMLElement>('[data-tab-content]') || []);
+                        const targetAttr = target.getAttribute('data-tab-target');
+                        contents.forEach(x => x.classList.toggle('hidden', x.getAttribute('data-tab-content') !== targetAttr));
+                    }
+                    callback?.(target);
+                }
+            }
+        }
     });
+    const addBtn = (btn: HTMLElement) => {
+        btn.addEventListener('click', () => {
+            callback?.(btn);
+            btn.classList.add('selected');
+        });
+    }
+    Array.from(btnsParent.querySelectorAll<HTMLElement>(queryString)).forEach(x => addBtn(x));
+    observer.observe(btnsParent, { attributes: true, subtree: true, childList: true });
+    return observer;
 }
+
+// export function registerTabs(btnsParent: HTMLElement, contentsParent: HTMLElement, callback: (btn: HTMLElement, content: HTMLElement) => void) {
+//     const btns = [...btnsParent.querySelectorAll<HTMLElement>(':scope > [data-tab-target]')];
+//     for (const btn of btns) {
+//         btn.addEventListener('click', () => {
+//             btns.forEach(x => x.classList.toggle('selected', x === btn));
+//             const targetAttr = btn.getAttribute('data-tab-target');
+//             const target = queryHTML(`[data-tab-content="${targetAttr}"]`, contentsParent);
+//             callback(btn, target);
+//         });
+//     }
+// }
+
+// export function registerTab(btn: HTMLElement, contentsParent: HTMLElement, callback: (btn: HTMLElement, content: HTMLElement) => void) {
+//     btn.addEventListener('click', () => {
+//         Array.from(btn.parentElement!.children).forEach(x => x.classList.toggle('selected', x === btn));
+//         const targetAttr = btn.getAttribute('data-tab-target');
+//         const target = queryHTML(`[data-tab-content="${targetAttr}"]`, contentsParent);
+//         callback(btn, target);
+//     });
+// }
+
+// export function tabCallback(btn: HTMLElement, content: HTMLElement) {
+//     const targetAttr = btn.getAttribute('data-tab-target');
+//     [...content.parentElement?.children || []].filter(x => x.hasAttribute('data-tab-content')).forEach(x => {
+//         x.classList.toggle('hidden', x.getAttribute('data-tab-content') !== targetAttr);
+//     });
+// }
 
 
 export function highlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {

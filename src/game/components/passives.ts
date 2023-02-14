@@ -1,203 +1,119 @@
-// import type GConfig from "@src/types/gconfig";
-// import { highlightHTMLElement, queryHTML } from "@src/utils/helpers";
-// import { Modifier } from "../mods";
-// import { modDB, playerStats } from "../player";
-// import type { Save } from "../saveGame";
+import type GConfig from "@src/types/gconfig";
+import { queryHTML } from "@src/utils/helpers";
+import { visibilityObserver } from "@src/utils/Observers";
+import Component from "../Component";
+import type Game from "../game";
+import { Modifier } from "../mods";
 
-// const SOURCE_NAME: string = 'Passives';
+type PassivesData = Required<Required<GConfig>['components']>['passives'];
+type PassiveData = PassivesData['passiveLists'][number][number];
 
-// const passivesMenuButton = queryHTML('.p-game > menu [data-tab-target="passives"]');
-// const passivesPage = queryHTML('.p-game .p-passives');
-// const passivesList = queryHTML('[data-passives-list]', passivesPage);
-// const curPointsSpan = queryHTML('header [data-cur-points]', passivesPage);
-// const maxPointsSpan = queryHTML('header [data-max-points]', passivesPage);
-// const clearButton = queryHTML<HTMLButtonElement>('header [data-clear]', passivesPage);
+export default class Passives extends Component {
 
-// clearButton.addEventListener('click', () => clearPassives());
-// const getMaxPoints = () => pointsPerLevel * (playerStats.level.get() - 1);
-// const getCurPoints = () => passives.filter(x => x.assigned).reduce((a, c) => a += c.points, 0);
+    private passives: Passive[];
+    private observer: IntersectionObserver;
+    private levelListener: (v: number) => void;
+    constructor(readonly game: Game, readonly data: PassivesData) {
+        super(game);
+        this.passives = [];
 
-<<<<<<< Updated upstream
-let passives: Passive[];
-let pointsPerLevel: number;
-export function init(data: GConfig['passives']) {
-    if (!data) {
-        return;
+        this.levelListener = (v) => {
+            this.updatePoints();
+            this.updatePassiveList();
+        };
+
+        for (const passiveListData of data.passiveLists) {
+            passiveListData.sort((a, b) => a.levelReq - b.levelReq);
+            for (const passiveData of passiveListData) {
+                const passive = new Passive(this, passiveData);
+                passive.element.addEventListener('click', () => {
+                    passive.assigned = !passive.assigned;
+                    this.updatePoints();
+                    this.updatePassiveList();
+                })
+                this.passives.push(passive);
+            }
+        }
+        queryHTML('.p-game .p-passives .s-passive-list table').append(...this.passives.map(x => x.element));
+
+        this.observer = visibilityObserver(queryHTML('.p-game .p-passives'), visible => {
+            if (visible) {
+                this.game.player.stats.level.addListener('change', this.levelListener);
+            } else {
+                this.game.player.stats.level.removeListener('change', this.levelListener);
+            }
+        });
+
+        this.updatePoints();
+        this.updatePassiveList();
+
+
+        queryHTML('.p-game [data-main-menu] [data-tab-target="passives"]').classList.remove('hidden');
     }
-    passives = [];
-    pointsPerLevel = 1;
-=======
-// let passives: Passive[];
-// let pointsPerLevel: number;
-// export function init(data: GConfig['passives']) {
-//     if(!data){
-//         return;
-//     }
-//     passives = [];
-//     pointsPerLevel = 1;
->>>>>>> Stashed changes
 
-//     for (const passiveData of data.passiveList) {
-//         const passive = new Passive(passiveData);
-//         passives.push(passive);
-//     }
-
-//     passivesList.replaceChildren(...passives.map(x => x.element));
-//     updateList();
-
-<<<<<<< Updated upstream
-    passivesMenuButton.classList.remove('hidden');
-=======
-//     if(data.levelReq > 1){
-//         const listener = (level: number) => {
-//             if(level >= data.levelReq){
-//                 passivesMenuButton.classList.remove('hidden');
-//                 playerStats.level.removeListener('change', listener);
-//             }
-//         };
-//         playerStats.level.addListener('change', listener);
-//     }
->>>>>>> Stashed changes
-
-//     playerStats.level.addListener('change', level => {
-//         passives.forEach(x => x.tryUnlock());
-//         const pointsGained = Math.floor(getMaxPoints() - (pointsPerLevel * level - 2)) > 0;
-//         if (pointsGained) {
-//             highlightHTMLElement(passivesMenuButton, 'click');
-//         }
-//         updateList();
-//     });
-
-// }
-
-// function clearPassives() {
-//     passives.filter(x => x.assigned).forEach(x => x.unassign());
-//     updateList();
-// }
-
-// function updateList() {
-//     const maxPoints = getMaxPoints();
-//     const curPoints = getCurPoints();
-//     const diff = maxPoints - curPoints;
-
-//     maxPointsSpan.textContent = maxPoints.toFixed();
-//     curPointsSpan.textContent = curPoints.toFixed();
-
-//     for (const passive of passives) {
-//         if (!passive.assigned) {
-//             passive.element.toggleAttribute('disabled', passive.points > diff);
-//         }
-//         passive.element.classList.toggle('selected', passive.assigned);
-//     }
-// }
-
-// export function savePassives(save: Save) {
-//     save.passives = {
-//         list: passives.filter(x => x.assigned).map(x => {
-//             return {
-//                 index: passives.indexOf(x),
-//                 desc: x.mod.desc
-//             }
-//         })
-//     };
-// }
-
-<<<<<<< Updated upstream
-export function loadPassives(save: Save) {
-    const savedPassives = save.passives;
-    if (!savedPassives) {
-        passives.forEach(x => x.unassign());
-        return;
+    get maxPoints() {
+        return this.data.pointsPerLevel * this.game.player.stats.level.get() - 1;
     }
-    const valid = savedPassives.list.every(x => {
-        const passive = passives[x.index];
-        return passive.mod.desc === x.desc;
-    });
-    if (valid) {
-        savedPassives.list.forEach(x => {
-            const passive = passives[x.index];
-            passive.assign();
-        })
-        updateList();
+    get curPoints() {
+        return this.maxPoints - this.passives.filter(x => x.assigned).reduce((a, c) => a += c.data.points, 0);
+    }
+
+    dispose(): void {
+        this.observer.disconnect();
+        queryHTML('.p-game .p-passives .s-passive-list table').replaceChildren();
+    }
+
+    private updatePoints() {
+        queryHTML<HTMLSpanElement>('.p-game .p-passives [data-cur-points]').textContent = this.curPoints.toFixed();
+        queryHTML<HTMLSpanElement>('.p-game .p-passives [data-max-points]').textContent = this.maxPoints.toFixed();
+    }
+
+    private updatePassiveList() {
+        for (const passive of this.passives) {
+            const { element, assigned } = passive;
+            element.classList.toggle('hidden', passive.data.levelReq > this.game.player.stats.level.get());
+            element.toggleAttribute('disabled', !passive.assigned && this.curPoints < passive.data.points);
+            element.classList.toggle('selected', assigned);
+        }
     }
 }
-=======
-// export function loadPassives(save: Save) {
-//     const savedPassives = save.passives;
-//     if(!savedPassives){
-//         passives.forEach(x => x.unassign());
-//         return;
-//     }
-//     const valid = savedPassives.list.every(x => {
-//         const passive = passives[x.index];
-//         return passive.mod.desc === x.desc;
-//     });
-//     if (valid) {
-//         savedPassives.list.forEach(x => {
-//             const passive = passives[x.index];
-//             passive.assign();
-//         })
-//         updateList();
-//     }
-// }
->>>>>>> Stashed changes
 
+class Passive {
+    private _assigned = false;
+    readonly element: HTMLTableRowElement;
+    readonly mod: Modifier;
+    constructor(readonly passives: Passives, readonly data: PassiveData) {
+        this.mod = new Modifier(data.mod);
+        this.element = this.createElement();
+        passives.game.player.stats.level.registerCallback(data.levelReq, () => {
+            this.element.classList.remove('hidden');
+        });
+    }
 
-// class Passive {
-//     readonly levelReq: number;
-//     readonly points: number;
-//     readonly mod: Modifier;
-//     readonly element: HTMLLIElement;
-//     private _assigned: boolean;
-//     private locked: boolean;
-//     constructor(passiveData: NonNullable<GConfig['passives']>['passiveList'][number]) {
-//         this.levelReq = passiveData.levelReq;
-//         this.points = passiveData.points;
-//         this.mod = new Modifier(passiveData.mod);
-//         this.element = this.createElement();
-//         this.locked = this.levelReq > 1;
-//         this.element.classList.toggle('hidden', this.locked);
-//         this._assigned = false;
-//     }
+    get assigned() {
+        return this._assigned;
+    }
 
-//     get assigned() { return this._assigned; }
+    set assigned(v: boolean) {
+        const modDB = this.passives.game.player.modDB;
+        const source = 'Passives'.concat('/', this.element.rowIndex.toFixed());
+        console.log(source);
+        if (v) {
+            this._assigned = true;
+            const mods = this.mod.copy().stats;
+            console.log(mods);
+            modDB.add(mods, source);
+        } else {
+            this._assigned = false;
+            modDB.removeBySource(source);
+        }
+    }
 
-//     tryUnlock() {
-//         if (!this.locked || playerStats.level.get() < this.levelReq) {
-//             return;
-//         }
-//         this.locked = false;
-//         this.element.classList.remove('hidden');
-//         highlightHTMLElement(passivesMenuButton, 'click');
-//         highlightHTMLElement(this.element, 'mouseover');
-//     }
-
-//     assign() {
-//         this._assigned = true;
-//         modDB.add(this.mod.copy().stats, SOURCE_NAME.concat('/', passives.indexOf(this).toFixed()));
-//     }
-
-//     unassign() {
-//         this._assigned = false;
-//         modDB.removeBySource(SOURCE_NAME.concat('/', passives.indexOf(this).toFixed()));
-//     }
-
-//     private toggle() {
-//         if (this._assigned) {
-//             this.unassign();
-//         } else {
-//             this.assign();
-//         }
-//     }
-//     private createElement() {
-//         const li = document.createElement('li');
-//         li.classList.add('g-list-item', 'g-field');
-//         li.insertAdjacentHTML('beforeend', `<div>${this.mod.desc}</div>`);
-//         li.insertAdjacentHTML('beforeend', `<var>${this.points}</var>`);
-//         li.addEventListener('click', () => {
-//             this.toggle();
-//             updateList();
-//         });
-//         return li;
-//     }
-// }
+    private createElement() {
+        const row = document.createElement('tr');
+        row.classList.add('g-list-item');
+        row.insertAdjacentHTML('beforeend', `<td>${this.mod.desc}</td>`);
+        row.insertAdjacentHTML('beforeend', `<td>${this.data.points}</td>`);
+        return row;
+    }
+}

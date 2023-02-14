@@ -1,40 +1,45 @@
 import { queryHTML } from "@src/utils/helpers";
-import type Game from "../game";
 import { AttackSkill, BuffSkill, Skill, } from "./skills";
 import type { SkillSlot } from "./skillSlots";
 
 
-interface ModalData {
+export interface ModalOpenParams {
     skills: Skill[];
+    activeSkills: Skill[];
     skillSlot: SkillSlot<Skill>;
     canRemove: boolean;
 }
 
+
+
 export class Modal {
-    private readonly modalElement = queryHTML('.p-game .p-combat [data-skill-modal]');
-    private readonly skillListContainer = queryHTML('[data-skill-list]', this.modalElement);
-    private readonly skillInfoContainer = queryHTML('[data-skill-info]', this.modalElement);
-    private readonly applyButton = queryHTML('[data-value="apply"]', this.modalElement);
-    private readonly removeButton = queryHTML('[data-value="remove"]', this.modalElement);
-    private readonly cancelButton = queryHTML('[data-value="cancel"]', this.modalElement);
-    private skillSlot: SkillSlot<Skill> | undefined;
+    private modalElement = queryHTML('.p-game .p-combat [data-skill-modal]');
+    private skillListContainer = queryHTML('[data-skill-list]', this.modalElement);
+    private skillInfoContainer = queryHTML('[data-skill-info]', this.modalElement);
+    private applyButton = queryHTML<HTMLButtonElement>('[data-apply]', this.modalElement);
+    private removeButton = queryHTML('[data-remove]', this.modalElement);
+    private cancelButton = queryHTML('[data-cancel]', this.modalElement);
+    private _skillSlot: SkillSlot<Skill> | undefined;
     private selectedSkill: Skill | undefined;
-    constructor(readonly game: Game) {
+    constructor() {
         this.applyButton.addEventListener('click', () => this.apply());
         this.removeButton.addEventListener('click', () => this.remove());
         this.cancelButton.addEventListener('click', () => this.cancel());
     }
 
-    open(data: ModalData) {
-        this.skillSlot = data.skillSlot;
+    get skillSlot() {
+        return this._skillSlot;
+    }
+    open(data: ModalOpenParams) {
+        this._skillSlot = data.skillSlot;
         this.removeButton.classList.toggle('hidden', !data.canRemove);
-        this.removeButton.toggleAttribute('disabled', this.skillSlot.skill === undefined);
-        this.populateSkillList(data.skills);
+        this.removeButton.toggleAttribute('disabled', this._skillSlot.skill === undefined);
+        this.populateSkillList(data.skills, data.activeSkills);
         this.modalElement.classList.remove('hidden');
     }
 
-    private populateSkillList(skills: Skill[]) {
-        const skillSlotNames = Array.from(this.skillSlot?.element.parentElement?.children || []).map(x => x.getAttribute('data-skill-name'));
+    private populateSkillList(skills: Skill[], activeSkills: Skill[]) {
+        const skillSlotNames = Array.from(this._skillSlot?.element.parentElement?.children || []).map(x => x.getAttribute('data-skill-name'));
         const elements = [] as HTMLLIElement[];
         for (const skill of skills) {
             const element = document.createElement('li');
@@ -46,15 +51,16 @@ export class Modal {
             element.addEventListener('click', () => {
                 this.showInfo(skill as AttackSkill | BuffSkill);
                 elements.forEach(x => x.classList.toggle('selected', x === element));
-                this.applyButton.toggleAttribute('disabled', skill === this.skillSlot?.skill);
+                const canApply = activeSkills.every(x => x.name !== skill.name);
+                this.applyButton.toggleAttribute('disabled', !canApply);
                 let selectedSkill = skill;
                 this.selectedSkill = selectedSkill;
             });
             elements.push(element);
         }
         this.skillListContainer.replaceChildren(...elements);
-        if (this.skillSlot?.skill) {
-            const element = this.skillListContainer.querySelector<HTMLElement>(`[data-skill-name="${this.skillSlot?.skill?.name}"]`);
+        if (this._skillSlot?.skill) {
+            const element = this.skillListContainer.querySelector<HTMLElement>(`[data-skill-name="${this._skillSlot?.skill?.name}"]`);
             if (element)
                 element.click();
         } else {
@@ -93,17 +99,17 @@ export class Modal {
         queryHTML('[data-mod-list]', this.skillInfoContainer).replaceChildren(...modElements);
     }
     private apply() {
-        if (!this.selectedSkill || !this.skillSlot) {
+        if (!this.selectedSkill || !this._skillSlot) {
             return;
         }
-        this.skillSlot.set(this.selectedSkill);
+        this._skillSlot.set(this.selectedSkill);
         this.close();
     }
     private remove() {
-        if (!this.skillSlot) {
+        if (!this._skillSlot) {
             return;
         }
-        this.skillSlot.set(undefined);
+        this._skillSlot.set(undefined);
         this.close();
     }
     private cancel() {
@@ -113,3 +119,5 @@ export class Modal {
         this.modalElement.classList.add('hidden');
     }
 }
+
+export default new Modal();

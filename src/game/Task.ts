@@ -1,18 +1,8 @@
 import { remap } from "@src/utils/helpers";
-import { playerStats } from "./player";
-import statistics from "./statistics";
+import type Game from "./game";
 
 type TaskValidators = [RegExp, () => string];
-const taskValidators: TaskValidators[] = [
-    [/^Reach Level {(\d+)}$/, () => playerStats.level.get().toFixed()],
-    [/^Prestige {\d+}?$/, () => statistics["Prestige Count"].get().toFixed()],
-    [/^Deal Damage {(\d+)}$/, () => statistics["Total Damage"].get().toFixed()],
-    [/^Deal Physical Damage {(\d+)}$/, () => statistics["Total Physical Damage"].get().toFixed()],
-    [/^Perform Hits {(\d+)}$/, () => statistics.Hits.get().toFixed()],
-    [/^Perform Critical Hits {(\d+)}$/, () => statistics["Critical Hits"].get().toFixed()],
-    [/^Generate Gold {(\d+)}$/, () => statistics["Gold Generated"].get().toFixed()],
-    [/^Regenerate Mana {(\d+)}$/, () => statistics["Mana Generated"].get().toFixed()],
-];
+
 
 interface TextData {
     labelText: string;
@@ -27,11 +17,22 @@ export default class Task {
     private _targetValue: number;
     private validator: TaskValidators;
 
-    constructor(text: string) {
+    private taskValidators: TaskValidators[] = [
+        [/^Reach Level {(\d+)}$/, () => this.game.player.stats.level.get().toFixed()],
+        [/^Prestige {\d+}?$/, () => this.game.statistics.statistics["Prestige Count"].get().toFixed()],
+        [/^Deal Damage {(\d+)}$/, () => this.game.statistics.statistics["Total Damage"].get().toFixed()],
+        [/^Deal Physical Damage {(\d+)}$/, () => this.game.statistics.statistics["Total Physical Damage"].get().toFixed()],
+        [/^Perform Hits {(\d+)}$/, () => this.game.statistics.statistics.Hits.get().toFixed()],
+        [/^Perform Critical Hits {(\d+)}$/, () => this.game.statistics.statistics["Critical Hits"].get().toFixed()],
+        [/^Generate Gold {(\d+)}$/, () => this.game.statistics.statistics["Gold Generated"].get().toFixed()],
+        [/^Regenerate Mana {(\d+)}$/, () => this.game.statistics.statistics["Mana Generated"].get().toFixed()],
+    ];
+
+    constructor(readonly game: Game, text: string) {
         this.text = text;
         this.description = text.replace(/[{}]*/g, '');
 
-        const validator = taskValidators.find(x => x[0].exec(text));
+        const validator = this.taskValidators.find(x => x[0].exec(text));
         if (!validator) {
             throw Error(`Task.ts: ${text} is an invalid task string`);
         }

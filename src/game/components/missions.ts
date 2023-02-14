@@ -1,134 +1,177 @@
-import type GConfig from '@src/types/gconfig';
-import { highlightHTMLElement, queryHTML } from '@src/utils/helpers';
-import { visibilityObserver } from '@src/utils/Observers';
-import gameLoop from '../gameLoop';
-import { playerStats } from '../player';
-import type { Save } from '../saveGame';
-import Task from '../Task';
+// import type GConfig from '@src/types/gconfig';
+// import { highlightHTMLElement, queryHTML } from '@src/utils/helpers';
+// import { visibilityObserver } from '@src/utils/Observers';
+// import type Game from '../game';
+// import gameLoop from '../gameLoop';
+// import { playerStats } from '../player';
+// import type { Save } from '../saveGame';
+// import Task from '../Task';
 
-const missionListContainer = queryHTML('.p-game .p-missions ul[data-mission-list]');
-const missionsMenuButton = queryHTML('.p-game > menu [data-tab-target="missions"]')!;
-let missionsData: GConfig['missions'];
-const missionSlots: MissionSlot[] = [];
-let updateUI = false;
+import type GConfig from "@src/types/gconfig";
+import { queryHTML } from "@src/utils/helpers";
+import { visibilityObserverLoop } from "@src/utils/Observers";
+import Component from "../Component";
+import type Game from "../game";
+import Task from "../Task";
 
-visibilityObserver(missionListContainer, visible => {
-    updateUI = visible;
-    updateSlots();
-});
+// const missionListContainer = queryHTML('.p-game .p-missions ul[data-mission-list]');
+// const missionsMenuButton = queryHTML('.p-game > menu [data-tab-target="missions"]')!;
+type MissionsData = Required<Required<GConfig>['components']>['missions'];
+type MissionData = MissionsData['missionLists'][number][number];
+type MissionSlotData = MissionsData['slots'][number];
 
-export function init(data: GConfig['missions']) {
-    if (!data) {
-        return;
-    }
-    missionsData = data;
-    missionListContainer.replaceChildren();
-    missionSlots.splice(0);
-    if (!data) {
-        return;
-    }
+const missionsListContainer = queryHTML<HTMLUListElement>('.p-game .p-missions ul[data-mission-list]');
 
-    for (const slot of data.slots) {
-        if (slot.levelReq > 1) {
-            const listener = (level: number) => {
-                if (level < slot.levelReq) {
-                    return;
-                }
-                const missionslot = new MissionSlot(slot.cost);
-                highlightHTMLElement(queryHTML('.p-game .s-menu [data-tab-target="missions"]'), 'click');
-                highlightHTMLElement(missionslot.element, 'mouseover');
-                playerStats.level.removeListener('change', listener);
-            }
-            playerStats.level.addListener('change', listener);
-        } else {
-            new MissionSlot(slot.cost);
+export default class Missions extends Component {
+    readonly slots: MissionSlot[] = [];
+    readonly observer: IntersectionObserver;
+    constructor(readonly game: Game, readonly data: MissionsData) {
+        super(game);
+
+        for (const slot of data.slots) {
+            game.player.stats.level.registerCallback(slot.levelReq, () => {
+                this.slots.push(new MissionSlot(this, slot.cost));
+            });
         }
+
+        this.observer = visibilityObserverLoop(queryHTML('.p-game .p-missions'), () => {
+            this.slots.forEach(x => {
+                x.updateLabel();
+            });
+        }, { intervalMilliseconds: 1000 }).observer;
+
+        game.gameLoop.subscribe(() => { this.slots.forEach(x => x.tryCompletion()); }, { intervalMilliseconds: 1000 });
+
+
+        queryHTML('.p-game [data-main-menu] [data-tab-target="missions"]').classList.remove('hidden');
     }
 
-    if (data.levelReq > 1) {
-        const listener = (level: number) => {
-            if (level >= data.levelReq) {
-                playerStats.level.removeListener('change', listener);
-                missionsMenuButton.classList.remove('hidden');
-                highlightHTMLElement(missionsMenuButton, 'click');
-            }
-        }
-        playerStats.level.addListener('change', listener);
-    } else {
-        missionsMenuButton.classList.remove('hidden');
+    dispose(): void {
+        missionsListContainer.replaceChildren();
+        queryHTML('.p-game [data-main-menu] [data-tab-target="missions"]').classList.add('hidden');
     }
 
-    gameLoop.subscribe(() => {
-        updateSlots();
-    }, { intervalMilliseconds: 1000 });
 }
 
-function updateSlots() {
-    for (const slot of missionSlots) {
-        if (!slot.task) {
-            continue;
-        }
+// let missionsData: GConfig['missions'];
+// const missionSlots: MissionSlot[] = [];
+// let updateUI = false;
 
-        slot.tryCompletion();
-        if (updateUI) {
-            slot.updateLabel();
-        }
-    }
-}
+// visibilityObserver(missionListContainer, visible => {
+//     updateUI = visible;
+//     updateSlots();
+// });
 
-export function saveMissions(saveObj: Save) {
-    saveObj.missions = {
-        list: missionSlots.map((slot, i) => {
-            if (!slot.task || !slot.missionData) {
-                return undefined;
-            }
-            const startValue = slot.task.startValue;
-            const text = slot.task.text;
-            const levelReq = slot.missionData.levelReq;
-            return {
-                index: i, startValue, text, levelReq
-            }
-        })
-    };
-    console.log('save', saveObj.missions);
-}
+// export function init(data: GConfig['missions']) {
+//     if (!data) {
+//         return;
+//     }
+//     missionsData = data;
+//     missionListContainer.replaceChildren();
+//     missionSlots.splice(0);
+//     if (!data) {
+//         return;
+//     }
 
-export function loadMissions(saveObj: Save) {
-    saveObj.missions?.list.forEach(x => {
-        if (!x || !missionSlots[x.index]) {
-            return;
-        }
-        const { index, text, startValue, levelReq } = x;
-        
-        const missionSlot = missionSlots[index];
+//     for (const slot of data.slots) {
+//         if (slot.levelReq > 1) {
+//             const listener = (level: number) => {
+//                 if (level < slot.levelReq) {
+//                     return;
+//                 }
+//                 const missionslot = new MissionSlot(slot.cost);
+//                 highlightHTMLElement(queryHTML('.p-game .s-menu [data-tab-target="missions"]'), 'click');
+//                 highlightHTMLElement(missionslot.element, 'mouseover');
+//                 playerStats.level.removeListener('change', listener);
+//             }
+//             playerStats.level.addListener('change', listener);
+//         } else {
+//             new MissionSlot(slot.cost);
+//         }
+//     }
 
-        missionSlot.unlock();
+//     if (data.levelReq > 1) {
+//         const listener = (level: number) => {
+//             if (level >= data.levelReq) {
+//                 playerStats.level.removeListener('change', listener);
+//                 missionsMenuButton.classList.remove('hidden');
+//                 highlightHTMLElement(missionsMenuButton, 'click');
+//             }
+//         }
+//         playerStats.level.addListener('change', listener);
+//     } else {
+//         missionsMenuButton.classList.remove('hidden');
+//     }
 
-        const missionData = missionsData?.list.flatMap(x => x).filter(x => x.description === text && x.levelReq <= levelReq).sort((a, b) => a.levelReq - b.levelReq)[0];
-        if (!missionData) {
-            missionSlot.generateRandomMission();
-            return;
-        }
+//     gameLoop.subscribe(() => {
+//         updateSlots();
+//     }, { intervalMilliseconds: 1000 });
+// }
 
-        const task = new Task(text);
-        task.startValue = startValue;
+// function updateSlots() {
+//     for (const slot of missionSlots) {
+//         if (!slot.task) {
+//             continue;
+//         }
 
-        missionSlot.load({ task, missionData });
+//         slot.tryCompletion();
+//         if (updateUI) {
+//             slot.updateLabel();
+//         }
+//     }
+// }
 
-    });
-    console.log('load', saveObj.missions);
-}
+// export function saveMissions(saveObj: Save) {
+//     saveObj.missions = {
+//         list: missionSlots.map((slot, i) => {
+//             if (!slot.task || !slot.missionData) {
+//                 return undefined;
+//             }
+//             const startValue = slot.task.startValue;
+//             const text = slot.task.text;
+//             const levelReq = slot.missionData.levelReq;
+//             return {
+//                 index: i, startValue, text, levelReq
+//             }
+//         })
+//     };
+//     console.log('save', saveObj.missions);
+// }
 
-type MissionData = Required<GConfig>['missions']['list'][number][number];
+// export function loadMissions(saveObj: Save) {
+//     saveObj.missions?.list.forEach(x => {
+//         if (!x || !missionSlots[x.index]) {
+//             return;
+//         }
+//         const { index, text, startValue, levelReq } = x;
+
+//         const missionSlot = missionSlots[index];
+
+//         missionSlot.unlock();
+
+//         const missionData = missionsData?.list.flatMap(x => x).filter(x => x.description === text && x.levelReq <= levelReq).sort((a, b) => a.levelReq - b.levelReq)[0];
+//         if (!missionData) {
+//             missionSlot.generateRandomMission();
+//             return;
+//         }
+
+//         const task = new Task(text);
+//         task.startValue = startValue;
+
+//         missionSlot.load({ task, missionData });
+
+//     });
+//     console.log('load', saveObj.missions);
+// }
+
 class MissionSlot {
     private _task: Task | undefined;
     private _missionData: MissionData | undefined;
     private _element: HTMLLIElement;
     private completed = false;
-    constructor(readonly unlockCost: number) {
+    constructor(readonly missions: Missions, readonly unlockCost: number) {
         this._element = this.createElement();
-        missionSlots.push(this);
-        playerStats.gold.addListener('change', () => {
+        missions.game.player.stats.gold.addListener('change', () => {
             this.setNewButton();
         });
     }
@@ -145,8 +188,8 @@ class MissionSlot {
             return;
         }
         this.completed = true;
-        highlightHTMLElement(missionsMenuButton, 'click');
-        highlightHTMLElement(this.element, 'mouseover');
+        // highlightHTMLElement(missionsMenuButton, 'click');
+        // highlightHTMLElement(this.element, 'mouseover');
         this.setNewButton();
         this.setClaimButton(true);
     }
@@ -171,7 +214,7 @@ class MissionSlot {
         buttonNew.insertAdjacentHTML('beforeend', '<span>New</span>');
         buttonNew.insertAdjacentHTML('beforeend', `<span class="g-gold" data-cost></span>`);
         buttonNew.addEventListener('click', () => {
-            playerStats.gold.subtract(this.newMissionCost);
+            this.missions.game.player.stats.gold.subtract(this.newMissionCost);
             this.generateRandomMission();
         });
 
@@ -191,18 +234,16 @@ class MissionSlot {
         if (!this._missionData) {
             return;
         }
-        playerStats.gold.add(this._missionData.goldAmount);
+        this.missions.game.player.stats.gold.add(this._missionData.goldAmount)
         this.generateRandomMission();
         this.setClaimButton(false);
         this.completed = false;
     }
 
     generateRandomMission() {
-        if (!missionsData) {
-            return;
-        }
-        const missionDataArr = missionsData.list.reduce((a, c) => {
-            const missionData = c.filter(x => x.levelReq <= playerStats.level.get()).sort((a, b) => b.levelReq - a.levelReq)[0];
+
+        const missionDataArr = this.missions.data.missionLists.reduce((a, c) => {
+            const missionData = c.filter(x => x.levelReq <= this.missions.game.player.stats.level.get()).sort((a, b) => b.levelReq - a.levelReq)[0];
             if (missionData) {
                 a.push(missionData);
             }
@@ -214,11 +255,11 @@ class MissionSlot {
         const index = Math.floor(Math.random() * missionDataArr.length);
         this._missionData = missionDataArr[index];
         const description = this._missionData.description;
-        this._task = new Task(description);
+        this._task = new Task(this.missions.game, description);
 
-        const id = gameLoop.subscribe(() => {
+        const id = this.missions.game.gameLoop.subscribe(() => {
             if (this._task?.completed) {
-                gameLoop.unsubscribe(id);
+                this.missions.game.gameLoop.unsubscribe(id);
                 this.setClaimButton(true);
             }
         }, { intervalMilliseconds: 1000 });
@@ -264,11 +305,7 @@ class MissionSlot {
         }
         const element = this._element.querySelector<HTMLButtonElement>('[data-trigger="new"]')!;
         element.querySelector<HTMLSpanElement>('[data-cost]')!.textContent = this.newMissionCost.toFixed();
-        element.disabled = this._task.completed || playerStats.gold.get() < this.newMissionCost;
-        // console.log(this.newMissionCost);
-        // console.log(this.missionData);
-        // console.log(this.missionData.goldAmount * 0.1);
-        // console.log(Math.ceil(this.missionData?.goldAmount * 0.1));
+        element.disabled = this._task.completed || this.missions.game.player.stats.gold.get() < this.newMissionCost;
     }
 
     private createElement() {
@@ -284,19 +321,13 @@ class MissionSlot {
         button.setAttribute('data-trigger', 'buy');
         button.addEventListener('click', () => { this.unlock() });
 
-        if (this.unlockCost > playerStats.gold.get()) {
-            const listener = (amount: number) => {
-                if (this.unlockCost > amount) {
-                    playerStats.gold.removeListener('change', listener);
-                    button.disabled = false;
-                }
-            }
-            playerStats.gold.addListener('change', listener);
-        }
+        this.missions.game.player.stats.gold.registerCallback(this.unlockCost, () => {
+            button.disabled = false;
+        });
 
         li.appendChild(label);
         li.appendChild(button);
-        missionListContainer.appendChild(li);
+        missionsListContainer.appendChild(li);
         return li;
     }
 }

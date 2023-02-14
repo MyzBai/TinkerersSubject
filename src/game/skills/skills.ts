@@ -2,44 +2,40 @@ import type GConfig from "@src/types/gconfig";
 import { queryHTML } from "@src/utils/helpers";
 import type Game from "../game";
 import { Modifier, StatModifier } from "../mods";
-import { Modal } from "./skillModal";
-// import type { Save } from "../saveGame";
-import { AttackSkillSlot, BuffSkillSlot, SkillSlot } from "./skillSlots";
-
-const attackSkillContainer = document.querySelector<HTMLElement>('.p-game .s-player .s-skills [data-attack-skill]')!;
-const buffSkillList = document.querySelector<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]')!;
-
-export interface ModalParams {
-    canRemove: boolean;
-    skills: Skill[];
-    skillSlot: SkillSlot<Skill>;
-}
+import type { Save } from "../saveGame";
+import modal from "./skillModal";
+import { AttackSkillSlot, BuffSkillSlot } from "./skillSlots";
 
 export default class Skills {
-    buffSkills: BuffSkill[];
-    private buffSkillSlots: BuffSkillSlot[];
-    modal: Modal;
-    private readonly skillsData: GConfig['skills'];
+    readonly attackSkillContainer = queryHTML('.p-game .s-player .s-skills [data-attack-skill]');
+    readonly buffSkillList = queryHTML('.p-game .s-player .s-skills ul[data-buff-skill-list]');
+    private attackSkillSlot: AttackSkillSlot | undefined;
+    private readonly buffSkillSlots: BuffSkillSlot[] = [];
+    private skillsData?: GConfig['skills'];
     constructor(readonly game: Game) {
-        this.skillsData = game.config.skills;
-        this.modal = new Modal(game);
-        this.buffSkills = [];
         this.buffSkillSlots = [];
+       
+    }
 
-        attackSkillContainer.replaceChildren();
-        buffSkillList.replaceChildren();
+    init() {
+        this.game.onSave.listen(this.save.bind(this));
 
+        this.skillsData = this.game.config.skills;
+        this.attackSkillContainer.replaceChildren();
+        this.buffSkillList.replaceChildren();
+
+        //AttackSkills
         this.skillsData.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq);
         if (this.skillsData.attackSkills.skillList[0].levelReq > 1) {
             throw Error('There must be an attack skill with a level requirement of 1');
         }
+        const attackSkills = this.skillsData.attackSkills.skillList.map(x => new AttackSkill(this.game, x));
+        this.createAttackSkillSlot(attackSkills);
 
-        const attackSkills = this.skillsData.attackSkills.skillList.map(x => new AttackSkill(game, x));
-        new AttackSkillSlot(game, attackSkills);
-
-        this.modal = new Modal(game);
-
+        // BuffSkills
+        this.buffSkillSlots.splice(0);
         if (this.skillsData.buffSkills) {
+            this.skillsData.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq);
             const buffSkills = this.skillsData.buffSkills.skillList.map(x => new BuffSkill(x));
             for (const skillSlot of this.skillsData.buffSkills.skillSlots) {
                 if (skillSlot.levelReq > 1) {
@@ -47,30 +43,54 @@ export default class Skills {
                         if (level < skillSlot.levelReq) {
                             return;
                         }
-                        this.buffSkillSlots.push(new BuffSkillSlot(game, buffSkills));
-                        game.player.stats.level.removeListener('change', listener);
+                        this.createBuffSkillSlot(buffSkills);
+                        this.game.player.stats.level.removeListener('change', listener);
                     };
-                    game.player.stats.level.addListener('change', listener);
+                    this.game.player.stats.level.addListener('change', listener);
 
                 } else {
-                    this.buffSkillSlots.push(new BuffSkillSlot(game, buffSkills));
+                    this.createBuffSkillSlot(buffSkills);
+
                 }
             }
         }
     }
 
-    // save(saveObj: Save) {
-    //     saveObj.skills = {
-    //         attackSkillName: this.attackSkillSlot.skill?.name || 'invalid name',
-    //         buffSkillNames: this.buffSkillSlots.map(x => x.skill?.name || '').filter(x => x?.length > 0)
-    //     }
-    // }
+    save(saveObj: Save) {
+        saveObj.skills = {
+            attackSkillName: this.attackSkillSlot?.skill?.name || 'invalid name',
+            buffSkills: this.buffSkillSlots.filter(x => x.skill).map(x => {
+                return {
+                    name: x.skill!.name,
+                    time: x.time,
+                    index: x.index
+                };
+            })
+        }
+        console.log(saveObj.skills.buffSkills[0].time);
+    }
 
-    // load(saveObj: Save) {
-    //     const attackSkill = this.attackSkills.find(x => x.name === saveObj.skills?.attackSkillName);
-    //     this.attackSkillSlot.set(attackSkill || this.attackSkills[0]);
-    //     this.buffSkillSlots.forEach((slot, index) => slot?.set(this.buffSkills.find(skill => skill.name === saveObj.skills?.buffSkillNames?.[index])));
-    // }
+    private createAttackSkillSlot(skills: AttackSkill[]) {
+        const skillSlot = new AttackSkillSlot(this.game, skills);
+        this.attackSkillSlot = skillSlot;
+        return skillSlot;
+    }
+
+    private createBuffSkillSlot(buffSkills: BuffSkill[]) {
+        const index = this.buffSkillSlots.length;
+        const skillSlot = new BuffSkillSlot(this.game, buffSkills, index);
+        this.buffSkillSlots.push(skillSlot);
+        return skillSlot;
+    }
+
+    editSkill(skillSlot: AttackSkillSlot | BuffSkillSlot) {
+        modal.open({
+            skillSlot: skillSlot,
+            canRemove: skillSlot.type !== 'AttackSkill',
+            skills: skillSlot.skills.filter(x => x.levelReq <= this.game.player.stats.level.get()),
+            activeSkills: skillSlot.type === 'AttackSkill' ? [skillSlot.skill as Skill] : this.buffSkillSlots.filter(x => x.skill).map(x => x.skill!)
+        });
+    }
 }
 
 interface SkillParams {

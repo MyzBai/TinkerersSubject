@@ -7,46 +7,48 @@
 // // import { loadSkills, saveSkills } from "./skills/skills";
 // import { loadStatistics, saveStatistics } from './statistics';
 
+import type { CraftId } from "@src/types/gconfig";
+import type GConfig from "@src/types/gconfig";
+import type { ModDescription } from "./mods";
+import type Statistics from "./statistics";
+
 // type SaveObject = { [K: string]: Save };
 
-// export interface Save {
-//     meta: {
-//         name: string;
-//         description?:string;
-//         rawUrl: string;
-//         id: string;
-//         createdAt: number;
-//         lastSavedAt: number;
-//     };
-//     player?: {
-//         level: number;
-//         gold: number;
-//         curMana: number;
-//     },
-//     enemy?: {
-//         index: number;
-//         health: number;
-//         dummyDamage: number;
-//     },
-//     skills?: {
-//         attackSkillName: string;
-//         buffSkillNames?: string[];
-//     },
-//     passives?: {
-//         list: { index: number; desc: string }[]
-//     }
-//     items?: {
-//         items: {
-//             name: string;
-//             modList: {
-//                 values: number[];
-//                 desc: ModDescription
-//             }[];
-//         }[],
-//         craftPresets: { name: string, ids: CraftId[] }[]
-//     };
-//     statistics?: { name: string, value: number }[];
-// }
+export interface Save {
+    meta: GConfig['meta'];
+    player?: {
+        level: number;
+        gold: number;
+        curMana: number;
+    };
+    enemy?: {
+        index: number;
+        health: number;
+        dummyDamage: number;
+    };
+    skills?: {
+        attackSkillName: string;
+        buffSkills: {
+            name: string;
+            index: number;
+            time: number;
+        }[];
+    };
+    passives?: {
+        list: { index: number; desc: string }[];
+    };
+    items?: {
+        items: {
+            name: string;
+            modList: {
+                values: number[];
+                desc: ModDescription
+            }[];
+        }[];
+        craftPresets: { name: string, ids: CraftId[] }[];
+    };
+    statistics?: { name: keyof Statistics['statistics'], value: number }[];
+}
 
 // async function loadAsMap() {
 //     const blob = (await saveManager.load<SaveObject>('Game'));

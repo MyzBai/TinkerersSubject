@@ -1,6 +1,8 @@
-import { visibilityObserver } from "@utils/Observers";
+import { queryHTML } from "@src/utils/helpers";
+import { visibilityObserver, visibilityObserverLoop } from "@utils/Observers";
 import Value from "@utils/Value";
 import type Game from "./game";
+import type { Save } from "./saveGame";
 
 class Statistic extends Value {
     readonly hidden: boolean;
@@ -13,7 +15,7 @@ class Statistic extends Value {
 export default class Statistics {
     public readonly statistics = {
         'Time Played': new Statistic(0),
-        'Gold Generated': new Statistic(0),
+        'Gold Generated': new Statistic(1),
         'Mana Generated': new Statistic(0),
         'Hits': new Statistic(0),
         'Critical Hits': new Statistic(0),
@@ -21,40 +23,26 @@ export default class Statistics {
         'Total Physical Damage': new Statistic(0),
         'Prestige Count': new Statistic(0),
     } as const;
-    private updateId = -1;
     constructor(readonly game: Game) {
-        visibilityObserver(document.querySelector('.p-game .p-statistics')!, (visible: boolean) => this.handleUpdateLoop(visible));
-
-<<<<<<< Updated upstream
-export default statistics;
-
-let updateId: string;
-
-visibilityObserver(document.querySelector('.p-game .p-statistics')!, handleUpdateLoop);
-
-function handleUpdateLoop(visible: boolean) {
-    if (visible) {
-        Object.entries(statistics).forEach(([key, value]) => updateGameStatistics(key, value));
-        updateId = gameLoop.subscribe(() =>
-            Object.entries(statistics).forEach(([key, value]) =>
-                updateGameStatistics(key, value)),
-            { intervalMilliseconds: 1000 });
-    } else {
-        gameLoop.unsubscribe(updateId);
-=======
-        this.createStatisticsElements();
->>>>>>> Stashed changes
+        visibilityObserverLoop(queryHTML('.p-game .p-statistics'), this.updateUI.bind(this), { intervalMilliseconds: 1000 });
     }
 
-    private handleUpdateLoop(visible: boolean) {
+    init() {
+        this.game.onSave.listen(this.save.bind(this));
+        if (this.game.saveObj.statistics) {
+            this.game.saveObj.statistics.forEach(({ name, value }) => {
+                this.statistics[name].set(value);
+            });
+        }
+        this.createStatisticsElements();
+        this.updateStatistics();
+
+     
+    }
+
+    private updateUI(visible: boolean) {
         if (visible) {
-            Object.entries(this.statistics).forEach(([key, value]) => this.updateStatistics(key, value));
-            this.updateId = this.game.gameLoop.subscribe(() =>
-                Object.entries(this.statistics).forEach(([key, value]) =>
-                    this.updateStatistics(key, value)),
-                { intervalMilliseconds: 1000 });
-        } else {
-            this.game.gameLoop.unsubscribe(this.updateId);
+            this.updateStatistics();
         }
     }
 
@@ -86,27 +74,38 @@ function handleUpdateLoop(visible: boolean) {
         return '';
     }
 
-    updateStatistics(key: string, value: Value) {
-        const element = document.querySelector(`.p-statistics [data-stat="${key}"]`);
-        if (!element) {
-            return;
+    updateStatistics() {
+        for (const [key, value] of Object.entries(this.statistics)) {
+            const element = document.querySelector(`.p-statistics [data-stat="${key}"]`);
+            if (!element) {
+                continue;
+            }
+            const valueZero = value.get() === 0;
+            element.parentElement?.classList.toggle('hidden', valueZero);
+            if (valueZero) {
+                continue;
+            }
+            const type = element.getAttribute('data-format-type');
+            switch (type) {
+                case 'time':
+                    const date = new Date(0);
+                    date.setSeconds(value.get());
+                    const str = date.toISOString().substring(11, 19);
+                    element.textContent = str;
+                    break;
+                default:
+                    element.textContent = value.get().toFixed(0);
+            }
         }
-        const valueZero = value.get() === 0;
-        element.parentElement?.classList.toggle('hidden', valueZero);
-        if (valueZero) {
-            return;
-        }
-        const type = element.getAttribute('data-format-type');
-        switch (type) {
-            case 'time':
-                const date = new Date(0);
-                date.setSeconds(value.get());
-                const str = date.toISOString().substring(11, 19);
-                element.textContent = str;
-                break;
-            default:
-                element.textContent = value.get().toFixed(0);
-        }
+    }
+
+    save(saveObj: Save) {
+        saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
+            return {
+                name: key as keyof Statistics['statistics'],
+                value: value.get()
+            }
+        });
     }
 }
 

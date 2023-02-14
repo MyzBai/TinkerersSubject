@@ -23,6 +23,11 @@ h1, h2, h3, p {
     margin: 0;
 }
 
+table{
+    border-collapse: collapse;
+    margin: 0;
+    width: 100%;
+}
 
 button {
     background-color: transparent;
@@ -68,10 +73,11 @@ dialog[data-modal] {
         height: 100%;
         input[type="submit"] {
             min-width: 5em;
-            &[value="Apply"] {
+
+            &[data-apply]{
                 background-color: $color-modal-confirm-bg;
             }
-            &[value="Cancel"] {
+            &[data-cancel]{
                 background-color: $color-modal-cancel-bg;
             }
         }

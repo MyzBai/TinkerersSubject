@@ -94,63 +94,73 @@
                 }
             }
         },
-        "passives": {
+        "components": {
             "type": "object",
-            "required": [ "passiveList" ],
+            "additionalProperties": false,
             "properties": {
-                "passiveList": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "required": [ "levelReq", "mod", "points" ],
-                        "properties": {
-                            "levelReq": { "$ref": "#/definitions/levelReq" },
-                            "mod": { "$ref": "#/definitions/mod" },
-                            "points": { "type": "integer", "minimum": 1 }
-                        }
-                    }
-                }
-            }
-        },
-        "items": {
-            "type": "object",
-            "required": [ "itemList", "craftList", "modTables" ],
-            "properties": {
-                "levelReq": { "$ref": "#/definitions/levelReq" },
-                "itemList": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": { "type": "string" },
-                            "levelReq": { "type": "integer", "minimum": 0 }
-                        }
-                    }
-                },
-                "craftList": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "object",
-                        "required": [ "id", "levelReq", "cost" ],
-                        "properties": {
-                            "id": {
-                                "enum": [
-                                    "reforge", "reforgeIncludePhysical", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
-                                    "addRandom", "addPhysical", "addCritical", "addMana",
-                                    "removeRandom", "removePhysical", "removeCritical", "removeMana",
-                                    "removeRandomAddPhysical", "removeRandomAddCritical", "removeRandomAddMana" ]
-                            },
-                            "levelReq": { "type": "integer", "minimum": 0 },
-                            "cost": { "type": "integer", "minimum": 0 }
-                        }
-                    }
-                },
-                "modTables": {
+                "passives": {
                     "type": "object",
-                    "required": [ "general" ],
+                    "required": [ "pointsPerLevel", "passiveLists" ],
                     "properties": {
-                        "general": {
+                        "pointsPerLevel": {
+                            "type": "number",
+                            "minimum": 0.001,
+                            "default": 1
+                        },
+                        "passiveLists": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "object",
+                                    "required": [ "levelReq", "mod", "points" ],
+                                    "properties": {
+                                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                                        "mod": { "$ref": "#/definitions/mod" },
+                                        "points": { "type": "integer", "minimum": 1 }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "items": {
+                    "type": "object",
+                    "required": [ "levelReq", "itemList", "craftList", "modLists" ],
+                    "properties": {
+                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                        "itemList": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "levelReq": { "type": "integer", "minimum": 0 }
+                                }
+                            }
+                        },
+                        "craftList": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": [ "id", "levelReq", "cost" ],
+                                "properties": {
+                                    "id": {
+                                        "enum": [
+                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                            "addRandom", "addPhysical", "addCritical", "addMana",
+                                            "removeRandom", "removePhysical", "removeCritical", "removeMana",
+                                            "removeRandomAddPhysical", "removeRandomAddCritical", "removeRandomAddMana" ]
+                                    },
+                                    "levelReq": { "type": "integer", "minimum": 0 },
+                                    "cost": { "type": "integer", "minimum": 0 }
+                                }
+                            }
+                        },
+                        "modLists": {
                             "type": "array",
                             "items": {
                                 "type": "array",
@@ -166,92 +176,93 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        "missions": {
-            "type": "object",
-            "required": [ "slots", "list" ],
-            "properties": {
-                "levelReq": { "$ref": "#/definitions/levelReq" },
-                "cost": { "$ref": "#/definitions/cost" },
-                "slots": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "levelReq": { "$ref": "#/definitions/levelReq" },
-                            "cost": { "$ref": "#/definitions/cost" }
+                },
+                "missions": {
+                    "type": "object",
+                    "required": [ "levelReq", "slots", "missionLists" ],
+                    "properties": {
+                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                        "cost": { "$ref": "#/definitions/cost" },
+                        "slots": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "levelReq": { "$ref": "#/definitions/levelReq" },
+                                    "cost": { "$ref": "#/definitions/cost" }
+                                }
+                            }
+                        },
+                        "missionLists": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [ "levelReq", "goldAmount", "description" ],
+                                    "properties": {
+                                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                                        "goldAmount": { "type": "integer" },
+                                        "description": {
+                                            "type": "string",
+                                            "anyOf": [
+                                                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                                                { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                                                { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                                                { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                                                { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+                                            ],
+                                            "pattern": "^[^#]*$"
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },
-                "list": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [ "levelReq", "goldAmount", "description" ],
-                            "properties": {
-                                "levelReq": { "$ref": "#/definitions/levelReq" },
-                                "goldAmount": { "type": "integer" },
-                                "description": {
-                                    "type": "string",
-                                    "anyOf": [
-                                        { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                                        { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
-                                        { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
-                                        { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
-                                        { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
-                                    ],
-                                    "pattern": "^[^#]*$"
+                "achievements": {
+                    "type": "object",
+                    "required": [ "list" ],
+                    "properties": {
+                        "list": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [ "description" ],
+                                "properties": {
+                                    "description": {
+                                        "type": "string",
+                                        "anyOf": [
+                                            { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
+                                            { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
+                                            { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                                            { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                                            { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                                            { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                                            { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+                                        ],
+                                        "pattern": "^[^#]*$"
+                                    },
+                                    "modList": {
+                                        "type": "array",
+                                        "minItems": 1,
+                                        "description": "Each mod will be applied upon completing the achievement",
+                                        "items": {
+                                            "$ref": "#/definitions/mod"
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            }
-        },
-        "achievements": {
-            "type": "object",
-            "required": ["list"],
-            "properties": {
-                "list": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "required": [ "description" ],
-                        "properties": {
-                            "description": {
-                                "type": "string",
-                                "anyOf": [
-                                    { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
-                                    { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
-                                    { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                                    { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
-                                    { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
-                                    { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
-                                    { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
-                                ],
-                                "pattern": "^[^#]*$"
-                            },
-                            "modList": {
-                                "type": "array",
-                                "description": "Each mod will be applied upon completing the achievement",
-                                "items": {
-                                    "$ref": "#/definitions/mod"
-                                }
-                            }
-                        }
+                },
+                "prestige": {
+                    "type": "object",
+                    "required": [ "goldMultiplier" ],
+                    "properties": {
+                        "goldMultiplier": { "type": "integer", "default": 20, "description": "Each prestige will apply this multiplier to gold per second" }
                     }
                 }
-            }
-        },
-        "prestige": {
-            "type": "object",
-            "required": [ "goldMultiplier" ],
-            "properties": {
-                "goldMultiplier": { "type": "integer", "default": 20, "description": "Each prestige will apply this multiplier to gold per second" }
             }
         }
     },
@@ -273,7 +284,8 @@
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
                 { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
                 { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
-            ]
+            ],
+            "pattern": "^[^#]*$"
         },
         "name": {
             "type": "string",

@@ -16,7 +16,7 @@
 <body class="dark hidden">
     <header>
         <div>
-            <button class="g-button hidden" data-tab-target="game">Back</button>
+            <button class="g-button hidden" data-target="game">Back</button>
         </div>
         <p class="title">Tinkerers Subject</p>
         <div></div>
@@ -36,7 +36,7 @@
 
     </main>
     <main class="p-game hidden" data-tab-content="game">
-        <menu class="s-menu g-list-v">
+        <menu class="s-menu g-list-v" data-main-menu>
             <li class="g-list-item" data-tab-target="combat">Combat</li>
             <li class="g-list-item hidden" data-tab-target="passives">Passives</li>
             <li class="g-list-item hidden" data-tab-target="items">Items</li>
@@ -87,9 +87,9 @@
                             </div>
                         </section>
                         <footer>
-                            <button class="g-button" data-value="apply">Apply</button>
-                            <button class="g-button" data-value="remove">Remove</button>
-                            <button class="g-button" data-value="cancel">Cancel</button>
+                            <button class="g-button" data-apply>Apply</button>
+                            <button class="g-button" data-remove>Remove</button>
+                            <button class="g-button" data-cancel>Cancel</button>
                         </footer>
                     </div>
                 </div>
@@ -99,22 +99,29 @@
                     <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>
                     <button class="g-button" data-clear>Clear</button>
                 </header>
-                <ul data-passives-list>
+                <div class="s-passive-list">
+                    <table>
+                       
+                    </table>
+                </div>
+                <!-- <ul data-passives-list>
 
-                </ul>
+                </ul> -->
             </div>
             <div class="p-items hidden" data-tab-content="items">
                 <menu class="g-list-v" data-item-list></menu>
                 <ul data-mod-list></ul>
                 <div class="s-preset-container">
-                    <menu class="g-toolbar s-preset-toolbar g-list-h">
-                        <div class="g-list-item" data-new>New</div>
-                        <div class="g-list-item" data-edit>Edit</div>
+                    <menu class="g-list-h">
+                        <button class="g-button" data-new>New</button>
+                        <button class="g-button" data-edit>Edit</button>
                     </menu>
                     <menu class="g-list-v" data-preset-list></menu>
                 </div>
                 <div class="s-craft-container">
-                    <ul class="g-list-v" data-craft-list></ul>
+                    <div data-craft-list>
+                        <table></table>
+                    </div>
                     <button class="g-button" data-craft-button>Craft</button>
                     <div data-craft-message></div>
                 </div>
@@ -122,27 +129,25 @@
                     <form method="dialog">
                         <h2>Craft Preset</h2>
                         <input type="text" data-name>
-                        <div class="g-list-v" data-craft-list></div>
+                        <div class="g-list-v" data-craft-list>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <td></td>
+                                        <td>Level</td>
+                                        <td>Cost</td>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                         <footer>
-                            <input class="g-button" type="submit" value="Apply">
+                            <input class="g-button" type="submit" value="Apply" data-apply>
                             <input class="g-button" type="submit" value="Cancel" data-cancel>
+                            <input class="g-button" type="submit" value="Delete" data-cancel data-delete>
                         </footer>
                     </form>
                 </dialog>
-                <div class="g-modal hidden" data-craft-preset-modal data-modal-type="relative">
-                    <div class="wrapper">
-                        <section>
-                            <h2>Craft Preset</h2>
-                            <input type="text" data-name>
-                            <div class="g-list-v" data-craft-list></div>
-                        </section>
-                        <footer>
-                            <button class="g-button" data-value="apply">Apply</button>
-                            <button class="g-button" data-value="delete">Delete</button>
-                            <button class="g-button" data-value="cancel">Cancel</button>
-                        </footer>
-                    </div>
-                </div>
             </div>
             <div class="p-missions hidden" data-tab-content="missions">
                 <ul data-mission-list></ul>

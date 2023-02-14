@@ -1,15 +1,15 @@
 import { queryHTML } from "@src/utils/helpers";
-import { Modal } from "./skillModal";
 import type Game from "../game";
 import type { AttackSkill, BuffSkill, Skill } from "./skills";
 
 export abstract class SkillSlot<T extends Skill> {
     public readonly element: HTMLElement;
     protected _skill?: T;
-    constructor() {
+    constructor(readonly type: 'AttackSkill' | 'BuffSkill', readonly skills: Skill[]) {
         this.element = this.createElement();
     }
     get skill() { return this._skill; }
+    get canEdit() { return true; }
     set(skill: T | undefined) {
         this._skill = skill;
         const name = skill?.name || '[Empty]';
@@ -21,10 +21,11 @@ export abstract class SkillSlot<T extends Skill> {
 
 export class AttackSkillSlot extends SkillSlot<AttackSkill> {
     private readonly skillSlotContainer = queryHTML('.p-game .s-player .s-skills [data-attack-skill]');
-    constructor(readonly game: Game, readonly attackSkills: AttackSkill[]) {
-        super();
+    constructor(readonly game: Game, attackSkills: AttackSkill[]) {
+        super('AttackSkill', attackSkills);
         this.skillSlotContainer.appendChild(this.element);
-        this.set(attackSkills[0]);
+        const activeAttackSkill = attackSkills.find(x => x.name === game.saveObj.skills?.attackSkillName) || attackSkills[0];
+        this.set(activeAttackSkill);
     }
 
     set(skill: AttackSkill) {
@@ -33,9 +34,7 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
     }
 
     edit() {
-        const skillList = this.attackSkills.filter(x => x.levelReq <= this.game.player.stats.level.get());
-        console.log(skillList);
-        this.game.skills.modal.open({ canRemove: false, skills: skillList, skillSlot: this });
+        this.game.skills.editSkill(this);
     }
 
     protected createElement() {
@@ -52,15 +51,31 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
 export class BuffSkillSlot extends SkillSlot<BuffSkill> {
     private readonly buffSkillList = queryHTML<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]');
     private readonly progressBar: HTMLElement;
-    readonly skills: BuffSkill[];
-    private running: boolean = false;
-
-    constructor(readonly game: Game, readonly buffSkills: BuffSkill[]) {
-        super();
+    private running = false;
+    private _time = 0;
+    constructor(readonly game: Game, readonly buffSkills: BuffSkill[], readonly index: number) {
+        super('BuffSkill', buffSkills);
         this.buffSkillList.appendChild(this.element);
         this.progressBar = queryHTML('[data-progress-bar]', this.element);
-        this.skills = game.skills.buffSkills;
-        this.set(undefined);
+        const savedSkillData = game.saveObj.skills?.buffSkills.find(x => x.index === index);
+        if (savedSkillData) {
+            const skill = buffSkills.find(x => x.name === savedSkillData.name);
+            this.set(skill);
+            if (savedSkillData.time > 0) {
+                this._time = savedSkillData.time;
+                console.log(this._time);
+                this.start();
+            }
+        } else {
+            this.set(undefined);
+        }
+    }
+    get time() {
+        return this._time;
+    }
+
+    get canEdit() {
+        return !this.running;
     }
 
     private trigger() {
@@ -80,28 +95,32 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
             return;
         }
         const calcDuration = () => this._skill?.baseDuration || 0 * this.game.player.stats.skillDurationMultiplier.get();
-        let time = calcDuration();
-        let pct = 100;
-        let duration = time;
+        const startTime = calcDuration();
+        if (this._time <= 0) {
+            this._time = startTime;
+        }
+        const calcPct = () => {
+            return Math.max(0, this._time / duration * 100);
+        }
+        let duration = startTime;
         let loopId: string;
         const updateTime = () => {
             duration = calcDuration();
-            time = duration * (pct / 100);
+            this._time = duration * (calcPct() / 100);
         };
         this.game.player.stats.skillDurationMultiplier.addListener('change', updateTime);
-
         this.game.player.modDB.add(this._skill.mods.flatMap(x => x.stats), this._skill.sourceName);
 
         const startLoops = () => {
             loopId = this.game.gameLoop.subscribe(dt => {
-                if (time <= 0) {
+                if (this._time <= 0) {
+                    this._time = 0;
                     this.game.gameLoop.unsubscribe(loopId);
                     stop();
                     return;
                 }
-                time -= dt;
-                pct = Math.max(0, time / duration * 100);
-                this.progressBar.style.width = `${pct}%`;
+                this._time -= dt;
+                this.progressBar.style.width = `${calcPct()}%`;
             });
         }
 
@@ -112,14 +131,14 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
             }
             this.running = false;
             this.progressBar.style.width = `0%`;
+            this.element.querySelector<HTMLButtonElement>('[data-edit]')!.disabled = true;
         }
         startLoops();
         this.running = true;
     }
 
     private edit() {
-        const skillList = this.buffSkills.filter(x => x.levelReq > this.game.player.stats.level.get());
-        this.game.skills.modal.open({ canRemove: true, skills: skillList, skillSlot: this });
+        this.game.skills.editSkill(this);
     }
 
     protected createElement() {
@@ -134,7 +153,7 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
         </div>`);
         element.insertAdjacentHTML('beforeend', `<button class="g-button" data-edit>Edit</button>`);
         queryHTML('[data-edit]', element).addEventListener('click', () => this.edit());
-        queryHTML('[data-label]', element).addEventListener('click', () => this.trigger());
+        queryHTML('[data-label]', element).addEventListener('click', this.trigger.bind(this));
         return element;
     }
 }

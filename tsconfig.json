@@ -6,7 +6,7 @@
         "resolveJsonModule": true,
         "importsNotUsedAsValues": "error",
         "skipLibCheck": true,
-        "moduleResolution": "Node",
+        "moduleResolution": "node",
         "baseUrl": ".",
         "removeComments": true,
         "noEmit": true,
@@ -28,10 +28,10 @@
             "@utils/*": [ "./src/utils/*" ],
             "@game/*": [ "./src/game/*" ],
             "@public/*": [ "./public/*" ],
-            "@types/*": [ "./src/types/*.d.ts" ]
+            "@types/*": [ "./src/types/*.d.ts" ],
         },
     },
-    "include": [ "**/*.ts" ],
+    "include": [ "**/*.ts", "**/globals.d.ts" ],
     "exclude": [ "node_modules", "dist" ],
 
 }
