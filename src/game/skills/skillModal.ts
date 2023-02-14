@@ -1,4 +1,5 @@
 import { queryHTML } from "@src/utils/helpers";
+import type Game from "../game";
 import { AttackSkill, BuffSkill, Skill, } from "./skills";
 import type { SkillSlot } from "./skillSlots";
 
@@ -18,13 +19,13 @@ export class Modal {
     private readonly cancelButton = queryHTML('[data-value="cancel"]', this.modalElement);
     private skillSlot: SkillSlot<Skill> | undefined;
     private selectedSkill: Skill | undefined;
-    constructor() {
+    constructor(readonly game: Game) {
         this.applyButton.addEventListener('click', () => this.apply());
         this.removeButton.addEventListener('click', () => this.remove());
         this.cancelButton.addEventListener('click', () => this.cancel());
     }
 
-    open(data: ModalData){
+    open(data: ModalData) {
         this.skillSlot = data.skillSlot;
         this.removeButton.classList.toggle('hidden', !data.canRemove);
         this.removeButton.toggleAttribute('disabled', this.skillSlot.skill === undefined);
@@ -52,26 +53,26 @@ export class Modal {
             elements.push(element);
         }
         this.skillListContainer.replaceChildren(...elements);
-        if(this.skillSlot?.skill){
+        if (this.skillSlot?.skill) {
             const element = this.skillListContainer.querySelector<HTMLElement>(`[data-skill-name="${this.skillSlot?.skill?.name}"]`);
-            if(element)
-            element.click();
-        } else{
+            if (element)
+                element.click();
+        } else {
             elements[0]?.click();
         }
     }
     private showInfo(skill: AttackSkill | BuffSkill) {
         queryHTML('[data-title]').textContent = skill.name;
         queryHTML('[data-stat="manaCost"]', this.skillInfoContainer).textContent = skill.manaCost.toFixed();
-        
+
         const attackSpeedElement = queryHTML('[data-stat="attackSpeed"]', this.skillInfoContainer);
         const baseDamageMultiplierElement = queryHTML('[data-stat="baseDamageMultiplier"]', this.skillInfoContainer);
         const baseDurationElement = queryHTML('[data-stat="baseDuration"]', this.skillInfoContainer);
 
-        [attackSpeedElement, 
-            baseDamageMultiplierElement, 
+        [attackSpeedElement,
+            baseDamageMultiplierElement,
             baseDurationElement].forEach(x => x.parentElement?.classList.add('hidden'));
-        
+
         if ((skill instanceof AttackSkill)) {
             attackSpeedElement.parentElement?.classList.remove('hidden');
             attackSpeedElement.textContent = skill.attackSpeed.toFixed(2);
@@ -92,14 +93,14 @@ export class Modal {
         queryHTML('[data-mod-list]', this.skillInfoContainer).replaceChildren(...modElements);
     }
     private apply() {
-        if(!this.selectedSkill || !this.skillSlot){
+        if (!this.selectedSkill || !this.skillSlot) {
             return;
         }
         this.skillSlot.set(this.selectedSkill);
         this.close();
     }
     private remove() {
-        if(!this.skillSlot){
+        if (!this.skillSlot) {
             return;
         }
         this.skillSlot.set(undefined);
@@ -108,7 +109,7 @@ export class Modal {
     private cancel() {
         this.close();
     }
-    private close(){
+    private close() {
         this.modalElement.classList.add('hidden');
     }
 }

@@ -1,8 +1,5 @@
 import type GConfig from "@src/types/gconfig";
 import configList from '@public/gconfig/configList.json';
-import saveManager from "@src/utils/saveManager";
-import type { Save } from "@src/game/saveGame";
-import { queryHTML } from "@src/utils/helpers";
 
 export type EntryType = 'new' | 'save';
 
@@ -25,7 +22,7 @@ let activeEntry: ConfigEntry;
 export class ConfigEntryHandler {
     config: GConfig | undefined;
     private remoteEntryHandler = new NewEntryHandler();
-    private savedEntryHandler = new SavedEntryHandler();
+    // private savedEntryHandler = new SavedEntryHandler();
     constructor() { }
 
     getActiveEntry() {
@@ -35,7 +32,7 @@ export class ConfigEntryHandler {
     async getEntryListElements(type: EntryType) {
         switch (type) {
             case 'new': return await this.remoteEntryHandler.getEntryListElements();
-            case 'save': return await this.savedEntryHandler.getEntryListElements();
+            // case 'save': return await this.savedEntryHandler.getEntryListElements();
         }
     }
 }
@@ -65,47 +62,46 @@ class NewEntryHandler implements EntryHandler {
     }
 }
 
-class SavedEntryHandler implements EntryHandler {
-    constructor() { }
+// class SavedEntryHandler implements EntryHandler {
+//     constructor() { }
 
-    async getEntries() {
-        const blob = await saveManager.load('Game') as { [K: string]: Save };
-        if (!blob) {
-            return [];
-        }
-        try {
-            const arr = Object.values(blob).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt);
-            return arr.map<ConfigEntry>(x => ({ ...x.meta }));
-        } catch (e) {
-            console.error(e);
-        }
-        return [];
-    }
+//     async getEntries() {
+//         const blob = await saveManager.load('Game') as { [K: string]: Save };
+//         if (!blob) {
+//             return [];
+//         }
+//         try {
+//             const arr = Object.values(blob).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt);
+//             return arr.map<ConfigEntry>(x => ({ ...x.meta, type: 'save' }));
+//         } catch (e) {
+//             console.error(e);
+//         }
+//         return [];
+//     }
 
-    async getEntryListElements() {
-        const entries = await this.getEntries();
-        const elements = [] as HTMLLIElement[];
-        for (const entry of entries.filter(x => x.rawUrl)) {
-            const element = document.createElement('li');
-            element.classList.add('g-list-item');
-            const timeText = this.generateTimeText(entry.lastSavedAt);
-            element.insertAdjacentHTML('beforeend', `<div>${entry.name}</div><div class="g-text-small">${timeText}</div>`);
-            element.addEventListener('click', () => {
-                activeEntry = entry;
-                queryHTML('[data-config-info] button[data-role="delete"]').setAttribute('data-id', entry.id);
-            });
-            elements.push(element);
-        }
-        return elements;
-    }
+//     async getEntryListElements() {
+//         const entries = await this.getEntries();
+//         const elements = [] as HTMLLIElement[];
+//         for (const entry of entries.filter(x => x.rawUrl)) {
+//             const element = document.createElement('li');
+//             element.classList.add('g-list-item');
+//             const timeText = this.generateTimeText(entry.lastSavedAt);
+//             element.insertAdjacentHTML('beforeend', `<div>${entry.name}</div><div class="g-text-small">${timeText}</div>`);
+//             element.addEventListener('click', () => {
+//                 activeEntry = entry;
+//                 queryHTML('[data-config-info] button[data-role="delete"]').setAttribute('data-id', entry.id);
+//             });
+//             elements.push(element);
+//         }
+//         return elements;
+//     }
 
-    private generateTimeText(startTime = 0) {
-        const ms = Date.now() - startTime;
-        // const days = Math.floor(ms / 86400000);
-        const hours = (Math.floor(ms / 3600000) % 24);
-        const mins = (Math.floor(ms / 60000) % 60).toFixed();
-        return `Last played: ${hours > 0 ? hours + 'h ' : ''}${mins}min`;
-        // return `Last Played ${days}d ${hours}h ${mins}min`;
-    }
-
-}
+//     private generateTimeText(startTime = 0) {
+//         const ms = Date.now() - startTime;
+//         // const days = Math.floor(ms / 86400000);
+//         const hours = (Math.floor(ms / 3600000) % 24);
+//         const mins = (Math.floor(ms / 60000) % 60).toFixed();
+//         return `Last played: ${hours > 0 ? hours + 'h ' : ''}${mins}min`;
+//         // return `Last Played ${days}d ${hours}h ${mins}min`;
+//     }
+// }

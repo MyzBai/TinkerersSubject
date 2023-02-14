@@ -1,10 +1,12 @@
 import { queryHTML } from "@src/utils/helpers";
+<<<<<<< Updated upstream
 import gameLoop from "../gameLoop";
 import { playerStats, modDB } from "../player";
 import { Modal } from "./skillModal";
+=======
+import type Game from "../game";
+>>>>>>> Stashed changes
 import type { AttackSkill, BuffSkill, Skill } from "./skills";
-
-const modal = new Modal();
 
 export abstract class SkillSlot<T extends Skill> {
     public readonly element: HTMLElement;
@@ -24,11 +26,10 @@ export abstract class SkillSlot<T extends Skill> {
 
 export class AttackSkillSlot extends SkillSlot<AttackSkill> {
     private readonly skillSlotContainer = queryHTML('.p-game .s-player .s-skills [data-attack-skill]');
-    readonly skills: AttackSkill[];
-    constructor(attackSkills: AttackSkill[]) {
+    constructor(readonly game: Game, readonly attackSkills: AttackSkill[]) {
         super();
         this.skillSlotContainer.appendChild(this.element);
-        this.skills = attackSkills;
+        this.set(attackSkills[0]);
     }
 
     set(skill: AttackSkill) {
@@ -37,7 +38,9 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
     }
 
     edit() {
-        modal.open({ canRemove: false, skills: this.skills, skillSlot: this })
+        const skillList = this.attackSkills.filter(x => x.levelReq <= this.game.player.stats.level.get());
+        console.log(skillList);
+        this.game.skills.modal.open({ canRemove: false, skills: skillList, skillSlot: this });
     }
 
     protected createElement() {
@@ -57,11 +60,11 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
     readonly skills: BuffSkill[];
     private running: boolean = false;
 
-    constructor(skills: BuffSkill[]) {
+    constructor(readonly game: Game, readonly buffSkills: BuffSkill[]) {
         super();
         this.buffSkillList.appendChild(this.element);
         this.progressBar = queryHTML('[data-progress-bar]', this.element);
-        this.skills = skills;
+        this.skills = game.skills.buffSkills;
         this.set(undefined);
     }
 
@@ -69,11 +72,11 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
         if (!this._skill || this.running) {
             return;
         }
-        const sufficientMana = playerStats.curMana.get() >= this._skill.manaCost;
+        const sufficientMana = this.game.player.stats.curMana.get() >= this._skill.manaCost;
         if (!sufficientMana) {
             return;
         }
-        playerStats.curMana.subtract(this._skill.manaCost);
+        this.game.player.stats.curMana.subtract(this._skill.manaCost);
         this.start();
     }
 
@@ -81,7 +84,7 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
         if (!this._skill) {
             return;
         }
-        const calcDuration = () => this._skill?.baseDuration || 0 * playerStats.skillDurationMultiplier.get();
+        const calcDuration = () => this._skill?.baseDuration || 0 * this.game.player.stats.skillDurationMultiplier.get();
         let time = calcDuration();
         let pct = 100;
         let duration = time;
@@ -90,14 +93,14 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
             duration = calcDuration();
             time = duration * (pct / 100);
         };
-        playerStats.skillDurationMultiplier.addListener('change', updateTime);
+        this.game.player.stats.skillDurationMultiplier.addListener('change', updateTime);
 
-        modDB.add(this._skill.mods.flatMap(x => x.stats), this._skill.sourceName);
+        this.game.player.modDB.add(this._skill.mods.flatMap(x => x.stats), this._skill.sourceName);
 
         const startLoops = () => {
-            loopId = gameLoop.subscribe(dt => {
+            loopId = this.game.gameLoop.subscribe(dt => {
                 if (time <= 0) {
-                    gameLoop.unsubscribe(loopId);
+                    this.game.gameLoop.unsubscribe(loopId);
                     stop();
                     return;
                 }
@@ -108,9 +111,9 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
         }
 
         const stop = () => {
-            playerStats.skillDurationMultiplier.removeListener('change', updateTime)
+            this.game.player.stats.skillDurationMultiplier.removeListener('change', updateTime)
             if (this._skill) {
-                modDB.removeBySource(this._skill.sourceName);
+                this.game.player.modDB.removeBySource(this._skill.sourceName);
             }
             this.running = false;
             this.progressBar.style.width = `0%`;
@@ -120,7 +123,8 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
     }
 
     private edit() {
-        modal.open({ canRemove: true, skills: this.skills, skillSlot: this })
+        const skillList = this.buffSkills.filter(x => x.levelReq > this.game.player.stats.level.get());
+        this.game.skills.modal.open({ canRemove: true, skills: skillList, skillSlot: this });
     }
 
     protected createElement() {

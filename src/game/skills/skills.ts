@@ -1,66 +1,76 @@
-import type { Skills } from "@src/types/gconfig";
+import type GConfig from "@src/types/gconfig";
+import { queryHTML } from "@src/utils/helpers";
+import type Game from "../game";
 import { Modifier, StatModifier } from "../mods";
-import { modDB, playerStats } from "../player";
-import type { Save } from "../saveGame";
-import { AttackSkillSlot, BuffSkillSlot } from "./skillSlots";
-
-let attackSkills: AttackSkill[];
-let buffSkills: BuffSkill[];
-let attackSkillSlot: AttackSkillSlot;
-let buffSkillSlots: BuffSkillSlot[];
+import { Modal } from "./skillModal";
+// import type { Save } from "../saveGame";
+import { AttackSkillSlot, BuffSkillSlot, SkillSlot } from "./skillSlots";
 
 const attackSkillContainer = document.querySelector<HTMLElement>('.p-game .s-player .s-skills [data-attack-skill]')!;
 const buffSkillList = document.querySelector<HTMLUListElement>('.p-game .s-player .s-skills ul[data-buff-skill-list]')!;
 
+export interface ModalParams {
+    canRemove: boolean;
+    skills: Skill[];
+    skillSlot: SkillSlot<Skill>;
+}
 
-export function init(data: Skills) {
+export default class Skills {
+    buffSkills: BuffSkill[];
+    private buffSkillSlots: BuffSkillSlot[];
+    modal: Modal;
+    private readonly skillsData: GConfig['skills'];
+    constructor(readonly game: Game) {
+        this.skillsData = game.config.skills;
+        this.modal = new Modal(game);
+        this.buffSkills = [];
+        this.buffSkillSlots = [];
 
-    attackSkills = [];
-    buffSkills = [];
-    buffSkillSlots = [];
-    attackSkillContainer.replaceChildren();
-    buffSkillList.replaceChildren();
+        attackSkillContainer.replaceChildren();
+        buffSkillList.replaceChildren();
 
-    data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq);
-    if (data.attackSkills.skillList[0].levelReq > 1) {
-        throw Error('There must be an attack skill with a level requirement of 1');
-    }
+        this.skillsData.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq);
+        if (this.skillsData.attackSkills.skillList[0].levelReq > 1) {
+            throw Error('There must be an attack skill with a level requirement of 1');
+        }
 
-    attackSkills = data.attackSkills.skillList.map(x => new AttackSkill(x));
-    attackSkillSlot = new AttackSkillSlot(attackSkills);
-    attackSkillSlot.set(attackSkills[0]);
+        const attackSkills = this.skillsData.attackSkills.skillList.map(x => new AttackSkill(game, x));
+        new AttackSkillSlot(game, attackSkills);
 
+        this.modal = new Modal(game);
 
-    if (data.buffSkills) {
-        buffSkills = data.buffSkills.skillList.map(x => new BuffSkill(x));
-        for (const skillSlot of data.buffSkills.skillSlots) {
-            if (skillSlot.levelReq <= 1) {
-                buffSkillSlots.push(new BuffSkillSlot(buffSkills));
-                continue;
-            }
-            const listener = (level: number) => {
-                if (level < skillSlot.levelReq) {
-                    return;
+        if (this.skillsData.buffSkills) {
+            const buffSkills = this.skillsData.buffSkills.skillList.map(x => new BuffSkill(x));
+            for (const skillSlot of this.skillsData.buffSkills.skillSlots) {
+                if (skillSlot.levelReq > 1) {
+                    const listener = (level: number) => {
+                        if (level < skillSlot.levelReq) {
+                            return;
+                        }
+                        this.buffSkillSlots.push(new BuffSkillSlot(game, buffSkills));
+                        game.player.stats.level.removeListener('change', listener);
+                    };
+                    game.player.stats.level.addListener('change', listener);
+
+                } else {
+                    this.buffSkillSlots.push(new BuffSkillSlot(game, buffSkills));
                 }
-                buffSkillSlots.push(new BuffSkillSlot(buffSkills));
-                playerStats.level.removeListener('change', listener);
-            };
-            playerStats.level.addListener('change', listener);
+            }
         }
     }
-}
 
-export function saveSkills(saveObj: Save) {
-    saveObj.skills = {
-        attackSkillName: attackSkillSlot.skill?.name || 'invalid name',
-        buffSkillNames: buffSkillSlots.map(x => x.skill?.name || '').filter(x => x?.length > 0)
-    }
-}
+    // save(saveObj: Save) {
+    //     saveObj.skills = {
+    //         attackSkillName: this.attackSkillSlot.skill?.name || 'invalid name',
+    //         buffSkillNames: this.buffSkillSlots.map(x => x.skill?.name || '').filter(x => x?.length > 0)
+    //     }
+    // }
 
-export function loadSkills(saveObj: Save) {
-    const attackSkill = attackSkills.find(x => x.name === saveObj.skills?.attackSkillName);
-    attackSkillSlot.set(attackSkill || attackSkills[0]);
-    buffSkillSlots.forEach((slot, index) => slot?.set(buffSkills.find(skill => skill.name === saveObj.skills?.buffSkillNames?.[index])));
+    // load(saveObj: Save) {
+    //     const attackSkill = this.attackSkills.find(x => x.name === saveObj.skills?.attackSkillName);
+    //     this.attackSkillSlot.set(attackSkill || this.attackSkills[0]);
+    //     this.buffSkillSlots.forEach((slot, index) => slot?.set(this.buffSkills.find(skill => skill.name === saveObj.skills?.buffSkillNames?.[index])));
+    // }
 }
 
 interface SkillParams {
@@ -95,21 +105,21 @@ export class AttackSkill extends Skill {
     static active: AttackSkill;
     public readonly attackSpeed: number;
     public readonly baseDamageMultiplier: number;
-    constructor(args: AttackSkillParams) {
+    constructor(readonly game: Game, args: AttackSkillParams) {
         super(args);
         this.attackSpeed = args.attackSpeed;
         this.baseDamageMultiplier = args.baseDamageMultiplier;
     }
 
     enable() {
-        modDB.removeBySource(AttackSkill.active?.sourceName);
+        this.game.player.modDB.removeBySource(AttackSkill.active?.sourceName);
         AttackSkill.active = this;
 
-        modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this.baseDamageMultiplier })], this.sourceName);
-        modDB.add([new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this.attackSpeed })], this.sourceName);
-        modDB.add([new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this.manaCost })], this.sourceName);
+        this.game.player.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this.baseDamageMultiplier })], this.sourceName);
+        this.game.player.modDB.add([new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this.attackSpeed })], this.sourceName);
+        this.game.player.modDB.add([new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this.manaCost })], this.sourceName);
 
-        this.mods.forEach(x => modDB.add(x.stats, this.sourceName));
+        this.mods.forEach(x => this.game.player.modDB.add(x.stats, this.sourceName));
     }
 }
 

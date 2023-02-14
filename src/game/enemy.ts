@@ -1,106 +1,67 @@
-import type GConfig from "@src/types/gconfig";
 import EventEmitter from "@src/utils/EventEmitter";
-import { clamp, queryHTML } from "@src/utils/helpers";
-import type { Save } from "./saveGame";
+import { queryHTML } from "@src/utils/helpers";
+import type Game from "./game";
+// import type { Save } from "./saveGame";
 
 const healthBar = queryHTML('.p-game .s-enemy [data-health-bar]');
 
-export let enemies: Enemy[];
-let activeEnemy: Enemy;
-let index: number;
-export const onDeath = new EventEmitter<Enemy>();
-onDeath.listen(() => {
-    activeEnemy = enemies[++index];
-    activeEnemy.init();
-});
+export default class Enemy {
+    onDeath = new EventEmitter<Enemy>();
+    private _index: number;
+    private healthList: number[];
+    private _health: number;
+    constructor(readonly game: Game) {
+        this.healthList = game.config.enemies.enemyList;
+        this._index = 0;
+        this._health = this.maxHealth;
 
-export function init(data: GConfig['enemies']) {
-    enemies = [];
-    index = 0;
+        this.onDeath.listen(() => {
+            this._index++;
+        });
 
-    enemies.push(...data.enemyList.map(health => new Enemy(health)));
-    enemies.push(new Dummy());
 
-    activeEnemy = enemies[index];
-    activeEnemy.init();
-}
-
-export function dealDamage(amount: number) {
-    activeEnemy.takeDamage(amount);
-}
-
-export function spawnEnemyAt(level: number) {
-    index = clamp(level - 1, 0, enemies.length - 1);
-    activeEnemy = enemies[index];
-    activeEnemy.init();
-}
-
-export function saveEnemy(saveObj: Save) {
-    saveObj.enemy = {
-        index,
-        health: activeEnemy.health,
-        dummyDamage: (activeEnemy as Dummy)?.damage
     }
-}
-
-export function loadEnemy(save: Save) {
-    const savedEnemy = save.enemy;
-    if(!savedEnemy){
-        return;
+    get index() {
+        return this._index;
     }
-    index = savedEnemy.index || 0;
-    activeEnemy = enemies[index];
-    activeEnemy.health = savedEnemy.health;
-    if (activeEnemy instanceof Dummy) {
-        activeEnemy.damage = savedEnemy.dummyDamage || 0;
+    get maxIndex() {
+        return this.healthList.length - 1;
     }
-    activeEnemy.init();
-}
-
-class Enemy {
-    health: number;
-    constructor(public readonly maxHealth: number) {
-        this.health = maxHealth;
+    get maxHealth() {
+        return this.healthList[this.index];
     }
-
-    init(){
-        this.updateHealthBar();
+    get health() {
+        return this._health;
     }
+    dealDamage(amount: number) {
+        this._health -= amount;
 
-    takeDamage(amount: number) {
-        this.health = clamp(this.health - amount, 0, this.health);
-        this.updateHealthBar();
-        if (this.health === 0) {
-            onDeath.invoke(this);
+        if (this._health <= 0) {
+            this._health = 0;
+            this.onDeath.invoke(this);
         }
+        this.updateHealthBar();
     }
 
-    updateHealthBar() {
+    // save(saveObj: Save) {
+    //     saveObj.enemy = {
+    //         index: this.index,
+    //         health: this.health,
+    //         dummyDamage: 0
+    //     }
+    // }
+    // load(saveObj: Save) {
+    //     const savedEnemy = saveObj.enemy;
+    //     if (!savedEnemy) {
+    //         return;
+    //     }
+    //     this._index = savedEnemy.index || 0;
+    //     this._health = savedEnemy.health;
+    //     this.updateHealthBar();
+    // }
+
+    private updateHealthBar() {
         const pct = this.health / this.maxHealth * 100;
         healthBar.style.width = `${pct}%`;
     }
 }
-
-class Dummy extends Enemy {
-    damage: number;
-    constructor() {
-        super(1);
-        this.damage = 0;
-    }
-
-    init(){
-        healthBar.style.width = '100%';
-        this.updateHealthBar();
-    }
-
-    takeDamage(amount: number) {
-        this.damage += amount;
-        this.updateHealthBar();
-    }
-
-    updateHealthBar() {
-        healthBar.setAttribute('data-damage', this.damage.toFixed());
-    }
-}
-
-export default { init, spawnEnemyAt, dealDamage, onDeath }

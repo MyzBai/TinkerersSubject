@@ -1,25 +1,31 @@
 import { queryHTML } from "../utils/helpers";
 import { ConfigEntry, ConfigEntryHandler, EntryType } from "./configEntryHandlers";
-import { init as initGame } from '../game/game';
+// import { init as initGame } from '../game/game';
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
+<<<<<<< Updated upstream
 import { loadGame, loadMostRecentSave, Save } from '../game/saveGame';
 import saveManager from "@src/utils/saveManager";
+=======
+// import { loadMostRecentSave, Save } from '../game/saveGame';
+// import saveManager from "@src/utils/saveManager";
+import Game from "@src/game/game";
+>>>>>>> Stashed changes
 
 const newButton = queryHTML('menu [data-type="new"]');
 const loadButton = queryHTML('menu [data-type="save"]');
 
-const deleteSaveButton = queryHTML('.p-home [data-config-info] [data-role="delete"]');
-deleteSaveButton.addEventListener('click', async () => {
-    const id = deleteSaveButton.getAttribute('data-id');
-    if(!id){
-        return;
-    }
-    const save = await saveManager.load('Game') as { [K: string]: Save };
-    delete save[id];
-    await saveManager.save('Game', save);
-    loadButton.click();
-})
+// const deleteSaveButton = queryHTML('.p-home [data-config-info] [data-role="delete"]');
+// deleteSaveButton.addEventListener('click', async () => {
+//     const id = deleteSaveButton.getAttribute('data-id');
+//     if(!id){
+//         return;
+//     }
+//     const save = await saveManager.load('Game') as { [K: string]: Save };
+//     delete save[id];
+//     await saveManager.save('Game', save);
+//     loadButton.click();
+// })
 
 const entryListContainer = queryHTML('[data-config-list]');
 const configInfoContainer = queryHTML('[data-config-info]');
@@ -45,12 +51,13 @@ export async function init() {
 }
 
 async function tryAutoLoad() {
-    const lastSave = await loadMostRecentSave();
-    if (!lastSave) {
-        return false;
-    }
-    await startConfig({ ...lastSave.meta });
-    return true;
+    return false;
+    // const lastSave = await loadMostRecentSave();
+    // if (!lastSave) {
+    //     return false;
+    // }
+    // await startConfig({ ...lastSave.meta, type: 'save' });
+    // return true;
 }
 
 async function startConfig(entry: ConfigEntry) {
@@ -70,8 +77,14 @@ async function startConfig(entry: ConfigEntry) {
         createdAt: entry.createdAt || Date.now(),
     };
 
+<<<<<<< Updated upstream
     await initGame(config);
     await loadGame(config);
+=======
+    const game = new Game(config);
+    game.setup();
+    // await initGame(config);
+>>>>>>> Stashed changes
     const btn = queryHTML('header [data-tab-target="game"]');
     btn.classList.remove('hidden');
     btn.click();
@@ -95,6 +108,9 @@ async function showConfig(entry: ConfigEntry) {
 
 async function populateEntryList(type: EntryType) {
     const elements = await configEntryHandler.getEntryListElements(type);
+    if(!elements){
+        return;
+    }
     configInfoContainer.classList.toggle('hidden', elements.length === 0);
 
     if (elements.length === 0) {
@@ -107,7 +123,7 @@ async function populateEntryList(type: EntryType) {
         return;
     }
 
-    deleteSaveButton.classList.toggle('hidden', type !== 'save');
+    // deleteSaveButton.classList.toggle('hidden', type !== 'save');
 
     for (const element of elements) {
         element.addEventListener('click', () => {
