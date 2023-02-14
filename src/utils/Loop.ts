@@ -18,7 +18,7 @@ interface Options {
 const TARGET_FRAME_TIME = 1000 / 25;
 const DELTA_TIME_SECONDS = TARGET_FRAME_TIME / 1000;
 
-class Loop {
+export default class Loop {
     public running: boolean = false;
     
     private instances = new Map<string, Instance>();
@@ -116,5 +116,3 @@ class Loop {
         this.animLoopId = requestAnimationFrame(loop);
     }
 }
-
-export default new Loop();

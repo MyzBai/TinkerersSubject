@@ -1,12 +1,6 @@
 import { visibilityObserver } from "@utils/Observers";
 import Value from "@utils/Value";
-<<<<<<< Updated upstream
-import gameLoop from "./gameLoop";
-import type { Save } from "./saveGame";
-=======
 import type Game from "./game";
-// import type { Save } from "./saveGame";
->>>>>>> Stashed changes
 
 class Statistic extends Value {
     readonly hidden: boolean;

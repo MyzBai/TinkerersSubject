@@ -1,11 +1,6 @@
 import { queryHTML } from "@src/utils/helpers";
-<<<<<<< Updated upstream
-import gameLoop from "../gameLoop";
-import { playerStats, modDB } from "../player";
 import { Modal } from "./skillModal";
-=======
 import type Game from "../game";
->>>>>>> Stashed changes
 import type { AttackSkill, BuffSkill, Skill } from "./skills";
 
 export abstract class SkillSlot<T extends Skill> {

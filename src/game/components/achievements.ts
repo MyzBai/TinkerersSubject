@@ -1,12 +1,3 @@
-<<<<<<< Updated upstream
-import statistics from "../statistics";
-import { modDB, playerStats } from "../player";
-import type { Mod, GConfig } from "@src/types/gconfig";
-import gameLoop from "../gameLoop";
-import { Modifier } from "@game/mods";
-import { visibilityObserver } from '@utils/Observers';
-import { highlightHTMLElement } from "@utils/helpers";
-=======
 // import statistics from "../statistics";
 // import { modDB, playerStats } from "../player";
 // import type { Mod, GConfig } from "@src/types/gconfig";
@@ -14,7 +5,6 @@ import { highlightHTMLElement } from "@utils/helpers";
 // import { Modifier } from "@game/mods";
 // import { visibilityObserver } from '@utils/Observers';
 // import { highlightHTMLElement } from "@utils/helpers";
->>>>>>> Stashed changes
 
 // type Validator = [RegExp, () => string, ((cur: number, target: number) => boolean)?];
 
@@ -30,53 +20,35 @@ import { highlightHTMLElement } from "@utils/helpers";
 // ];
 // const achievementsMenuButton = document.querySelector<HTMLElement>('.p-game > menu [data-tab-target="achievements"]')!;
 
-<<<<<<< Updated upstream
-const achievements: Achievement[] = [];
-let updateId: string;
-=======
 // const achievements: Achievement[] = [];
 // let updateId: number = -1;
->>>>>>> Stashed changes
 
 // visibilityObserver(document.querySelector('.p-game .p-achievements')!, handleUpdateLoop);
 
-<<<<<<< Updated upstream
-export function init(data: GConfig['achievements']) {
-    if(!data){
-        return;
-    }
-    achievements.splice(0);
-    for (const item of data.list) {
-        achievements.push(new Achievement(item));
-    }
-    document.querySelector('.p-achievements ul')!.replaceChildren(...achievements.map(x => x.element));
-=======
 // export function init(data: GConfig['achievements']) {
 //     achievements.splice(0);
 //     for (const item of data.list) {
 //         achievements.push(new Achievement(item));
 //     }
 //     document.querySelector('.p-achievements ul')!.replaceChildren(...achievements.map(x => x.element));
->>>>>>> Stashed changes
 
 //     //validate loop
 //     gameLoop.subscribe(() => {
 //         validateAchievements();
 //     }, { intervalMilliseconds: 1000 });
 
-<<<<<<< Updated upstream
-    achievementsMenuButton.classList.remove('hidden');
-}
+//     achievementsMenuButton.classList.remove('hidden');
+// }
 
-function validateAchievements() {
-    achievements.forEach(achievement => {
-        const isComplete = achievement.validate();
-        if (isComplete) {
-            achievement.complete();
-        }
-    });
-}
-=======
+// function validateAchievements(){
+//     achievements.forEach(achievement => {
+//         const isComplete = achievement.validate();
+//         if (isComplete) {
+//             achievement.complete();
+//         }
+//     });
+// }
+
 //     if(data.levelReq > 1){
 //         const listener = (level: number) => {
 //             if (level >= data.levelReq) {
@@ -97,7 +69,6 @@ function validateAchievements() {
 //         }
 //     });
 // }
->>>>>>> Stashed changes
 
 // function handleUpdateLoop(visible: boolean) {
 //     if (visible) {
