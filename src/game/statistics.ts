@@ -1,7 +1,7 @@
 import { queryHTML } from "@src/utils/helpers";
 import { visibilityObserver, visibilityObserverLoop } from "@utils/Observers";
 import Value from "@utils/Value";
-import type Game from "./game";
+import type Game from "./Game";
 import type { Save } from "./saveGame";
 
 class Statistic extends Value {
@@ -64,7 +64,7 @@ export default class Statistics {
             const element = createField(key as string);
             elements.push(element);
         }
-        document.querySelector('.p-statistics ul')!.replaceChildren(...elements);
+        queryHTML('.p-statistics ul').replaceChildren(...elements);
     }
 
     private getFormatType(key: keyof typeof this.statistics) {
@@ -76,7 +76,7 @@ export default class Statistics {
 
     updateStatistics() {
         for (const [key, value] of Object.entries(this.statistics)) {
-            const element = document.querySelector(`.p-statistics [data-stat="${key}"]`);
+            const element = queryHTML(`.p-statistics [data-stat="${key}"]`);
             if (!element) {
                 continue;
             }

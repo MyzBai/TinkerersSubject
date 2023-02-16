@@ -1,3 +1,4 @@
+import './webComponents/GameElement';
 import { init as initHome } from './home/home';
 import { queryHTML} from './utils/helpers';
 
@@ -22,7 +23,9 @@ queryHTML('header [data-target="game"]').addEventListener('click', (e: MouseEven
     }
 });
 
-init();
+window.addEventListener('DOMContentLoaded', () => {
+    init();
+});
 
 async function init() {
 

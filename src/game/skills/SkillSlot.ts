@@ -1,6 +1,6 @@
 import { queryHTML } from "@src/utils/helpers";
-import type Game from "../game";
-import type { AttackSkill, BuffSkill, Skill } from "./skills";
+import type Game from "../Game";
+import type { AttackSkill, BuffSkill, Skill } from "./Skills";
 
 export abstract class SkillSlot<T extends Skill> {
     public readonly element: HTMLElement;
@@ -43,7 +43,7 @@ export class AttackSkillSlot extends SkillSlot<AttackSkill> {
         element.setAttribute('data-skill-slot', 'attack-skill');
         element.insertAdjacentHTML('beforeend', `<div data-label></div>`);
         element.insertAdjacentHTML('beforeend', `<button class="g-button" data-edit>Edit</button>`);
-        element.querySelector('button[data-edit]')!.addEventListener('click', () => this.edit());
+        queryHTML('button[data-edit]', element).addEventListener('click', () => this.edit());
         return element;
     }
 }
@@ -131,7 +131,7 @@ export class BuffSkillSlot extends SkillSlot<BuffSkill> {
             }
             this.running = false;
             this.progressBar.style.width = `0%`;
-            this.element.querySelector<HTMLButtonElement>('[data-edit]')!.disabled = true;
+            queryHTML<HTMLButtonElement>('[data-edit]', this.element).disabled = true;
         }
         startLoops();
         this.running = true;

@@ -3,7 +3,7 @@ import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
 import { queryHTML } from "@src/utils/helpers";
-import type Game from './game';
+import type Game from './Game';
 import type { Save } from './saveGame';
 import { visibilityObserverLoop } from '@src/utils/Observers';
 
@@ -82,7 +82,6 @@ export default class Player {
     }
 
     updateStats() {
-
         return new Promise((resolve) => {
             clearTimeout(this.statsUpdateId);
             this.statsUpdateId = window.setTimeout(async () => {

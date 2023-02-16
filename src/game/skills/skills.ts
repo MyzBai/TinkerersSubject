@@ -1,10 +1,10 @@
 import type GConfig from "@src/types/gconfig";
 import { queryHTML } from "@src/utils/helpers";
-import type Game from "../game";
+import type Game from "../Game";
 import { Modifier, StatModifier } from "../mods";
 import type { Save } from "../saveGame";
-import modal from "./skillModal";
-import { AttackSkillSlot, BuffSkillSlot } from "./skillSlots";
+import modal from "./Modal";
+import { AttackSkillSlot, BuffSkillSlot } from "./SkillSlot";
 
 export default class Skills {
     readonly attackSkillContainer = queryHTML('.p-game .s-player .s-skills [data-attack-skill]');

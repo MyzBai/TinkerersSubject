@@ -1,5 +1,5 @@
 import type { ModifierTag } from "../../mods";
-import type { ItemModifier } from "./items";
+import type { ItemModifier } from "./Items";
 
 export type CraftId = keyof typeof craftTemplates;
 export interface CraftData {

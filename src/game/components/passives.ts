@@ -2,7 +2,7 @@ import type GConfig from "@src/types/gconfig";
 import { queryHTML } from "@src/utils/helpers";
 import { visibilityObserver } from "@src/utils/Observers";
 import Component from "../Component";
-import type Game from "../game";
+import type Game from "../Game";
 import { Modifier } from "../mods";
 
 type PassivesData = Required<Required<GConfig>['components']>['passives'];

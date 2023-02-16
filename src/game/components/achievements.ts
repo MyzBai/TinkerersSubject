@@ -2,7 +2,7 @@ import type GConfig from "@src/types/gconfig";
 import { queryHTML } from "@src/utils/helpers";
 import { visibilityObserverLoop } from "@src/utils/Observers";
 import Component from "../Component";
-import type Game from "../game";
+import type Game from "../Game";
 import { Modifier } from "../mods";
 import Task from "../Task";
 
@@ -60,7 +60,7 @@ class Achievement {
     }
 
     updateLabel() {
-        const label = this.element.querySelector('[data-label]')!;
+        const label = queryHTML('[data-label]', this.element);
         const descElement = document.createElement('span');
         descElement.textContent = this.task.textData.labelText + ' ';
         descElement.setAttribute('data-desc', '');

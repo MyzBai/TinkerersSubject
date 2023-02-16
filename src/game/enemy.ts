@@ -1,6 +1,6 @@
 import EventEmitter from "@src/utils/EventEmitter";
 import { clamp, queryHTML } from "@src/utils/helpers";
-import type Game from "./game";
+import type Game from "./Game";
 import type { Save } from "./saveGame";
 
 export default class Enemy {

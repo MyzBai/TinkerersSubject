@@ -1,5 +1,5 @@
 import { remap } from "@src/utils/helpers";
-import type Game from "./game";
+import type Game from "./Game";
 
 type TaskValidators = [RegExp, () => string];
 

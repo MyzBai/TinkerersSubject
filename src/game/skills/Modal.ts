@@ -1,6 +1,6 @@
 import { queryHTML } from "@src/utils/helpers";
-import { AttackSkill, BuffSkill, Skill, } from "./skills";
-import type { SkillSlot } from "./skillSlots";
+import { AttackSkill, BuffSkill, Skill, } from "./Skills";
+import type { SkillSlot } from "./SkillSlot";
 
 
 export interface ModalOpenParams {

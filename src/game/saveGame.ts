@@ -10,7 +10,7 @@
 import type { CraftId } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
 import type { ModDescription } from "./mods";
-import type Statistics from "./statistics";
+import type Statistics from "./Statistics";
 
 // type SaveObject = { [K: string]: Save };
 

@@ -116,3 +116,6 @@ export type CraftId =
     'addRandom' | 'addPhysical' | 'addMana' | 'addCritical' |
     'removeRandom' | 'removeRandomAddRandom' | 'removeRandomAddPhysical' | 'removeRandomAddMana' | 'removeRandomAddCritical';
 
+
+export type Components = GConfig['components'];
+export type ComponentName = { [K in keyof Required<Required<GConfig>['components']>]: K }[keyof Required<GConfig>['components']];

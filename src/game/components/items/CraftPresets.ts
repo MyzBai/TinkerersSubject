@@ -1,6 +1,6 @@
 import { queryHTML, registerMutationObserver, registerTabs } from "@src/utils/helpers";
 import { CraftId, craftTemplates } from "./crafting";
-import type Items from "./items";
+import type Items from "./Items";
 
 export default class CraftPresets {
     presets: CraftPreset[];
@@ -32,7 +32,7 @@ export default class CraftPresets {
             const newIds = [...this.modal.querySelectorAll<HTMLTableRowElement>('[data-craft-list] table [data-id]')].filter(x => x.classList.contains('selected')).map(x => x.getAttribute('data-id'));
             this.activePreset!.ids = newIds as CraftId[];
 
-            const name = this.modal.querySelector<HTMLInputElement>('input[data-name]')!.value;
+            const name = queryHTML<HTMLInputElement>('input[data-name]', this.modal).value;
             if (name !== this.activePreset.name) {
                 this.activePreset.name = name;
             }

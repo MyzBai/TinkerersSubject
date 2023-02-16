@@ -2,7 +2,7 @@ import { queryHTML } from "../utils/helpers";
 import { ConfigEntry, ConfigEntryHandler, EntryType } from "./configEntryHandlers";
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
-import Game from "@src/game/game";
+import Game from "@src/game/Game";
 
 export const game = new Game();
 

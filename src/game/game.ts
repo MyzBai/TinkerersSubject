@@ -1,18 +1,21 @@
 import { registerTabs, queryHTML, isLocalHost } from "@utils/helpers";
-import Player from './player';
-import Enemy from './enemy';
-import Skills from './skills/skills';
+import Player from './Player';
+import Enemy from './Enemy';
+import Skills from './skills/Skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
-import Statistics from "./statistics";
+import Statistics from "./Statistics";
 import type { Save } from "./saveGame";
 import EventEmitter from "@src/utils/EventEmitter";
 import { game } from "@src/home/home";
-import Items from "./components/items/items";
+import Items from "./components/items/Items";
 import type Component from "./Component";
-import Passives from "./components/passives";
-import Achievements from "./components/achievements";
-import Missions from "./components/missions";
+import Passives from "./components/Passives";
+import Achievements from "./components/Achievements";
+import Missions from "./components/Missions";
+import type { ComponentName } from "@src/types/gconfig";
+import type { GameElement } from "@src/webComponents/GameElement";
+
 
 type Entries<T> = {
     [K in keyof T]: [K, T[K]];
@@ -41,7 +44,7 @@ export default class Game {
             this.setupDevHelpers();
         }
 
-        registerTabs(queryHTML('[data-main-menu]', this.gamePage), queryHTML('.s-middle', this.gamePage));
+        registerTabs(queryHTML('[data-main-menu]', this.gamePage), queryHTML('[data-main-view]', this.gamePage));
     }
     get config() {
         return this._config!;
@@ -96,6 +99,11 @@ export default class Game {
         if (!this.config.components) {
             return;
         }
+
+        const keys = Object.keys(this.config.components) as ComponentName[];
+        const gameElement = queryHTML<GameElement>('game-element');
+        gameElement.init(keys);
+
         const entries = Object.entries(this.config.components) as Required<ComponentsEntries>;
         const initComponent = (entry: Required<ComponentsEntries>[number]) => {
             const name = entry![0];

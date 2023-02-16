@@ -18,25 +18,6 @@ export function queryHTML<T extends HTMLElement>(selectors: string, parent?: HTM
     return element;
 }
 
-// export function initTabs(btnsParent: Element | null, contentsParent: Element | null) {
-
-//     if (!btnsParent || !contentsParent) {
-//         console.error(btnsParent, contentsParent);
-//         return;
-//     }
-//     const btns = btnsParent.querySelectorAll(':scope > [data-tab-target]');
-//     btns.forEach(menuBtn => {
-//         menuBtn.addEventListener('click', () => {
-//             btns.forEach(x => x.classList.toggle('selected', x === menuBtn));
-//             const targetAttr = menuBtn.getAttribute('data-tab-target');
-//             const target = contentsParent.querySelector(`[data-tab-content="${targetAttr}"]`);
-//             Array.from(target?.parentElement?.children || []).filter(x => x.hasAttribute('data-tab-content')).forEach(x => {
-//                 x.classList.toggle('hidden', x.getAttribute('data-tab-content') !== targetAttr);
-//             });
-//         });
-//     });
-// }
-
 export function registerMutationObserver(parentElement: HTMLElement, options: MutationObserverInit, callback: (targetElement: HTMLElement, type: 'added' | 'removed' | 'selected') => void) {
     const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {

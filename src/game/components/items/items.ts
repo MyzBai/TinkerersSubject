@@ -1,9 +1,9 @@
 import Component from "@src/game/Component";
-import type Game from "@src/game/game";
+import type Game from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
 import type { CraftId, ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
-import { highlightHTMLElement, queryHTML, registerMutationObserver, registerTabs } from "@src/utils/helpers";
+import { highlightHTMLElement, queryHTML } from "@src/utils/helpers";
 import { visibilityObserver } from "@src/utils/Observers";
 import { CraftData, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
@@ -12,15 +12,14 @@ type ItemsData = Required<Required<GConfig>['components']>['items'];
 export type ModTables = { [K in keyof ItemsData['modLists']]: ItemModifier[] }
 
 const mainMenuContainer = queryHTML('.p-game [data-main-menu]');
-const itemsPage = queryHTML('.p-game .p-items');
-const itemListContainer = queryHTML('[data-item-list]', itemsPage);
-const itemModListContainer = queryHTML('[data-mod-list]', itemsPage);
-const itemCraftTableContainer = queryHTML('.s-craft-container [data-craft-list] table', itemsPage);
-const craftButton = queryHTML<HTMLButtonElement>('.s-craft-container [data-craft-button]');
-const craftMessageElement = queryHTML('[data-craft-message]', itemsPage);
 
 export default class Items extends Component {
-
+    private readonly itemsPage = queryHTML('.p-game .p-items');
+    private readonly itemListContainer = queryHTML('[data-item-list]', this.itemsPage);
+    private readonly itemModListContainer = queryHTML('[data-mod-list]', this.itemsPage);
+    private readonly itemCraftTableContainer = queryHTML('.s-craft-container [data-craft-list] table', this.itemsPage);
+    private readonly craftButton = queryHTML<HTMLButtonElement>('.s-craft-container [data-craft-button]', this.itemsPage);
+    private readonly craftMessageElement = queryHTML<HTMLButtonElement>('[data-craft-message]', this.itemsPage);
     readonly items: Item[] = [];
     private activeItem: Item;
     private activeCraftId?: CraftId;
@@ -31,7 +30,7 @@ export default class Items extends Component {
     private observers = [] as (MutationObserver | IntersectionObserver)[];
     constructor(readonly game: Game, readonly data: ItemsData) {
         super(game);
-        
+
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
 
         if (data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
@@ -44,25 +43,25 @@ export default class Items extends Component {
         if ([...data.craftList].sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
             throw Error('No crafts available! There must be at least 1 craft available');
         }
-        mainMenuContainer.querySelector('[data-tab-target="items"]')?.classList.remove('hidden');
+        queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove('hidden');
 
-        game.player.stats.level.addListener('change', v => {
+        game.player.stats.level.addListener('change', () => {
             this.updateCraftList();
         });
 
         this.craftCallback = () => {
             this.performCraft();
         };
-        craftButton.addEventListener('click', this.craftCallback);
+        this.craftButton.addEventListener('click', this.craftCallback);
 
         this.presets = new CraftPresets(this);
 
-        this.goldListener = (v) => {
+        this.goldListener = () => {
             if (this.activeCraftId) {
                 this.updateCraftButton();
             }
         };
-        this.observers.push(visibilityObserver(itemsPage, visible => {
+        this.observers.push(visibilityObserver(this.itemsPage, visible => {
             if (visible) {
                 this.updateCraftButton();
                 game.player.stats.gold.addListener('change', this.goldListener)
@@ -76,13 +75,13 @@ export default class Items extends Component {
 
     dispose(): void {
         queryHTML('.p-game [data-main-menu] [data-tab-target="items"]').classList.add('hidden');
-        craftButton.removeEventListener('click', this.craftCallback);
+        this.craftButton.removeEventListener('click', this.craftCallback);
         this.observers.forEach(x => x.disconnect());
         this.presets.dispose();
 
-        itemListContainer.replaceChildren();
-        itemModListContainer.replaceChildren();
-        itemCraftTableContainer.replaceChildren();
+        this.itemListContainer.replaceChildren();
+        this.itemModListContainer.replaceChildren();
+        this.itemCraftTableContainer.replaceChildren();
     }
 
     selectItem(item: Item) {
@@ -101,7 +100,7 @@ export default class Items extends Component {
             element.textContent = desc;
             elements.push(element);
         }
-        itemModListContainer.replaceChildren(...elements);
+        this.itemModListContainer.replaceChildren(...elements);
     }
 
     private createItems() {
@@ -109,7 +108,7 @@ export default class Items extends Component {
             this.game.player.stats.level.registerCallback(itemData.levelReq, () => {
                 const item = new Item(this, itemData.name);
                 this.items.push(item);
-                itemListContainer.appendChild(item.element);
+                this.itemListContainer.appendChild(item.element);
             });
         }
     }
@@ -131,14 +130,14 @@ export default class Items extends Component {
 
             rows.push(tr);
         }
-        itemCraftTableContainer.replaceChildren(...rows);
+        this.itemCraftTableContainer.replaceChildren(...rows);
         this.updateCraftList();
 
         rows.filter(x => !x.classList.contains('hidden'))[0]?.click();
     }
 
     private updateCraftList() {
-        itemCraftTableContainer.querySelectorAll('[data-id]').forEach(x => {
+        this.itemCraftTableContainer.querySelectorAll('[data-id]').forEach(x => {
             const id = x.getAttribute('data-id');
             const craftData = this.data.craftList.find(x => x.id === id);
             if (!craftData) {
@@ -160,7 +159,8 @@ export default class Items extends Component {
             if (!this.activeCraftId) {
                 return 'No Craft Selected';
             }
-            const cost = Number(itemCraftTableContainer.querySelector(`[data-id="${this.activeCraftId}"]`)?.getAttribute('data-cost'));
+            const costAttr = queryHTML(`[data-id="${this.activeCraftId}"]`).getAttribute('data-cost');
+            const cost = Number(costAttr);
             if (cost > this.game.player.stats.gold.get()) {
                 return 'Not Enough Gold';
             }
@@ -174,8 +174,8 @@ export default class Items extends Component {
         }
 
         const msg = validate();
-        craftMessageElement.textContent = typeof (msg) === 'string' ? msg : '';
-        craftButton.disabled = typeof msg !== 'boolean';
+        this.craftMessageElement.textContent = typeof (msg) === 'string' ? msg : '';
+        this.craftButton.disabled = typeof msg !== 'boolean';
     }
 
     private performCraft() {
