@@ -16,10 +16,10 @@ export default class Enemy {
         return this._index;
     }
     get maxIndex() {
-        return this.healthList.length - 1;
+        return this.healthList.length-1;
     }
     get maxHealth() {
-        return this.healthList[this.index];
+        return this.healthList[this.index] || 1;
     }
     get health() {
         return this._health;
@@ -29,23 +29,35 @@ export default class Enemy {
     }
 
     init() {
-        this.healthList = this.game.config.enemies.enemyList;
-        this._index = this.game.saveObj.enemy?.index || 0;
-        this.health = this.game.saveObj.enemy?.health || this.maxHealth;
-        this.updateHealthBar();
+        this.game.onSave.listen(this.save.bind(this));
 
         this.onDeath.listen(() => {
             this._index++;
         });
 
-        this.game.onSave.listen(this.save.bind(this));
+        this.healthList = this.game.config.enemies.enemyList;
+        this._index = this.game.saveObj.enemy?.index || 0;
+        this.health = this.game.saveObj.enemy?.health || this.maxHealth;
+        this.spawn();
+    }
+
+    private spawn(){
+        this.health = this.maxHealth;
+        if(this.index === this.maxIndex+1){
+            this.healthBar.textContent = 'Dummy (Cannot die)';
+        }
+        this.updateHealthBar();
     }
 
     dealDamage(amount: number) {
+        if(this.index === this.maxIndex+1){
+            return;
+        }
         this.health -= amount;
 
         if (this.health === 0) {
             this.onDeath.invoke(this);
+            this.spawn();
         }
         this.updateHealthBar();
     }
@@ -57,15 +69,6 @@ export default class Enemy {
             dummyDamage: 0
         }
     }
-    // load(saveObj: Save) {
-    //     const savedEnemy = saveObj.enemy;
-    //     if (!savedEnemy) {
-    //         return;
-    //     }
-    //     this._index = savedEnemy.index || 0;
-    //     this._health = savedEnemy.health;
-    //     this.updateHealthBar();
-    // }
 
     private updateHealthBar() {
         const pct = this.health / this.maxHealth * 100;
