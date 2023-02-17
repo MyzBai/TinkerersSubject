@@ -1,7 +1,7 @@
+import type { Save } from "@src/types/save";
 import EventEmitter from "@src/utils/EventEmitter";
 import { clamp, queryHTML } from "@src/utils/helpers";
 import type Game from "./Game";
-import type { Save } from "./saveGame";
 
 export default class Enemy {
     readonly onDeath = new EventEmitter<Enemy>();

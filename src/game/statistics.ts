@@ -1,10 +1,10 @@
+import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
-import { visibilityObserver, visibilityObserverLoop } from "@utils/Observers";
+import { visibilityObserverLoop } from "@utils/Observers";
 import Value from "@utils/Value";
 import type Game from "./Game";
-import type { Save } from "./saveGame";
 
-class Statistic extends Value {
+export class Statistic extends Value {
     readonly hidden: boolean;
     constructor(defaultValue: number, hidden?: boolean) {
         super(defaultValue);

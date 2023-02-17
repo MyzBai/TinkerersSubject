@@ -4,7 +4,6 @@ type EventType = 'change' | 'set' | 'add' | 'subtract';
 type Callback = (v: number) => void;
 
 export default class Value {
-    private readonly defaultValue: number;
     private value: number;
     private readonly listeners = new Map<EventType, EventEmitter<number>>([
         ['change', new EventEmitter<number>()],
@@ -12,8 +11,7 @@ export default class Value {
         ['add', new EventEmitter<number>()],
         ['subtract', new EventEmitter<number>()],
     ]);
-    constructor(defaultValue: number) {
-        this.defaultValue = defaultValue;
+    constructor(public readonly defaultValue: number) {
         this.value = defaultValue;
     }
 

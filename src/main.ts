@@ -1,7 +1,7 @@
 import './webComponents/GameElement';
-import { init as initHome } from './home/home';
-import { queryHTML} from './utils/helpers';
-
+import './webComponents/GenericModal';
+import { queryHTML } from './utils/helpers';
+import Home from './home/Home';
 queryHTML('header [data-target="game"]').addEventListener('click', (e: MouseEvent) => {
     if (e.target instanceof Element) {
         const target = e.target;
@@ -29,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function init() {
 
-    await initHome();
+    const home = new Home();
+    home.init();
     document.body.classList.remove('hidden');
 }

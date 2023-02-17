@@ -2,7 +2,6 @@
 
 .p-home {
     display: grid;
-    grid-template-columns: 1fr 1fr;
     grid-template-rows: auto 1fr;
     margin: 0 auto;
     width: 70%;
@@ -18,37 +17,40 @@
     menu {
         display: flex;
         background-color: $color-canvas-default;
-        grid-column: span 2
     }
-    ul {
-        padding-top: $padding-container;
-        overflow-y: auto;
-        height: 100%;
-        min-height: 0;
+    .s-main {
+        display: flex;
 
-        li{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            
-        }
-    }
+        .p-new,
+        .p-saved {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
 
-    [data-config-info] {
-        display: grid;
-        grid-template-rows: auto 1fr auto;
-        text-align: center;
-        padding-top: $padding-container;
-        [data-title]{
-            padding: $padding-list-item;
-        }
-        [data-desc] {
-            padding: $padding-container;
-        }
-        
-        button[data-role=delete]{
-            margin-bottom: 0.3em;
+            ul {
+                padding-top: $padding-container;
+                overflow-y: auto;
+                height: 100%;
+                min-height: 0;
+
+                li {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+            }
+            [data-entry-info] {
+                display: grid;
+                grid-template-rows: auto 1fr auto;
+                text-align: center;
+                padding-top: $padding-container;
+                [data-title] {
+                    padding: $padding-list-item;
+                }
+                [data-desc] {
+                    padding: $padding-container;
+                }
+            }
         }
     }
 }
-

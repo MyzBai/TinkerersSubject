@@ -1,7 +1,8 @@
 import type GConfig from "@src/types/gconfig";
+import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
 import { visibilityObserver } from "@src/utils/Observers";
-import Component from "../Component";
+import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
 
@@ -10,14 +11,14 @@ type PassiveData = PassivesData['passiveLists'][number][number];
 
 export default class Passives extends Component {
 
-    private passives: Passive[];
-    private observer: IntersectionObserver;
-    private levelListener: (v: number) => void;
+    readonly passives: Passive[];
+    private readonly observer: IntersectionObserver;
+    private readonly levelListener: (v: number) => void;
     constructor(readonly game: Game, readonly data: PassivesData) {
         super(game);
         this.passives = [];
 
-        this.levelListener = (v) => {
+        this.levelListener = () => {
             this.updatePoints();
             this.updatePassiveList();
         };
@@ -25,13 +26,14 @@ export default class Passives extends Component {
         for (const passiveListData of data.passiveLists) {
             passiveListData.sort((a, b) => a.levelReq - b.levelReq);
             for (const passiveData of passiveListData) {
-                const passive = new Passive(this, passiveData);
+                const passive = new Passive(this, passiveData, this.passives.length);
                 passive.element.addEventListener('click', () => {
                     passive.assigned = !passive.assigned;
                     this.updatePoints();
                     this.updatePassiveList();
                 })
                 this.passives.push(passive);
+
             }
         }
         queryHTML('.p-game .p-passives .s-passive-list table').append(...this.passives.map(x => x.element));
@@ -63,6 +65,15 @@ export default class Passives extends Component {
         queryHTML('.p-game .p-passives .s-passive-list table').replaceChildren();
     }
 
+    save(saveObj: Save): void {
+        saveObj.passives = {
+            list: this.passives.filter(x => x.assigned).map((x) => ({
+                index: this.passives.indexOf(x),
+                desc: x.data.mod
+            }))
+        }
+    }
+
     private updatePoints() {
         queryHTML<HTMLSpanElement>('.p-game .p-passives [data-cur-points]').textContent = this.curPoints.toFixed();
         queryHTML<HTMLSpanElement>('.p-game .p-passives [data-max-points]').textContent = this.maxPoints.toFixed();
@@ -82,12 +93,21 @@ class Passive {
     private _assigned = false;
     readonly element: HTMLTableRowElement;
     readonly mod: Modifier;
-    constructor(readonly passives: Passives, readonly data: PassiveData) {
+    constructor(readonly passives: Passives, readonly data: PassiveData, readonly index: number) {
         this.mod = new Modifier(data.mod);
+
         this.element = this.createElement();
         passives.game.player.stats.level.registerCallback(data.levelReq, () => {
             this.element.classList.remove('hidden');
         });
+
+        const savedList = passives.game.saveObj.passives?.list;
+        if (savedList) {
+            const desc = savedList.find(x => x.index === index)?.desc;
+            if (desc === data.mod && passives.curPoints >= data.points) {
+                this.assigned = true;
+            }
+        }
     }
 
     get assigned() {
@@ -96,12 +116,10 @@ class Passive {
 
     set assigned(v: boolean) {
         const modDB = this.passives.game.player.modDB;
-        const source = 'Passives'.concat('/', this.element.rowIndex.toFixed());
-        console.log(source);
+        const source = 'Passives'.concat('/', this.index.toFixed());
         if (v) {
             this._assigned = true;
             const mods = this.mod.copy().stats;
-            console.log(mods);
             modDB.add(mods, source);
         } else {
             this._assigned = false;

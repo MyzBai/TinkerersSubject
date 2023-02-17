@@ -44,6 +44,9 @@ export function registerMutationObserver(parentElement: HTMLElement, options: Mu
     return observer;
 }
 
+/**
+ * @description listens for changes to all children queried with {@link queryString}
+ */
 export function registerTabs(btnsParent: HTMLElement, contentsParent?: HTMLElement, callback?: (target: HTMLElement) => void, queryString = '[data-tab-target]') {
     const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
@@ -69,13 +72,22 @@ export function registerTabs(btnsParent: HTMLElement, contentsParent?: HTMLEleme
     });
     const addBtn = (btn: HTMLElement) => {
         btn.addEventListener('click', () => {
-            callback?.(btn);
             btn.classList.add('selected');
         });
     }
     Array.from(btnsParent.querySelectorAll<HTMLElement>(queryString)).forEach(x => addBtn(x));
     observer.observe(btnsParent, { attributes: true, subtree: true, childList: true });
     return observer;
+}
+
+export function generateTime(startTime = 0) {
+    const ms = Date.now() - startTime;
+    const days = Math.floor(ms / 86400000);
+    const hours = (Math.floor(ms / 3600000) % 24);
+    const mins = (Math.floor(ms / 60000) % 60).toFixed();
+    return {
+        days, hours, mins, ms
+    };
 }
 
 // export function registerTabs(btnsParent: HTMLElement, contentsParent: HTMLElement, callback: (btn: HTMLElement, content: HTMLElement) => void) {

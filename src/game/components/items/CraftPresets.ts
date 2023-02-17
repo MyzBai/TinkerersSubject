@@ -1,4 +1,4 @@
-import { queryHTML, registerMutationObserver, registerTabs } from "@src/utils/helpers";
+import { queryHTML } from "@src/utils/helpers";
 import { CraftId, craftTemplates } from "./crafting";
 import type Items from "./Items";
 
@@ -54,7 +54,14 @@ export default class CraftPresets {
         this.applyPresetButton.addEventListener('click', this.applyPresetCallback);
         this.deletePresetButton.addEventListener('click', this.deletePresetCallback);
 
-        this.newPreset('Default', items.data.craftList.map(x => x.id));
+        if (items.game.saveObj.items?.craftPresets) {
+            for (const savedPreset of items.game.saveObj.items?.craftPresets) {
+                this.newPreset(savedPreset.name, savedPreset.ids);
+            }
+        } else {
+            this.newPreset('Default', items.data.craftList.map(x => x.id));
+        }
+
     }
 
     dispose() {

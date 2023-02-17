@@ -4,7 +4,7 @@
         "target": "ESNext",
         "lib": [ "DOM", "ESNext", "dom.iterable" ],
         "resolveJsonModule": true,
-        "importsNotUsedAsValues": "error",
+        // "importsNotUsedAsValues": "error",
         "skipLibCheck": true,
         "moduleResolution": "node",
         "baseUrl": ".",

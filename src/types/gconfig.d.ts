@@ -15,7 +15,7 @@ export interface Meta {
     rawUrl: string;
     id: string;
     createdAt: number;
-    lastSavedAt?: number;
+    lastSavedAt: number;
 }
 
 export interface Options {

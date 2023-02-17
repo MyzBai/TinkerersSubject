@@ -5,16 +5,18 @@ import Skills from './skills/Skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import Statistics from "./Statistics";
-import type { Save } from "./saveGame";
 import EventEmitter from "@src/utils/EventEmitter";
-import { game } from "@src/home/home";
 import Items from "./components/items/Items";
-import type Component from "./Component";
+import type Component from "./components/Component";
 import Passives from "./components/Passives";
 import Achievements from "./components/Achievements";
 import Missions from "./components/Missions";
 import type { ComponentName } from "@src/types/gconfig";
 import type { GameElement } from "@src/webComponents/GameElement";
+import saveManager from "@src/utils/saveManager";
+import type { Save } from "@src/types/save";
+import Settings from "./Settings";
+import Home from "@src/home/Home";
 
 
 type Entries<T> = {
@@ -29,16 +31,18 @@ export default class Game {
     readonly player: Player;
     readonly skills: Skills;
     readonly statistics: Statistics;
+    readonly settings: Settings;
     readonly components: Component[] = [];
     readonly onSave = new EventEmitter<Save>();
     private _config: GConfig | undefined;
     private _saveObj: Save | undefined;
-    constructor() {
+    constructor(readonly home: Home) {
         this.enemy = new Enemy(this);
         this.player = new Player(this);
         this.skills = new Skills(this);
 
         this.statistics = new Statistics(this);
+        this.settings = new Settings(this);
 
         if (isLocalHost) {
             this.setupDevHelpers();
@@ -57,15 +61,13 @@ export default class Game {
         this._config = config;
         this._saveObj = saveObj;
 
-        this.onSave.removeAllListeners();
-        this.gameLoop.reset();
+        this.dispose();
 
         this.enemy.init();
         this.player.init();
         this.skills.init();
         this.statistics.init();
 
-        this.disposeComponents();
         this.createComponents();
 
         this.gameLoop.subscribe(() => {
@@ -78,6 +80,7 @@ export default class Game {
 
         await this.setup();
     }
+
     async setup() {
         this.player.setup();
 
@@ -88,6 +91,11 @@ export default class Game {
         document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
     }
 
+    async dispose() {
+        this.onSave.removeAllListeners();
+        this.gameLoop.reset();
+        this.disposeComponents();
+    }
 
     private disposeComponents() {
         for (const component of this.components) {
@@ -95,6 +103,7 @@ export default class Game {
         }
         this.components.splice(0);
     }
+
     private createComponents() {
         if (!this.config.components) {
             return;
@@ -109,16 +118,16 @@ export default class Game {
             const name = entry![0];
             switch (name) {
                 case 'items':
-                    this.components.push(new Items(game, entry[1]!));
+                    this.components.push(new Items(this, entry[1]!));
                     break;
                 case 'passives':
-                    this.components.push(new Passives(game, entry[1]!));
+                    this.components.push(new Passives(this, entry[1]!));
                     break;
                 case 'achievements':
-                    this.components.push(new Achievements(game, entry[1]!));
+                    this.components.push(new Achievements(this, entry[1]!));
                     break;
                 case 'missions':
-                    this.components.push(new Missions(game, entry[1]!));
+                    this.components.push(new Missions(this, entry[1]!));
                     break;
             }
         }
@@ -139,17 +148,10 @@ export default class Game {
                 setLevel: (v: number) => this.player.stats.level.set(v),
                 setGold: (v: number) => this.player.stats.gold.set(v),
                 save: () => {
-                    this.onSave.invoke(this.saveObj);
-                    localStorage.setItem('save', JSON.stringify(this.saveObj));
-                    console.log(this.saveObj);
+                    this.save();
                 },
                 load: async () => {
-                    const str = localStorage.getItem('save');
-                    if (!str) {
-                        return;
-                    }
-                    const saveObj = JSON.parse(str) as Save;
-                    game.init(this.config, saveObj);
+                    this.load(this.config);
                 }
             }
         });
@@ -166,6 +168,67 @@ export default class Game {
                 }
             }
         });
+    }
+
+    async save() {
+        const map = await saveManager.load('Game') || new Map<string, Save>();
+        const saveObj = map.get(this.config.meta.id) as Save || { meta: { ...this.config.meta } };
+        saveObj.meta.lastSavedAt = Date.now();
+        this.player.save(saveObj);
+        this.enemy.save(saveObj);
+        this.statistics.save(saveObj);
+        this.skills.save(saveObj);
+
+        for (const component of this.components) {
+            component.save(saveObj);
+        }
+
+        map.set(this.config.meta.id, saveObj);
+        await saveManager.save('Game', Object.fromEntries(map));
+    }
+
+    async load(config: GConfig) {
+        const map = await saveManager.load('Game');
+        if (!map) {
+            return false;
+        }
+        const saveObj = map.get(config.meta.id);
+        if (!saveObj) {
+            console.log('could not load', config.meta.id);
+            return false;
+        }
+
+        this.init(config, saveObj);
+    }
+
+    async loadMostRecentSave() {
+        try {
+            const map = await saveManager.load('Game');
+            if (!map) {
+                return;
+            }
+            return [...map].map(x => x[1]).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt)[0];
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async deleteSave() {
+        const map = await saveManager.load('Game');
+        if (!map) {
+            return;
+        }
+        if (map?.delete(this.config.meta.id)) {
+            return await saveManager.save('Game', Object.fromEntries(map));
+        }
+    }
+
+    async hasSave(id: Save['meta']['id']) {
+        const map = await saveManager.load('Game');
+        if (!map) {
+            return false;
+        }
+        return map.has(id);
     }
 }
 

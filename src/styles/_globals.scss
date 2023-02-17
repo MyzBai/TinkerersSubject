@@ -115,8 +115,8 @@
     &[data-role=confirm]{
         background-color: $color-button-confirm-bg;
     }
-    &[data-role=delete]{
-        background-color: $color-button-delete-bg;
+    &[data-role=cancel]{
+        background-color: $color-button-cancel-bg;
     }
 }
 

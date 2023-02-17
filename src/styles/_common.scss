@@ -6,8 +6,8 @@
 *::before,
 *::after {
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    box-sizing: border-box;         /* Opera/IE 8+ */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box; /* Opera/IE 8+ */
 }
 *:focus {
     outline: 0;
@@ -19,11 +19,14 @@ var {
     cursor: default;
 }
 
-h1, h2, h3, p {
+h1,
+h2,
+h3,
+p {
     margin: 0;
 }
 
-table{
+table {
     border-collapse: collapse;
     margin: 0;
     width: 100%;
@@ -61,23 +64,70 @@ dialog {
     color: inherit;
 }
 
+generic-modal {
+    position: fixed;
+    inset: 0;
+    top: 5em;
+    bottom: 5em;
+    max-width: 80%;
+    margin: auto;
+    min-height: 0;
+    overflow-y: auto;
+    pointer-events: none;
+    dialog {
+        background-color: $color-canvas-default;
+        border: 1px solid $color-modal-border;
+        min-width: 30vw;
+        pointer-events: all;
+        form {
+            min-height: 0;
+            overflow-y: auto;
+            display: grid;
+
+            header{
+                padding-bottom: 1em;
+                text-align: center;
+            }
+            footer {
+                padding-top: 1em;
+                button{
+                    min-width: 3em;
+                }
+            }
+        }
+    }
+
+    .backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        backdrop-filter: blur(1px);
+    }
+}
+
 dialog[data-modal] {
     background-color: $color-canvas-default;
     border: 1px solid $color-modal-border;
     padding: 0;
-    height: clamp(60vh, 80vh, 95vh);
+    // margin-top: calc(1em);
+    // max-height: 95vh;
+    // height: clamp(20vh, 80vh, 95vh);
     border-radius: 0.3em;
     & > form {
         padding: $padding-modal;
         // max-height: 80vh;
         height: 100%;
+
+        header {
+            border-bottom: 1px solid $color-border-highlight;
+        }
         input[type="submit"] {
             min-width: 5em;
 
-            &[data-apply]{
+            &[data-apply] {
                 background-color: $color-modal-confirm-bg;
             }
-            &[data-cancel]{
+            &[data-cancel] {
                 background-color: $color-modal-cancel-bg;
             }
         }

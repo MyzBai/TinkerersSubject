@@ -8,9 +8,10 @@
 // import Task from '../Task';
 
 import type GConfig from "@src/types/gconfig";
+import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
 import { visibilityObserverLoop } from "@src/utils/Observers";
-import Component from "../Component";
+import Component from "./Component";
 import type Game from "../Game";
 import Task from "../Task";
 
@@ -26,7 +27,7 @@ export default class Missions extends Component {
     constructor(readonly game: Game, readonly data: MissionsData) {
         super(game);
 
-        for (const slotData of data.slots) {
+        for (const [i, slotData] of data.slots.entries()) {
             game.player.stats.level.registerCallback(slotData.levelReq, () => {
                 const slot = new MissionSlot(this, slotData.cost);
                 this.slots.push(slot);
@@ -51,6 +52,24 @@ export default class Missions extends Component {
         queryHTML('.p-game [data-main-menu] [data-tab-target="missions"]').classList.add('hidden');
     }
 
+    save(saveObj: Save): void {
+
+        saveObj.missions = (() => {
+            const list: Required<Save>['missions']['missions'] = [];
+            this.slots.forEach((slot, i) => {
+                if (!slot.task) {
+                    return;
+                }
+                list.push({
+                    desc: slot.task.text,
+                    index: i,
+                    startValue: slot.task.startValue
+                });
+            });
+            return { missions: list };
+        })() as Save['missions'];
+    }
+
 }
 
 class MissionSlot {
@@ -63,6 +82,12 @@ class MissionSlot {
         missions.game.player.stats.gold.addListener('change', () => {
             this.setNewButton();
         });
+        const savedSlot = missions.game.saveObj.missions?.missions.find(x => x.index === missions.slots.length);
+        if (savedSlot) {
+            this.unlock();
+            this._task = new Task(missions.game, savedSlot.desc);
+            this._task.startValue = savedSlot.startValue;
+        }
     }
     get element() {
         return this._element;

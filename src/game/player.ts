@@ -4,8 +4,8 @@ import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
 import { queryHTML } from "@src/utils/helpers";
 import type Game from './Game';
-import type { Save } from './saveGame';
 import { visibilityObserverLoop } from '@src/utils/Observers';
+import type { Save } from '@src/types/save';
 
 export default class Player {
     private playerStatsContainer = queryHTML('.p-game > .s-stats');
@@ -151,16 +151,4 @@ export default class Player {
             curMana: this.stats.curMana.get()
         };
     }
-
-    // async load(saveObj: Save) {
-    //     const playerSave = saveObj.player;
-    //     if (!playerSave) {
-    //         return;
-    //     }
-    //     this.stats.level.set(playerSave.level || 1);
-    //     this.stats.gold.set(playerSave.gold || 0);
-    //     this.stats.curMana.set(playerSave.curMana || 0);
-
-    //     await this.updateStats();
-    // }
 }

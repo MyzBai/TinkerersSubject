@@ -23,21 +23,35 @@
     </header>
     <main class="p-home" data-tab-content="home">
         <menu class="g-list-h">
-            <li class="g-list-item" data-type="new">New</li>
-            <li class="g-list-item" data-type="save">Load</li>
+            <li class="g-list-item" data-type="new" data-tab-target="new">New</li>
+            <li class="g-list-item" data-type="saved" data-tab-target="saved">Load</li>
         </menu>
-        <ul class="g-list-v" data-config-list></ul>
-        <div class="s-info" data-config-info>
-            <h3 data-title></h3>
-            <div data-desc></div>
-            <button class="g-button hidden" data-role="delete">Delete</button>
-            <button class="g-button" data-start>Start</button>
+        <div class="s-main">
+            <div class="p-new" data-tab-content="new">
+                <ul class="g-list-v" data-entry-list></ul>
+                <div class="s-info" data-entry-info>
+                    <h3 data-title></h3>
+                    <div data-desc></div>
+                    <button class="g-button" data-start>Start</button>
+                </div>
+            </div>
+            <div class="p-saved" data-tab-content="saved">
+                <ul class="g-list-v" data-entry-list></ul>
+                <div class="s-info" data-entry-info>
+                    <h3 data-title></h3>
+                    <div data-desc></div>
+                    <button class="g-button" data-start>Start</button>
+                </div>
+            </div>
         </div>
+
 
     </main>
 
     <game-element></game-element>
 
+
+    <generic-modal></generic-modal>
     <script>
         // {
         //     document.querySelectorAll('dialog[data-modal]').forEach(x => x.addEventListener('mousedown', x => {

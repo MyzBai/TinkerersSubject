@@ -1,7 +1,8 @@
 import type GConfig from "@src/types/gconfig";
+import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
 import { visibilityObserverLoop } from "@src/utils/Observers";
-import Component from "../Component";
+import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
 import Task from "../Task";
@@ -38,6 +39,9 @@ export default class Achievements extends Component {
         queryHTML('.p-game .p-achievements ul').replaceChildren();
     }
 
+    //@ts-expect-error
+    save(saveObj: Save): void { }
+
 }
 
 class Achievement {
@@ -47,6 +51,7 @@ class Achievement {
     constructor(readonly achievements: Achievements, readonly data: AchivementData['list'][number]) {
         this.element = this.createElement();
         this.task = new Task(achievements.game, data.description);
+        this.task.startValue = this.task.validator[1].defaultValue;
     }
     get taskCompleted() { return this.task.completed; }
     tryCompletion() {

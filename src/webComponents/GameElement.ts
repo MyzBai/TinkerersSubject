@@ -50,11 +50,9 @@ export class GameElement extends HTMLElement {
 
     connectedCallback() {
         this.innerHTML = html;
-        console.log('a');
     }
 
     init(names: ComponentName[]) {
-        console.log('b');
         const container = queryHTML('[data-main-view]', this);
         const menu = queryHTML('[data-main-menu]');
         menu.replaceChildren();

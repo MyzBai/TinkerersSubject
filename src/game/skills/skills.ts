@@ -1,8 +1,8 @@
 import type GConfig from "@src/types/gconfig";
+import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
 import type Game from "../Game";
 import { Modifier, StatModifier } from "../mods";
-import type { Save } from "../saveGame";
 import modal from "./Modal";
 import { AttackSkillSlot, BuffSkillSlot } from "./SkillSlot";
 
@@ -67,7 +67,6 @@ export default class Skills {
                 };
             })
         }
-        console.log(saveObj.skills.buffSkills[0].time);
     }
 
     private createAttackSkillSlot(skills: AttackSkill[]) {

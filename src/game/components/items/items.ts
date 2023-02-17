@@ -1,8 +1,9 @@
-import Component from "@src/game/Component";
+import Component from "@src/game/components/Component";
 import type Game from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
 import type { CraftId, ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
+import type { Save } from "@src/types/save";
 import { highlightHTMLElement, queryHTML } from "@src/utils/helpers";
 import { visibilityObserver } from "@src/utils/Observers";
 import { CraftData, craftTemplates } from "./crafting";
@@ -23,7 +24,7 @@ export default class Items extends Component {
     readonly items: Item[] = [];
     private activeItem: Item;
     private activeCraftId?: CraftId;
-    private modLists: ItemModifier[];
+    readonly modLists: ItemModifier[];
     private presets: CraftPresets;
     private goldListener: (v: number) => void;
     private readonly craftCallback: () => void;
@@ -69,8 +70,6 @@ export default class Items extends Component {
                 game.player.stats.gold.removeListener('change', this.goldListener);
             }
         }));
-
-
     }
 
     dispose(): void {
@@ -82,6 +81,22 @@ export default class Items extends Component {
         this.itemListContainer.replaceChildren();
         this.itemModListContainer.replaceChildren();
         this.itemCraftTableContainer.replaceChildren();
+    }
+
+    save(saveObj: Save) {
+        saveObj.items = {
+            items: this.items.map<Required<Save>['items']['items'][number]>(item => ({
+                name: item.name,
+                modList: item.mods.map(mod => ({
+                    desc: mod.template.desc,
+                    values: mod.stats.map(x => x.value)
+                }))
+            })),
+            craftPresets: this.presets.presets.map(preset => ({
+                name: preset.name,
+                ids: preset.ids
+            }))
+        }
     }
 
     selectItem(item: Item) {
@@ -206,6 +221,21 @@ class Item {
     private _mods = [] as ItemModifier[];
     constructor(readonly items: Items, readonly name: string) {
         this.element = this.createElement();
+
+        const savedItem = items.game.saveObj.items?.items?.find(x => x.name === name);
+        if (savedItem) {
+            const mods = savedItem.modList.map(savedMod => {
+                const mod = items.modLists.find(x => x.template.desc === savedMod.desc)?.copy();
+                if (!mod) {
+                    return;
+                }
+                savedMod.values.forEach((v, i) => {
+                    mod.stats[i].value = v;
+                });
+                return mod;
+            }).filter((x): x is ItemModifier => !!x);
+            this.mods = mods;
+        }
     }
     get mods() { return this._mods; }
     set mods(v: ItemModifier[]) {
@@ -231,7 +261,7 @@ export class ItemModifier extends Modifier {
     public readonly levelReq: number;
     public weight: number;
     readonly groupIndex: number;
-    private readonly modGroup: ItemMod[];
+    readonly modGroup: ItemMod[];
     constructor(itemModData: ItemMod, modGroup: ItemMod[]) {
         super(itemModData.mod);
         this.itemModData = itemModData;
