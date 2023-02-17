@@ -21,10 +21,7 @@ export class GenericModal extends HTMLElement {
                     <h3>Title</h3>
                 </header>
                 <div data-body></div>
-                <footer>
-                    <div data-buttons></div>
-                    <span data-text></span>
-                </footer>
+                <footer></footer>
             </form>
             <div class="backdrop"></div>
         </dialog>`;
@@ -62,8 +59,10 @@ export class GenericModal extends HTMLElement {
             });
             buttons.push(button);
         }
-        queryHTML('footer [data-buttons]', this).replaceChildren(...buttons);
-        queryHTML('footer [data-text]').textContent = args.footerText || '';
+        queryHTML('footer', this).replaceChildren(...buttons);
+        if(args.footerText){
+            queryHTML('footer', this).insertAdjacentHTML('beforeend', `<small>${args.footerText}</small>`);
+        }
     }
 
     openModal() {

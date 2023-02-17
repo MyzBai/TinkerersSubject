@@ -90,35 +90,6 @@ export function generateTime(startTime = 0) {
     };
 }
 
-// export function registerTabs(btnsParent: HTMLElement, contentsParent: HTMLElement, callback: (btn: HTMLElement, content: HTMLElement) => void) {
-//     const btns = [...btnsParent.querySelectorAll<HTMLElement>(':scope > [data-tab-target]')];
-//     for (const btn of btns) {
-//         btn.addEventListener('click', () => {
-//             btns.forEach(x => x.classList.toggle('selected', x === btn));
-//             const targetAttr = btn.getAttribute('data-tab-target');
-//             const target = queryHTML(`[data-tab-content="${targetAttr}"]`, contentsParent);
-//             callback(btn, target);
-//         });
-//     }
-// }
-
-// export function registerTab(btn: HTMLElement, contentsParent: HTMLElement, callback: (btn: HTMLElement, content: HTMLElement) => void) {
-//     btn.addEventListener('click', () => {
-//         Array.from(btn.parentElement!.children).forEach(x => x.classList.toggle('selected', x === btn));
-//         const targetAttr = btn.getAttribute('data-tab-target');
-//         const target = queryHTML(`[data-tab-content="${targetAttr}"]`, contentsParent);
-//         callback(btn, target);
-//     });
-// }
-
-// export function tabCallback(btn: HTMLElement, content: HTMLElement) {
-//     const targetAttr = btn.getAttribute('data-tab-target');
-//     [...content.parentElement?.children || []].filter(x => x.hasAttribute('data-tab-content')).forEach(x => {
-//         x.classList.toggle('hidden', x.getAttribute('data-tab-content') !== targetAttr);
-//     });
-// }
-
-
 export function highlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {
     const attr = 'data-highlight-notification';
     if (element.classList.contains('selected')) {
@@ -131,63 +102,3 @@ export function highlightHTMLElement(element: HTMLElement, trigger: 'click' | 'm
     };
     element.addEventListener(trigger, listener);
 }
-
-// export const highlightHTMLElement = (() => {
-//     type Trigger = 'click' | 'mouseover';
-//     const attributeName = 'data-highlight-notification';
-
-//     class Node {
-//         element: HTMLElement;
-//         parent: Node | null;
-//         isRoot: boolean;
-//         trigger: Trigger;
-//         constructor(element: HTMLElement, parent: Node | null, isRoot: boolean, trigger: Trigger) {
-//             this.element = element;
-//             this.parent = parent;
-//             this.isRoot = isRoot;
-//             this.trigger = trigger;
-//             if (!isRoot) {
-//                 const listener = () => {
-//                     element.removeEventListener(trigger, listener);
-//                     element.removeAttribute(attributeName);
-//                     this.parent?.evaluate();
-//                 }
-//                 element.addEventListener(trigger, listener);
-//             }
-
-//         }
-//         evaluate() {
-//             const children = nodes.filter(x => x.parent === this);
-//             if (children.length === 0) {
-//                 return;
-//             }
-//             const test = children.some(x => x.element.hasAttribute(attributeName));
-//             if (!test) {
-//                 this.element.removeAttribute(attributeName);
-//                 this.parent?.evaluate();
-//             }
-//         }
-//     }
-//     const nodes = [] as Node[];
-//     function register(roots: HTMLElement[], elements: HTMLElement[], trigger: Trigger) {
-
-//         let parent: Node = null;
-//         for (const root of roots) {
-//             let rootNode = nodes.find(x => x.element === root);
-//             if (!rootNode) {
-//                 rootNode = new Node(root, parent, true, trigger);
-//                 nodes.push(rootNode);
-//             }
-//             parent = rootNode;
-//         }
-//         for (const element of elements) {
-//             const node = new Node(element, parent, false, trigger);
-//             nodes.push(node);
-//         }
-
-//         [...roots, ...elements].forEach(x => x.setAttribute(attributeName, ''));
-//     }
-//     return {
-//         register,
-//     }
-// })();

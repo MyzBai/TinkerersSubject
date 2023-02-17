@@ -1,17 +1,18 @@
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
-import { visibilityObserverLoop } from "@src/utils/Observers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
 import Task from "../Task";
+import { visibilityObserver } from "@src/utils/Observers";
 
 type AchivementData = Required<Required<GConfig>['components']>['achievements'];
 
 export default class Achievements extends Component {
     readonly achievements: Achievement[] = [];
     readonly observers: IntersectionObserver[] = [];
+    private readonly page = queryHTML('.p-game .p-achievements');
     constructor(readonly game: Game, readonly data: AchivementData) {
         super(game);
 
@@ -21,16 +22,30 @@ export default class Achievements extends Component {
             achievement.updateLabel();
         }
 
-        this.observers.push(visibilityObserverLoop(queryHTML('.p-game .p-achievements'), () => {
+        this.game.gameLoop.subscribe(() => {
             this.achievements.forEach(x => {
-                x.updateLabel();
+                x.tryCompletion();
             });
-        }, { intervalMilliseconds: 1000 }).observer);
+        });
 
-        game.gameLoop.subscribe(() => { this.achievements.forEach(x => x.tryCompletion()); }, { intervalMilliseconds: 1000 });
+        {
+            let loopId: string | undefined;
+            this.observers.push(visibilityObserver(this.page, visible => {
+                if (visible) {
+                    const updateUI = () => {
+                        this.achievements.forEach(x => {
+                            x.updateLabel();
+                        });
+                    }
+                    updateUI();
+                    loopId = this.game.gameLoop.subscribe(() => updateUI(), { intervalMilliseconds: 1000 });
+                } else {
+                    this.game.gameLoop.unsubscribe(loopId);
+                }
+            }));
+        }
 
         queryHTML('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
-
         queryHTML('.p-game [data-main-menu] [data-tab-target="achievements"]').classList.remove('hidden');
     }
 

@@ -1,33 +1,23 @@
-// import type GConfig from '@src/types/gconfig';
-// import { highlightHTMLElement, queryHTML } from '@src/utils/helpers';
-// import { visibilityObserver } from '@src/utils/Observers';
-// import type Game from '../game';
-// import gameLoop from '../gameLoop';
-// import { playerStats } from '../player';
-// import type { Save } from '../saveGame';
-// import Task from '../Task';
-
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
-import { visibilityObserverLoop } from "@src/utils/Observers";
 import Component from "./Component";
 import type Game from "../Game";
 import Task from "../Task";
+import { visibilityObserver } from "@src/utils/Observers";
 
-// const missionListContainer = queryHTML('.p-game .p-missions ul[data-mission-list]');
-// const missionsMenuButton = queryHTML('.p-game > menu [data-tab-target="missions"]')!;
 type MissionsData = Required<Required<GConfig>['components']>['missions'];
 type MissionData = MissionsData['missionLists'][number][number];
 
 export default class Missions extends Component {
-    private readonly missionsListContainer = queryHTML<HTMLUListElement>('.p-game .p-missions ul[data-mission-list]');
     readonly slots: MissionSlot[] = [];
+    private readonly page = queryHTML('.p-game .p-missions');
+    private readonly missionsListContainer = queryHTML<HTMLUListElement>('ul[data-mission-list]', this.page);
     readonly observer: IntersectionObserver;
     constructor(readonly game: Game, readonly data: MissionsData) {
         super(game);
 
-        for (const [i, slotData] of data.slots.entries()) {
+        for (const slotData of data.slots) {
             game.player.stats.level.registerCallback(slotData.levelReq, () => {
                 const slot = new MissionSlot(this, slotData.cost);
                 this.slots.push(slot);
@@ -35,20 +25,31 @@ export default class Missions extends Component {
             });
         }
 
-        this.observer = visibilityObserverLoop(queryHTML('.p-game .p-missions'), () => {
-            this.slots.forEach(x => {
-                x.updateLabel();
-            });
-        }, { intervalMilliseconds: 1000 }).observer;
-
         game.gameLoop.subscribe(() => { this.slots.forEach(x => x.tryCompletion()); }, { intervalMilliseconds: 1000 });
 
+        {
+            let loopId: string | undefined;
+            this.observer = visibilityObserver(this.page, visible => {
+                if (visible) {
+                    const updateUI = () => {
+                        this.slots.forEach(x => {
+                            x.updateLabel();
+                        });
+                    };
+                    updateUI();
+                    loopId = this.game.gameLoop.subscribe(() => updateUI(), { intervalMilliseconds: 1000 });
+                } else {
+                    this.game.gameLoop.unsubscribe(loopId);
+                }
+            });
+        }
 
         queryHTML('.p-game [data-main-menu] [data-tab-target="missions"]').classList.remove('hidden');
     }
 
     dispose(): void {
         this.missionsListContainer.replaceChildren();
+        this.observer.disconnect();
         queryHTML('.p-game [data-main-menu] [data-tab-target="missions"]').classList.add('hidden');
     }
 

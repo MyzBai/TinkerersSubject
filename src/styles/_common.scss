@@ -82,6 +82,7 @@ generic-modal {
         min-width: 30vw;
         pointer-events: all;
 
+        
         form {
             min-height: 0;
             overflow-y: auto;
@@ -96,7 +97,8 @@ generic-modal {
                 button {
                     min-width: 3em;
                 }
-                [data-text]{
+                small{
+
                     display: block;
                     padding-top: 0.3rem;
                     font-size: 0.75em;

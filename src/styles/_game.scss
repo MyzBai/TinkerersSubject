@@ -36,6 +36,8 @@
                         display: flex;
                         background-color: $color-health-bar-fg;
                         width: 100%;
+                        align-items: center;
+                        justify-content: center;
                     }
 
                     .health-bar[data-damage]::after {

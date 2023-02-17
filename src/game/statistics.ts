@@ -1,6 +1,6 @@
 import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
-import { visibilityObserverLoop } from "@utils/Observers";
+import { visibilityObserver } from "@src/utils/Observers";
 import Value from "@utils/Value";
 import type Game from "./Game";
 
@@ -23,8 +23,19 @@ export default class Statistics {
         'Total Physical Damage': new Statistic(0),
         'Prestige Count': new Statistic(0),
     } as const;
+    private readonly page = queryHTML('.p-game .p-statistics');
     constructor(readonly game: Game) {
-        visibilityObserverLoop(queryHTML('.p-game .p-statistics'), this.updateUI.bind(this), { intervalMilliseconds: 1000 });
+
+        let loopId: string | undefined;
+        visibilityObserver(this.page, visible => {
+            if (visible) {
+                this.updateStatisticsUI();
+                console.log(this.game.statistics.statistics["Gold Generated"].get());
+                loopId = this.game.gameLoop.subscribe(() => this.updateStatisticsUI(), { intervalMilliseconds: 1000 });
+            } else {
+                this.game.gameLoop.unsubscribe(loopId);
+            }
+        });
     }
 
     init() {
@@ -36,15 +47,7 @@ export default class Statistics {
             });
         }
         this.createStatisticsElements();
-        this.updateStatistics();
-
-
-    }
-
-    private updateUI(visible: boolean) {
-        if (visible) {
-            this.updateStatistics();
-        }
+        this.updateStatisticsUI();
     }
 
     private createStatisticsElements() {
@@ -75,7 +78,7 @@ export default class Statistics {
         return '';
     }
 
-    updateStatistics() {
+    private updateStatisticsUI() {
         for (const [key, value] of Object.entries(this.statistics)) {
             const element = queryHTML(`.p-statistics [data-stat="${key}"]`);
             if (!element) {

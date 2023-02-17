@@ -4,12 +4,12 @@ import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
 import { queryHTML } from "@src/utils/helpers";
 import type Game from './Game';
-import { visibilityObserverLoop } from '@src/utils/Observers';
 import type { Save } from '@src/types/save';
 
 export default class Player {
-    private playerStatsContainer = queryHTML('.p-game > .s-stats');
-    private manaBar = queryHTML('.p-combat [data-mana-bar]');
+    private readonly playerStatsContainer = queryHTML('.p-game > .s-stats');
+    private readonly combatPage = queryHTML('.p-combat');
+    private readonly manaBar = queryHTML('[data-mana-bar]', this.combatPage);
     private statsUpdateId = -1;
     readonly modDB = new ModDB();
     readonly stats = {
@@ -24,12 +24,10 @@ export default class Player {
         skillDurationMultiplier: new Value(1)
     };
     constructor(readonly game: Game) {
-        visibilityObserverLoop(this.manaBar, (visible) => { if (visible) { this.updateManaBar(); } });
+
     }
 
     init() {
-
-
         this.modDB.clear();
         this.modDB.onChange.listen(() => this.updateStats());
 
@@ -70,6 +68,12 @@ export default class Player {
             this.stats.curMana.add(manaRegen);
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
+
+        // this.game.gameLoop.subscribeAnim(() => {
+        //     if (!this.combatPage.classList.contains('hidden')) {
+        //         this.updateManaBar();
+        //     }
+        // });
 
         this.game.onSave.listen(this.save.bind(this));
 
