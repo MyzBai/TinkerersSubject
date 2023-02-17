@@ -31,6 +31,6 @@ window.addEventListener('DOMContentLoaded', () => {
 async function init() {
 
     const home = new Home();
-    home.init();
+    await home.init();
     document.body.classList.remove('hidden');
 }

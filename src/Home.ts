@@ -5,7 +5,6 @@ import Game from "@src/game/Game";
 import type { Save } from "@src/types/save";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
-import { GenericModal } from "./webComponents/GenericModal";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
@@ -29,7 +28,7 @@ export default class Home {
             if (!this.activeEntry) {
                 return;
             }
-            this.startGame(this.activeEntry,);
+            this.tryStartGame(this.activeEntry,);
         });
         queryHTML('.p-home .p-saved [data-entry-info] [data-start]').addEventListener('click', async () => {
             if (!this.activeEntry) {
@@ -43,18 +42,29 @@ export default class Home {
             if (!saveObj) {
                 return;
             }
-            this.startGame(this.activeEntry, saveObj);
+            this.tryStartGame(this.activeEntry, saveObj);
         });
     }
 
-    init() {
+    async init() {
         const navBtn = queryHTML('header [data-target]');
         navBtn.setAttribute('data-target', 'home');
         navBtn.click();
         navBtn.classList.add('hidden');
 
-        queryHTML('.p-home menu [data-type="new"]').click();
+        const success = await this.tryLoadRecentSave();
+        if (!success) {
+            queryHTML('.p-home menu [data-type="new"]').click();
+        }
+    }
 
+    async tryLoadRecentSave() {
+        const save = await this.game.loadMostRecentSave();
+        if (!save) {
+            return false;
+        }
+
+        return await this.tryStartGame(save.meta, save);
     }
 
     async populateEntryList(type: EntryType) {
@@ -107,11 +117,11 @@ export default class Home {
         queryHTML('[data-desc]', infoContainer).textContent = entry.description || '';
     }
 
-    private async startGame(entry: GConfig['meta'], saveObj?: Save) {
+    private async tryStartGame(entry: GConfig['meta'], saveObj?: Save) {
         const config = await (await fetch(entry.rawUrl)).json() as GConfig;
         if (!validateConfig(config)) {
             console.error(`${entry.name} is not valid`);
-            return;
+            return false;
         }
 
         if (!saveObj) {
@@ -125,6 +135,7 @@ export default class Home {
         const navBtn = queryHTML('header [data-target]');
         navBtn.classList.remove('hidden');
         navBtn.click();
+        return true;
     }
 
     private async getEntries(type: EntryType): Promise<GConfig['meta'][]> {
