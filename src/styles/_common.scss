@@ -19,6 +19,16 @@ var {
     cursor: default;
 }
 
+a{
+    text-decoration: none;
+    color: $color-accent-fg;
+    font-family: 'Times New Roman', monospace;
+    
+    &:hover{
+        text-decoration: underline;
+    }
+}
+
 h1,
 h2,
 h3,
