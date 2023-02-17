@@ -16,7 +16,7 @@ import type { GameElement } from "@src/webComponents/GameElement";
 import saveManager from "@src/utils/saveManager";
 import type { Save } from "@src/types/save";
 import Settings from "./Settings";
-import Home from "@src/home/Home";
+import Home from "@src/Home";
 
 
 type Entries<T> = {

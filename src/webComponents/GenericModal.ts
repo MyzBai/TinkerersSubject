@@ -1,60 +1,69 @@
 import { queryHTML } from "@src/utils/helpers";
-import genericModalHtml from './html/genericModal.html';
 
-type ActionCallback = (confirm: Boolean) => void;
+type ActionCallback = (confirm: Boolean, userData: any) => void;
 interface InitParams {
-    title: string;
-    message: string;
-    confirmLabel?: string;
-    cancelLabel?: string;
+    title?: string;
+    body: HTMLElement | string;
+    buttons: { type: 'confirm' | 'cancel', label: string, userData?: any }[]
     footerText?: string;
     callback?: ActionCallback;
 }
 
 export class GenericModal extends HTMLElement {
     readonly modal: HTMLDialogElement;
-    readonly confirmButton: HTMLButtonElement;
-    readonly cancelButton: HTMLButtonElement;
-    private actionCallback?: ActionCallback;
     constructor() {
         super();
 
-        this.innerHTML = genericModalHtml;
+        this.innerHTML = `
+        <dialog>
+            <form method="dialog">
+                <header>
+                    <h3>Title</h3>
+                </header>
+                <div data-body></div>
+                <footer>
+                    <div data-buttons></div>
+                    <span data-text></span>
+                </footer>
+            </form>
+            <div class="backdrop"></div>
+        </dialog>`;
+
 
         this.modal = queryHTML<HTMLDialogElement>('dialog', this);
-        this.confirmButton = queryHTML('[data-role="confirm"]', this);
-        this.cancelButton = queryHTML('[data-role="cancel"]', this);
 
+        queryHTML('.backdrop').addEventListener('mousedown', () => this.closeModal());
         this.classList.add('hidden');
     }
 
     connectedCallback() {
-        this.confirmButton.addEventListener('click', () => {
-            this.actionCallback?.(true);
-        });
-        this.cancelButton.addEventListener('click', () => {
-            this.actionCallback?.(false);
-        });
+        if (this.hasAttribute('data-open')) {
+            this.openModal();
+        }
     }
 
     init(args: InitParams) {
-        queryHTML('header h3', this.modal).textContent = args.title;
-        queryHTML('[data-body]', this.modal).textContent = args.message;
-        if (args.confirmLabel) {
-            this.confirmButton.textContent = args.confirmLabel;
+        queryHTML('header h3', this.modal).textContent = args.title || '';
+        if (typeof args.body === 'string') {
+            queryHTML('[data-body]', this.modal).innerHTML = args.body;
         } else {
-            this.confirmButton.classList.add('hidden');
+            queryHTML('[data-body]', this.modal).replaceChildren(args.body);
         }
-        if (args.cancelLabel) {
-            this.cancelButton.textContent = args.cancelLabel;
-        } else {
-            this.cancelButton.classList.add('hidden');
+        const buttons: HTMLButtonElement[] = [];
+        for (const buttonData of args.buttons) {
+            const button = document.createElement('button');
+            button.classList.add('g-button');
+            button.setAttribute('type', 'submit');
+            const role = buttonData.type;
+            button.setAttribute('data-role', role);
+            button.textContent = buttonData.label;
+            button.addEventListener('click', () => {
+                args.callback?.(role === 'confirm', buttonData.userData);
+            });
+            buttons.push(button);
         }
-
-        this.cancelButton.classList.toggle('hidden', !args.cancelLabel);
-        this.confirmButton.classList.toggle('hidden', !args.confirmLabel);
-
-        this.actionCallback = args.callback;
+        queryHTML('footer [data-buttons]', this).replaceChildren(...buttons);
+        queryHTML('footer [data-text]').textContent = args.footerText || '';
     }
 
     openModal() {

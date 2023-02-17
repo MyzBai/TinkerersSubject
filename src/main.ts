@@ -1,7 +1,7 @@
 import './webComponents/GameElement';
 import './webComponents/GenericModal';
 import { queryHTML } from './utils/helpers';
-import Home from './home/Home';
+import Home from './Home';
 queryHTML('header [data-target="game"]').addEventListener('click', (e: MouseEvent) => {
     if (e.target instanceof Element) {
         const target = e.target;
@@ -22,6 +22,7 @@ queryHTML('header [data-target="game"]').addEventListener('click', (e: MouseEven
         }
     }
 });
+
 
 window.addEventListener('DOMContentLoaded', () => {
     init();

@@ -3,6 +3,13 @@
         {
             "name": "x-game",
             "description": "The Game element"
+        },
+        {
+            "name": "generic-modal",
+            "attributes": [ {
+                    "name": "data-position",
+                    "values": [ { "name": "relative" } ]
+                } ]
         }
     ]
 }

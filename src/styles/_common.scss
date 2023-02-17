@@ -74,24 +74,33 @@ generic-modal {
     min-height: 0;
     overflow-y: auto;
     pointer-events: none;
+    z-index: 100;
+
     dialog {
         background-color: $color-canvas-default;
         border: 1px solid $color-modal-border;
         min-width: 30vw;
         pointer-events: all;
+
         form {
             min-height: 0;
             overflow-y: auto;
             display: grid;
 
-            header{
+            header {
                 padding-bottom: 1em;
                 text-align: center;
             }
             footer {
                 padding-top: 1em;
-                button{
+                button {
                     min-width: 3em;
+                }
+                [data-text]{
+                    display: block;
+                    padding-top: 0.3rem;
+                    font-size: 0.75em;
+                    color: $color-fg-muted;
                 }
             }
         }

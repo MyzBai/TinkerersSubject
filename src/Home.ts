@@ -1,11 +1,11 @@
-import { generateTime, queryHTML, registerTabs } from "../utils/helpers";
+import { generateTime, queryHTML, registerTabs } from "./utils/helpers";
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
 import Game from "@src/game/Game";
 import type { Save } from "@src/types/save";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
-
+import { GenericModal } from "./webComponents/GenericModal";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
@@ -40,14 +40,11 @@ export default class Home {
                 return;
             }
             const saveObj = map.get(this.activeEntry.id);
-            if(!saveObj){
+            if (!saveObj) {
                 return;
             }
             this.startGame(this.activeEntry, saveObj);
         });
-
-
-
     }
 
     init() {
@@ -57,6 +54,7 @@ export default class Home {
         navBtn.classList.add('hidden');
 
         queryHTML('.p-home menu [data-type="new"]').click();
+
     }
 
     async populateEntryList(type: EntryType) {
@@ -120,8 +118,8 @@ export default class Home {
             saveObj = {
                 meta: { ...entry, createdAt: Date.now() }
             }
-            config.meta = saveObj.meta;
         }
+        config.meta = saveObj.meta;
         this.game.init(config, saveObj);
 
         const navBtn = queryHTML('header [data-target]');

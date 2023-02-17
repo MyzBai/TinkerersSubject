@@ -19,11 +19,11 @@ export default class Settings {
 
     openDeleteSaveModal() {
         const modal = queryHTML<GenericModal>('generic-modal');
+        console.log(modal);
         modal.init({
             title: 'Delete Save',
-            message: 'Are you sure?',
-            confirmLabel: 'Yes',
-            cancelLabel: 'No',
+            body: 'Are you sure?',
+            buttons: [{ label: 'Yes', type: 'confirm' }, { label: 'No', type: 'cancel' }],
             footerText: 'This will delete your save file permanently',
             callback: async (confirm) => {
                 if (confirm) {

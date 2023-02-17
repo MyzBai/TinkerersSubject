@@ -15,7 +15,7 @@ export class Statistic extends Value {
 export default class Statistics {
     public readonly statistics = {
         'Time Played': new Statistic(0),
-        'Gold Generated': new Statistic(1),
+        'Gold Generated': new Statistic(0),
         'Mana Generated': new Statistic(0),
         'Hits': new Statistic(0),
         'Critical Hits': new Statistic(0),
@@ -29,6 +29,7 @@ export default class Statistics {
 
     init() {
         this.game.onSave.listen(this.save.bind(this));
+        Object.values(this.statistics).forEach(x => x.reset());
         if (this.game.saveObj.statistics) {
             this.game.saveObj.statistics.forEach(({ name, value }) => {
                 this.statistics[name].set(value);
@@ -37,7 +38,7 @@ export default class Statistics {
         this.createStatisticsElements();
         this.updateStatistics();
 
-     
+
     }
 
     private updateUI(visible: boolean) {
