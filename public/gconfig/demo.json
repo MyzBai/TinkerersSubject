@@ -12,115 +12,115 @@
             "+{150}% Critical Hit Multiplier"
         ]
     },
-    "skills": {
-        "attackSkills": {
-            "skillList": [
-                {
-                    "name": "Default Attack",
-                    "levelReq": 1,
-                    "attackSpeed": 1,
-                    "manaCost": 1,
-                    "baseDamageMultiplier": 100,
-                    "mods": [ "+{100}% Hit Chance" ]
-                },
-                {
-                    "name": "Super Attack",
-                    "levelReq": 2,
-                    "attackSpeed": 0.65,
-                    "manaCost": 3,
-                    "baseDamageMultiplier": 250,
-                    "mods": [
-                        "+{80}% Hit Chance"
-                    ]
-                },
-                {
-                    "name": "Critical Attack",
-                    "levelReq": 3,
-                    "attackSpeed": 1.2,
-                    "manaCost": 5,
-                    "baseDamageMultiplier": 180,
-                    "mods": [
-                        "+{60}% Hit Chance",
-                        "+{20}% Critical Hit Chance",
-                        "+{80}% Critical Hit Multiplier"
-                    ]
-                },
-                {
-                    "name": "Mega Attack",
-                    "levelReq": 5,
-                    "attackSpeed": 0.6,
-                    "manaCost": 8,
-                    "baseDamageMultiplier": 500,
-                    "mods": [
-                        "+{50}% Hit Chance"
-                    ]
-                },
-                {
-                    "name": "Speed Attack",
-                    "levelReq": 5,
-                    "attackSpeed": 3,
-                    "manaCost": 5,
-                    "baseDamageMultiplier": 150,
-                    "mods": [
-                        "+{70}% Hit Chance"
-                    ]
-                }
-            ]
-        },
-        "buffSkills": {
-            "skillSlots": [
-                {
-                    "levelReq": 2
-                },
-                {
-                    "levelReq": 5
-                },
-                {
-                    "levelReq": 7
-                }
-            ],
-            "skillList": [
-                {
-                    "name": "More Damage",
-                    "levelReq": 1,
-                    "baseDuration": 30,
-                    "manaCost": 20,
-                    "mods": [
-                        "{30}% More Damage"
-                    ]
-                },
-                {
-                    "name": "Attack Speed",
-                    "levelReq": 1,
-                    "baseDuration": 60,
-                    "manaCost": 50,
-                    "mods": [
-                        "{30}% More Attack Speed"
-                    ]
-                },
-                {
-                    "name": "Critical Strike",
-                    "levelReq": 1,
-                    "baseDuration": 30,
-                    "manaCost": 30,
-                    "mods": [
-                        "+{20}% Critical Hit Chance",
-                        "+{100}% Critical Hit Multiplier"
-                    ]
-                },
-                {
-                    "name": "Gold",
-                    "levelReq": 5,
-                    "baseDuration": 30,
-                    "manaCost": 100,
-                    "mods": [
-                        "{50}% Increased Gold Per Second"
-                    ]
-                }
-            ]
-        }
-    },
     "components": {
+        "skills": {
+            "attackSkills": {
+                "skillList": [
+                    {
+                        "name": "Default Attack",
+                        "levelReq": 1,
+                        "attackSpeed": 1,
+                        "manaCost": 1,
+                        "baseDamageMultiplier": 100,
+                        "mods": [ "+{100}% Hit Chance" ]
+                    },
+                    {
+                        "name": "Super Attack",
+                        "levelReq": 2,
+                        "attackSpeed": 0.65,
+                        "manaCost": 3,
+                        "baseDamageMultiplier": 250,
+                        "mods": [
+                            "+{80}% Hit Chance"
+                        ]
+                    },
+                    {
+                        "name": "Critical Attack",
+                        "levelReq": 3,
+                        "attackSpeed": 1.2,
+                        "manaCost": 5,
+                        "baseDamageMultiplier": 180,
+                        "mods": [
+                            "+{60}% Hit Chance",
+                            "+{20}% Critical Hit Chance",
+                            "+{80}% Critical Hit Multiplier"
+                        ]
+                    },
+                    {
+                        "name": "Mega Attack",
+                        "levelReq": 5,
+                        "attackSpeed": 0.6,
+                        "manaCost": 8,
+                        "baseDamageMultiplier": 500,
+                        "mods": [
+                            "+{50}% Hit Chance"
+                        ]
+                    },
+                    {
+                        "name": "Speed Attack",
+                        "levelReq": 5,
+                        "attackSpeed": 3,
+                        "manaCost": 5,
+                        "baseDamageMultiplier": 150,
+                        "mods": [
+                            "+{70}% Hit Chance"
+                        ]
+                    }
+                ]
+            },
+            "buffSkills": {
+                "skillSlots": [
+                    {
+                        "levelReq": 1
+                    },
+                    {
+                        "levelReq": 5
+                    },
+                    {
+                        "levelReq": 7
+                    }
+                ],
+                "skillList": [
+                    {
+                        "name": "More Damage",
+                        "levelReq": 1,
+                        "baseDuration": 30,
+                        "manaCost": 20,
+                        "mods": [
+                            "{30}% More Damage"
+                        ]
+                    },
+                    {
+                        "name": "Attack Speed",
+                        "levelReq": 1,
+                        "baseDuration": 60,
+                        "manaCost": 50,
+                        "mods": [
+                            "{30}% More Attack Speed"
+                        ]
+                    },
+                    {
+                        "name": "Critical Strike",
+                        "levelReq": 1,
+                        "baseDuration": 30,
+                        "manaCost": 30,
+                        "mods": [
+                            "+{20}% Critical Hit Chance",
+                            "+{100}% Critical Hit Multiplier"
+                        ]
+                    },
+                    {
+                        "name": "Gold",
+                        "levelReq": 5,
+                        "baseDuration": 30,
+                        "manaCost": 100,
+                        "mods": [
+                            "{50}% Increased Gold Per Second"
+                        ]
+                    }
+                ]
+            }
+        },
         "passives": {
             "pointsPerLevel": 1,
             "passiveLists": [

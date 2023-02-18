@@ -5,7 +5,7 @@ export interface GConfig {
     options?: Options;
     player?: Player;
     enemies: Enemies;
-    skills: Skills;
+
     components?: Components;
 }
 
@@ -38,25 +38,26 @@ export interface Skills {
             mods?: Mod[];
         }[]
     };
-    buffSkills: {
+    buffSkills?: {
         skillSlots: {
             levelReq: number;
-        }[]
+        }[];
         skillList: {
             name: string;
             baseDuration: number;
             manaCost: number;
             levelReq: number;
             mods?: Mod[];
-        }[]
+        }[];
     }
 }
 
 export interface Components {
+    skills?: Skills;
     passives?: Passives;
     items?: Items;
     missions?: Missions;
-    achievements: Achievements;
+    achievements?: Achievements;
     prestige?: Prestige;
 }
 

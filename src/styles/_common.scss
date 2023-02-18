@@ -19,12 +19,12 @@ var {
     cursor: default;
 }
 
-a{
+a {
     text-decoration: none;
     color: $color-accent-fg;
-    font-family: 'Times New Roman', monospace;
-    
-    &:hover{
+    font-family: "Times New Roman", monospace;
+
+    &:hover {
         text-decoration: underline;
     }
 }
@@ -63,6 +63,13 @@ button {
     }
 }
 
+*.selected {
+    pointer-events: none;
+    &[data-highlight-notification] {
+        pointer-events: all;
+    }
+}
+
 ul,
 menu {
     list-style-type: none;
@@ -92,7 +99,6 @@ generic-modal {
         min-width: 30vw;
         pointer-events: all;
 
-        
         form {
             min-height: 0;
             overflow-y: auto;
@@ -107,8 +113,7 @@ generic-modal {
                 button {
                     min-width: 3em;
                 }
-                small{
-
+                small {
                     display: block;
                     padding-top: 0.3rem;
                     font-size: 0.75em;
@@ -166,6 +171,23 @@ input[type="text"] {
 input[type="submit"] {
     border: 0;
     font-size: inherit;
+}
+
+progress[value] {
+    /* Reset the default appearance */
+    -webkit-appearance: none;
+    appearance: none;
+
+    &::-webkit-progress-bar {
+        // background-color: $color-progress-bar-bg;
+        background: none;
+        border-radius: 2px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+    }
+    &::-webkit-progress-value {
+        border-radius: 2px;
+        background-color: $color-progress-bar-foreground-bg;
+    }
 }
 
 /*#region Scroll Bar*/

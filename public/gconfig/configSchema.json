@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
-    "required": [ "skills", "enemies" ],
+    "required": [ "enemies" ],
     "properties": {
         "enemies": {
             "type": "object",
@@ -26,78 +26,78 @@
                 }
             }
         },
-        "skills": {
+        "components": {
             "type": "object",
-            "required": [ "attackSkills" ],
+            "additionalProperties": false,
             "properties": {
-                "attackSkills": {
+                "skills": {
                     "type": "object",
-                    "required": [ "skillList" ],
+                    "required": [ "attackSkills" ],
                     "properties": {
-                        "skillList": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": {
-                                "type": "object",
-                                "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq" ],
-                                "properties": {
-                                    "name": { "type": "string" },
-                                    "levelReq": { "type": "integer", "minimum": 1, "default": 1, "description": "Required player level\nNote - At least one skill must have a value of 1" },
-                                    "attackSpeed": { "type": "number", "minimum": 0.001, "maximum": 10, "default": 1, "description": "Number of attacks per second" },
-                                    "manaCost": { "type": "integer", "minimum": 0 },
-                                    "baseDamageMultiplier": { "type": "integer", "minimum": 1, "default": 100, "description": "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
-                                    "mods": {
-                                        "type": "array",
-                                        "items": { "$ref": "#/definitions/mod" }
+                        "attackSkills": {
+                            "type": "object",
+                            "required": [ "skillList" ],
+                            "properties": {
+                                "skillList": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                        "type": "object",
+                                        "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq" ],
+                                        "properties": {
+                                            "name": { "type": "string" },
+                                            "levelReq": { "type": "integer", "minimum": 1, "default": 1, "description": "Required player level\nNote - At least one skill must have a value of 1" },
+                                            "attackSpeed": { "type": "number", "minimum": 0.001, "maximum": 10, "default": 1, "description": "Number of attacks per second" },
+                                            "manaCost": { "type": "integer", "minimum": 0 },
+                                            "baseDamageMultiplier": { "type": "integer", "minimum": 1, "default": 100, "description": "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
+                                            "mods": {
+                                                "type": "array",
+                                                "items": { "$ref": "#/definitions/mod" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "buffSkills": {
+                            "type": "object",
+                            "required": [ "skillList", "skillSlots" ],
+                            "properties": {
+                                "skillSlots": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                        "type": "object",
+                                        "required": [ "levelReq" ],
+                                        "properties": {
+                                            "levelReq": {
+                                                "type": "integer",
+                                                "minimum": 1
+                                            }
+                                        }
+                                    }
+                                },
+                                "skillList": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [ "name", "baseDuration", "manaCost", "levelReq" ],
+                                        "properties": {
+                                            "name": { "type": "string" },
+                                            "levelReq": { "type": "number" },
+                                            "baseDuration": { "type": "integer" },
+                                            "manaCost": { "type": "integer" },
+                                            "mods": {
+                                                "type": "array",
+                                                "items": { "$ref": "#/definitions/mod" }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 },
-                "buffSkills": {
-                    "type": "object",
-                    "required": [ "skillList", "skillSlots" ],
-                    "properties": {
-                        "skillSlots": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": {
-                                "type": "object",
-                                "required": [ "levelReq" ],
-                                "properties": {
-                                    "levelReq": {
-                                        "type": "integer",
-                                        "minimum": 1
-                                    }
-                                }
-                            }
-                        },
-                        "skillList": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "required": [ "name", "baseDuration", "manaCost", "levelReq" ],
-                                "properties": {
-                                    "name": { "type": "string" },
-                                    "levelReq": { "type": "number" },
-                                    "baseDuration": { "type": "integer" },
-                                    "manaCost": { "type": "integer" },
-                                    "mods": {
-                                        "type": "array",
-                                        "items": { "$ref": "#/definitions/mod" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "components": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
                 "passives": {
                     "type": "object",
                     "required": [ "pointsPerLevel", "passiveLists" ],

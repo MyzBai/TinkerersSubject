@@ -1,4 +1,5 @@
 import html from './html/game.html';
+import skillsHtml from './html/skills.html';
 import passivesHtml from './html/passives.html';
 import itemsHtml from './html/items.html';
 import missionsHtml from './html/missions.html';
@@ -14,6 +15,11 @@ interface ComponentData {
 }
 
 const componentDataList: { [K in ComponentName]: ComponentData } = {
+    skills: {
+        html: skillsHtml,
+        name: 'Skills',
+        targetName: 'skills'
+    },
     passives: {
         html: passivesHtml,
         name: 'Passives',

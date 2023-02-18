@@ -1,337 +1,358 @@
 @use "common" as *;
 
-.p-game {
-    display: grid;
-    grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
-    grid-gap: 0.3em;
-    background-color: $color-canvas-default;
+game-element {
     min-height: 0;
-    height: 100%;
-
-    & > * {
-        padding: $padding-container;
-        background-color: $color-canvas-inset;
-        flex: 1;
+    .p-game {
+        display: grid;
+        grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
+        grid-gap: 0.3em;
+        background-color: $color-canvas-default;
         min-height: 0;
-    }
-
-    [data-main-view] {
-        display: flex;
+        height: 100%;
 
         & > * {
+            padding: $padding-container;
+            background-color: $color-canvas-inset;
             flex: 1;
             min-height: 0;
-            width: 100%;
         }
 
-        .p-combat {
-            position: relative;
-            display: grid;
-            grid-template-rows: 1fr 1fr;
+        [data-main-view] {
+            display: flex;
 
-            .s-enemy {
-                .s-health-bar-background {
-                    background-color: $color-health-bar-bg;
-                    .health-bar {
-                        display: flex;
-                        background-color: $color-health-bar-fg;
-                        width: 100%;
-                        align-items: center;
-                        justify-content: center;
+            & > * {
+                flex: 1;
+                min-height: 0;
+                width: 100%;
+            }
+
+            .p-combat {
+                position: relative;
+                display: grid;
+                grid-template-rows: 1fr 1fr;
+
+                .s-enemy {
+                    .s-health-bar-background {
+                        background-color: $color-health-bar-bg;
+                        .health-bar {
+                            display: flex;
+                            background-color: $color-health-bar-fg;
+                            width: 100%;
+                            align-items: center;
+                            justify-content: center;
+                        }
+
+                        .health-bar[data-damage]::after {
+                            content: attr(data-damage);
+                            margin: auto;
+                        }
                     }
+                }
 
-                    .health-bar[data-damage]::after {
-                        content: attr(data-damage);
-                        margin: auto;
+                .s-player {
+                    .s-mana-bar-background {
+                        background-color: $color-mana-bar-bg;
+                        .mana-bar {
+                            background-color: $color-mana-bar-fg;
+                            width: 100%;
+                        }
                     }
                 }
             }
 
-            .s-player {
-                .s-mana-bar-background {
-                    background-color: $color-mana-bar-bg;
-                    .mana-bar {
-                        background-color: $color-mana-bar-fg;
-                        width: 100%;
-                    }
-                }
-                .s-skills {
-                    [data-skill-slot] {
-                        display: flex;
-                        cursor: default;
-
-                        [data-label] {
-                            padding: $padding-button;
-                            text-align: left;
-                        }
-
-                        &[data-skill-slot="buff-skill"] {
-                            .wrapper {
-                                position: relative;
-                                [data-progress-bar] {
-                                    pointer-events: none;
-                                    position: absolute;
-                                    left: 0;
-                                    top: 0;
-                                    width: 0%;
-                                    height: 100%;
-                                    background-color: $color-skill-slot-progress-bg;
-                                }
-                            }
-
-                            [data-label] {
+            .p-skills {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 0.74fr;
+                min-height: 0;
+                flex: 1;
+                .s-skill-slots {
+                    padding-bottom: $padding-container;
+                    padding-right: $padding-container;
+                    .s-attack-skill-slot {
+                        padding-bottom: $padding-container;
+                        .s-skill-slot {
+                            display: block;
+                            [data-skill-slot]{
                                 width: 100%;
                             }
+                            progress{
+                                display: block;
+                                width: 100%;
+                                height: 5px;
+                            }
                         }
-                        [data-edit] {
-                            width: 4em;
-                            padding: 0;
-                        }
-                    }
-                }
-            }
+                        border-bottom: 1px solid $color-border-highlight;
 
-            .s-skill-modal {
-                background-color: $color-canvas-default;
-                position: absolute;
-                inset: 0;
-                padding: $padding-container;
-                section {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
+        
+                    }
                     ul {
-                        text-align: left;
+                        margin-top: $padding-container;
+                        min-height: 0;
 
-                        li {
-                            pointer-events: all;
-                        }
-                    }
-                    .s-skill-info {
-                        padding: $padding-container;
-                        [data-title] {
-                            text-align: center;
-                            font-size: 1.1em;
-                        }
-                        [data-mod-list] {
-                            text-align: center;
+                        li.s-skill-slot{
+                            display: grid;
+                            grid-template-columns: 1fr auto;
+                            button{
+                                margin-left: $padding-container;
+                            }
+               
+                            progress{
+                                display: block;
+                                width: 100%;
+                                height: 5px;
+                                grid-column: 1;
+                            }
                         }
                     }
                 }
-                footer {
+                .s-skill-info {
                     display: flex;
-                    margin-top: 1em;
-                    .g-button {
-                        min-width: 5em;
-                        display: inline;
+                    flex-direction: column;
+                    min-height: 0;
+                    padding-bottom: $padding-container;
+                    header {
+                        text-align: center;
+                        padding-bottom: $padding-container;
                     }
-
-                    button:first-of-type {
-                        margin-right: auto; /* everything after me gets pushed to the right end*/
-                    }
-                    [data-apply] {
-                        background-color: $color-modal-confirm-bg;
-                    }
-                }
-            }
-        }
-
-        .p-passives {
-            header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding-bottom: $padding-container;
-                border-bottom: 1px solid $color-border-highlight;
-            }
-            table {
-                margin-top: $padding-container;
-                tr.selected {
-                    pointer-events: all;
-                }
-                td:first-child {
-                    width: 100%;
-                }
-                th,
-                td {
-                    padding: $padding-list-item;
-                }
-
-                td:first-child {
-                    text-align: left;
-                }
-                td:last-child {
-                    text-align: right;
-                    white-space: nowrap;
-                }
-            }
-        }
-
-        .p-items {
-            position: relative;
-            display: grid;
-            grid-template-rows: 40% 60%;
-            grid-template-columns: clamp(0.3fr, 0.4fr, 1fr) 1fr;
-            min-height: 0;
-
-            [data-item-list] {
-                border-right: 1px solid $color-canvas-default;
-                padding-right: $padding-container;
-            }
-            [data-mod-list] {
-                text-align: center;
-                padding: 1em;
-                overflow-y: auto;
-            }
-
-            .s-craft-container {
-                display: flex;
-                flex-direction: column;
-                border-top: 1px solid $color-canvas-default;
-                padding-top: $padding-container;
-                padding-left: $padding-container;
-                [data-craft-list] {
-                    flex: 1;
-                    overflow-y: auto;
                     table {
-                        border-collapse: collapse;
-                        width: 100%;
-                        text-align: left;
-                        // border: 1px solid $color-scroll-container-border;
-                        tr {
-                            &:not(:last-child) {
-                                border-bottom: 1px solid $color-scroll-container-border;
-                            }
-                            td {
-                                padding: 0.3em;
-                            }
+                        border-collapse: separate;
+                        border-spacing: $padding-container;
+                        border-top: 1px solid $color-border-highlight;
+                        border-bottom: 1px solid $color-border-highlight;
+                        border-spacing: $padding-container;
+                        td:last-child{
+                            text-align: end;
                         }
                     }
-                }
-                [data-craft-button] {
-                    align-self: center;
-                    width: 8em;
-                    text-align: center;
-                    background-color: $color-global-button-accent-bg;
-                    margin-top: 1em;
-                    &:hover {
-                        background-color: $color-global-button-accent-hover-bg;
-                    }
-                }
-
-                [data-craft-message] {
-                    text-align: center;
-                    color: rgb(148, 35, 35);
-                    padding: 0.2em;
-
-                    &::before {
-                        content: "\2063";
-                    }
-                }
-            }
-
-            .s-preset-container {
-                border-right: 1px solid $color-border-highlight;
-                padding-right: $padding-container;
-                border-top: 1px solid $color-canvas-default;
-                padding-top: $padding-container;
-            }
-
-            [data-preset-modal] {
-                form {
-                    display: grid;
-                    grid-template-rows: auto auto 1fr;
-                    h2 {
-                        text-align: center;
-                    }
-                    [data-craft-list] {
+                    .s-mods {
                         min-height: 0;
                         overflow-y: auto;
-
-                        table {
-                            border-collapse: collapse;
-
-                            thead {
-                                padding-bottom: $padding-container;
-                            }
-                            tbody {
-                                border-top: 1px solid $color-fg-default;
-                                margin-top: $padding-container;
-                            }
-                            tr {
-                                &.selected {
-                                    pointer-events: all;
-                                }
-                                td:first-child {
-                                    text-align: left;
-                                }
-                                td {
-                                    padding: $padding-list-item;
-                                }
-                            }
+                        flex: 1;
+                        text-align: center;
+                        padding-top: $padding-container;
+                    }
+                    footer {
+                        padding: $padding-container;
+                        padding-top: 1em;
+                        margin: auto;
+                        width: 100%;
+                        & > *{
+                            display: block;
+                            width: 100%;
+                        }
+                        [data-trigger]{
+                            background-color: $color-button-confirm-bg;
                         }
                     }
                 }
+                .s-skill-list {
+                    grid-column: 1/3;
+                    border-top: 1px solid $color-border-highlight;
+                    padding-top: $padding-container;
+                    ul {
+                        min-height: 0;
+                    }
+                }
             }
-        }
 
-        .p-missions {
-            ul {
-                display: flex;
-                flex-direction: column;
-                flex-wrap: wrap;
-                li {
-                    flex: 1;
-                    padding: $padding-container;
+            .p-passives {
+                header {
                     display: flex;
                     align-items: center;
-                    // white-space: break-spaces;
-                    border: 1px solid grey;
-                    border-top: 0;
-                    &:first-child {
-                        border-top: 1px solid grey;
+                    justify-content: space-between;
+                    padding-bottom: $padding-container;
+                    border-bottom: 1px solid $color-border-highlight;
+                }
+                table {
+                    margin-top: $padding-container;
+                    tr.selected {
+                        pointer-events: all;
+                        &:hover{
+                            background-color: $color-action-list-item-default-selected-bg;
+                        }
                     }
-                    [data-label] {
+                    td:first-child {
+                        width: 100%;
+                    }
+                    th,
+                    td {
+                        padding: $padding-list-item;
+                    }
+
+                    td:first-child {
+                        text-align: left;
+                    }
+                    td:last-child {
+                        text-align: right;
+                        white-space: nowrap;
+                    }
+                }
+            }
+
+            .p-items {
+                position: relative;
+                display: grid;
+                grid-template-rows: 40% 60%;
+                grid-template-columns: clamp(0.3fr, 0.4fr, 1fr) 1fr;
+                min-height: 0;
+
+                [data-item-list] {
+                    border-right: 1px solid $color-canvas-default;
+                    padding-right: $padding-container;
+                }
+                [data-mod-list] {
+                    text-align: center;
+                    padding: 1em;
+                    overflow-y: auto;
+                }
+
+                .s-craft-container {
+                    display: flex;
+                    flex-direction: column;
+                    border-top: 1px solid $color-canvas-default;
+                    padding-top: $padding-container;
+                    padding-left: $padding-container;
+                    [data-craft-list] {
                         flex: 1;
-                        display: flex;
-                        white-space: break-spaces;
-                    }
-
-                    var {
-                        display: flex;
-                        color: $color-var-invalid-fg;
-                        &[data-valid] {
-                            color: $color-var-valid-fg;
+                        overflow-y: auto;
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                            text-align: left;
+                            // border: 1px solid $color-scroll-container-border;
+                            tr {
+                                &:not(:last-child) {
+                                    border-bottom: 1px solid $color-scroll-container-border;
+                                }
+                                td {
+                                    padding: 0.3em;
+                                }
+                            }
                         }
                     }
-                    button {
+                    [data-craft-button] {
+                        align-self: center;
+                        width: 8em;
+                        text-align: center;
+                        margin-top: 1em;
+                    }
+
+                    [data-craft-message] {
+                        text-align: center;
+                        color: rgb(148, 35, 35);
+                        padding: 0.2em;
+
+                        &::before {
+                            content: "\2063";
+                        }
+                    }
+                }
+
+                .s-preset-container {
+                    border-right: 1px solid $color-border-highlight;
+                    padding-right: $padding-container;
+                    border-top: 1px solid $color-canvas-default;
+                    padding-top: $padding-container;
+                }
+
+                [data-preset-modal] {
+                    form {
+                        display: grid;
+                        grid-template-rows: auto auto 1fr;
+                        h2 {
+                            text-align: center;
+                        }
+                        [data-craft-list] {
+                            min-height: 0;
+                            overflow-y: auto;
+
+                            table {
+                                border-collapse: collapse;
+
+                                thead {
+                                    padding-bottom: $padding-container;
+                                }
+                                tbody {
+                                    border-top: 1px solid $color-fg-default;
+                                    margin-top: $padding-container;
+                                }
+                                tr {
+                                    &.selected {
+                                        pointer-events: all;
+                                    }
+                                    td:first-child {
+                                        text-align: left;
+                                    }
+                                    td {
+                                        padding: $padding-list-item;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .p-missions {
+                ul {
+                    display: flex;
+                    flex-direction: column;
+                    flex-wrap: wrap;
+                    li {
+                        flex: 1;
+                        padding: $padding-container;
                         display: flex;
-                        flex-direction: column;
                         align-items: center;
-                        min-width: 4em;
-                    }
-                }
-            }
-        }
+                        // white-space: break-spaces;
+                        border: 1px solid grey;
+                        border-top: 0;
+                        &:first-child {
+                            border-top: 1px solid grey;
+                        }
+                        [data-label] {
+                            flex: 1;
+                            display: flex;
+                            white-space: break-spaces;
+                        }
 
-        .p-achievements {
-            display: grid;
-            min-height: 0;
-            ul {
-                overflow-y: auto;
-            }
-            .g-accordion {
-                .header {
-                    padding: $padding-button;
-                    margin-bottom: 1px;
-                    var {
-                        color: $color-var-invalid-fg;
-                        &[data-valid] {
-                            color: $color-var-valid-fg;
+                        var {
+                            display: flex;
+                            color: $color-var-invalid-fg;
+                            &[data-valid] {
+                                color: $color-var-valid-fg;
+                            }
+                        }
+                        button {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            min-width: 4em;
                         }
                     }
                 }
-                .content {
-                    padding-left: 0.6em;
+            }
+
+            .p-achievements {
+                display: grid;
+                min-height: 0;
+                ul {
+                    overflow-y: auto;
+                }
+                .g-accordion {
+                    .header {
+                        padding: $padding-button;
+                        margin-bottom: 1px;
+                        var {
+                            color: $color-var-invalid-fg;
+                            &[data-valid] {
+                                color: $color-var-valid-fg;
+                            }
+                        }
+                    }
+                    .content {
+                        padding-left: 0.6em;
+                    }
                 }
             }
         }

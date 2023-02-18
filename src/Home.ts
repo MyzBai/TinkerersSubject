@@ -51,11 +51,9 @@ export default class Home {
         navBtn.setAttribute('data-target', 'home');
         navBtn.click();
         navBtn.classList.add('hidden');
+        queryHTML('.p-home menu [data-type="new"]').click();
 
-        const success = await this.tryLoadRecentSave();
-        if (!success) {
-            queryHTML('.p-home menu [data-type="new"]').click();
-        }
+        await this.tryLoadRecentSave();
     }
 
     async tryLoadRecentSave() {

@@ -1,7 +1,7 @@
 import { registerTabs, queryHTML, isLocalHost } from "@utils/helpers";
 import Player from './Player';
 import Enemy from './Enemy';
-import Skills from './skills/Skills';
+// import Skills from './skills/Skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import Statistics from "./Statistics";
@@ -17,6 +17,7 @@ import saveManager from "@src/utils/saveManager";
 import type { Save } from "@src/types/save";
 import Settings from "./Settings";
 import Home from "@src/Home";
+import Skills from "./components/Skills";
 
 
 type Entries<T> = {
@@ -29,7 +30,6 @@ export default class Game {
     readonly gameLoop = new Loop();
     readonly enemy: Enemy;
     readonly player: Player;
-    readonly skills: Skills;
     readonly statistics: Statistics;
     readonly settings: Settings;
     readonly components: Component[] = [];
@@ -39,7 +39,6 @@ export default class Game {
     constructor(readonly home: Home) {
         this.enemy = new Enemy(this);
         this.player = new Player(this);
-        this.skills = new Skills(this);
 
         this.statistics = new Statistics(this);
         this.settings = new Settings(this);
@@ -65,7 +64,6 @@ export default class Game {
 
         this.enemy.init();
         this.player.init();
-        this.skills.init();
         this.statistics.init();
 
         this.createComponents();
@@ -85,7 +83,7 @@ export default class Game {
         this.player.setup();
 
         if (!isLocalHost) {
-            // this.gameLoop.start();
+            this.gameLoop.start();
         }
         queryHTML('[data-tab-target="combat"]', this.gamePage).click();
         document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
@@ -117,17 +115,20 @@ export default class Game {
         const initComponent = (entry: Required<ComponentsEntries>[number]) => {
             const name = entry![0];
             switch (name) {
-                case 'items':
-                    this.components.push(new Items(this, entry[1]!));
+                case 'skills':
+                    this.components.push(new Skills(this, entry[1]!));
                     break;
                 case 'passives':
                     this.components.push(new Passives(this, entry[1]!));
                     break;
-                case 'achievements':
-                    this.components.push(new Achievements(this, entry[1]!));
+                case 'items':
+                    this.components.push(new Items(this, entry[1]!));
                     break;
                 case 'missions':
                     this.components.push(new Missions(this, entry[1]!));
+                    break;
+                case 'achievements':
+                    this.components.push(new Achievements(this, entry[1]!));
                     break;
             }
         }
@@ -177,7 +178,7 @@ export default class Game {
         this.player.save(saveObj);
         this.enemy.save(saveObj);
         this.statistics.save(saveObj);
-        this.skills.save(saveObj);
+        // this.skills.save(saveObj);
 
         for (const component of this.components) {
             component.save(saveObj);

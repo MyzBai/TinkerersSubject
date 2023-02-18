@@ -7,13 +7,13 @@ import { Modifier } from "../mods";
 import Task from "../Task";
 import { visibilityObserver } from "@src/utils/Observers";
 
-type AchivementData = Required<Required<GConfig>['components']>['achievements'];
+type AchievementData = Required<Required<GConfig>['components']>['achievements'];
 
 export default class Achievements extends Component {
     readonly achievements: Achievement[] = [];
     readonly observers: IntersectionObserver[] = [];
     private readonly page = queryHTML('.p-game .p-achievements');
-    constructor(readonly game: Game, readonly data: AchivementData) {
+    constructor(readonly game: Game, readonly data: AchievementData) {
         super(game);
 
         for (const achievementData of data.list) {
@@ -63,7 +63,7 @@ class Achievement {
     readonly task: Task;
     readonly element: HTMLElement;
     private completed = false;
-    constructor(readonly achievements: Achievements, readonly data: AchivementData['list'][number]) {
+    constructor(readonly achievements: Achievements, readonly data: AchievementData['list'][number]) {
         this.element = this.createElement();
         this.task = new Task(achievements.game, data.description);
         this.task.startValue = this.task.validator[1].defaultValue;
