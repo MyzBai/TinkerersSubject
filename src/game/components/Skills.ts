@@ -159,13 +159,6 @@ export default class Skills extends Component {
                 modElement.textContent = mod.desc;
                 modElements.push(modElement);
             }
-            for (let i = 0; i < 20; i++) {
-                const modElement = document.createElement('div');
-                modElement.classList.add('g-mod-desc');
-                modElement.textContent = skill.mods[0].desc;
-                modElements.push(modElement);
-
-            }
             queryHTML('.s-mods', skillInfoContainer).replaceChildren(...modElements);
         }
 
