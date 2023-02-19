@@ -126,20 +126,21 @@ export default class Player {
         const calcWaitTime = () => 1 / this.stats.attackSpeed.get();
         this.stats.attackSpeed.addListener('change', () => {
             waitTimeSeconds = calcWaitTime();
+            time = waitTimeSeconds * this._attackProgressPct;
         });
         let waitTimeSeconds = calcWaitTime();
-        let time = waitTimeSeconds;
+        let time = 0;
         this.game.gameLoop.subscribe(dt => {
-            this._attackProgressPct = invLerp(waitTimeSeconds, 0, time);
-            time -= dt;
-            if (time < 0) {
+            this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
+            time += dt;
+            if (time > waitTimeSeconds) {
                 const curMana = this.stats.curMana.get();
                 const manaCost = this.stats.attackManaCost.get();
                 if (curMana > manaCost) {
                     this.stats.curMana.subtract(manaCost);
                     this.performAttack();
                     waitTimeSeconds = calcWaitTime();
-                    time = waitTimeSeconds;
+                    time = 0;
                 }
             }
         });
