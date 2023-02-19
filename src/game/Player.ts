@@ -16,7 +16,7 @@ export default class Player {
         level: new Value(1),
         gold: new Value(0),
         goldPerSecond: new Value(0),
-        attackSpeed: new Value(0),
+        attackSpeed: new Value(Number.MAX_VALUE),
         attackManaCost: new Value(0),
         maxMana: new Value(0),
         curMana: new Value(0),
