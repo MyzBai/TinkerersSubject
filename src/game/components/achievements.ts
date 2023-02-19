@@ -5,16 +5,14 @@ import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
 import Task from "../Task";
-import { visibilityObserver } from "@src/utils/Observers";
 
 type AchievementData = Required<Required<GConfig>['components']>['achievements'];
 
 export default class Achievements extends Component {
     readonly achievements: Achievement[] = [];
     readonly observers: IntersectionObserver[] = [];
-    private readonly page = queryHTML('.p-game .p-achievements');
     constructor(readonly game: Game, readonly data: AchievementData) {
-        super(game);
+        super(game, 'achievements');
 
         for (const achievementData of data.list) {
             const achievement = new Achievement(this, achievementData);
@@ -28,30 +26,20 @@ export default class Achievements extends Component {
             });
         });
 
-        {
-            let loopId: string | undefined;
-            this.observers.push(visibilityObserver(this.page, visible => {
-                if (visible) {
-                    const updateUI = () => {
-                        this.achievements.forEach(x => {
-                            x.updateLabel();
-                        });
-                    }
-                    updateUI();
-                    loopId = this.game.gameLoop.subscribe(() => updateUI(), { intervalMilliseconds: 1000 });
-                } else {
-                    this.game.gameLoop.unsubscribe(loopId);
-                }
-            }));
-        }
-
         queryHTML('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
-        queryHTML('.p-game [data-main-menu] [data-tab-target="achievements"]').classList.remove('hidden');
+        queryHTML('.p-game > menu [data-tab-target="achievements"]').classList.remove('hidden');
     }
 
     dispose(): void {
         this.observers.forEach(x => x.disconnect());
         queryHTML('.p-game .p-achievements ul').replaceChildren();
+    }
+
+    updateUI(time: number): void {
+        if(time - this.updateUITime > 1){
+            this.achievements.forEach(x => x.updateLabel());
+            this.updateUITime = 0;
+        }
     }
 
     //@ts-expect-error

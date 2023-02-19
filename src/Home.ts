@@ -16,7 +16,7 @@ export default class Home {
 
         this.game = new Game(this);
 
-        registerTabs(queryHTML('.p-home menu'), queryHTML('.p-home .s-main'), target => {
+        registerTabs(queryHTML('.p-home > menu'), queryHTML('.p-home .s-main'), target => {
             const type = target.getAttribute('data-tab-target') as EntryType;
             if (!entryTypes.includes(type)) {
                 throw Error('wrong type');
@@ -51,7 +51,7 @@ export default class Home {
         navBtn.setAttribute('data-target', 'home');
         navBtn.click();
         navBtn.classList.add('hidden');
-        queryHTML('.p-home menu [data-type="new"]').click();
+        queryHTML('.p-home > menu [data-type="new"]').click();
 
         await this.tryLoadRecentSave();
     }
@@ -128,6 +128,7 @@ export default class Home {
             }
         }
         config.meta = saveObj.meta;
+
         this.game.init(config, saveObj);
 
         const navBtn = queryHTML('header [data-target]');

@@ -83,8 +83,6 @@ game-element {
                             }
                         }
                         border-bottom: 1px solid $color-border-highlight;
-
-        
                     }
                     ul {
                         margin-top: $padding-container;
@@ -140,9 +138,6 @@ game-element {
                         & > *{
                             display: block;
                             width: 100%;
-                        }
-                        [data-trigger]{
-                            background-color: $color-button-confirm-bg;
                         }
                     }
                 }

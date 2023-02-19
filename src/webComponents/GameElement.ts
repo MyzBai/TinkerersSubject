@@ -60,7 +60,7 @@ export class GameElement extends HTMLElement {
 
     init(names: ComponentName[]) {
         const container = queryHTML('[data-main-view]', this);
-        const menu = queryHTML('[data-main-menu]');
+        const menu = queryHTML('.p-game > menu');
         menu.replaceChildren();
 
         this.componentPages.forEach(x => x.remove());

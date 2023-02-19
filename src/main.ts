@@ -32,5 +32,6 @@ async function init() {
 
     const home = new Home();
     await home.init();
+
     document.body.classList.remove('hidden');
 }

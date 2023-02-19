@@ -1,7 +1,6 @@
 import { registerTabs, queryHTML, isLocalHost } from "@utils/helpers";
 import Player from './Player';
 import Enemy from './Enemy';
-// import Skills from './skills/Skills';
 import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import Statistics from "./Statistics";
@@ -32,10 +31,11 @@ export default class Game {
     readonly player: Player;
     readonly statistics: Statistics;
     readonly settings: Settings;
-    readonly components: Component[] = [];
+    readonly componentsList: Component[] = [];
     readonly onSave = new EventEmitter<Save>();
     private _config: GConfig | undefined;
     private _saveObj: Save | undefined;
+    private time = 0;
     constructor(readonly home: Home) {
         this.enemy = new Enemy(this);
         this.player = new Player(this);
@@ -47,7 +47,7 @@ export default class Game {
             this.setupDevHelpers();
         }
 
-        registerTabs(queryHTML('[data-main-menu]', this.gamePage), queryHTML('[data-main-view]', this.gamePage));
+        registerTabs(queryHTML(':scope > menu', this.gamePage), queryHTML('[data-main-view]', this.gamePage));
     }
     get config() {
         return this._config!;
@@ -72,6 +72,11 @@ export default class Game {
             this.statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
 
+        this.gameLoop.subscribe(dt => {
+            this.time += dt;
+            this.updateComponentsUI();
+        });
+
         // this.gameLoop.subscribe(() => {
         //     saveGame(config.meta);
         // }, { intervalMilliseconds: 1000 * 60 });
@@ -95,13 +100,6 @@ export default class Game {
         this.disposeComponents();
     }
 
-    private disposeComponents() {
-        for (const component of this.components) {
-            component.dispose();
-        }
-        this.components.splice(0);
-    }
-
     private createComponents() {
         if (!this.config.components) {
             return;
@@ -111,26 +109,33 @@ export default class Game {
         const gameElement = queryHTML<GameElement>('game-element');
         gameElement.init(keys);
 
+
         const entries = Object.entries(this.config.components) as Required<ComponentsEntries>;
         const initComponent = (entry: Required<ComponentsEntries>[number]) => {
             const name = entry![0];
+            queryHTML(`.p-game > menu [data-tab-target="${name}"]`).classList.remove('hidden');
+            let component: Component | undefined = undefined;
             switch (name) {
                 case 'skills':
-                    this.components.push(new Skills(this, entry[1]!));
+                    component = new Skills(this, entry[1]!);
                     break;
                 case 'passives':
-                    this.components.push(new Passives(this, entry[1]!));
+                    component = new Passives(this, entry[1]!);
                     break;
                 case 'items':
-                    this.components.push(new Items(this, entry[1]!));
+                    component = new Items(this, entry[1]!);
                     break;
                 case 'missions':
-                    this.components.push(new Missions(this, entry[1]!));
+                    component = new Missions(this, entry[1]!);
                     break;
                 case 'achievements':
-                    this.components.push(new Achievements(this, entry[1]!));
+                    component = new Achievements(this, entry[1]!);
                     break;
             }
+            if (!component) {
+                throw Error('invalid component type');
+            }
+            this.componentsList.push(component);
         }
         for (const entry of entries) {
             const data = entry[1]!;
@@ -138,6 +143,19 @@ export default class Game {
                 initComponent(entry);
             });
         }
+    }
+
+    private disposeComponents() {
+        for (const componentData of this.componentsList) {
+            componentData.dispose();
+        }
+        this.componentsList.splice(0);
+    }
+
+    private updateComponentsUI() {
+
+        const visibleComponent = this.componentsList.find(x => !x.page.classList.contains('hidden'));
+        visibleComponent?.updateUI(this.time);
     }
 
     private setupDevHelpers() {
@@ -180,8 +198,8 @@ export default class Game {
         this.statistics.save(saveObj);
         // this.skills.save(saveObj);
 
-        for (const component of this.components) {
-            component.save(saveObj);
+        for (const componentData of this.componentsList) {
+            componentData.save(saveObj);
         }
 
         map.set(this.config.meta.id, saveObj);
@@ -232,4 +250,3 @@ export default class Game {
         return map.has(id);
     }
 }
-

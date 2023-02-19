@@ -1,8 +1,10 @@
 import GConfig from "@src/types/gconfig";
 import { Save } from "@src/types/save";
-import { queryHTML } from "@src/utils/helpers";
+import { clamp, queryHTML } from "@src/utils/helpers";
+import Loop from "@src/utils/Loop";
 import Game from "../Game";
 import { ModDB, Modifier, StatModifier } from "../mods";
+import Player from "../Player";
 import Component from "./Component";
 
 type SkillsData = Required<Required<GConfig>['components']>['skills'];
@@ -12,57 +14,113 @@ type BuffSkillData = Required<SkillsData>['buffSkills']['skillList'][number];
 type SkillSlot = AttackSkillSlot | BuffSkillSlot;
 
 export default class Skills extends Component {
-    private readonly page = queryHTML('.p-game .p-skills');
-    private readonly attackSkillSlotContainer = queryHTML('[data-attack-skill-slot]', this.page);
-    private readonly buffSkillSlotContainer = queryHTML('.s-skill-slots [data-buff-skill-slots]', this.page);
-    private readonly skillInfoContainer = queryHTML('[data-skill-info]', this.page);
-    private readonly skillListContainer = queryHTML('.p-game .p-skills .s-skill-list ul', this.page);
-
-    private activeSkillSlot: BaseSkillSlot;
+    activeSkillSlot: BaseSkillSlot;
+    private activeSkill?: BaseSkill;
     private readonly attackSkillSlot: AttackSkillSlot;
     private readonly buffSkillSlots: BuffSkillSlot[] = [];
-    // private readonly abortController = new AbortController();
-    constructor(readonly game: Game, readonly data: SkillsData) {
-        super(game);
 
-        //setup attack skills
+    constructor(readonly game: Game, readonly data: SkillsData) {
+        super(game, 'skills');
+
+        // //setup attack skills
         {
             const attackSkills = [...data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<AttackSkill>(x => new AttackSkill(this, x));
-            this.attackSkillSlot = new AttackSkillSlot(this, attackSkills);
-            this.attackSkillSlotContainer.replaceChildren(this.attackSkillSlot.element);
-            this.attackSkillSlot.setSkill(attackSkills[0]);
+            this.attackSkillSlot = new AttackSkillSlot();
             this.activeSkillSlot = this.attackSkillSlot;
+            this.attackSkillSlot.setSkill(attackSkills[0]);
+            this.attackSkillSlot.slotLabelElement.addEventListener('click', () => {
+                this.selectSkillSlot(this.attackSkillSlot, attackSkills);
+            });
+
+            game.gameLoop.subscribeAnim(() => {
+                if (this.page.classList.contains('hidden')) {
+                    return;
+                }
+                this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+            });
+            queryHTML('[data-attack-skill-slot]', this.page).replaceChildren(this.attackSkillSlot.element!);
             queryHTML('[data-skill-name]', this.attackSkillSlot.element).click();
         }
 
         //setup buff skills
         {
-            this.buffSkillSlotContainer.replaceChildren();
+            const buffSkillSlotContainer = queryHTML('.s-skill-slots [data-buff-skill-slots]', this.page);
+            buffSkillSlotContainer.replaceChildren();
             if (data.buffSkills) {
                 const buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<BuffSkill>(x => new BuffSkill(x));
                 for (const buffSkillData of data.buffSkills.skillSlots || []) {
                     game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
-                        const slot = new BuffSkillSlot(this, buffSkills);
-                        this.buffSkillSlotContainer.appendChild(slot.element);
+                        const slot = new BuffSkillSlot(this);
+                        slot.slotLabelElement.addEventListener('click', () => {
+                            this.selectSkillSlot(slot, buffSkills);
+                        });
+                        buffSkillSlotContainer.appendChild(slot.element!);
                         this.buffSkillSlots.push(slot);
                     });
                 }
             }
         }
 
+        {
+            const skillInfoContainer = queryHTML('[data-skill-info]', this.page);
+            queryHTML('[data-enable]', skillInfoContainer).addEventListener('click', () => {
+                if (this.activeSkill) {
+                    this.enableSkill(this.activeSkillSlot, this.activeSkill);
+                }
+            });
+            queryHTML('[data-remove]', skillInfoContainer).addEventListener('click', () => this.removeSkillFromSlot(this.activeSkillSlot as BuffSkillSlot));
+            queryHTML('[data-trigger]', skillInfoContainer).addEventListener('click', () => this.triggerSkill(this.activeSkillSlot as BuffSkillSlot));
+            queryHTML('[data-automate]', skillInfoContainer).addEventListener('click', () => this.toggleAutoMode(this.activeSkillSlot as BuffSkillSlot));
+        }
+
     }
 
-    dispose(): void {
-        // this.abortController.abort();
+    updateUI(): void {
+        this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+        this.buffSkillSlots.forEach(x => x.updateProgressBar());
     }
 
-    selectSkillSlot(skillSlot: SkillSlot) {
+    selectSkillSlot(skillSlot: SkillSlot, skillList: BaseSkill[]) {
+
         this.activeSkillSlot = skillSlot;
         [this.attackSkillSlot, ...this.buffSkillSlots].forEach(slot => slot.slotLabelElement.classList.toggle('selected', slot === skillSlot));
-        this.populateSkillList(skillSlot);
+        this.populateSkillList(skillSlot, skillList);
     }
 
-    private showSkill(skill: AttackSkill | BuffSkill) {
+
+    private populateSkillList(skillSlot: SkillSlot, skillList: BaseSkill[]) {
+        const skillListContainer = queryHTML('.p-game .p-skills .s-skill-list ul', this.page);
+        const elements: HTMLLIElement[] = [];
+        for (const skill of skillList) {
+            const li = document.createElement('li');
+            li.classList.add('g-list-item');
+            li.classList.toggle('selected', skill.data.name === skillSlot.skill?.data.name);
+            li.setAttribute('data-name', skill.data.name);
+            li.textContent = skill.data.name;
+            li.addEventListener('click', () => {
+                this.activeSkill = skill;
+                this.showSkill(skill);
+                elements.forEach(x => x.classList.toggle('selected', x === li));
+            });
+            elements.push(li);
+        }
+        skillListContainer.replaceChildren(...elements);
+
+        if (elements.length === 0) {
+            skillListContainer.textContent = 'No skills available';
+            return;
+        }
+
+        if (skillSlot.skill) {
+            elements.find(x => x.getAttribute('data-name') === skillSlot.skill?.data.name)?.click();
+        } else {
+            elements[0].click();
+        }
+
+    }
+
+    showSkill(skill: BaseSkill) {
+        const skillInfoContainer = queryHTML('[data-skill-info]', this.page);
         const createTableRow = (label: string, value: string) => {
             const row = document.createElement('tr');
             row.insertAdjacentHTML('beforeend', `<td>${label}</td>`);
@@ -70,9 +128,9 @@ export default class Skills extends Component {
             return row;
         };
 
-        queryHTML('header .title', this.skillInfoContainer).textContent = skill.data.name;
+        queryHTML('header .title', skillInfoContainer).textContent = skill.data.name;
 
-        const table = queryHTML('table', this.skillInfoContainer);
+        const table = queryHTML('table', skillInfoContainer);
         table.replaceChildren();
         table.appendChild(createTableRow('Mana Cost', skill.data.manaCost.toFixed()));
 
@@ -98,81 +156,59 @@ export default class Skills extends Component {
                 modElements.push(modElement);
 
             }
-            queryHTML('.s-mods', this.skillInfoContainer).replaceChildren(...modElements);
+            queryHTML('.s-mods', skillInfoContainer).replaceChildren(...modElements);
         }
 
-        {
-            const enableSkillButtonElement = queryHTML<HTMLButtonElement>('footer [data-enable]', this.skillInfoContainer);
-            const clone = enableSkillButtonElement.cloneNode(true) as HTMLButtonElement;
-            enableSkillButtonElement.replaceWith(clone);
-            clone.addEventListener('click', () => {
-                this.activeSkillSlot.setSkill(skill);
-                clone.disabled = true;
-                this.showSkill(skill);
-            });
-            clone.disabled = this.activeSkillSlot.skill === skill;
-        }
+        const enableButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-enable]', this.page);
+        const removeButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-remove]', this.page);
+        const triggerButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-trigger]', this.page);
+        const automateButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-automate]', this.page);
 
+        removeButton.classList.toggle('hidden', skill instanceof AttackSkill);
+        triggerButton.classList.toggle('hidden', skill instanceof AttackSkill);
+        automateButton.classList.toggle('hidden', skill instanceof AttackSkill);
 
-        const removeSkillButtonElement = queryHTML<HTMLButtonElement>('footer [data-remove]', this.skillInfoContainer);
-        const triggerSkillButtonElement = queryHTML<HTMLButtonElement>('footer [data-trigger]', this.skillInfoContainer);
-        removeSkillButtonElement.classList.add('hidden');
-        triggerSkillButtonElement.classList.add('hidden');
-        if (skill instanceof BuffSkill && this.activeSkillSlot.skill === skill) {
-            {
-                //remove skill button
-                const clone = removeSkillButtonElement.cloneNode(true) as HTMLButtonElement;
-                removeSkillButtonElement.replaceWith(clone);
-                clone.addEventListener('click', () => {
-                    this.activeSkillSlot.setSkill(undefined);
-                    this.showSkill(skill);
-                });
-                clone.classList.toggle('hidden', !this.activeSkillSlot.canRemove);
-            }
+        enableButton.disabled = !this.activeSkillSlot.canEnable || [this.attackSkillSlot, ...this.buffSkillSlots].some(x => x.skill === skill);
+        if (skill instanceof BuffSkill && this.activeSkillSlot instanceof BuffSkillSlot && this.activeSkillSlot.skill === skill) {
+            removeButton.disabled = !this.activeSkillSlot.canRemove;
+            triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+            automateButton.disabled = !this.activeSkillSlot.canAutomate;
 
-            {
-                //trigger skill button
-                const clone = triggerSkillButtonElement.cloneNode(true) as HTMLButtonElement;
-                triggerSkillButtonElement.replaceWith(clone);
-                clone.addEventListener('click', () => {
-                    skill.trigger();
-                });
-                clone.classList.toggle('hidden', !this.activeSkillSlot.canTrigger);
-            }
-        }
-    }
-
-    private populateSkillList(skillSlot: SkillSlot) {
-        const elements: HTMLLIElement[] = [];
-        for (const skill of skillSlot.skillList) {
-            const li = document.createElement('li');
-            li.classList.add('g-list-item');
-            li.classList.toggle('selected', skill.data.name === skillSlot.skill?.data.name);
-            li.setAttribute('data-name', skill.data.name);
-            li.textContent = skill.data.name;
-            li.addEventListener('click', () => {
-                this.showSkill(skill);
-                elements.forEach(x => x.classList.toggle('selected', x === li));
-            });
-            if (skill === skillSlot.skill) {
-                li.click();
-            }
-            elements.push(li);
-        }
-        this.skillListContainer.replaceChildren(...elements);
-
-        if (elements.length === 0) {
-            this.skillListContainer.textContent = 'No skills available';
-            return;
-        }
-
-        if (skillSlot.skill) {
-            elements.find(x => x.getAttribute('data-name') === skillSlot.skill?.data.name)?.click();
+            const automate = this.activeSkillSlot.automate;
+            automateButton.setAttribute('data-role', automate ? 'confirm' : 'cancel');
         } else {
-            elements[0].click();
+            removeButton.disabled = true;
+            triggerButton.disabled = true;
+            automateButton.disabled = true;
         }
-
     }
+
+    private enableSkill(skillSlot: BaseSkillSlot, skill: BaseSkill) {
+        skillSlot.setSkill(skill);
+        this.showSkill(skill);
+    }
+
+    private triggerSkill(skillSlot: BuffSkillSlot) {
+        skillSlot.trigger();
+        if (skillSlot.skill) {
+            this.showSkill(skillSlot.skill);
+        }
+    }
+
+    private removeSkillFromSlot(skillSlot: BuffSkillSlot) {
+        skillSlot.setSkill(undefined);
+        if (this.activeSkill) {
+            this.showSkill(this.activeSkill);
+        }
+    }
+
+    private toggleAutoMode(skillSlot: BuffSkillSlot) {
+        skillSlot.toggleAutomate();
+        if (skillSlot.skill) {
+            this.showSkill(skillSlot.skill);
+        }
+    }
+
 
     save(saveObj: Save) {
         // saveObj.skills = {
@@ -188,48 +224,34 @@ export default class Skills extends Component {
     }
 }
 
-abstract class BaseSkillSlot {
+class BaseSkillSlot {
     readonly element: HTMLElement;
     skill?: BaseSkill;
-    protected _automate = false;
-    constructor(readonly skills: Skills) {
+    readonly progressBar: HTMLProgressElement;
+    constructor() {
         this.element = this.createElement();
+        this.progressBar = queryHTML<HTMLProgressElement>('progress', this.element);
     }
+
     setSkill(skill?: BaseSkill) {
         this.skill = skill;
         queryHTML('[data-skill-name]', this.element).textContent = skill?.data.name || '[Empty Slot]';
     }
     get hasSkill() { return typeof this.skill !== 'undefined'; }
     get canRemove() { return this.hasSkill }
-    get automate() { return this._automate; }
     get slotLabelElement() { return queryHTML('[data-skill-name]', this.element); }
     get canTrigger() { return false; }
+    get canEnable() { return false; }
 
     protected createElement() {
         const li = document.createElement('li');
         li.classList.add('s-skill-slot');
         li.insertAdjacentHTML('beforeend', '<div class="g-list-item" data-skill-name></div>');
-        if (this instanceof BuffSkillSlot) {
-            {
-                const autoButton = document.createElement('button');
-                autoButton.classList.add('g-button');
-                autoButton.textContent = 'Auto';
-                autoButton.setAttribute('data-automate', '');
-                autoButton.setAttribute('data-role', 'cancel');
-                autoButton.addEventListener('click', () => {
-                    this._automate = !this.automate;
-                    autoButton.setAttribute('data-role', this.automate ? 'confirm' : 'cancel');
-                    autoButton.classList.toggle('selected', this.automate);
-                    this.skills.selectSkillSlot(this as unknown as BuffSkillSlot);
-                });
-                li.appendChild(autoButton);
-            }
-        }
 
         {
             const progressBar = document.createElement('progress');
-            progressBar.max = 100;
-            progressBar.value = 50;
+            progressBar.max = 1;
+            progressBar.value = 0;
 
             li.appendChild(progressBar);
         }
@@ -238,43 +260,132 @@ abstract class BaseSkillSlot {
 }
 
 class AttackSkillSlot extends BaseSkillSlot {
-    constructor(readonly skills: Skills, readonly skillList: AttackSkill[]) {
-        super(skills);
-        this.slotLabelElement.addEventListener('click', () => {
-            this.skills.selectSkillSlot(this);
-        });
+    constructor() {
+        super();
     }
+    get canEnable() { return true; }
 
     setSkill(skill: AttackSkill) {
         this.skill?.removeModifiers();
         super.setSkill(skill);
         skill.applyModifiers();
     }
+
+    updateProgressBar(attackProgressPct: number) {
+        this.progressBar.value = attackProgressPct;
+    }
 }
 
 class BuffSkillSlot extends BaseSkillSlot {
-    constructor(readonly skills: Skills, readonly skillList: BuffSkill[]) {
-        super(skills);
+    private _running = false;
+    private _time = 0;
+    private loopId?: string;
+    private _automate = false;
+    private readonly player: Player;
+    private readonly gameLoop: Loop
+    constructor(readonly skills: Skills) {
+        super();
         this.setSkill(undefined);
-        this.slotLabelElement.addEventListener('click', () => {
-            this.skills.selectSkillSlot(this);
-        });
+        this.player = skills.game.player;
+        this.gameLoop = skills.game.gameLoop;
     }
-    get automate() {
-        return this.hasSkill && this._automate;
+    get canEnable() {
+        return !this.running;
+    }
+    get canRemove() {
+        return this.hasSkill && !this._running;
     }
     get canTrigger() {
-        return this.hasSkill && !this.automate;
+        return this.hasSkill && !this.automate && !this._running;
+    }
+    get canAutomate() {
+        return this.hasSkill;
+    }
+    get automate() {
+        return this._automate;
+    }
+    set automate(v: boolean) {
+        this._automate = v;
+    }
+
+    get running() { return this._running; }
+    get time() { return this._time; }
+
+    toggleAutomate() {
+        this._automate = !this._automate;
     }
 
     setSkill(skill?: BuffSkill) {
         this.skill = skill;
         queryHTML('[data-skill-name]', this.element).textContent = this.skill?.data.name || '[Empty Slot]';
+    }
 
-        const automateButton = queryHTML('[data-automate]', this.element);
-        this._automate = false;
-        automateButton.classList.toggle('hidden', !this.hasSkill);
-        automateButton.setAttribute('data-role', this.automate ? 'confirm' : 'cancel');
+    updateProgressBar() {
+
+    }
+
+    trigger(startNew = true) {
+        const skill = (this.skill as BuffSkill | undefined);
+        if (!skill) {
+            return;
+        }
+        const sufficientMana = this.player.stats.curMana.get() >= skill.data.manaCost;
+        if (!sufficientMana) {
+            return;
+        }
+
+        this.player.stats.curMana.subtract(skill.data.manaCost);
+
+        const calcDuration = () => {
+            const baseDuration = (this.skill as BuffSkill | undefined)?.data.baseDuration || 0;
+            return baseDuration * this.player.stats.skillDurationMultiplier.get();
+        };
+        const calcPct = () => {
+            return this._time / duration;
+        };
+        const updateTime = () => {
+            duration = calcDuration();
+            this._time = duration * calcPct();
+        };
+
+        if (this.loopId) {
+            this.player.game.gameLoop.unsubscribe(this.loopId);
+        }
+
+        const startTime = calcDuration();
+        if (startNew || this._time <= 0) {
+            this._time = startTime;
+        }
+        let duration = startTime;
+
+        this.player.modDB.add(skill.mods.flatMap(x => x.stats), skill.sourceName);
+
+        this._running = true;
+        console.log('start');
+        this.loopId = this.gameLoop.subscribe(dt => {
+
+            updateTime();
+
+            if (this._time <= 0) {
+                this._time = 0;
+
+                if (this.skill) {
+                    this.player.modDB.removeBySource(this.skill.sourceName);
+                }
+                this._running = false;
+                if (this.automate) {
+                    this.trigger();
+                    return;
+                }
+                if (this.skills.activeSkillSlot === this && this.skill) {
+                    this.skills.showSkill(this.skill);
+                }
+                this.gameLoop.unsubscribe(this.loopId);
+                return;
+            }
+            this._time -= dt;
+            this.progressBar.value = calcPct();
+        });
     }
 }
 
@@ -320,9 +431,6 @@ class BuffSkill extends BaseSkill {
         super(data);
     }
 
-    trigger() {
-        console.log('trigger');
-    }
 
     applyModifiers(): void {
 

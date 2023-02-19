@@ -2,7 +2,7 @@ import Value from '@utils/Value';
 import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
-import { queryHTML } from "@src/utils/helpers";
+import { clamp, invLerp, queryHTML, remap } from "@src/utils/helpers";
 import type Game from './Game';
 import type { Save } from '@src/types/save';
 
@@ -23,8 +23,13 @@ export default class Player {
         manaRegen: new Value(0),
         skillDurationMultiplier: new Value(1)
     };
+    private _attackProgressPct: number = 0;
     constructor(readonly game: Game) {
 
+    }
+
+    get attackProgressPct(){
+        return this._attackProgressPct;
     }
 
     init() {
@@ -69,11 +74,12 @@ export default class Player {
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
 
-        // this.game.gameLoop.subscribeAnim(() => {
-        //     if (!this.combatPage.classList.contains('hidden')) {
-        //         this.updateManaBar();
-        //     }
-        // });
+        this.game.gameLoop.subscribeAnim(() => {
+            if (this.combatPage.classList.contains('hidden')) {
+                return;
+            }
+            this.updateManaBar();
+        });
 
         this.game.onSave.listen(this.save.bind(this));
 
@@ -117,16 +123,22 @@ export default class Player {
 
     private startAutoAttack() {
         let deltaTotal = 0;
+        const calcWaitTime = () => 1 / this.stats.attackSpeed.get();
+        let waitTimeSeconds = calcWaitTime();
+        this.stats.attackSpeed.addListener('change', (attackSpeed) => {
+            waitTimeSeconds = 1 / attackSpeed;
+        });
         this.game.gameLoop.subscribe(dt => {
-            const attackSpeed = 1 / this.stats.attackSpeed.get();
+            this._attackProgressPct = invLerp(0, waitTimeSeconds, deltaTotal);
             deltaTotal += dt;
-            if (deltaTotal >= attackSpeed) {
+            if (deltaTotal >= waitTimeSeconds) {
                 const curMana = this.stats.curMana.get();
                 const manaCost = this.stats.attackManaCost.get();
                 if (curMana > manaCost) {
                     this.stats.curMana.subtract(manaCost);
                     this.performAttack();
                     deltaTotal = 0;
+                    waitTimeSeconds = calcWaitTime();
                 }
             }
         });

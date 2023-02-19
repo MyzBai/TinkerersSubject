@@ -14,7 +14,7 @@ export interface Options {
     intervalMilliseconds: number;
 }
 
-const TARGET_FRAME_TIME = 1000 / 25;
+const TARGET_FRAME_TIME = 1000 / 30;
 const DELTA_TIME_SECONDS = TARGET_FRAME_TIME / 1000;
 
 export default class Loop {
@@ -55,6 +55,7 @@ export default class Loop {
 
     reset() {
         this.instances.clear();
+        this.animInstances.clear();
         this.running = false;
     }
 
@@ -76,8 +77,8 @@ export default class Loop {
     private beginLoop() {
         let remainder = 0;
         let now = performance.now();
+        clearTimeout(this.loopId);
         const loop = () => {
-            clearTimeout(this.loopId);
             this.loopId = window.setTimeout(() => {
                 let diff = performance.now() - now + remainder;
                 now = performance.now();
@@ -103,26 +104,41 @@ export default class Loop {
     private beginLoopAnim() {
         let remainder = 0;
         let now = performance.now();
+        cancelAnimationFrame(this.animLoopId);
         const loop = () => {
-            cancelAnimationFrame(this.animLoopId);
-            this.animLoopId = requestAnimationFrame(() => {
-                let diff = performance.now() - now + remainder;
-                now = performance.now();
-                while (diff >= TARGET_FRAME_TIME) {
-                    diff -= TARGET_FRAME_TIME;
 
-                    this.animInstances.forEach(instance => {
-                        instance.time += TARGET_FRAME_TIME;
-                        let ms = instance.options?.intervalMilliseconds || 0;
-                        if (instance.time > ms) {
-                            instance.callback(DELTA_TIME_SECONDS);
-                            instance.time -= ms || instance.time;
-                        }
-                    });
-                }
-                remainder = diff;
+            this.animLoopId = requestAnimationFrame(() => {
+                now = performance.now();
+                this.animInstances.forEach(instance => {
+                    instance.time += TARGET_FRAME_TIME;
+                    let ms = instance.options?.intervalMilliseconds || 0;
+                    if (instance.time > ms) {
+                        instance.callback(DELTA_TIME_SECONDS);
+                        instance.time -= ms || instance.time;
+                    }
+                });
                 loop();
             });
+
+
+            // this.animLoopId = requestAnimationFrame(() => {
+            //     let diff = performance.now() - now + remainder;
+            //     now = performance.now();
+            //     while (diff >= TARGET_FRAME_TIME) {
+            //         diff -= TARGET_FRAME_TIME;
+
+            //         this.animInstances.forEach(instance => {
+            //             instance.time += TARGET_FRAME_TIME;
+            //             let ms = instance.options?.intervalMilliseconds || 0;
+            //             if (instance.time > ms) {
+            //                 instance.callback(DELTA_TIME_SECONDS);
+            //                 instance.time -= ms || instance.time;
+            //             }
+            //         });
+            //     }
+            //     remainder = diff;
+            //     loop();
+            // });
         }
         loop();
     }

@@ -187,6 +187,7 @@ progress[value] {
     &::-webkit-progress-value {
         border-radius: 2px;
         background-color: $color-progress-bar-foreground-bg;
+        // transition: width 70ms linear;
     }
 }
 

@@ -5,14 +5,13 @@ import type { CraftId, ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { highlightHTMLElement, queryHTML } from "@src/utils/helpers";
-import { visibilityObserver } from "@src/utils/Observers";
 import { CraftData, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
 
 type ItemsData = Required<Required<GConfig>['components']>['items'];
 export type ModTables = { [K in keyof ItemsData['modLists']]: ItemModifier[] }
 
-const mainMenuContainer = queryHTML('.p-game [data-main-menu]');
+const mainMenuContainer = queryHTML('.p-game > menu');
 
 export default class Items extends Component {
     private readonly itemsPage = queryHTML('.p-game .p-items');
@@ -26,11 +25,8 @@ export default class Items extends Component {
     private activeCraftId?: CraftId;
     readonly modLists: ItemModifier[];
     private presets: CraftPresets;
-    private goldListener: (v: number) => void;
-    private readonly craftCallback: () => void;
-    private observers = [] as (MutationObserver | IntersectionObserver)[];
     constructor(readonly game: Game, readonly data: ItemsData) {
-        super(game);
+        super(game, 'items');
 
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
 
@@ -50,32 +46,22 @@ export default class Items extends Component {
             this.updateCraftList();
         });
 
-        this.craftCallback = () => {
-            this.performCraft();
-        };
-        this.craftButton.addEventListener('click', this.craftCallback);
+        this.craftButton.addEventListener('click', () => this.performCraft());
 
         this.presets = new CraftPresets(this);
 
-        this.goldListener = () => {
+        this.game.player.stats.gold.addListener('change', () => {
+            if (this.page.classList.contains('hidden')) {
+                return;
+            }
             if (this.activeCraftId) {
                 this.updateCraftButton();
             }
-        };
-        this.observers.push(visibilityObserver(this.itemsPage, visible => {
-            if (visible) {
-                this.updateCraftButton();
-                game.player.stats.gold.addListener('change', this.goldListener)
-            } else {
-                game.player.stats.gold.removeListener('change', this.goldListener);
-            }
-        }));
+        });
     }
 
     dispose(): void {
-        queryHTML('.p-game [data-main-menu] [data-tab-target="items"]').classList.add('hidden');
-        this.craftButton.removeEventListener('click', this.craftCallback);
-        this.observers.forEach(x => x.disconnect());
+        queryHTML('.p-game > menu [data-tab-target="items"]').classList.add('hidden');
         this.presets.dispose();
 
         this.itemListContainer.replaceChildren();

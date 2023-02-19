@@ -4,18 +4,15 @@ import { queryHTML } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import Task from "../Task";
-import { visibilityObserver } from "@src/utils/Observers";
 
 type MissionsData = Required<Required<GConfig>['components']>['missions'];
 type MissionData = MissionsData['missionLists'][number][number];
 
 export default class Missions extends Component {
     readonly slots: MissionSlot[] = [];
-    private readonly page = queryHTML('.p-game .p-missions');
     private readonly missionsListContainer = queryHTML<HTMLUListElement>('ul[data-mission-list]', this.page);
-    readonly observer: IntersectionObserver;
     constructor(readonly game: Game, readonly data: MissionsData) {
-        super(game);
+        super(game, 'missions');
 
         for (const slotData of data.slots) {
             game.player.stats.level.registerCallback(slotData.levelReq, () => {
@@ -27,30 +24,19 @@ export default class Missions extends Component {
 
         game.gameLoop.subscribe(() => { this.slots.forEach(x => x.tryCompletion()); }, { intervalMilliseconds: 1000 });
 
-        {
-            let loopId: string | undefined;
-            this.observer = visibilityObserver(this.page, visible => {
-                if (visible) {
-                    const updateUI = () => {
-                        this.slots.forEach(x => {
-                            x.updateLabel();
-                        });
-                    };
-                    updateUI();
-                    loopId = this.game.gameLoop.subscribe(() => updateUI(), { intervalMilliseconds: 1000 });
-                } else {
-                    this.game.gameLoop.unsubscribe(loopId);
-                }
-            });
-        }
-
-        queryHTML('.p-game [data-main-menu] [data-tab-target="missions"]').classList.remove('hidden');
+        queryHTML('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
     }
 
     dispose(): void {
         this.missionsListContainer.replaceChildren();
-        this.observer.disconnect();
-        queryHTML('.p-game [data-main-menu] [data-tab-target="missions"]').classList.add('hidden');
+        queryHTML('.p-game > menu [data-tab-target="missions"]').classList.add('hidden');
+    }
+
+    updateUI(time: number): void {
+        if (time - this.updateUITime > 1) {
+            this.slots.forEach(x => x.updateLabel());
+            this.updateUITime = time;
+        }
     }
 
     save(saveObj: Save): void {

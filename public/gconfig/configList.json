@@ -10,6 +10,11 @@
             "name": "Demo 2",
             "rawUrl": "public/gconfig/demo2.json",
             "description": "Test"
+        },
+        {
+            "name": "Skills Test",
+            "rawUrl": "public/gconfig/skills-test.json",
+            "description": "Test"
         }
     ]
 }
