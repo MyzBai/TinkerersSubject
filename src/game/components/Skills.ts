@@ -285,7 +285,7 @@ class AttackSkillSlot extends BaseSkillSlot {
     }
 
     updateProgressBar(attackProgressPct: number) {
-        this.progressBar.value = attackProgressPct;
+        this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
     }
 
     private tryLoad() {

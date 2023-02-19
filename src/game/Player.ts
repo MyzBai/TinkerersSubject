@@ -28,7 +28,7 @@ export default class Player {
 
     }
 
-    get attackProgressPct(){
+    get attackProgressPct() {
         return this._attackProgressPct;
     }
 
@@ -122,23 +122,24 @@ export default class Player {
     }
 
     private startAutoAttack() {
-        let deltaTotal = 0;
+
         const calcWaitTime = () => 1 / this.stats.attackSpeed.get();
-        let waitTimeSeconds = calcWaitTime();
-        this.stats.attackSpeed.addListener('change', (attackSpeed) => {
-            waitTimeSeconds = 1 / attackSpeed;
+        this.stats.attackSpeed.addListener('change', () => {
+            waitTimeSeconds = calcWaitTime();
         });
+        let waitTimeSeconds = calcWaitTime();
+        let time = waitTimeSeconds;
         this.game.gameLoop.subscribe(dt => {
-            this._attackProgressPct = invLerp(0, waitTimeSeconds, deltaTotal);
-            deltaTotal += dt;
-            if (deltaTotal >= waitTimeSeconds) {
+            this._attackProgressPct = invLerp(waitTimeSeconds, 0, time);
+            time -= dt;
+            if (time < 0) {
                 const curMana = this.stats.curMana.get();
                 const manaCost = this.stats.attackManaCost.get();
                 if (curMana > manaCost) {
                     this.stats.curMana.subtract(manaCost);
                     this.performAttack();
-                    deltaTotal = 0;
                     waitTimeSeconds = calcWaitTime();
+                    time = waitTimeSeconds;
                 }
             }
         });
