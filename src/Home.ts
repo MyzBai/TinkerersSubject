@@ -52,8 +52,6 @@ export default class Home {
         navBtn.click();
         navBtn.classList.add('hidden');
         queryHTML('.p-home > menu [data-type="new"]').click();
-
-        await this.tryLoadRecentSave();
     }
 
     async tryLoadRecentSave() {
