@@ -196,7 +196,7 @@ class MissionSlot {
             return;
         }
         const element = queryHTML<HTMLButtonElement>('[data-trigger="claim"]', this._element);
-        queryHTML('[data-cost]', this.element).textContent = this._missionData.goldAmount.toFixed();
+        queryHTML('[data-cost]', element).textContent = this._missionData.goldAmount.toFixed();
         element.disabled = !enabled;
     }
 
@@ -205,7 +205,7 @@ class MissionSlot {
             return;
         }
         const element = queryHTML<HTMLButtonElement>('[data-trigger="new"]', this._element);
-        queryHTML<HTMLSpanElement>('[data-cost]', this._element).textContent = this.newMissionCost.toFixed();;
+        queryHTML<HTMLSpanElement>('[data-cost]', element).textContent = this.newMissionCost.toFixed();
         element.disabled = this._task.completed || this.missions.game.player.stats.gold.get() < this.newMissionCost;
     }
 
