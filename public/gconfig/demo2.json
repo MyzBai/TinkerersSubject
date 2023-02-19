@@ -340,12 +340,17 @@
                     {
                         "levelReq": 3,
                         "goldAmount": 100,
-                        "description": "Deal Damage {500}"
+                        "description": "Deal Damage {1000}"
                     },
                     {
                         "levelReq": 5,
-                        "goldAmount": 500,
+                        "goldAmount": 200,
                         "description": "Deal Damage {10000}"
+                    },
+                    {
+                        "levelReq": 7,
+                        "goldAmount": 300,
+                        "description": "Deal Damage {100000}"
                     }
                 ],
                 [
