@@ -20,7 +20,9 @@ export interface Save {
         buffSkills: {
             name: string;
             index: number;
+            active: boolean;
             time: number;
+            automate: boolean;
         }[];
     };
     passives?: {

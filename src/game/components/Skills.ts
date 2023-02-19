@@ -16,20 +16,20 @@ type SkillSlot = AttackSkillSlot | BuffSkillSlot;
 export default class Skills extends Component {
     activeSkillSlot: BaseSkillSlot;
     private activeSkill?: BaseSkill;
+    readonly attackSkills: AttackSkill[] = [];
     private readonly attackSkillSlot: AttackSkillSlot;
-    private readonly buffSkillSlots: BuffSkillSlot[] = [];
-
+    readonly buffSkillSlots: BuffSkillSlot[] = [];
+    readonly buffSkills: BuffSkill[] = [];
     constructor(readonly game: Game, readonly data: SkillsData) {
         super(game, 'skills');
 
         // //setup attack skills
         {
-            const attackSkills = [...data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<AttackSkill>(x => new AttackSkill(this, x));
-            this.attackSkillSlot = new AttackSkillSlot();
+            this.attackSkills = [...data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<AttackSkill>(x => new AttackSkill(this, x));
+            this.attackSkillSlot = new AttackSkillSlot(this);
             this.activeSkillSlot = this.attackSkillSlot;
-            this.attackSkillSlot.setSkill(attackSkills[0]);
             this.attackSkillSlot.slotLabelElement.addEventListener('click', () => {
-                this.selectSkillSlot(this.attackSkillSlot, attackSkills);
+                this.selectSkillSlot(this.attackSkillSlot, this.attackSkills);
             });
 
             game.gameLoop.subscribeAnim(() => {
@@ -47,12 +47,12 @@ export default class Skills extends Component {
             const buffSkillSlotContainer = queryHTML('.s-skill-slots [data-buff-skill-slots]', this.page);
             buffSkillSlotContainer.replaceChildren();
             if (data.buffSkills) {
-                const buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<BuffSkill>(x => new BuffSkill(x));
+                this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<BuffSkill>(x => new BuffSkill(x));
                 for (const buffSkillData of data.buffSkills.skillSlots || []) {
                     game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
                         const slot = new BuffSkillSlot(this);
                         slot.slotLabelElement.addEventListener('click', () => {
-                            this.selectSkillSlot(slot, buffSkills);
+                            this.selectSkillSlot(slot, this.buffSkills);
                         });
                         buffSkillSlotContainer.appendChild(slot.element!);
                         this.buffSkillSlots.push(slot);
@@ -211,6 +211,16 @@ export default class Skills extends Component {
 
 
     save(saveObj: Save) {
+        saveObj.skills = {
+            attackSkillName: this.attackSkillSlot.skill?.data.name || '',
+            buffSkills: this.buffSkillSlots.filter(x => x.skill).map((x, index) => ({
+                index,
+                name: x.skill?.data.name || '',
+                active: x.running,
+                automate: x.automate,
+                time: x.time
+            }))
+        }
         // saveObj.skills = {
         //     attackSkillName: this.attackSkillSlot?.skill?.name || 'invalid name',
         //     buffSkills: this.buffSkillSlots.filter(x => x.skill).map(x => {
@@ -235,7 +245,7 @@ class BaseSkillSlot {
 
     setSkill(skill?: BaseSkill) {
         this.skill = skill;
-        queryHTML('[data-skill-name]', this.element).textContent = skill?.data.name || '[Empty Slot]';
+        this.slotLabelElement.textContent = skill?.data.name || '[Empty Slot]';
     }
     get hasSkill() { return typeof this.skill !== 'undefined'; }
     get canRemove() { return this.hasSkill }
@@ -260,8 +270,9 @@ class BaseSkillSlot {
 }
 
 class AttackSkillSlot extends BaseSkillSlot {
-    constructor() {
+    constructor(readonly skills: Skills) {
         super();
+        this.tryLoad();
     }
     get canEnable() { return true; }
 
@@ -273,6 +284,18 @@ class AttackSkillSlot extends BaseSkillSlot {
 
     updateProgressBar(attackProgressPct: number) {
         this.progressBar.value = attackProgressPct;
+    }
+
+    private tryLoad() {
+        if (this.skills.game.saveObj.skills) {
+            const name = this.skills.game.saveObj.skills.attackSkillName;
+            const savedSkill = this.skills.attackSkills.find(x => x.data.name === name);
+            if (savedSkill) {
+                this.setSkill(savedSkill);
+                return;
+            }
+        }
+        this.setSkill(this.skills.attackSkills[0]);
     }
 }
 
@@ -288,6 +311,7 @@ class BuffSkillSlot extends BaseSkillSlot {
         this.setSkill(undefined);
         this.player = skills.game.player;
         this.gameLoop = skills.game.gameLoop;
+        this.tryLoad();
     }
     get canEnable() {
         return !this.running;
@@ -324,17 +348,17 @@ class BuffSkillSlot extends BaseSkillSlot {
 
     }
 
-    trigger(startNew = true) {
-        const skill = (this.skill as BuffSkill | undefined);
-        if (!skill) {
+    trigger(force = false) {
+        if (!this.skill) {
             return;
         }
-        const sufficientMana = this.player.stats.curMana.get() >= skill.data.manaCost;
-        if (!sufficientMana) {
-            return;
+        if (!force) {
+            const sufficientMana = this.player.stats.curMana.get() >= this.skill.data.manaCost;
+            if (!sufficientMana) {
+                return;
+            }
+            this.player.stats.curMana.subtract(this.skill.data.manaCost);
         }
-
-        this.player.stats.curMana.subtract(skill.data.manaCost);
 
         const calcDuration = () => {
             const baseDuration = (this.skill as BuffSkill | undefined)?.data.baseDuration || 0;
@@ -353,15 +377,16 @@ class BuffSkillSlot extends BaseSkillSlot {
         }
 
         const startTime = calcDuration();
-        if (startNew || this._time <= 0) {
+        if (this._time === 0) {
             this._time = startTime;
         }
         let duration = startTime;
 
-        this.player.modDB.add(skill.mods.flatMap(x => x.stats), skill.sourceName);
+        this.player.modDB.add(this.skill.mods.flatMap(x => x.stats), this.skill.sourceName);
 
         this._running = true;
         console.log('start');
+        this.slotLabelElement.textContent = `${this.skill?.data.name} | (active)`;
         this.loopId = this.gameLoop.subscribe(dt => {
 
             updateTime();
@@ -381,11 +406,29 @@ class BuffSkillSlot extends BaseSkillSlot {
                     this.skills.showSkill(this.skill);
                 }
                 this.gameLoop.unsubscribe(this.loopId);
+                if (this.skill) {
+                    this.slotLabelElement.textContent = this.skill.data.name;
+                }
                 return;
             }
             this._time -= dt;
             this.progressBar.value = calcPct();
         });
+    }
+
+    private tryLoad() {
+        const savedSkillSlotData = this.skills.game.saveObj.skills?.buffSkills.find(x => x.index === this.skills.buffSkillSlots.length);
+        if (savedSkillSlotData) {
+            const skill = this.skills.buffSkills.find(x => x.data.name === savedSkillSlotData.name);
+            if (skill) {
+                this.setSkill(skill);
+                this._time = savedSkillSlotData.time;
+                this._automate = savedSkillSlotData.automate;
+                if (savedSkillSlotData.active) {
+                    this.trigger(true);
+                }
+            }
+        }
     }
 }
 
