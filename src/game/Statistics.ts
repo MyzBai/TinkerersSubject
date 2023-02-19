@@ -30,7 +30,6 @@ export default class Statistics {
         visibilityObserver(this.page, visible => {
             if (visible) {
                 this.updateStatisticsUI();
-                console.log(this.game.statistics.statistics["Gold Generated"].get());
                 loopId = this.game.gameLoop.subscribe(() => this.updateStatisticsUI(), { intervalMilliseconds: 1000 });
             } else {
                 this.game.gameLoop.unsubscribe(loopId);
