@@ -102,13 +102,10 @@ export default class Loop {
     }
 
     private beginLoopAnim() {
-        let remainder = 0;
-        let now = performance.now();
         cancelAnimationFrame(this.animLoopId);
         const loop = () => {
 
             this.animLoopId = requestAnimationFrame(() => {
-                now = performance.now();
                 this.animInstances.forEach(instance => {
                     instance.time += TARGET_FRAME_TIME;
                     let ms = instance.options?.intervalMilliseconds || 0;
@@ -119,7 +116,6 @@ export default class Loop {
                 });
                 loop();
             });
-
 
             // this.animLoopId = requestAnimationFrame(() => {
             //     let diff = performance.now() - now + remainder;

@@ -4,8 +4,8 @@ import { queryHTML } from "@src/utils/helpers";
 import type Game from "../Game";
 
 export default abstract class Component {
-    _page: HTMLElement;
-    _menuItem: HTMLElement;
+    private _page: HTMLElement;
+    private _menuItem: HTMLElement;
     protected updateUITime = 0;
     constructor(readonly game: Game, readonly name: keyof Required<GConfig>['components']) {
         this._page = queryHTML(`.p-game .p-${name}`);
