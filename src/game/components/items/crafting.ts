@@ -144,7 +144,7 @@ class CraftValidator {
     }
 
     modsContainsTag(itemModList: ItemModifier[], tag: ModifierTag) {
-        if (!itemModList.some(x => x.tags?.includes(tag))) {
+        if (!itemModList.some(x => x.tags.includes(tag))) {
             this.errors.push(`No modifier was available with the tag: ${tag}`);
         }
         return this;
@@ -162,7 +162,7 @@ class Crafter {
         return this;
     }
     addOneByTag(itemModList: ItemModifier[], tag: ModifierTag) {
-        itemModList = itemModList.filter(x => x.tags?.includes(tag));
+        itemModList = itemModList.filter(x => x.tags.includes(tag));
         this.modList.push(...this.generateMods(itemModList, this.modList, 1));
         return this;
     }

@@ -168,7 +168,6 @@ export const modTemplates: ModTemplate[] = [
 export class Modifier {
     readonly text: Mod;
     readonly template: ModTemplate;
-    readonly tags: ModifierTag[] = [];
     readonly stats: StatModifier[] = [];
     constructor(text: Mod) {
 
@@ -198,6 +197,8 @@ export class Modifier {
         //     this.stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
         // }
     }
+
+    get tags() { return this.template.tags }
 
     get templateDesc() { return this.template.desc; }
 
@@ -234,7 +235,7 @@ export class Modifier {
         return { template, stats };
     }
 
-    static parseDescription(desc: ModTemplate['desc'], stats: StatModifier[]){
+    static parseDescription(desc: ModTemplate['desc'], stats: StatModifier[]) {
         let i = 0;
         return desc.replace(/#+/g, (x) => {
             const stat = stats[i++];
