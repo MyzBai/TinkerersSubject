@@ -82,6 +82,8 @@ export default class Game {
         // }, { intervalMilliseconds: 1000 * 60 });
 
         await this.setup();
+
+        await this.save();
     }
 
     async setup() {
