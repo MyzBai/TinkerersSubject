@@ -68,9 +68,19 @@ export default class Skills extends Component {
                     this.enableSkill(this.activeSkillSlot, this.activeSkill);
                 }
             });
-            queryHTML('[data-remove]', skillInfoContainer).addEventListener('click', () => this.removeSkillFromSlot(this.activeSkillSlot as BuffSkillSlot));
-            queryHTML('[data-trigger]', skillInfoContainer).addEventListener('click', () => this.triggerSkill(this.activeSkillSlot as BuffSkillSlot));
+            const triggerButton = queryHTML<HTMLButtonElement>('[data-trigger]', skillInfoContainer);
+            const removeButton = queryHTML<HTMLButtonElement>('[data-remove]', skillInfoContainer);
+            removeButton.addEventListener('click', () => this.removeSkillFromSlot(this.activeSkillSlot as BuffSkillSlot));
+            triggerButton.addEventListener('click', () => this.triggerSkill(this.activeSkillSlot as BuffSkillSlot));
             queryHTML('[data-automate]', skillInfoContainer).addEventListener('click', () => this.toggleAutoMode(this.activeSkillSlot as BuffSkillSlot));
+
+            game.gameLoop.subscribeAnim(() => {
+                if (this.page.classList.contains('hidden')) {
+                    return;
+                }
+                triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+                removeButton.disabled = !this.activeSkillSlot.canRemove;
+            }, { intervalMilliseconds: 100 });
         }
 
     }
@@ -189,7 +199,7 @@ export default class Skills extends Component {
     }
 
     private triggerSkill(skillSlot: BuffSkillSlot) {
-        skillSlot.trigger();
+        skillSlot.start();
         if (skillSlot.skill) {
             this.showSkill(skillSlot.skill);
         }
@@ -302,15 +312,13 @@ class AttackSkillSlot extends BaseSkillSlot {
 class BuffSkillSlot extends BaseSkillSlot {
     private _running = false;
     private _time = 0;
-    private loopId?: string;
+    private _duration = 0;
     private _automate = false;
     private readonly player: Player;
-    private readonly gameLoop: Loop
     constructor(readonly skills: Skills) {
         super();
         this.setSkill(undefined);
         this.player = skills.game.player;
-        this.gameLoop = skills.game.gameLoop;
         this.tryLoad();
     }
     get canEnable() {
@@ -320,7 +328,7 @@ class BuffSkillSlot extends BaseSkillSlot {
         return this.hasSkill && !this._running;
     }
     get canTrigger() {
-        return this.hasSkill && !this.automate && !this._running;
+        return typeof this.skill !== 'undefined' && !this.automate && !this._running && this.skills.game.player.stats.curMana.get() > this.skill.data.manaCost;
     }
     get canAutomate() {
         return this.hasSkill;
@@ -330,8 +338,10 @@ class BuffSkillSlot extends BaseSkillSlot {
     }
     set automate(v: boolean) {
         this._automate = v;
-    }
+        if (this._automate && !this._running) {
 
+        }
+    }
     get running() { return this._running; }
     get time() { return this._time; }
 
@@ -345,75 +355,81 @@ class BuffSkillSlot extends BaseSkillSlot {
     }
 
     updateProgressBar() {
-
+        if (!this._running) {
+            return;
+        }
+        this.progressBar.value = this._time / this._duration || 0;
     }
 
-    trigger(force = false) {
+    //Start
+    start() {
         if (!this.skill) {
             return;
         }
-        if (!force) {
-            const sufficientMana = this.player.stats.curMana.get() >= this.skill.data.manaCost;
-            if (!sufficientMana) {
+        const sufficientMana = this.player.stats.curMana.get() >= this.skill.data.manaCost;
+        if (!sufficientMana) {
+            return;
+        }
+        this.player.stats.curMana.subtract(this.skill.data.manaCost);
+
+        this.loop();
+    }
+    //Loop
+    loop() {
+        const calcDuration = (multiplier: number) => {
+            const baseDuration = (this.skill as BuffSkill).data.baseDuration;
+            return baseDuration * multiplier;
+        };
+
+        this._duration = calcDuration(this.skills.game.player.stats.skillDurationMultiplier.get());
+        this._time = this._time > 0 ? this._time : this._duration;
+        this._running = true;
+        this.skills.game.player.stats.skillDurationMultiplier.addListener('change', calcDuration);
+        const loopId = this.skills.game.gameLoop.subscribe((dt) => {
+            if (!this.skill) {
                 return;
             }
-            this.player.stats.curMana.subtract(this.skill.data.manaCost);
-        }
 
-        const calcDuration = () => {
-            const baseDuration = (this.skill as BuffSkill | undefined)?.data.baseDuration || 0;
-            return baseDuration * this.player.stats.skillDurationMultiplier.get();
-        };
-        const calcPct = () => {
-            return this._time / duration;
-        };
-        const updateTime = () => {
-            duration = calcDuration();
-            this._time = duration * calcPct();
-        };
-
-        if (this.loopId) {
-            this.player.game.gameLoop.unsubscribe(this.loopId);
-        }
-
-        const startTime = calcDuration();
-        if (this._time === 0) {
-            this._time = startTime;
-        }
-        let duration = startTime;
-
-        this.player.modDB.add(this.skill.mods.flatMap(x => x.stats), this.skill.sourceName);
-
-        this._running = true;
-        console.log('start');
-        this.slotLabelElement.textContent = `${this.skill?.data.name} | (active)`;
-        this.loopId = this.gameLoop.subscribe(dt => {
-
-            updateTime();
+            this._time = this._duration * (this._time / this._duration);
 
             if (this._time <= 0) {
                 this._time = 0;
-
-                if (this.skill) {
-                    this.player.modDB.removeBySource(this.skill.sourceName);
-                }
-                this._running = false;
-                if (this.automate) {
-                    this.trigger();
-                    return;
-                }
-                if (this.skills.activeSkillSlot === this && this.skill) {
-                    this.skills.showSkill(this.skill);
-                }
-                this.gameLoop.unsubscribe(this.loopId);
-                if (this.skill) {
-                    this.slotLabelElement.textContent = this.skill.data.name;
-                }
+                this.skills.game.gameLoop.unsubscribe(loopId);
+                this.skills.game.player.stats.skillDurationMultiplier.removeListener('change', calcDuration);
+                this.stop();
                 return;
             }
             this._time -= dt;
-            this.progressBar.value = calcPct();
         });
+    }
+
+    //End
+    stop() {
+        if (!this.skill) {
+            return;
+        }
+        this._running = false;
+        this.player.modDB.removeBySource(this.skill.sourceName);
+        this.progressBar.value = 0;
+        if (this === this.skills.activeSkillSlot) {
+            this.skills.showSkill(this.skill);
+        }
+        if (this._automate) {
+            const autoLoopManaEval = (mana: number) => {
+                if (!this.skill || !this._automate) {
+                    this.skills.game.player.stats.curMana.removeListener('change', autoLoopManaEval);
+                    return;
+                }
+                if (mana < this.skill.data.manaCost) {
+                    return;
+                }
+
+                this.skills.game.player.stats.curMana.removeListener('change', autoLoopManaEval);
+                this.start();
+            };
+            this.skills.game.player.stats.curMana.addListener('change', autoLoopManaEval);
+            return;
+        }
     }
 
     private tryLoad() {
@@ -425,7 +441,7 @@ class BuffSkillSlot extends BaseSkillSlot {
                 this._time = savedSkillSlotData.time;
                 this._automate = savedSkillSlotData.automate;
                 if (savedSkillSlotData.active) {
-                    this.trigger(true);
+                    this.loop();
                 }
             }
         }
