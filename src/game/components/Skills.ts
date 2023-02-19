@@ -1,7 +1,6 @@
 import GConfig from "@src/types/gconfig";
 import { Save } from "@src/types/save";
-import { clamp, queryHTML } from "@src/utils/helpers";
-import Loop from "@src/utils/Loop";
+import { queryHTML } from "@src/utils/helpers";
 import Game from "../Game";
 import { ModDB, Modifier, StatModifier } from "../mods";
 import Player from "../Player";
@@ -47,7 +46,7 @@ export default class Skills extends Component {
             const buffSkillSlotContainer = queryHTML('.s-skill-slots [data-buff-skill-slots]', this.page);
             buffSkillSlotContainer.replaceChildren();
             if (data.buffSkills) {
-                this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<BuffSkill>(x => new BuffSkill(x));
+                this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<BuffSkill>(x => new BuffSkill(this, x));
                 for (const buffSkillData of data.buffSkills.skillSlots || []) {
                     game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
                         const slot = new BuffSkillSlot(this);
@@ -369,6 +368,9 @@ class BuffSkillSlot extends BaseSkillSlot {
     }
     //Loop
     loop() {
+        if (!this.skill) {
+            return;
+        }
         const calcDuration = (multiplier: number) => {
             const baseDuration = (this.skill as BuffSkill).data.baseDuration;
             return baseDuration * multiplier;
@@ -378,6 +380,7 @@ class BuffSkillSlot extends BaseSkillSlot {
         this._time = this._time > 0 ? this._time : this._duration;
         this._running = true;
         this.skills.game.player.stats.skillDurationMultiplier.addListener('change', calcDuration);
+        this.skill.applyModifiers();
         const loopId = this.skills.game.gameLoop.subscribe((dt) => {
             if (!this.skill) {
                 return;
@@ -443,7 +446,7 @@ class BuffSkillSlot extends BaseSkillSlot {
 
 abstract class BaseSkill {
     protected readonly _mods: Modifier[];
-    constructor(readonly data: AttackSkillData | BuffSkillData) {
+    constructor(readonly skills: Skills, readonly data: AttackSkillData | BuffSkillData) {
         this._mods = data.mods?.map(x => new Modifier(x)) || [];
     }
     get sourceName() {
@@ -452,17 +455,17 @@ abstract class BaseSkill {
     get mods() { return this._mods; }
 
 
-    abstract removeModifiers(): void;
-    abstract applyModifiers(): void;
+    removeModifiers() {
+        this.skills.game.player.modDB.removeBySource(this.sourceName);
+    }
+    applyModifiers() {
+        this.skills.game.player.modDB.add(this.mods.flatMap(x => x.copy().stats), this.sourceName);
+    }
 }
 
 class AttackSkill extends BaseSkill {
     constructor(readonly skills: Skills, readonly data: AttackSkillData) {
-        super(data);
-    }
-
-    removeModifiers() {
-        this.skills.game.player.modDB.removeBySource(this.sourceName);
+        super(skills, data);
     }
 
     applyModifiers() {
@@ -479,16 +482,7 @@ class AttackSkill extends BaseSkill {
 }
 
 class BuffSkill extends BaseSkill {
-    constructor(readonly data: BuffSkillData) {
-        super(data);
-    }
-
-
-    applyModifiers(): void {
-
-    }
-
-    removeModifiers(): void {
-
+    constructor(readonly skills: Skills, readonly data: BuffSkillData) {
+        super(skills, data);
     }
 }
