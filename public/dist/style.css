@@ -13,15 +13,6 @@
   display: grid;
   grid-template-rows: 1fr auto;
 }
-.g-modal[data-modal-type=relative] {
-  position: absolute;
-  margin: 0;
-  padding: 0.3em;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-}
 .g-modal * {
   z-index: 10;
 }
@@ -97,18 +88,29 @@
   padding: 0.3em;
   cursor: default;
   user-select: none;
-  border-radius: 3px;
   color: #c9d1d9;
-  border-color: rgba(240, 246, 252, 0.1);
 }
 .g-button:hover {
   background-color: rgba(255, 255, 255, 0.0509803922);
 }
+.g-button:active {
+  background-color: #303030;
+}
+.g-button.selected {
+  background-color: rgba(255, 255, 255, 0.1019607843);
+  pointer-events: all;
+}
 .g-button[data-role=confirm] {
   background-color: rgb(36, 129, 36);
 }
-.g-button[data-role=delete] {
+.g-button[data-role=confirm]:hover {
+  background-color: rgb(27, 110, 27);
+}
+.g-button[data-role=cancel] {
   background-color: #8f0d0d;
+}
+.g-button[data-role=action] {
+  background-color: rgb(36, 129, 36);
 }
 
 .g-list-v.g-list-v,
@@ -131,11 +133,7 @@
   user-select: none;
 }
 .g-list-item.selected {
-  position: relative;
   background-color: rgba(255, 255, 255, 0.1019607843);
-}
-.g-list-item.selected:not([data-highlight-notification]) {
-  pointer-events: none;
 }
 .g-list-item:hover {
   background-color: rgba(255, 255, 255, 0.0509803922);
@@ -174,18 +172,24 @@
 }
 
 [data-highlight-notification] {
-  border-left: 0.2em solid #bd7044;
+  border-left: 0.2em solid #bd7044 !important;
 }
 
 .g-text-small {
   font-size: 0.8em;
 }
 
+.g-gold {
+  color: rgb(209, 173, 75);
+}
+
 /*#endregion Global*/
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
 }
 
 *:focus {
@@ -198,8 +202,26 @@ var {
   cursor: default;
 }
 
-h1, h2, h3, p {
+a {
+  text-decoration: none;
+  color: #58a6ff;
+  font-family: "Times New Roman", monospace;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+p {
   margin: 0;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 0;
+  width: 100%;
 }
 
 button {
@@ -222,6 +244,13 @@ button {
   pointer-events: all;
 }
 
+*.selected {
+  pointer-events: none;
+}
+*.selected[data-highlight-notification] {
+  pointer-events: all;
+}
+
 ul,
 menu {
   list-style-type: none;
@@ -233,24 +262,72 @@ dialog {
   color: inherit;
 }
 
+generic-modal {
+  position: fixed;
+  inset: 0;
+  top: 5em;
+  bottom: 5em;
+  max-width: 80%;
+  margin: auto;
+  min-height: 0;
+  overflow-y: auto;
+  pointer-events: none;
+  z-index: 100;
+}
+generic-modal dialog {
+  background-color: #0d1117;
+  border: 1px solid #545b64;
+  min-width: 30vw;
+  pointer-events: all;
+}
+generic-modal dialog form {
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+}
+generic-modal dialog form header {
+  padding-bottom: 1em;
+  text-align: center;
+}
+generic-modal dialog form footer {
+  padding-top: 1em;
+}
+generic-modal dialog form footer button {
+  min-width: 3em;
+}
+generic-modal dialog form footer small {
+  display: block;
+  padding-top: 0.3rem;
+  font-size: 0.75em;
+  color: #8b949e;
+}
+generic-modal .backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  backdrop-filter: blur(1px);
+}
+
 dialog[data-modal] {
   background-color: #0d1117;
   border: 1px solid #545b64;
   padding: 0;
-  height: 80vh;
   border-radius: 0.3em;
 }
 dialog[data-modal] > form {
   padding: 2em;
   height: 100%;
 }
+dialog[data-modal] > form header {
+  border-bottom: 1px solid #333333;
+}
 dialog[data-modal] > form input[type=submit] {
   min-width: 5em;
 }
-dialog[data-modal] > form input[type=submit][value=Apply] {
+dialog[data-modal] > form input[type=submit][data-apply] {
   background-color: #1f6feb;
 }
-dialog[data-modal] > form input[type=submit][value=Cancel] {
+dialog[data-modal] > form input[type=submit][data-cancel] {
   background-color: #8f0d0d;
 }
 dialog[data-modal]::backdrop {
@@ -266,6 +343,21 @@ input[type=text] {
 input[type=submit] {
   border: 0;
   font-size: inherit;
+}
+
+progress[value] {
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  appearance: none;
+}
+progress[value]::-webkit-progress-bar {
+  background: none;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+progress[value]::-webkit-progress-value {
+  border-radius: 2px;
+  background-color: rgb(57, 168, 57);
 }
 
 /*#region Scroll Bar*/
@@ -294,11 +386,9 @@ input[type=submit] {
 /*#endregion Scroll Bar*/
 .p-home {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr;
   margin: 0 auto;
   width: 70%;
-  height: 60%;
   background-color: #010409;
   padding: 0.3em;
   min-height: 0;
@@ -313,218 +403,365 @@ input[type=submit] {
 .p-home menu {
   display: flex;
   background-color: #0d1117;
-  grid-column: span 2;
 }
-.p-home ul {
+.p-home .s-main {
+  display: flex;
+}
+.p-home .s-main .p-new,
+.p-home .s-main .p-saved {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+}
+.p-home .s-main .p-new ul,
+.p-home .s-main .p-saved ul {
   padding-top: 0.3em;
   overflow-y: auto;
   height: 100%;
   min-height: 0;
 }
-.p-home ul li {
+.p-home .s-main .p-new ul li,
+.p-home .s-main .p-saved ul li {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.p-home [data-config-info] {
+.p-home .s-main .p-new [data-entry-info],
+.p-home .s-main .p-saved [data-entry-info] {
   display: grid;
   grid-template-rows: auto 1fr auto;
   text-align: center;
   padding-top: 0.3em;
 }
-.p-home [data-config-info] [data-title] {
+.p-home .s-main .p-new [data-entry-info] [data-title],
+.p-home .s-main .p-saved [data-entry-info] [data-title] {
   padding: 0.3em;
 }
-.p-home [data-config-info] [data-desc] {
+.p-home .s-main .p-new [data-entry-info] [data-desc],
+.p-home .s-main .p-saved [data-entry-info] [data-desc] {
   padding: 0.3em;
-}
-.p-home [data-config-info] button[data-role=delete] {
-  margin-bottom: 0.3em;
 }
 
-.p-game {
+game-element {
+  min-height: 0;
+}
+game-element .p-game {
   display: grid;
   grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
   grid-gap: 0.3em;
   background-color: #0d1117;
   min-height: 0;
+  height: 100%;
 }
-.p-game > menu,
-.p-game .s-middle, .p-game > .s-stats {
+game-element .p-game > * {
   padding: 0.3em;
   background-color: #010409;
-}
-.p-game .s-middle {
-  height: 100%;
+  flex: 1;
   min-height: 0;
-  display: grid;
 }
-.p-game .s-middle .p-combat {
+game-element .p-game [data-main-view] {
+  display: flex;
+}
+game-element .p-game [data-main-view] > * {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+game-element .p-game [data-main-view] .p-combat {
   position: relative;
   display: grid;
   grid-template-rows: 1fr 1fr;
 }
-.p-game .s-middle .p-combat .s-enemy .s-health-bar-background {
+game-element .p-game [data-main-view] .p-combat .s-enemy .s-health-bar-background {
   background-color: #771111;
 }
-.p-game .s-middle .p-combat .s-enemy .s-health-bar-background .health-bar {
+game-element .p-game [data-main-view] .p-combat .s-enemy .s-health-bar-background .health-bar {
   display: flex;
   background-color: #a12525;
   width: 100%;
+  align-items: center;
+  justify-content: center;
 }
-.p-game .s-middle .p-combat .s-enemy .s-health-bar-background .health-bar[data-damage]::after {
+game-element .p-game [data-main-view] .p-combat .s-enemy .s-health-bar-background .health-bar[data-damage]::after {
   content: attr(data-damage);
   margin: auto;
 }
-.p-game .s-middle .p-combat .s-player .s-mana-bar-background {
+game-element .p-game [data-main-view] .p-combat .s-player .s-mana-bar-background {
   background-color: #225c7e;
 }
-.p-game .s-middle .p-combat .s-player .s-mana-bar-background .mana-bar {
+game-element .p-game [data-main-view] .p-combat .s-player .s-mana-bar-background .mana-bar {
   background-color: #307da1;
   width: 100%;
 }
-.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot] {
-  display: flex;
-  cursor: default;
-}
-.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot] [data-label] {
-  padding: 0.3em;
-  text-align: left;
-}
-.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot][data-skill-slot=buff-skill] .wrapper {
-  position: relative;
-}
-.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot][data-skill-slot=buff-skill] .wrapper [data-progress-bar] {
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 0%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.0509803922);
-}
-.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot][data-skill-slot=buff-skill] [data-label] {
-  width: 100%;
-}
-.p-game .s-middle .p-combat .s-player .s-skills [data-skill-slot] [data-edit] {
-  width: 4em;
-  padding: 0;
-}
-.p-game .s-middle .p-combat .s-skill-modal {
-  background-color: #0d1117;
-}
-.p-game .s-middle .p-combat .s-skill-modal section {
+game-element .p-game [data-main-view] .p-skills {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3em;
+  grid-template-rows: 1fr 0.74fr;
+  min-height: 0;
+  flex: 1;
 }
-.p-game .s-middle .p-combat .s-skill-modal section ul {
-  text-align: left;
+game-element .p-game [data-main-view] .p-skills .s-skill-slots {
+  padding-bottom: 0.3em;
+  padding-right: 0.3em;
 }
-.p-game .s-middle .p-combat .s-skill-modal section ul li {
-  pointer-events: all;
+game-element .p-game [data-main-view] .p-skills .s-skill-slots .s-attack-skill-slot {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #333333;
 }
-.p-game .s-middle .p-combat .s-skill-modal section .s-skill-info [data-title] {
+game-element .p-game [data-main-view] .p-skills .s-skill-slots .s-attack-skill-slot .s-skill-slot {
+  display: block;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-slots .s-attack-skill-slot .s-skill-slot [data-skill-slot] {
+  width: 100%;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-slots .s-attack-skill-slot .s-skill-slot progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-slots ul {
+  margin-top: 0.3em;
+  min-height: 0;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-slots ul li.s-skill-slot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-slots ul li.s-skill-slot button {
+  margin-left: 0.3em;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-slots ul li.s-skill-slot progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+  grid-column: 1;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-info {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 0.3em;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-info header {
   text-align: center;
-  font-size: 1.1em;
+  padding-bottom: 0.3em;
 }
-.p-game .s-middle .p-combat .s-skill-modal section .s-skill-info [data-mod-list] {
+game-element .p-game [data-main-view] .p-skills .s-skill-info table {
+  border-collapse: separate;
+  border-spacing: 0.3em;
+  border-top: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  border-spacing: 0.3em;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-info table td:last-child {
+  text-align: end;
+}
+game-element .p-game [data-main-view] .p-skills .s-skill-info .s-mods {
+  min-height: 0;
+  overflow-y: auto;
+  flex: 1;
   text-align: center;
+  padding-top: 0.3em;
 }
-.p-game .s-middle .p-combat .s-skill-modal footer {
-  margin-top: 1em;
+game-element .p-game [data-main-view] .p-skills .s-skill-info footer {
+  padding: 0.3em;
+  padding-top: 1em;
+  margin: auto;
+  width: 100%;
 }
-.p-game .s-middle .p-combat .s-skill-modal footer .g-button {
-  min-width: 5em;
+game-element .p-game [data-main-view] .p-skills .s-skill-info footer > * {
+  display: block;
+  width: 100%;
 }
-.p-game .s-middle .p-combat .s-skill-modal footer [data-value=remove] {
-  background-color: #1f6feb;
+game-element .p-game [data-main-view] .p-skills .s-skill-list {
+  grid-column: 1/3;
+  border-top: 1px solid #333333;
+  padding-top: 0.3em;
 }
-.p-game .s-middle .p-passives header {
+game-element .p-game [data-main-view] .p-skills .s-skill-list ul {
+  min-height: 0;
+}
+game-element .p-game [data-main-view] .p-passives header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #333333;
 }
-.p-game .s-middle .p-passives ul li.selected {
+game-element .p-game [data-main-view] .p-passives table {
+  margin-top: 0.3em;
+}
+game-element .p-game [data-main-view] .p-passives table tr.selected {
   pointer-events: all;
 }
-.p-game .s-middle .p-items {
+game-element .p-game [data-main-view] .p-passives table tr.selected:hover {
+  background-color: rgba(255, 255, 255, 0.1019607843);
+}
+game-element .p-game [data-main-view] .p-passives table td:first-child {
+  width: 100%;
+}
+game-element .p-game [data-main-view] .p-passives table th,
+game-element .p-game [data-main-view] .p-passives table td {
+  padding: 0.3em;
+}
+game-element .p-game [data-main-view] .p-passives table td:first-child {
+  text-align: left;
+}
+game-element .p-game [data-main-view] .p-passives table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+game-element .p-game [data-main-view] .p-items {
   position: relative;
   display: grid;
   grid-template-rows: 40% 60%;
   grid-template-columns: 0.4fr 1fr;
   min-height: 0;
 }
-.p-game .s-middle .p-items [data-mod-list] {
+game-element .p-game [data-main-view] .p-items [data-item-list] {
+  border-right: 1px solid #0d1117;
+  padding-right: 0.3em;
+}
+game-element .p-game [data-main-view] .p-items [data-mod-list] {
   text-align: center;
   padding: 1em;
   overflow-y: auto;
 }
-.p-game .s-middle .p-items .s-craft-container {
+game-element .p-game [data-main-view] .p-items .s-craft-container {
   display: flex;
   flex-direction: column;
+  border-top: 1px solid #0d1117;
+  padding-top: 0.3em;
+  padding-left: 0.3em;
 }
-.p-game .s-middle .p-items .s-craft-container ul {
+game-element .p-game [data-main-view] .p-items .s-craft-container [data-craft-list] {
   flex: 1;
-  text-align: left;
-  border: 1px solid #2b2b2b;
+  overflow-y: auto;
 }
-.p-game .s-middle .p-items .s-craft-container [data-craft-button] {
+game-element .p-game [data-main-view] .p-items .s-craft-container [data-craft-list] table {
+  border-collapse: collapse;
+  width: 100%;
+  text-align: left;
+}
+game-element .p-game [data-main-view] .p-items .s-craft-container [data-craft-list] table tr:not(:last-child) {
+  border-bottom: 1px solid #2b2b2b;
+}
+game-element .p-game [data-main-view] .p-items .s-craft-container [data-craft-list] table tr td {
+  padding: 0.3em;
+}
+game-element .p-game [data-main-view] .p-items .s-craft-container [data-craft-button] {
   align-self: center;
   width: 8em;
   text-align: center;
-  background-color: #1f6feb;
   margin-top: 1em;
 }
-.p-game .s-middle .p-items .s-craft-container [data-craft-message] {
+game-element .p-game [data-main-view] .p-items .s-craft-container [data-craft-message] {
   text-align: center;
   color: rgb(148, 35, 35);
   padding: 0.2em;
 }
-.p-game .s-middle .p-items .s-craft-container [data-craft-message]::before {
+game-element .p-game [data-main-view] .p-items .s-craft-container [data-craft-message]::before {
   content: "⁣";
 }
-.p-game .s-middle .p-items [data-craft-preset-modal] section {
+game-element .p-game [data-main-view] .p-items .s-preset-container {
+  border-right: 1px solid #333333;
+  padding-right: 0.3em;
+  border-top: 1px solid #0d1117;
+  padding-top: 0.3em;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form {
   display: grid;
   grid-template-rows: auto auto 1fr;
 }
-.p-game .s-middle .p-items [data-craft-preset-modal] section h2 {
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form h2 {
   text-align: center;
 }
-.p-game .s-middle .p-items [data-craft-preset-modal] section [data-craft-list] {
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] {
   min-height: 0;
-  text-align: left;
   overflow-y: auto;
 }
-.p-game .s-middle .p-achievements {
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] table {
+  border-collapse: collapse;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] table thead {
+  padding-bottom: 0.3em;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] table tbody {
+  border-top: 1px solid #c9d1d9;
+  margin-top: 0.3em;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] table tr.selected {
+  pointer-events: all;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] table tr td:first-child {
+  text-align: left;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] table tr td {
+  padding: 0.3em;
+}
+game-element .p-game [data-main-view] .p-missions ul {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+game-element .p-game [data-main-view] .p-missions ul li {
+  flex: 1;
+  padding: 0.3em;
+  display: flex;
+  align-items: center;
+  border: 1px solid grey;
+  border-top: 0;
+}
+game-element .p-game [data-main-view] .p-missions ul li:first-child {
+  border-top: 1px solid grey;
+}
+game-element .p-game [data-main-view] .p-missions ul li [data-label] {
+  flex: 1;
+  display: flex;
+  white-space: break-spaces;
+}
+game-element .p-game [data-main-view] .p-missions ul li var {
+  display: flex;
+  color: #eb8686;
+}
+game-element .p-game [data-main-view] .p-missions ul li var[data-valid] {
+  color: #54d354;
+}
+game-element .p-game [data-main-view] .p-missions ul li button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 4em;
+}
+game-element .p-game [data-main-view] .p-achievements {
   display: grid;
   min-height: 0;
 }
-.p-game .s-middle .p-achievements ul {
+game-element .p-game [data-main-view] .p-achievements ul {
   overflow-y: auto;
 }
-.p-game .s-middle .p-achievements .g-accordion .header {
+game-element .p-game [data-main-view] .p-achievements .g-accordion .header {
   padding: 0.3em;
   margin-bottom: 1px;
 }
-.p-game .s-middle .p-achievements .g-accordion .header var {
+game-element .p-game [data-main-view] .p-achievements .g-accordion .header var {
   color: #eb8686;
 }
-.p-game .s-middle .p-achievements .g-accordion .header var[data-valid] {
+game-element .p-game [data-main-view] .p-achievements .g-accordion .header var[data-valid] {
   color: #54d354;
 }
-.p-game .s-middle .p-achievements .g-accordion .content {
+game-element .p-game [data-main-view] .p-achievements .g-accordion .content {
   padding-left: 0.6em;
 }
 
 :root {
-  font-size: 20px;
+  font-size: 19px;
   font-family: serif;
 }
 
 body {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   grid-template-columns: 1fr;
   height: 100vh;
   min-height: 100vh;
@@ -549,7 +786,6 @@ body > header {
   grid-template-columns: 1fr 1fr 1fr;
   font-size: 1.3em;
   text-align: center;
-  grid-column: 1/4;
   align-items: center;
   color: #d6a02c;
   padding: 0.3em;
@@ -557,6 +793,22 @@ body > header {
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 }
 body > header .title {
+  padding: 0.3em;
+}
+
+body > footer {
+  display: flex;
+  padding: 0.3em;
+  font-size: 0.8em;
+  align-items: center;
+}
+body > footer .copyright {
+  margin-left: auto;
+  color: #8b949e;
+  padding: 0.3em;
+  font-size: 0.8em;
+}
+body > footer a {
   padding: 0.3em;
 }
 

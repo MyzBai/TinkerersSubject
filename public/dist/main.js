@@ -1,16 +1,12312 @@
-"use strict";(()=>{var sd=Object.create;var Ms=Object.defineProperty,id=Object.defineProperties,od=Object.getOwnPropertyDescriptor,ld=Object.getOwnPropertyDescriptors,cd=Object.getOwnPropertyNames,Lo=Object.getOwnPropertySymbols,ud=Object.getPrototypeOf,Oo=Object.prototype.hasOwnProperty,dd=Object.prototype.propertyIsEnumerable;var Cs=(t,e,r)=>e in t?Ms(t,e,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[e]=r,ve=(t,e)=>{for(var r in e||(e={}))Oo.call(e,r)&&Cs(t,r,e[r]);if(Lo)for(var r of Lo(e))dd.call(e,r)&&Cs(t,r,e[r]);return t},Le=(t,e)=>id(t,ld(e));var pn=(t=>typeof require<"u"?require:typeof Proxy<"u"?new Proxy(t,{get:(e,r)=>(typeof require<"u"?require:e)[r]}):t)(function(t){if(typeof require<"u")return require.apply(this,arguments);throw new Error('Dynamic require of "'+t+'" is not supported')});var j=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var fd=(t,e,r,n)=>{if(e&&typeof e=="object"||typeof e=="function")for(let a of cd(e))!Oo.call(t,a)&&a!==r&&Ms(t,a,{get:()=>e[a],enumerable:!(n=od(e,a))||n.enumerable});return t};var qo=(t,e,r)=>(r=t!=null?sd(ud(t)):{},fd(e||!t||!t.__esModule?Ms(r,"default",{value:t,enumerable:!0}):r,t));var P=(t,e,r)=>(Cs(t,typeof e!="symbol"?e+"":e,r),r);var Vo=j((Ho,Ts)=>{(function(t){if(typeof Ho=="object"&&typeof Ts<"u")Ts.exports=t();else if(typeof define=="function"&&define.amd)define([],t);else{var e;typeof window<"u"?e=window:typeof global<"u"?e=global:typeof self<"u"?e=self:e=this,e.localforage=t()}})(function(){var t,e,r;return function n(a,s,i){function c(p,E){if(!s[p]){if(!a[p]){var _=typeof pn=="function"&&pn;if(!E&&_)return _(p,!0);if(f)return f(p,!0);var $=new Error("Cannot find module '"+p+"'");throw $.code="MODULE_NOT_FOUND",$}var C=s[p]={exports:{}};a[p][0].call(C.exports,function(M){var R=a[p][1][M];return c(R||M)},C,C.exports,n,a,s,i)}return s[p].exports}for(var f=typeof pn=="function"&&pn,y=0;y<i.length;y++)c(i[y]);return c}({1:[function(n,a,s){(function(i){"use strict";var c=i.MutationObserver||i.WebKitMutationObserver,f;if(c){var y=0,p=new c(M),E=i.document.createTextNode("");p.observe(E,{characterData:!0}),f=function(){E.data=y=++y%2}}else if(!i.setImmediate&&typeof i.MessageChannel<"u"){var _=new i.MessageChannel;_.port1.onmessage=M,f=function(){_.port2.postMessage(0)}}else"document"in i&&"onreadystatechange"in i.document.createElement("script")?f=function(){var N=i.document.createElement("script");N.onreadystatechange=function(){M(),N.onreadystatechange=null,N.parentNode.removeChild(N),N=null},i.document.documentElement.appendChild(N)}:f=function(){setTimeout(M,0)};var $,C=[];function M(){$=!0;for(var N,U,H=C.length;H;){for(U=C,C=[],N=-1;++N<H;)U[N]();H=C.length}$=!1}a.exports=R;function R(N){C.push(N)===1&&!$&&f()}}).call(this,typeof global<"u"?global:typeof self<"u"?self:typeof window<"u"?window:{})},{}],2:[function(n,a,s){"use strict";var i=n(1);function c(){}var f={},y=["REJECTED"],p=["FULFILLED"],E=["PENDING"];a.exports=_;function _(L){if(typeof L!="function")throw new TypeError("resolver must be a function");this.state=E,this.queue=[],this.outcome=void 0,L!==c&&R(this,L)}_.prototype.catch=function(L){return this.then(null,L)},_.prototype.then=function(L,J){if(typeof L!="function"&&this.state===p||typeof J!="function"&&this.state===y)return this;var z=new this.constructor(c);if(this.state!==E){var te=this.state===p?L:J;C(z,te,this.outcome)}else this.queue.push(new $(z,L,J));return z};function $(L,J,z){this.promise=L,typeof J=="function"&&(this.onFulfilled=J,this.callFulfilled=this.otherCallFulfilled),typeof z=="function"&&(this.onRejected=z,this.callRejected=this.otherCallRejected)}$.prototype.callFulfilled=function(L){f.resolve(this.promise,L)},$.prototype.otherCallFulfilled=function(L){C(this.promise,this.onFulfilled,L)},$.prototype.callRejected=function(L){f.reject(this.promise,L)},$.prototype.otherCallRejected=function(L){C(this.promise,this.onRejected,L)};function C(L,J,z){i(function(){var te;try{te=J(z)}catch(ae){return f.reject(L,ae)}te===L?f.reject(L,new TypeError("Cannot resolve promise with itself")):f.resolve(L,te)})}f.resolve=function(L,J){var z=N(M,J);if(z.status==="error")return f.reject(L,z.value);var te=z.value;if(te)R(L,te);else{L.state=p,L.outcome=J;for(var ae=-1,ke=L.queue.length;++ae<ke;)L.queue[ae].callFulfilled(J)}return L},f.reject=function(L,J){L.state=y,L.outcome=J;for(var z=-1,te=L.queue.length;++z<te;)L.queue[z].callRejected(J);return L};function M(L){var J=L&&L.then;if(L&&(typeof L=="object"||typeof L=="function")&&typeof J=="function")return function(){J.apply(L,arguments)}}function R(L,J){var z=!1;function te(Ae){z||(z=!0,f.reject(L,Ae))}function ae(Ae){z||(z=!0,f.resolve(L,Ae))}function ke(){J(ae,te)}var we=N(ke);we.status==="error"&&te(we.value)}function N(L,J){var z={};try{z.value=L(J),z.status="success"}catch(te){z.status="error",z.value=te}return z}_.resolve=U;function U(L){return L instanceof this?L:f.resolve(new this(c),L)}_.reject=H;function H(L){var J=new this(c);return f.reject(J,L)}_.all=oe;function oe(L){var J=this;if(Object.prototype.toString.call(L)!=="[object Array]")return this.reject(new TypeError("must be an array"));var z=L.length,te=!1;if(!z)return this.resolve([]);for(var ae=new Array(z),ke=0,we=-1,Ae=new this(c);++we<z;)et(L[we],we);return Ae;function et(Qt,Pr){J.resolve(Qt).then(rn,function(Vt){te||(te=!0,f.reject(Ae,Vt))});function rn(Vt){ae[Pr]=Vt,++ke===z&&!te&&(te=!0,f.resolve(Ae,ae))}}}_.race=B;function B(L){var J=this;if(Object.prototype.toString.call(L)!=="[object Array]")return this.reject(new TypeError("must be an array"));var z=L.length,te=!1;if(!z)return this.resolve([]);for(var ae=-1,ke=new this(c);++ae<z;)we(L[ae]);return ke;function we(Ae){J.resolve(Ae).then(function(et){te||(te=!0,f.resolve(ke,et))},function(et){te||(te=!0,f.reject(ke,et))})}}},{1:1}],3:[function(n,a,s){(function(i){"use strict";typeof i.Promise!="function"&&(i.Promise=n(2))}).call(this,typeof global<"u"?global:typeof self<"u"?self:typeof window<"u"?window:{})},{2:2}],4:[function(n,a,s){"use strict";var i=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(o){return typeof o}:function(o){return o&&typeof Symbol=="function"&&o.constructor===Symbol&&o!==Symbol.prototype?"symbol":typeof o};function c(o,d){if(!(o instanceof d))throw new TypeError("Cannot call a class as a function")}function f(){try{if(typeof indexedDB<"u")return indexedDB;if(typeof webkitIndexedDB<"u")return webkitIndexedDB;if(typeof mozIndexedDB<"u")return mozIndexedDB;if(typeof OIndexedDB<"u")return OIndexedDB;if(typeof msIndexedDB<"u")return msIndexedDB}catch(o){return}}var y=f();function p(){try{if(!y||!y.open)return!1;var o=typeof openDatabase<"u"&&/(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent)&&!/Chrome/.test(navigator.userAgent)&&!/BlackBerry/.test(navigator.platform),d=typeof fetch=="function"&&fetch.toString().indexOf("[native code")!==-1;return(!o||d)&&typeof indexedDB<"u"&&typeof IDBKeyRange<"u"}catch(l){return!1}}function E(o,d){o=o||[],d=d||{};try{return new Blob(o,d)}catch(v){if(v.name!=="TypeError")throw v;for(var l=typeof BlobBuilder<"u"?BlobBuilder:typeof MSBlobBuilder<"u"?MSBlobBuilder:typeof MozBlobBuilder<"u"?MozBlobBuilder:WebKitBlobBuilder,g=new l,b=0;b<o.length;b+=1)g.append(o[b]);return g.getBlob(d.type)}}typeof Promise>"u"&&n(3);var _=Promise;function $(o,d){d&&o.then(function(l){d(null,l)},function(l){d(l)})}function C(o,d,l){typeof d=="function"&&o.then(d),typeof l=="function"&&o.catch(l)}function M(o){return typeof o!="string"&&(console.warn(o+" used as a key, but it is not a string."),o=String(o)),o}function R(){if(arguments.length&&typeof arguments[arguments.length-1]=="function")return arguments[arguments.length-1]}var N="local-forage-detect-blob-support",U=void 0,H={},oe=Object.prototype.toString,B="readonly",L="readwrite";function J(o){for(var d=o.length,l=new ArrayBuffer(d),g=new Uint8Array(l),b=0;b<d;b++)g[b]=o.charCodeAt(b);return l}function z(o){return new _(function(d){var l=o.transaction(N,L),g=E([""]);l.objectStore(N).put(g,"key"),l.onabort=function(b){b.preventDefault(),b.stopPropagation(),d(!1)},l.oncomplete=function(){var b=navigator.userAgent.match(/Chrome\/(\d+)/),v=navigator.userAgent.match(/Edge\//);d(v||!b||parseInt(b[1],10)>=43)}}).catch(function(){return!1})}function te(o){return typeof U=="boolean"?_.resolve(U):z(o).then(function(d){return U=d,U})}function ae(o){var d=H[o.name],l={};l.promise=new _(function(g,b){l.resolve=g,l.reject=b}),d.deferredOperations.push(l),d.dbReady?d.dbReady=d.dbReady.then(function(){return l.promise}):d.dbReady=l.promise}function ke(o){var d=H[o.name],l=d.deferredOperations.pop();if(l)return l.resolve(),l.promise}function we(o,d){var l=H[o.name],g=l.deferredOperations.pop();if(g)return g.reject(d),g.promise}function Ae(o,d){return new _(function(l,g){if(H[o.name]=H[o.name]||ea(),o.db)if(d)ae(o),o.db.close();else return l(o.db);var b=[o.name];d&&b.push(o.version);var v=y.open.apply(y,b);d&&(v.onupgradeneeded=function(T){var k=v.result;try{k.createObjectStore(o.storeName),T.oldVersion<=1&&k.createObjectStore(N)}catch(I){if(I.name==="ConstraintError")console.warn('The database "'+o.name+'" has been upgraded from version '+T.oldVersion+" to version "+T.newVersion+', but the storage "'+o.storeName+'" already exists.');else throw I}}),v.onerror=function(T){T.preventDefault(),g(v.error)},v.onsuccess=function(){var T=v.result;T.onversionchange=function(k){k.target.close()},l(T),ke(o)}})}function et(o){return Ae(o,!1)}function Qt(o){return Ae(o,!0)}function Pr(o,d){if(!o.db)return!0;var l=!o.db.objectStoreNames.contains(o.storeName),g=o.version<o.db.version,b=o.version>o.db.version;if(g&&(o.version!==d&&console.warn('The database "'+o.name+`" can't be downgraded from version `+o.db.version+" to version "+o.version+"."),o.version=o.db.version),b||l){if(l){var v=o.db.version+1;v>o.version&&(o.version=v)}return!0}return!1}function rn(o){return new _(function(d,l){var g=new FileReader;g.onerror=l,g.onloadend=function(b){var v=btoa(b.target.result||"");d({__local_forage_encoded_blob:!0,data:v,type:o.type})},g.readAsBinaryString(o)})}function Vt(o){var d=J(atob(o.data));return E([d],{type:o.type})}function nn(o){return o&&o.__local_forage_encoded_blob}function Xn(o){var d=this,l=d._initReady().then(function(){var g=H[d._dbInfo.name];if(g&&g.dbReady)return g.dbReady});return C(l,o,o),l}function Zn(o){ae(o);for(var d=H[o.name],l=d.forages,g=0;g<l.length;g++){var b=l[g];b._dbInfo.db&&(b._dbInfo.db.close(),b._dbInfo.db=null)}return o.db=null,et(o).then(function(v){return o.db=v,Pr(o)?Qt(o):v}).then(function(v){o.db=d.db=v;for(var T=0;T<l.length;T++)l[T]._dbInfo.db=v}).catch(function(v){throw we(o,v),v})}function _t(o,d,l,g){g===void 0&&(g=1);try{var b=o.db.transaction(o.storeName,d);l(null,b)}catch(v){if(g>0&&(!o.db||v.name==="InvalidStateError"||v.name==="NotFoundError"))return _.resolve().then(function(){if(!o.db||v.name==="NotFoundError"&&!o.db.objectStoreNames.contains(o.storeName)&&o.version<=o.db.version)return o.db&&(o.version=o.db.version+1),Qt(o)}).then(function(){return Zn(o).then(function(){_t(o,d,l,g-1)})}).catch(l);l(v)}}function ea(){return{forages:[],db:null,dbReady:null,deferredOperations:[]}}function Xt(o){var d=this,l={db:null};if(o)for(var g in o)l[g]=o[g];var b=H[l.name];b||(b=ea(),H[l.name]=b),b.forages.push(d),d._initReady||(d._initReady=d.ready,d.ready=Xn);var v=[];function T(){return _.resolve()}for(var k=0;k<b.forages.length;k++){var I=b.forages[k];I!==d&&v.push(I._initReady().catch(T))}var D=b.forages.slice(0);return _.all(v).then(function(){return l.db=b.db,et(l)}).then(function(A){return l.db=A,Pr(l,d._defaultConfig.version)?Qt(l):A}).then(function(A){l.db=b.db=A,d._dbInfo=l;for(var F=0;F<D.length;F++){var Y=D[F];Y!==d&&(Y._dbInfo.db=l.db,Y._dbInfo.version=l.version)}})}function tt(o,d){var l=this;o=M(o);var g=new _(function(b,v){l.ready().then(function(){_t(l._dbInfo,B,function(T,k){if(T)return v(T);try{var I=k.objectStore(l._dbInfo.storeName),D=I.get(o);D.onsuccess=function(){var A=D.result;A===void 0&&(A=null),nn(A)&&(A=Vt(A)),b(A)},D.onerror=function(){v(D.error)}}catch(A){v(A)}})}).catch(v)});return $(g,d),g}function ct(o,d){var l=this,g=new _(function(b,v){l.ready().then(function(){_t(l._dbInfo,B,function(T,k){if(T)return v(T);try{var I=k.objectStore(l._dbInfo.storeName),D=I.openCursor(),A=1;D.onsuccess=function(){var F=D.result;if(F){var Y=F.value;nn(Y)&&(Y=Vt(Y));var le=o(Y,F.key,A++);le!==void 0?b(le):F.continue()}else b()},D.onerror=function(){v(D.error)}}catch(F){v(F)}})}).catch(v)});return $(g,d),g}function Zt(o,d,l){var g=this;o=M(o);var b=new _(function(v,T){var k;g.ready().then(function(){return k=g._dbInfo,oe.call(d)==="[object Blob]"?te(k.db).then(function(I){return I?d:rn(d)}):d}).then(function(I){_t(g._dbInfo,L,function(D,A){if(D)return T(D);try{var F=A.objectStore(g._dbInfo.storeName);I===null&&(I=void 0);var Y=F.put(I,o);A.oncomplete=function(){I===void 0&&(I=null),v(I)},A.onabort=A.onerror=function(){var le=Y.error?Y.error:Y.transaction.error;T(le)}}catch(le){T(le)}})}).catch(T)});return $(b,l),b}function an(o,d){var l=this;o=M(o);var g=new _(function(b,v){l.ready().then(function(){_t(l._dbInfo,L,function(T,k){if(T)return v(T);try{var I=k.objectStore(l._dbInfo.storeName),D=I.delete(o);k.oncomplete=function(){b()},k.onerror=function(){v(D.error)},k.onabort=function(){var A=D.error?D.error:D.transaction.error;v(A)}}catch(A){v(A)}})}).catch(v)});return $(g,d),g}function sn(o){var d=this,l=new _(function(g,b){d.ready().then(function(){_t(d._dbInfo,L,function(v,T){if(v)return b(v);try{var k=T.objectStore(d._dbInfo.storeName),I=k.clear();T.oncomplete=function(){g()},T.onabort=T.onerror=function(){var D=I.error?I.error:I.transaction.error;b(D)}}catch(D){b(D)}})}).catch(b)});return $(l,o),l}function on(o){var d=this,l=new _(function(g,b){d.ready().then(function(){_t(d._dbInfo,B,function(v,T){if(v)return b(v);try{var k=T.objectStore(d._dbInfo.storeName),I=k.count();I.onsuccess=function(){g(I.result)},I.onerror=function(){b(I.error)}}catch(D){b(D)}})}).catch(b)});return $(l,o),l}function ta(o,d){var l=this,g=new _(function(b,v){if(o<0){b(null);return}l.ready().then(function(){_t(l._dbInfo,B,function(T,k){if(T)return v(T);try{var I=k.objectStore(l._dbInfo.storeName),D=!1,A=I.openKeyCursor();A.onsuccess=function(){var F=A.result;if(!F){b(null);return}o===0||D?b(F.key):(D=!0,F.advance(o))},A.onerror=function(){v(A.error)}}catch(F){v(F)}})}).catch(v)});return $(g,d),g}function hs(o){var d=this,l=new _(function(g,b){d.ready().then(function(){_t(d._dbInfo,B,function(v,T){if(v)return b(v);try{var k=T.objectStore(d._dbInfo.storeName),I=k.openKeyCursor(),D=[];I.onsuccess=function(){var A=I.result;if(!A){g(D);return}D.push(A.key),A.continue()},I.onerror=function(){b(I.error)}}catch(A){b(A)}})}).catch(b)});return $(l,o),l}function vs(o,d){d=R.apply(this,arguments);var l=this.config();o=typeof o!="function"&&o||{},o.name||(o.name=o.name||l.name,o.storeName=o.storeName||l.storeName);var g=this,b;if(!o.name)b=_.reject("Invalid arguments");else{var v=o.name===l.name&&g._dbInfo.db,T=v?_.resolve(g._dbInfo.db):et(o).then(function(k){var I=H[o.name],D=I.forages;I.db=k;for(var A=0;A<D.length;A++)D[A]._dbInfo.db=k;return k});o.storeName?b=T.then(function(k){if(!!k.objectStoreNames.contains(o.storeName)){var I=k.version+1;ae(o);var D=H[o.name],A=D.forages;k.close();for(var F=0;F<A.length;F++){var Y=A[F];Y._dbInfo.db=null,Y._dbInfo.version=I}var le=new _(function(fe,he){var ge=y.open(o.name,I);ge.onerror=function(Be){var Rt=ge.result;Rt.close(),he(Be)},ge.onupgradeneeded=function(){var Be=ge.result;Be.deleteObjectStore(o.storeName)},ge.onsuccess=function(){var Be=ge.result;Be.close(),fe(Be)}});return le.then(function(fe){D.db=fe;for(var he=0;he<A.length;he++){var ge=A[he];ge._dbInfo.db=fe,ke(ge._dbInfo)}}).catch(function(fe){throw(we(o,fe)||_.resolve()).catch(function(){}),fe})}}):b=T.then(function(k){ae(o);var I=H[o.name],D=I.forages;k.close();for(var A=0;A<D.length;A++){var F=D[A];F._dbInfo.db=null}var Y=new _(function(le,fe){var he=y.deleteDatabase(o.name);he.onerror=function(){var ge=he.result;ge&&ge.close(),fe(he.error)},he.onblocked=function(){console.warn('dropInstance blocked for database "'+o.name+'" until all open connections are closed')},he.onsuccess=function(){var ge=he.result;ge&&ge.close(),le(ge)}});return Y.then(function(le){I.db=le;for(var fe=0;fe<D.length;fe++){var he=D[fe];ke(he._dbInfo)}}).catch(function(le){throw(we(o,le)||_.resolve()).catch(function(){}),le})})}return $(b,d),b}var Et={_driver:"asyncStorage",_initStorage:Xt,_support:p(),iterate:ct,getItem:tt,setItem:Zt,removeItem:an,clear:sn,length:on,key:ta,keys:hs,dropInstance:vs};function gs(){return typeof openDatabase=="function"}var $t="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",ra="~~local_forage_type~",ln=/^~~local_forage_type~([^~]+)~/,kr="__lfsc__:",It=kr.length,rt="arbf",Ir="blob",na="si08",aa="ui08",sa="uic8",ia="si16",ut="si32",er="ur16",cn="ui32",un="fl32",tr="fl64",dn=It+rt.length,oa=Object.prototype.toString;function la(o){var d=o.length*.75,l=o.length,g,b=0,v,T,k,I;o[o.length-1]==="="&&(d--,o[o.length-2]==="="&&d--);var D=new ArrayBuffer(d),A=new Uint8Array(D);for(g=0;g<l;g+=4)v=$t.indexOf(o[g]),T=$t.indexOf(o[g+1]),k=$t.indexOf(o[g+2]),I=$t.indexOf(o[g+3]),A[b++]=v<<2|T>>4,A[b++]=(T&15)<<4|k>>2,A[b++]=(k&3)<<6|I&63;return D}function Dr(o){var d=new Uint8Array(o),l="",g;for(g=0;g<d.length;g+=3)l+=$t[d[g]>>2],l+=$t[(d[g]&3)<<4|d[g+1]>>4],l+=$t[(d[g+1]&15)<<2|d[g+2]>>6],l+=$t[d[g+2]&63];return d.length%3===2?l=l.substring(0,l.length-1)+"=":d.length%3===1&&(l=l.substring(0,l.length-2)+"=="),l}function dt(o,d){var l="";if(o&&(l=oa.call(o)),o&&(l==="[object ArrayBuffer]"||o.buffer&&oa.call(o.buffer)==="[object ArrayBuffer]")){var g,b=kr;o instanceof ArrayBuffer?(g=o,b+=rt):(g=o.buffer,l==="[object Int8Array]"?b+=na:l==="[object Uint8Array]"?b+=aa:l==="[object Uint8ClampedArray]"?b+=sa:l==="[object Int16Array]"?b+=ia:l==="[object Uint16Array]"?b+=er:l==="[object Int32Array]"?b+=ut:l==="[object Uint32Array]"?b+=cn:l==="[object Float32Array]"?b+=un:l==="[object Float64Array]"?b+=tr:d(new Error("Failed to get type for BinaryArray"))),d(b+Dr(g))}else if(l==="[object Blob]"){var v=new FileReader;v.onload=function(){var T=ra+o.type+"~"+Dr(this.result);d(kr+Ir+T)},v.readAsArrayBuffer(o)}else try{d(JSON.stringify(o))}catch(T){console.error("Couldn't convert value into a JSON string: ",o),d(null,T)}}function ys(o){if(o.substring(0,It)!==kr)return JSON.parse(o);var d=o.substring(dn),l=o.substring(It,dn),g;if(l===Ir&&ln.test(d)){var b=d.match(ln);g=b[1],d=d.substring(b[0].length)}var v=la(d);switch(l){case rt:return v;case Ir:return E([v],{type:g});case na:return new Int8Array(v);case aa:return new Uint8Array(v);case sa:return new Uint8ClampedArray(v);case ia:return new Int16Array(v);case er:return new Uint16Array(v);case ut:return new Int32Array(v);case cn:return new Uint32Array(v);case un:return new Float32Array(v);case tr:return new Float64Array(v);default:throw new Error("Unkown type: "+l)}}var fn={serialize:dt,deserialize:ys,stringToBuffer:la,bufferToString:Dr};function ca(o,d,l,g){o.executeSql("CREATE TABLE IF NOT EXISTS "+d.storeName+" (id INTEGER PRIMARY KEY, key unique, value)",[],l,g)}function bs(o){var d=this,l={db:null};if(o)for(var g in o)l[g]=typeof o[g]!="string"?o[g].toString():o[g];var b=new _(function(v,T){try{l.db=openDatabase(l.name,String(l.version),l.description,l.size)}catch(k){return T(k)}l.db.transaction(function(k){ca(k,l,function(){d._dbInfo=l,v()},function(I,D){T(D)})},T)});return l.serializer=fn,b}function Dt(o,d,l,g,b,v){o.executeSql(l,g,b,function(T,k){k.code===k.SYNTAX_ERR?T.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?",[d.storeName],function(I,D){D.rows.length?v(I,k):ca(I,d,function(){I.executeSql(l,g,b,v)},v)},v):v(T,k)},v)}function _s(o,d){var l=this;o=M(o);var g=new _(function(b,v){l.ready().then(function(){var T=l._dbInfo;T.db.transaction(function(k){Dt(k,T,"SELECT * FROM "+T.storeName+" WHERE key = ? LIMIT 1",[o],function(I,D){var A=D.rows.length?D.rows.item(0).value:null;A&&(A=T.serializer.deserialize(A)),b(A)},function(I,D){v(D)})})}).catch(v)});return $(g,d),g}function rr(o,d){var l=this,g=new _(function(b,v){l.ready().then(function(){var T=l._dbInfo;T.db.transaction(function(k){Dt(k,T,"SELECT * FROM "+T.storeName,[],function(I,D){for(var A=D.rows,F=A.length,Y=0;Y<F;Y++){var le=A.item(Y),fe=le.value;if(fe&&(fe=T.serializer.deserialize(fe)),fe=o(fe,le.key,Y+1),fe!==void 0){b(fe);return}}b()},function(I,D){v(D)})})}).catch(v)});return $(g,d),g}function ua(o,d,l,g){var b=this;o=M(o);var v=new _(function(T,k){b.ready().then(function(){d===void 0&&(d=null);var I=d,D=b._dbInfo;D.serializer.serialize(d,function(A,F){F?k(F):D.db.transaction(function(Y){Dt(Y,D,"INSERT OR REPLACE INTO "+D.storeName+" (key, value) VALUES (?, ?)",[o,A],function(){T(I)},function(le,fe){k(fe)})},function(Y){if(Y.code===Y.QUOTA_ERR){if(g>0){T(ua.apply(b,[o,I,l,g-1]));return}k(Y)}})})}).catch(k)});return $(v,l),v}function da(o,d,l){return ua.apply(this,[o,d,l,1])}function Es(o,d){var l=this;o=M(o);var g=new _(function(b,v){l.ready().then(function(){var T=l._dbInfo;T.db.transaction(function(k){Dt(k,T,"DELETE FROM "+T.storeName+" WHERE key = ?",[o],function(){b()},function(I,D){v(D)})})}).catch(v)});return $(g,d),g}function mn(o){var d=this,l=new _(function(g,b){d.ready().then(function(){var v=d._dbInfo;v.db.transaction(function(T){Dt(T,v,"DELETE FROM "+v.storeName,[],function(){g()},function(k,I){b(I)})})}).catch(b)});return $(l,o),l}function fa(o){var d=this,l=new _(function(g,b){d.ready().then(function(){var v=d._dbInfo;v.db.transaction(function(T){Dt(T,v,"SELECT COUNT(key) as c FROM "+v.storeName,[],function(k,I){var D=I.rows.item(0).c;g(D)},function(k,I){b(I)})})}).catch(b)});return $(l,o),l}function $s(o,d){var l=this,g=new _(function(b,v){l.ready().then(function(){var T=l._dbInfo;T.db.transaction(function(k){Dt(k,T,"SELECT key FROM "+T.storeName+" WHERE id = ? LIMIT 1",[o+1],function(I,D){var A=D.rows.length?D.rows.item(0).key:null;b(A)},function(I,D){v(D)})})}).catch(v)});return $(g,d),g}function ma(o){var d=this,l=new _(function(g,b){d.ready().then(function(){var v=d._dbInfo;v.db.transaction(function(T){Dt(T,v,"SELECT key FROM "+v.storeName,[],function(k,I){for(var D=[],A=0;A<I.rows.length;A++)D.push(I.rows.item(A).key);g(D)},function(k,I){b(I)})})}).catch(b)});return $(l,o),l}function Ss(o){return new _(function(d,l){o.transaction(function(g){g.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'",[],function(b,v){for(var T=[],k=0;k<v.rows.length;k++)T.push(v.rows.item(k).name);d({db:o,storeNames:T})},function(b,v){l(v)})},function(g){l(g)})})}function pa(o,d){d=R.apply(this,arguments);var l=this.config();o=typeof o!="function"&&o||{},o.name||(o.name=o.name||l.name,o.storeName=o.storeName||l.storeName);var g=this,b;return o.name?b=new _(function(v){var T;o.name===l.name?T=g._dbInfo.db:T=openDatabase(o.name,"","",0),o.storeName?v({db:T,storeNames:[o.storeName]}):v(Ss(T))}).then(function(v){return new _(function(T,k){v.db.transaction(function(I){function D(le){return new _(function(fe,he){I.executeSql("DROP TABLE IF EXISTS "+le,[],function(){fe()},function(ge,Be){he(Be)})})}for(var A=[],F=0,Y=v.storeNames.length;F<Y;F++)A.push(D(v.storeNames[F]));_.all(A).then(function(){T()}).catch(function(le){k(le)})},function(I){k(I)})})}):b=_.reject("Invalid arguments"),$(b,d),b}var m={_driver:"webSQLStorage",_initStorage:bs,_support:gs(),iterate:rr,getItem:_s,setItem:da,removeItem:Es,clear:mn,length:fa,key:$s,keys:ma,dropInstance:pa};function u(){try{return typeof localStorage<"u"&&"setItem"in localStorage&&!!localStorage.setItem}catch(o){return!1}}function h(o,d){var l=o.name+"/";return o.storeName!==d.storeName&&(l+=o.storeName+"/"),l}function S(){var o="_localforage_support_test";try{return localStorage.setItem(o,!0),localStorage.removeItem(o),!1}catch(d){return!0}}function w(){return!S()||localStorage.length>0}function q(o){var d=this,l={};if(o)for(var g in o)l[g]=o[g];return l.keyPrefix=h(o,d._defaultConfig),w()?(d._dbInfo=l,l.serializer=fn,_.resolve()):_.reject()}function K(o){var d=this,l=d.ready().then(function(){for(var g=d._dbInfo.keyPrefix,b=localStorage.length-1;b>=0;b--){var v=localStorage.key(b);v.indexOf(g)===0&&localStorage.removeItem(v)}});return $(l,o),l}function re(o,d){var l=this;o=M(o);var g=l.ready().then(function(){var b=l._dbInfo,v=localStorage.getItem(b.keyPrefix+o);return v&&(v=b.serializer.deserialize(v)),v});return $(g,d),g}function de(o,d){var l=this,g=l.ready().then(function(){for(var b=l._dbInfo,v=b.keyPrefix,T=v.length,k=localStorage.length,I=1,D=0;D<k;D++){var A=localStorage.key(D);if(A.indexOf(v)===0){var F=localStorage.getItem(A);if(F&&(F=b.serializer.deserialize(F)),F=o(F,A.substring(T),I++),F!==void 0)return F}}});return $(g,d),g}function Me(o,d){var l=this,g=l.ready().then(function(){var b=l._dbInfo,v;try{v=localStorage.key(o)}catch(T){v=null}return v&&(v=v.substring(b.keyPrefix.length)),v});return $(g,d),g}function ee(o){var d=this,l=d.ready().then(function(){for(var g=d._dbInfo,b=localStorage.length,v=[],T=0;T<b;T++){var k=localStorage.key(T);k.indexOf(g.keyPrefix)===0&&v.push(k.substring(g.keyPrefix.length))}return v});return $(l,o),l}function Ee(o){var d=this,l=d.keys().then(function(g){return g.length});return $(l,o),l}function Te(o,d){var l=this;o=M(o);var g=l.ready().then(function(){var b=l._dbInfo;localStorage.removeItem(b.keyPrefix+o)});return $(g,d),g}function _e(o,d,l){var g=this;o=M(o);var b=g.ready().then(function(){d===void 0&&(d=null);var v=d;return new _(function(T,k){var I=g._dbInfo;I.serializer.serialize(d,function(D,A){if(A)k(A);else try{localStorage.setItem(I.keyPrefix+o,D),T(v)}catch(F){(F.name==="QuotaExceededError"||F.name==="NS_ERROR_DOM_QUOTA_REACHED")&&k(F),k(F)}})})});return $(b,l),b}function se(o,d){if(d=R.apply(this,arguments),o=typeof o!="function"&&o||{},!o.name){var l=this.config();o.name=o.name||l.name,o.storeName=o.storeName||l.storeName}var g=this,b;return o.name?b=new _(function(v){o.storeName?v(h(o,g._defaultConfig)):v(o.name+"/")}).then(function(v){for(var T=localStorage.length-1;T>=0;T--){var k=localStorage.key(T);k.indexOf(v)===0&&localStorage.removeItem(k)}}):b=_.reject("Invalid arguments"),$(b,d),b}var $e={_driver:"localStorageWrapper",_initStorage:q,_support:u(),iterate:de,getItem:re,setItem:_e,removeItem:Te,clear:K,length:Ee,key:Me,keys:ee,dropInstance:se},me=function(d,l){return d===l||typeof d=="number"&&typeof l=="number"&&isNaN(d)&&isNaN(l)},Bt=function(d,l){for(var g=d.length,b=0;b<g;){if(me(d[b],l))return!0;b++}return!1},Ve=Array.isArray||function(o){return Object.prototype.toString.call(o)==="[object Array]"},Ne={},pe={},Re={INDEXEDDB:Et,WEBSQL:m,LOCALSTORAGE:$e},nt=[Re.INDEXEDDB._driver,Re.WEBSQL._driver,Re.LOCALSTORAGE._driver],Ke=["dropInstance"],St=["clear","getItem","iterate","key","keys","length","removeItem","setItem"].concat(Ke),wt={description:"",driver:nt.slice(),name:"localforage",size:4980736,storeName:"keyvaluepairs",version:1};function pr(o,d){o[d]=function(){var l=arguments;return o.ready().then(function(){return o[d].apply(o,l)})}}function nr(){for(var o=1;o<arguments.length;o++){var d=arguments[o];if(d)for(var l in d)d.hasOwnProperty(l)&&(Ve(d[l])?arguments[0][l]=d[l].slice():arguments[0][l]=d[l])}return arguments[0]}var Rr=function(){function o(d){c(this,o);for(var l in Re)if(Re.hasOwnProperty(l)){var g=Re[l],b=g._driver;this[l]=b,Ne[b]||this.defineDriver(g)}this._defaultConfig=nr({},wt),this._config=nr({},this._defaultConfig,d),this._driverSet=null,this._initDriver=null,this._ready=!1,this._dbInfo=null,this._wrapLibraryMethodsWithReady(),this.setDriver(this._config.driver).catch(function(){})}return o.prototype.config=function(l){if((typeof l>"u"?"undefined":i(l))==="object"){if(this._ready)return new Error("Can't call config() after localforage has been used.");for(var g in l){if(g==="storeName"&&(l[g]=l[g].replace(/\W/g,"_")),g==="version"&&typeof l[g]!="number")return new Error("Database version must be a number.");this._config[g]=l[g]}return"driver"in l&&l.driver?this.setDriver(this._config.driver):!0}else return typeof l=="string"?this._config[l]:this._config},o.prototype.defineDriver=function(l,g,b){var v=new _(function(T,k){try{var I=l._driver,D=new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");if(!l._driver){k(D);return}for(var A=St.concat("_initStorage"),F=0,Y=A.length;F<Y;F++){var le=A[F],fe=!Bt(Ke,le);if((fe||l[le])&&typeof l[le]!="function"){k(D);return}}var he=function(){for(var Rt=function(ha){return function(){var ws=new Error("Method "+ha+" is not implemented by the current driver"),va=_.reject(ws);return $(va,arguments[arguments.length-1]),va}},Nt=0,Ao=Ke.length;Nt<Ao;Nt++){var At=Ke[Nt];l[At]||(l[At]=Rt(At))}};he();var ge=function(Rt){Ne[I]&&console.info("Redefining LocalForage driver: "+I),Ne[I]=l,pe[I]=Rt,T()};"_support"in l?l._support&&typeof l._support=="function"?l._support().then(ge,k):ge(!!l._support):ge(!0)}catch(Be){k(Be)}});return C(v,g,b),v},o.prototype.driver=function(){return this._driver||null},o.prototype.getDriver=function(l,g,b){var v=Ne[l]?_.resolve(Ne[l]):_.reject(new Error("Driver not found."));return C(v,g,b),v},o.prototype.getSerializer=function(l){var g=_.resolve(fn);return C(g,l),g},o.prototype.ready=function(l){var g=this,b=g._driverSet.then(function(){return g._ready===null&&(g._ready=g._initDriver()),g._ready});return C(b,l,l),b},o.prototype.setDriver=function(l,g,b){var v=this;Ve(l)||(l=[l]);var T=this._getSupportedDrivers(l);function k(){v._config.driver=v.driver()}function I(F){return v._extend(F),k(),v._ready=v._initStorage(v._config),v._ready}function D(F){return function(){var Y=0;function le(){for(;Y<F.length;){var fe=F[Y];return Y++,v._dbInfo=null,v._ready=null,v.getDriver(fe).then(I).catch(le)}k();var he=new Error("No available storage method found.");return v._driverSet=_.reject(he),v._driverSet}return le()}}var A=this._driverSet!==null?this._driverSet.catch(function(){return _.resolve()}):_.resolve();return this._driverSet=A.then(function(){var F=T[0];return v._dbInfo=null,v._ready=null,v.getDriver(F).then(function(Y){v._driver=Y._driver,k(),v._wrapLibraryMethodsWithReady(),v._initDriver=D(T)})}).catch(function(){k();var F=new Error("No available storage method found.");return v._driverSet=_.reject(F),v._driverSet}),C(this._driverSet,g,b),this._driverSet},o.prototype.supports=function(l){return!!pe[l]},o.prototype._extend=function(l){nr(this,l)},o.prototype._getSupportedDrivers=function(l){for(var g=[],b=0,v=l.length;b<v;b++){var T=l[b];this.supports(T)&&g.push(T)}return g},o.prototype._wrapLibraryMethodsWithReady=function(){for(var l=0,g=St.length;l<g;l++)pr(this,St[l])},o.prototype.createInstance=function(l){return new o(l)},o}(),ar=new Rr;a.exports=ar},{3:3}]},{},[4])(4)})});var Mn=j(ce=>{"use strict";Object.defineProperty(ce,"__esModule",{value:!0});ce.regexpCode=ce.getEsmExportName=ce.getProperty=ce.safeStringify=ce.stringify=ce.strConcat=ce.addCodeArg=ce.str=ce._=ce.nil=ce._Code=ce.Name=ce.IDENTIFIER=ce._CodeOrName=void 0;var wn=class{};ce._CodeOrName=wn;ce.IDENTIFIER=/^[a-z$_][a-z$_0-9]*$/i;var br=class extends wn{constructor(e){if(super(),!ce.IDENTIFIER.test(e))throw new Error("CodeGen: name must be a valid identifier");this.str=e}toString(){return this.str}emptyStr(){return!1}get names(){return{[this.str]:1}}};ce.Name=br;var vt=class extends wn{constructor(e){super(),this._items=typeof e=="string"?[e]:e}toString(){return this.str}emptyStr(){if(this._items.length>1)return!1;let e=this._items[0];return e===""||e==='""'}get str(){var e;return(e=this._str)!==null&&e!==void 0?e:this._str=this._items.reduce((r,n)=>`${r}${n}`,"")}get names(){var e;return(e=this._names)!==null&&e!==void 0?e:this._names=this._items.reduce((r,n)=>(n instanceof br&&(r[n.str]=(r[n.str]||0)+1),r),{})}};ce._Code=vt;ce.nil=new vt("");function Dl(t,...e){let r=[t[0]],n=0;for(;n<e.length;)ei(r,e[n]),r.push(t[++n]);return new vt(r)}ce._=Dl;var Zs=new vt("+");function Rl(t,...e){let r=[Cn(t[0])],n=0;for(;n<e.length;)r.push(Zs),ei(r,e[n]),r.push(Zs,Cn(t[++n]));return Yd(r),new vt(r)}ce.str=Rl;function ei(t,e){e instanceof vt?t.push(...e._items):e instanceof br?t.push(e):t.push(Xd(e))}ce.addCodeArg=ei;function Yd(t){let e=1;for(;e<t.length-1;){if(t[e]===Zs){let r=Jd(t[e-1],t[e+1]);if(r!==void 0){t.splice(e-1,3,r);continue}t[e++]="+"}e++}}function Jd(t,e){if(e==='""')return t;if(t==='""')return e;if(typeof t=="string")return e instanceof br||t[t.length-1]!=='"'?void 0:typeof e!="string"?`${t.slice(0,-1)}${e}"`:e[0]==='"'?t.slice(0,-1)+e.slice(1):void 0;if(typeof e=="string"&&e[0]==='"'&&!(t instanceof br))return`"${t}${e.slice(1)}`}function Qd(t,e){return e.emptyStr()?t:t.emptyStr()?e:Rl`${t}${e}`}ce.strConcat=Qd;function Xd(t){return typeof t=="number"||typeof t=="boolean"||t===null?t:Cn(Array.isArray(t)?t.join(","):t)}function Zd(t){return new vt(Cn(t))}ce.stringify=Zd;function Cn(t){return JSON.stringify(t).replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029")}ce.safeStringify=Cn;function ef(t){return typeof t=="string"&&ce.IDENTIFIER.test(t)?new vt(`.${t}`):Dl`[${t}]`}ce.getProperty=ef;function tf(t){if(typeof t=="string"&&ce.IDENTIFIER.test(t))return new vt(`${t}`);throw new Error(`CodeGen: invalid export name: ${t}, use explicit $id name mapping`)}ce.getEsmExportName=tf;function rf(t){return new vt(t.toString())}ce.regexpCode=rf});var ai=j(Qe=>{"use strict";Object.defineProperty(Qe,"__esModule",{value:!0});Qe.ValueScope=Qe.ValueScopeName=Qe.Scope=Qe.varKinds=Qe.UsedValueState=void 0;var it=Mn(),ti=class extends Error{constructor(e){super(`CodeGen: "code" for ${e} not defined`),this.value=e.value}},ri;(function(t){t[t.Started=0]="Started",t[t.Completed=1]="Completed"})(ri=Qe.UsedValueState||(Qe.UsedValueState={}));Qe.varKinds={const:new it.Name("const"),let:new it.Name("let"),var:new it.Name("var")};var Oa=class{constructor({prefixes:e,parent:r}={}){this._names={},this._prefixes=e,this._parent=r}toName(e){return e instanceof it.Name?e:this.name(e)}name(e){return new it.Name(this._newName(e))}_newName(e){let r=this._names[e]||this._nameGroup(e);return`${e}${r.index++}`}_nameGroup(e){var r,n;if(((n=(r=this._parent)===null||r===void 0?void 0:r._prefixes)===null||n===void 0?void 0:n.has(e))||this._prefixes&&!this._prefixes.has(e))throw new Error(`CodeGen: prefix "${e}" is not allowed in this scope`);return this._names[e]={prefix:e,index:0}}};Qe.Scope=Oa;var qa=class extends it.Name{constructor(e,r){super(r),this.prefix=e}setValue(e,{property:r,itemIndex:n}){this.value=e,this.scopePath=(0,it._)`.${new it.Name(r)}[${n}]`}};Qe.ValueScopeName=qa;var nf=(0,it._)`\n`,ni=class extends Oa{constructor(e){super(e),this._values={},this._scope=e.scope,this.opts=Le(ve({},e),{_n:e.lines?nf:it.nil})}get(){return this._scope}name(e){return new qa(e,this._newName(e))}value(e,r){var n;if(r.ref===void 0)throw new Error("CodeGen: ref must be passed in value");let a=this.toName(e),{prefix:s}=a,i=(n=r.key)!==null&&n!==void 0?n:r.ref,c=this._values[s];if(c){let p=c.get(i);if(p)return p}else c=this._values[s]=new Map;c.set(i,a);let f=this._scope[s]||(this._scope[s]=[]),y=f.length;return f[y]=r.ref,a.setValue(r,{property:s,itemIndex:y}),a}getValue(e,r){let n=this._values[e];if(!!n)return n.get(r)}scopeRefs(e,r=this._values){return this._reduceValues(r,n=>{if(n.scopePath===void 0)throw new Error(`CodeGen: name "${n}" has no value`);return(0,it._)`${e}${n.scopePath}`})}scopeCode(e=this._values,r,n){return this._reduceValues(e,a=>{if(a.value===void 0)throw new Error(`CodeGen: name "${a}" has no value`);return a.value.code},r,n)}_reduceValues(e,r,n={},a){let s=it.nil;for(let i in e){let c=e[i];if(!c)continue;let f=n[i]=n[i]||new Map;c.forEach(y=>{if(f.has(y))return;f.set(y,ri.Started);let p=r(y);if(p){let E=this.opts.es5?Qe.varKinds.var:Qe.varKinds.const;s=(0,it._)`${s}${E} ${y} = ${p};${this.opts._n}`}else if(p=a==null?void 0:a(y))s=(0,it._)`${s}${p}${this.opts._n}`;else throw new ti(y);f.set(y,ri.Completed)})}return s}};Qe.ValueScope=ni});var Z=j(Q=>{"use strict";Object.defineProperty(Q,"__esModule",{value:!0});Q.or=Q.and=Q.not=Q.CodeGen=Q.operators=Q.varKinds=Q.ValueScopeName=Q.ValueScope=Q.Scope=Q.Name=Q.regexpCode=Q.stringify=Q.getProperty=Q.nil=Q.strConcat=Q.str=Q._=void 0;var ne=Mn(),Ct=ai(),or=Mn();Object.defineProperty(Q,"_",{enumerable:!0,get:function(){return or._}});Object.defineProperty(Q,"str",{enumerable:!0,get:function(){return or.str}});Object.defineProperty(Q,"strConcat",{enumerable:!0,get:function(){return or.strConcat}});Object.defineProperty(Q,"nil",{enumerable:!0,get:function(){return or.nil}});Object.defineProperty(Q,"getProperty",{enumerable:!0,get:function(){return or.getProperty}});Object.defineProperty(Q,"stringify",{enumerable:!0,get:function(){return or.stringify}});Object.defineProperty(Q,"regexpCode",{enumerable:!0,get:function(){return or.regexpCode}});Object.defineProperty(Q,"Name",{enumerable:!0,get:function(){return or.Name}});var Ha=ai();Object.defineProperty(Q,"Scope",{enumerable:!0,get:function(){return Ha.Scope}});Object.defineProperty(Q,"ValueScope",{enumerable:!0,get:function(){return Ha.ValueScope}});Object.defineProperty(Q,"ValueScopeName",{enumerable:!0,get:function(){return Ha.ValueScopeName}});Object.defineProperty(Q,"varKinds",{enumerable:!0,get:function(){return Ha.varKinds}});Q.operators={GT:new ne._Code(">"),GTE:new ne._Code(">="),LT:new ne._Code("<"),LTE:new ne._Code("<="),EQ:new ne._Code("==="),NEQ:new ne._Code("!=="),NOT:new ne._Code("!"),OR:new ne._Code("||"),AND:new ne._Code("&&"),ADD:new ne._Code("+")};var Kt=class{optimizeNodes(){return this}optimizeNames(e,r){return this}},si=class extends Kt{constructor(e,r,n){super(),this.varKind=e,this.name=r,this.rhs=n}render({es5:e,_n:r}){let n=e?Ct.varKinds.var:this.varKind,a=this.rhs===void 0?"":` = ${this.rhs}`;return`${n} ${this.name}${a};`+r}optimizeNames(e,r){if(!!e[this.name.str])return this.rhs&&(this.rhs=Gr(this.rhs,e,r)),this}get names(){return this.rhs instanceof ne._CodeOrName?this.rhs.names:{}}},xa=class extends Kt{constructor(e,r,n){super(),this.lhs=e,this.rhs=r,this.sideEffects=n}render({_n:e}){return`${this.lhs} = ${this.rhs};`+e}optimizeNames(e,r){if(!(this.lhs instanceof ne.Name&&!e[this.lhs.str]&&!this.sideEffects))return this.rhs=Gr(this.rhs,e,r),this}get names(){let e=this.lhs instanceof ne.Name?{}:ve({},this.lhs.names);return Fa(e,this.rhs)}},ii=class extends xa{constructor(e,r,n,a){super(e,n,a),this.op=r}render({_n:e}){return`${this.lhs} ${this.op}= ${this.rhs};`+e}},oi=class extends Kt{constructor(e){super(),this.label=e,this.names={}}render({_n:e}){return`${this.label}:`+e}},li=class extends Kt{constructor(e){super(),this.label=e,this.names={}}render({_n:e}){return`break${this.label?` ${this.label}`:""};`+e}},ci=class extends Kt{constructor(e){super(),this.error=e}render({_n:e}){return`throw ${this.error};`+e}get names(){return this.error.names}},ui=class extends Kt{constructor(e){super(),this.code=e}render({_n:e}){return`${this.code};`+e}optimizeNodes(){return`${this.code}`?this:void 0}optimizeNames(e,r){return this.code=Gr(this.code,e,r),this}get names(){return this.code instanceof ne._CodeOrName?this.code.names:{}}},Tn=class extends Kt{constructor(e=[]){super(),this.nodes=e}render(e){return this.nodes.reduce((r,n)=>r+n.render(e),"")}optimizeNodes(){let{nodes:e}=this,r=e.length;for(;r--;){let n=e[r].optimizeNodes();Array.isArray(n)?e.splice(r,1,...n):n?e[r]=n:e.splice(r,1)}return e.length>0?this:void 0}optimizeNames(e,r){let{nodes:n}=this,a=n.length;for(;a--;){let s=n[a];s.optimizeNames(e,r)||(af(e,s.names),n.splice(a,1))}return n.length>0?this:void 0}get names(){return this.nodes.reduce((e,r)=>Er(e,r.names),{})}},Wt=class extends Tn{render(e){return"{"+e._n+super.render(e)+"}"+e._n}},di=class extends Tn{},Ur=class extends Wt{};Ur.kind="else";var Mt=class extends Wt{constructor(e,r){super(r),this.condition=e}render(e){let r=`if(${this.condition})`+super.render(e);return this.else&&(r+="else "+this.else.render(e)),r}optimizeNodes(){super.optimizeNodes();let e=this.condition;if(e===!0)return this.nodes;let r=this.else;if(r){let n=r.optimizeNodes();r=this.else=Array.isArray(n)?new Ur(n):n}if(r)return e===!1?r instanceof Mt?r:r.nodes:this.nodes.length?this:new Mt(Nl(e),r instanceof Mt?[r]:r.nodes);if(!(e===!1||!this.nodes.length))return this}optimizeNames(e,r){var n;if(this.else=(n=this.else)===null||n===void 0?void 0:n.optimizeNames(e,r),!!(super.optimizeNames(e,r)||this.else))return this.condition=Gr(this.condition,e,r),this}get names(){let e=super.names;return Fa(e,this.condition),this.else&&Er(e,this.else.names),e}};Mt.kind="if";var _r=class extends Wt{};_r.kind="for";var fi=class extends _r{constructor(e){super(),this.iteration=e}render(e){return`for(${this.iteration})`+super.render(e)}optimizeNames(e,r){if(!!super.optimizeNames(e,r))return this.iteration=Gr(this.iteration,e,r),this}get names(){return Er(super.names,this.iteration.names)}},mi=class extends _r{constructor(e,r,n,a){super(),this.varKind=e,this.name=r,this.from=n,this.to=a}render(e){let r=e.es5?Ct.varKinds.var:this.varKind,{name:n,from:a,to:s}=this;return`for(${r} ${n}=${a}; ${n}<${s}; ${n}++)`+super.render(e)}get names(){let e=Fa(super.names,this.from);return Fa(e,this.to)}},ja=class extends _r{constructor(e,r,n,a){super(),this.loop=e,this.varKind=r,this.name=n,this.iterable=a}render(e){return`for(${this.varKind} ${this.name} ${this.loop} ${this.iterable})`+super.render(e)}optimizeNames(e,r){if(!!super.optimizeNames(e,r))return this.iterable=Gr(this.iterable,e,r),this}get names(){return Er(super.names,this.iterable.names)}},Pn=class extends Wt{constructor(e,r,n){super(),this.name=e,this.args=r,this.async=n}render(e){return`${this.async?"async ":""}function ${this.name}(${this.args})`+super.render(e)}};Pn.kind="func";var kn=class extends Tn{render(e){return"return "+super.render(e)}};kn.kind="return";var pi=class extends Wt{render(e){let r="try"+super.render(e);return this.catch&&(r+=this.catch.render(e)),this.finally&&(r+=this.finally.render(e)),r}optimizeNodes(){var e,r;return super.optimizeNodes(),(e=this.catch)===null||e===void 0||e.optimizeNodes(),(r=this.finally)===null||r===void 0||r.optimizeNodes(),this}optimizeNames(e,r){var n,a;return super.optimizeNames(e,r),(n=this.catch)===null||n===void 0||n.optimizeNames(e,r),(a=this.finally)===null||a===void 0||a.optimizeNames(e,r),this}get names(){let e=super.names;return this.catch&&Er(e,this.catch.names),this.finally&&Er(e,this.finally.names),e}},In=class extends Wt{constructor(e){super(),this.error=e}render(e){return`catch(${this.error})`+super.render(e)}};In.kind="catch";var Dn=class extends Wt{render(e){return"finally"+super.render(e)}};Dn.kind="finally";var hi=class{constructor(e,r={}){this._values={},this._blockStarts=[],this._constants={},this.opts=Le(ve({},r),{_n:r.lines?`
-`:""}),this._extScope=e,this._scope=new Ct.Scope({parent:e}),this._nodes=[new di]}toString(){return this._root.render(this.opts)}name(e){return this._scope.name(e)}scopeName(e){return this._extScope.name(e)}scopeValue(e,r){let n=this._extScope.value(e,r);return(this._values[n.prefix]||(this._values[n.prefix]=new Set)).add(n),n}getScopeValue(e,r){return this._extScope.getValue(e,r)}scopeRefs(e){return this._extScope.scopeRefs(e,this._values)}scopeCode(){return this._extScope.scopeCode(this._values)}_def(e,r,n,a){let s=this._scope.toName(r);return n!==void 0&&a&&(this._constants[s.str]=n),this._leafNode(new si(e,s,n)),s}const(e,r,n){return this._def(Ct.varKinds.const,e,r,n)}let(e,r,n){return this._def(Ct.varKinds.let,e,r,n)}var(e,r,n){return this._def(Ct.varKinds.var,e,r,n)}assign(e,r,n){return this._leafNode(new xa(e,r,n))}add(e,r){return this._leafNode(new ii(e,Q.operators.ADD,r))}code(e){return typeof e=="function"?e():e!==ne.nil&&this._leafNode(new ui(e)),this}object(...e){let r=["{"];for(let[n,a]of e)r.length>1&&r.push(","),r.push(n),(n!==a||this.opts.es5)&&(r.push(":"),(0,ne.addCodeArg)(r,a));return r.push("}"),new ne._Code(r)}if(e,r,n){if(this._blockNode(new Mt(e)),r&&n)this.code(r).else().code(n).endIf();else if(r)this.code(r).endIf();else if(n)throw new Error('CodeGen: "else" body without "then" body');return this}elseIf(e){return this._elseNode(new Mt(e))}else(){return this._elseNode(new Ur)}endIf(){return this._endBlockNode(Mt,Ur)}_for(e,r){return this._blockNode(e),r&&this.code(r).endFor(),this}for(e,r){return this._for(new fi(e),r)}forRange(e,r,n,a,s=this.opts.es5?Ct.varKinds.var:Ct.varKinds.let){let i=this._scope.toName(e);return this._for(new mi(s,i,r,n),()=>a(i))}forOf(e,r,n,a=Ct.varKinds.const){let s=this._scope.toName(e);if(this.opts.es5){let i=r instanceof ne.Name?r:this.var("_arr",r);return this.forRange("_i",0,(0,ne._)`${i}.length`,c=>{this.var(s,(0,ne._)`${i}[${c}]`),n(s)})}return this._for(new ja("of",a,s,r),()=>n(s))}forIn(e,r,n,a=this.opts.es5?Ct.varKinds.var:Ct.varKinds.const){if(this.opts.ownProperties)return this.forOf(e,(0,ne._)`Object.keys(${r})`,n);let s=this._scope.toName(e);return this._for(new ja("in",a,s,r),()=>n(s))}endFor(){return this._endBlockNode(_r)}label(e){return this._leafNode(new oi(e))}break(e){return this._leafNode(new li(e))}return(e){let r=new kn;if(this._blockNode(r),this.code(e),r.nodes.length!==1)throw new Error('CodeGen: "return" should have one node');return this._endBlockNode(kn)}try(e,r,n){if(!r&&!n)throw new Error('CodeGen: "try" without "catch" and "finally"');let a=new pi;if(this._blockNode(a),this.code(e),r){let s=this.name("e");this._currNode=a.catch=new In(s),r(s)}return n&&(this._currNode=a.finally=new Dn,this.code(n)),this._endBlockNode(In,Dn)}throw(e){return this._leafNode(new ci(e))}block(e,r){return this._blockStarts.push(this._nodes.length),e&&this.code(e).endBlock(r),this}endBlock(e){let r=this._blockStarts.pop();if(r===void 0)throw new Error("CodeGen: not in self-balancing block");let n=this._nodes.length-r;if(n<0||e!==void 0&&n!==e)throw new Error(`CodeGen: wrong number of nodes: ${n} vs ${e} expected`);return this._nodes.length=r,this}func(e,r=ne.nil,n,a){return this._blockNode(new Pn(e,r,n)),a&&this.code(a).endFunc(),this}endFunc(){return this._endBlockNode(Pn)}optimize(e=1){for(;e-- >0;)this._root.optimizeNodes(),this._root.optimizeNames(this._root.names,this._constants)}_leafNode(e){return this._currNode.nodes.push(e),this}_blockNode(e){this._currNode.nodes.push(e),this._nodes.push(e)}_endBlockNode(e,r){let n=this._currNode;if(n instanceof e||r&&n instanceof r)return this._nodes.pop(),this;throw new Error(`CodeGen: not in block "${r?`${e.kind}/${r.kind}`:e.kind}"`)}_elseNode(e){let r=this._currNode;if(!(r instanceof Mt))throw new Error('CodeGen: "else" without "if"');return this._currNode=r.else=e,this}get _root(){return this._nodes[0]}get _currNode(){let e=this._nodes;return e[e.length-1]}set _currNode(e){let r=this._nodes;r[r.length-1]=e}};Q.CodeGen=hi;function Er(t,e){for(let r in e)t[r]=(t[r]||0)+(e[r]||0);return t}function Fa(t,e){return e instanceof ne._CodeOrName?Er(t,e.names):t}function Gr(t,e,r){if(t instanceof ne.Name)return n(t);if(!a(t))return t;return new ne._Code(t._items.reduce((s,i)=>(i instanceof ne.Name&&(i=n(i)),i instanceof ne._Code?s.push(...i._items):s.push(i),s),[]));function n(s){let i=r[s.str];return i===void 0||e[s.str]!==1?s:(delete e[s.str],i)}function a(s){return s instanceof ne._Code&&s._items.some(i=>i instanceof ne.Name&&e[i.str]===1&&r[i.str]!==void 0)}}function af(t,e){for(let r in e)t[r]=(t[r]||0)-(e[r]||0)}function Nl(t){return typeof t=="boolean"||typeof t=="number"||t===null?!t:(0,ne._)`!${vi(t)}`}Q.not=Nl;var sf=Al(Q.operators.AND);function of(...t){return t.reduce(sf)}Q.and=of;var lf=Al(Q.operators.OR);function cf(...t){return t.reduce(lf)}Q.or=cf;function Al(t){return(e,r)=>e===ne.nil?r:r===ne.nil?e:(0,ne._)`${vi(e)} ${t} ${vi(r)}`}function vi(t){return t instanceof ne.Name?t:(0,ne._)`(${t})`}});var ue=j(X=>{"use strict";Object.defineProperty(X,"__esModule",{value:!0});X.checkStrictMode=X.getErrorPath=X.Type=X.useFunc=X.setEvaluated=X.evaluatedPropsToName=X.mergeEvaluated=X.eachItem=X.unescapeJsonPointer=X.escapeJsonPointer=X.escapeFragment=X.unescapeFragment=X.schemaRefOrVal=X.schemaHasRulesButRef=X.schemaHasRules=X.checkUnknownRules=X.alwaysValidSchema=X.toHash=void 0;var be=Z(),uf=Mn();function df(t){let e={};for(let r of t)e[r]=!0;return e}X.toHash=df;function ff(t,e){return typeof e=="boolean"?e:Object.keys(e).length===0?!0:(ql(t,e),!xl(e,t.self.RULES.all))}X.alwaysValidSchema=ff;function ql(t,e=t.schema){let{opts:r,self:n}=t;if(!r.strictSchema||typeof e=="boolean")return;let a=n.RULES.keywords;for(let s in e)a[s]||Vl(t,`unknown keyword: "${s}"`)}X.checkUnknownRules=ql;function xl(t,e){if(typeof t=="boolean")return!t;for(let r in t)if(e[r])return!0;return!1}X.schemaHasRules=xl;function mf(t,e){if(typeof t=="boolean")return!t;for(let r in t)if(r!=="$ref"&&e.all[r])return!0;return!1}X.schemaHasRulesButRef=mf;function pf({topSchemaRef:t,schemaPath:e},r,n,a){if(!a){if(typeof r=="number"||typeof r=="boolean")return r;if(typeof r=="string")return(0,be._)`${r}`}return(0,be._)`${t}${e}${(0,be.getProperty)(n)}`}X.schemaRefOrVal=pf;function hf(t){return jl(decodeURIComponent(t))}X.unescapeFragment=hf;function vf(t){return encodeURIComponent(gi(t))}X.escapeFragment=vf;function gi(t){return typeof t=="number"?`${t}`:t.replace(/~/g,"~0").replace(/\//g,"~1")}X.escapeJsonPointer=gi;function jl(t){return t.replace(/~1/g,"/").replace(/~0/g,"~")}X.unescapeJsonPointer=jl;function gf(t,e){if(Array.isArray(t))for(let r of t)e(r);else e(t)}X.eachItem=gf;function Ll({mergeNames:t,mergeToName:e,mergeValues:r,resultToName:n}){return(a,s,i,c)=>{let f=i===void 0?s:i instanceof be.Name?(s instanceof be.Name?t(a,s,i):e(a,s,i),i):s instanceof be.Name?(e(a,i,s),s):r(s,i);return c===be.Name&&!(f instanceof be.Name)?n(a,f):f}}X.mergeEvaluated={props:Ll({mergeNames:(t,e,r)=>t.if((0,be._)`${r} !== true && ${e} !== undefined`,()=>{t.if((0,be._)`${e} === true`,()=>t.assign(r,!0),()=>t.assign(r,(0,be._)`${r} || {}`).code((0,be._)`Object.assign(${r}, ${e})`))}),mergeToName:(t,e,r)=>t.if((0,be._)`${r} !== true`,()=>{e===!0?t.assign(r,!0):(t.assign(r,(0,be._)`${r} || {}`),yi(t,r,e))}),mergeValues:(t,e)=>t===!0?!0:ve(ve({},t),e),resultToName:Fl}),items:Ll({mergeNames:(t,e,r)=>t.if((0,be._)`${r} !== true && ${e} !== undefined`,()=>t.assign(r,(0,be._)`${e} === true ? true : ${r} > ${e} ? ${r} : ${e}`)),mergeToName:(t,e,r)=>t.if((0,be._)`${r} !== true`,()=>t.assign(r,e===!0?!0:(0,be._)`${r} > ${e} ? ${r} : ${e}`)),mergeValues:(t,e)=>t===!0?!0:Math.max(t,e),resultToName:(t,e)=>t.var("items",e)})};function Fl(t,e){if(e===!0)return t.var("props",!0);let r=t.var("props",(0,be._)`{}`);return e!==void 0&&yi(t,r,e),r}X.evaluatedPropsToName=Fl;function yi(t,e,r){Object.keys(r).forEach(n=>t.assign((0,be._)`${e}${(0,be.getProperty)(n)}`,!0))}X.setEvaluated=yi;var Ol={};function yf(t,e){return t.scopeValue("func",{ref:e,code:Ol[e.code]||(Ol[e.code]=new uf._Code(e.code))})}X.useFunc=yf;var Hl;(function(t){t[t.Num=0]="Num",t[t.Str=1]="Str"})(Hl=X.Type||(X.Type={}));function bf(t,e,r){if(t instanceof be.Name){let n=e===Hl.Num;return r?n?(0,be._)`"[" + ${t} + "]"`:(0,be._)`"['" + ${t} + "']"`:n?(0,be._)`"/" + ${t}`:(0,be._)`"/" + ${t}.replace(/~/g, "~0").replace(/\\//g, "~1")`}return r?(0,be.getProperty)(t).toString():"/"+gi(t)}X.getErrorPath=bf;function Vl(t,e,r=t.opts.strictSchema){if(!!r){if(e=`strict mode: ${e}`,r===!0)throw new Error(e);t.self.logger.warn(e)}}X.checkStrictMode=Vl});var Yt=j(bi=>{"use strict";Object.defineProperty(bi,"__esModule",{value:!0});var Ge=Z(),_f={data:new Ge.Name("data"),valCxt:new Ge.Name("valCxt"),instancePath:new Ge.Name("instancePath"),parentData:new Ge.Name("parentData"),parentDataProperty:new Ge.Name("parentDataProperty"),rootData:new Ge.Name("rootData"),dynamicAnchors:new Ge.Name("dynamicAnchors"),vErrors:new Ge.Name("vErrors"),errors:new Ge.Name("errors"),this:new Ge.Name("this"),self:new Ge.Name("self"),scope:new Ge.Name("scope"),json:new Ge.Name("json"),jsonPos:new Ge.Name("jsonPos"),jsonLen:new Ge.Name("jsonLen"),jsonPart:new Ge.Name("jsonPart")};bi.default=_f});var Rn=j(ze=>{"use strict";Object.defineProperty(ze,"__esModule",{value:!0});ze.extendErrors=ze.resetErrorsCount=ze.reportExtraError=ze.reportError=ze.keyword$DataError=ze.keywordError=void 0;var ie=Z(),Va=ue(),Xe=Yt();ze.keywordError={message:({keyword:t})=>(0,ie.str)`must pass "${t}" keyword validation`};ze.keyword$DataError={message:({keyword:t,schemaType:e})=>e?(0,ie.str)`"${t}" keyword must be ${e} ($data)`:(0,ie.str)`"${t}" keyword is invalid ($data)`};function Ef(t,e=ze.keywordError,r,n){let{it:a}=t,{gen:s,compositeRule:i,allErrors:c}=a,f=Gl(t,e,r);(n!=null?n:i||c)?Bl(s,f):Ul(a,(0,ie._)`[${f}]`)}ze.reportError=Ef;function $f(t,e=ze.keywordError,r){let{it:n}=t,{gen:a,compositeRule:s,allErrors:i}=n,c=Gl(t,e,r);Bl(a,c),s||i||Ul(n,Xe.default.vErrors)}ze.reportExtraError=$f;function Sf(t,e){t.assign(Xe.default.errors,e),t.if((0,ie._)`${Xe.default.vErrors} !== null`,()=>t.if(e,()=>t.assign((0,ie._)`${Xe.default.vErrors}.length`,e),()=>t.assign(Xe.default.vErrors,null)))}ze.resetErrorsCount=Sf;function wf({gen:t,keyword:e,schemaValue:r,data:n,errsCount:a,it:s}){if(a===void 0)throw new Error("ajv implementation error");let i=t.name("err");t.forRange("i",a,Xe.default.errors,c=>{t.const(i,(0,ie._)`${Xe.default.vErrors}[${c}]`),t.if((0,ie._)`${i}.instancePath === undefined`,()=>t.assign((0,ie._)`${i}.instancePath`,(0,ie.strConcat)(Xe.default.instancePath,s.errorPath))),t.assign((0,ie._)`${i}.schemaPath`,(0,ie.str)`${s.errSchemaPath}/${e}`),s.opts.verbose&&(t.assign((0,ie._)`${i}.schema`,r),t.assign((0,ie._)`${i}.data`,n))})}ze.extendErrors=wf;function Bl(t,e){let r=t.const("err",e);t.if((0,ie._)`${Xe.default.vErrors} === null`,()=>t.assign(Xe.default.vErrors,(0,ie._)`[${r}]`),(0,ie._)`${Xe.default.vErrors}.push(${r})`),t.code((0,ie._)`${Xe.default.errors}++`)}function Ul(t,e){let{gen:r,validateName:n,schemaEnv:a}=t;a.$async?r.throw((0,ie._)`new ${t.ValidationError}(${e})`):(r.assign((0,ie._)`${n}.errors`,e),r.return(!1))}var $r={keyword:new ie.Name("keyword"),schemaPath:new ie.Name("schemaPath"),params:new ie.Name("params"),propertyName:new ie.Name("propertyName"),message:new ie.Name("message"),schema:new ie.Name("schema"),parentSchema:new ie.Name("parentSchema")};function Gl(t,e,r){let{createErrors:n}=t.it;return n===!1?(0,ie._)`{}`:Cf(t,e,r)}function Cf(t,e,r={}){let{gen:n,it:a}=t,s=[Mf(a,r),Tf(t,r)];return Pf(t,e,s),n.object(...s)}function Mf({errorPath:t},{instancePath:e}){let r=e?(0,ie.str)`${t}${(0,Va.getErrorPath)(e,Va.Type.Str)}`:t;return[Xe.default.instancePath,(0,ie.strConcat)(Xe.default.instancePath,r)]}function Tf({keyword:t,it:{errSchemaPath:e}},{schemaPath:r,parentSchema:n}){let a=n?e:(0,ie.str)`${e}/${t}`;return r&&(a=(0,ie.str)`${a}${(0,Va.getErrorPath)(r,Va.Type.Str)}`),[$r.schemaPath,a]}function Pf(t,{params:e,message:r},n){let{keyword:a,data:s,schemaValue:i,it:c}=t,{opts:f,propertyName:y,topSchemaRef:p,schemaPath:E}=c;n.push([$r.keyword,a],[$r.params,typeof e=="function"?e(t):e||(0,ie._)`{}`]),f.messages&&n.push([$r.message,typeof r=="function"?r(t):r]),f.verbose&&n.push([$r.schema,i],[$r.parentSchema,(0,ie._)`${p}${E}`],[Xe.default.data,s]),y&&n.push([$r.propertyName,y])}});var Kl=j(zr=>{"use strict";Object.defineProperty(zr,"__esModule",{value:!0});zr.boolOrEmptySchema=zr.topBoolOrEmptySchema=void 0;var kf=Rn(),If=Z(),Df=Yt(),Rf={message:"boolean schema is false"};function Nf(t){let{gen:e,schema:r,validateName:n}=t;r===!1?zl(t,!1):typeof r=="object"&&r.$async===!0?e.return(Df.default.data):(e.assign((0,If._)`${n}.errors`,null),e.return(!0))}zr.topBoolOrEmptySchema=Nf;function Af(t,e){let{gen:r,schema:n}=t;n===!1?(r.var(e,!1),zl(t)):r.var(e,!0)}zr.boolOrEmptySchema=Af;function zl(t,e){let{gen:r,data:n}=t,a={gen:r,keyword:"false schema",data:n,schema:!1,schemaCode:!1,schemaValue:!1,params:{},it:t};(0,kf.reportError)(a,Rf,void 0,e)}});var _i=j(Kr=>{"use strict";Object.defineProperty(Kr,"__esModule",{value:!0});Kr.getRules=Kr.isJSONType=void 0;var Lf=["string","number","integer","boolean","null","object","array"],Of=new Set(Lf);function qf(t){return typeof t=="string"&&Of.has(t)}Kr.isJSONType=qf;function xf(){let t={number:{type:"number",rules:[]},string:{type:"string",rules:[]},array:{type:"array",rules:[]},object:{type:"object",rules:[]}};return{types:Le(ve({},t),{integer:!0,boolean:!0,null:!0}),rules:[{rules:[]},t.number,t.string,t.array,t.object],post:{rules:[]},all:{},keywords:{}}}Kr.getRules=xf});var Ei=j(lr=>{"use strict";Object.defineProperty(lr,"__esModule",{value:!0});lr.shouldUseRule=lr.shouldUseGroup=lr.schemaHasRulesForType=void 0;function jf({schema:t,self:e},r){let n=e.RULES.types[r];return n&&n!==!0&&Wl(t,n)}lr.schemaHasRulesForType=jf;function Wl(t,e){return e.rules.some(r=>Yl(t,r))}lr.shouldUseGroup=Wl;function Yl(t,e){var r;return t[e.keyword]!==void 0||((r=e.definition.implements)===null||r===void 0?void 0:r.some(n=>t[n]!==void 0))}lr.shouldUseRule=Yl});var An=j(je=>{"use strict";Object.defineProperty(je,"__esModule",{value:!0});je.reportTypeError=je.checkDataTypes=je.checkDataType=je.coerceAndCheckDataType=je.getJSONTypes=je.getSchemaTypes=je.DataType=void 0;var Ff=_i(),Hf=Ei(),Vf=Rn(),W=Z(),Jl=ue(),Nn;(function(t){t[t.Correct=0]="Correct",t[t.Wrong=1]="Wrong"})(Nn=je.DataType||(je.DataType={}));function Bf(t){let e=Ql(t.type);if(e.includes("null")){if(t.nullable===!1)throw new Error("type: null contradicts nullable: false")}else{if(!e.length&&t.nullable!==void 0)throw new Error('"nullable" cannot be used without "type"');t.nullable===!0&&e.push("null")}return e}je.getSchemaTypes=Bf;function Ql(t){let e=Array.isArray(t)?t:t?[t]:[];if(e.every(Ff.isJSONType))return e;throw new Error("type must be JSONType or JSONType[]: "+e.join(","))}je.getJSONTypes=Ql;function Uf(t,e){let{gen:r,data:n,opts:a}=t,s=Gf(e,a.coerceTypes),i=e.length>0&&!(s.length===0&&e.length===1&&(0,Hf.schemaHasRulesForType)(t,e[0]));if(i){let c=Si(e,n,a.strictNumbers,Nn.Wrong);r.if(c,()=>{s.length?zf(t,e,s):wi(t)})}return i}je.coerceAndCheckDataType=Uf;var Xl=new Set(["string","number","integer","boolean","null"]);function Gf(t,e){return e?t.filter(r=>Xl.has(r)||e==="array"&&r==="array"):[]}function zf(t,e,r){let{gen:n,data:a,opts:s}=t,i=n.let("dataType",(0,W._)`typeof ${a}`),c=n.let("coerced",(0,W._)`undefined`);s.coerceTypes==="array"&&n.if((0,W._)`${i} == 'object' && Array.isArray(${a}) && ${a}.length == 1`,()=>n.assign(a,(0,W._)`${a}[0]`).assign(i,(0,W._)`typeof ${a}`).if(Si(e,a,s.strictNumbers),()=>n.assign(c,a))),n.if((0,W._)`${c} !== undefined`);for(let y of r)(Xl.has(y)||y==="array"&&s.coerceTypes==="array")&&f(y);n.else(),wi(t),n.endIf(),n.if((0,W._)`${c} !== undefined`,()=>{n.assign(a,c),Kf(t,c)});function f(y){switch(y){case"string":n.elseIf((0,W._)`${i} == "number" || ${i} == "boolean"`).assign(c,(0,W._)`"" + ${a}`).elseIf((0,W._)`${a} === null`).assign(c,(0,W._)`""`);return;case"number":n.elseIf((0,W._)`${i} == "boolean" || ${a} === null
-              || (${i} == "string" && ${a} && ${a} == +${a})`).assign(c,(0,W._)`+${a}`);return;case"integer":n.elseIf((0,W._)`${i} === "boolean" || ${a} === null
-              || (${i} === "string" && ${a} && ${a} == +${a} && !(${a} % 1))`).assign(c,(0,W._)`+${a}`);return;case"boolean":n.elseIf((0,W._)`${a} === "false" || ${a} === 0 || ${a} === null`).assign(c,!1).elseIf((0,W._)`${a} === "true" || ${a} === 1`).assign(c,!0);return;case"null":n.elseIf((0,W._)`${a} === "" || ${a} === 0 || ${a} === false`),n.assign(c,null);return;case"array":n.elseIf((0,W._)`${i} === "string" || ${i} === "number"
-              || ${i} === "boolean" || ${a} === null`).assign(c,(0,W._)`[${a}]`)}}}function Kf({gen:t,parentData:e,parentDataProperty:r},n){t.if((0,W._)`${e} !== undefined`,()=>t.assign((0,W._)`${e}[${r}]`,n))}function $i(t,e,r,n=Nn.Correct){let a=n===Nn.Correct?W.operators.EQ:W.operators.NEQ,s;switch(t){case"null":return(0,W._)`${e} ${a} null`;case"array":s=(0,W._)`Array.isArray(${e})`;break;case"object":s=(0,W._)`${e} && typeof ${e} == "object" && !Array.isArray(${e})`;break;case"integer":s=i((0,W._)`!(${e} % 1) && !isNaN(${e})`);break;case"number":s=i();break;default:return(0,W._)`typeof ${e} ${a} ${t}`}return n===Nn.Correct?s:(0,W.not)(s);function i(c=W.nil){return(0,W.and)((0,W._)`typeof ${e} == "number"`,c,r?(0,W._)`isFinite(${e})`:W.nil)}}je.checkDataType=$i;function Si(t,e,r,n){if(t.length===1)return $i(t[0],e,r,n);let a,s=(0,Jl.toHash)(t);if(s.array&&s.object){let i=(0,W._)`typeof ${e} != "object"`;a=s.null?i:(0,W._)`!${e} || ${i}`,delete s.null,delete s.array,delete s.object}else a=W.nil;s.number&&delete s.integer;for(let i in s)a=(0,W.and)(a,$i(i,e,r,n));return a}je.checkDataTypes=Si;var Wf={message:({schema:t})=>`must be ${t}`,params:({schema:t,schemaValue:e})=>typeof t=="string"?(0,W._)`{type: ${t}}`:(0,W._)`{type: ${e}}`};function wi(t){let e=Yf(t);(0,Vf.reportError)(e,Wf)}je.reportTypeError=wi;function Yf(t){let{gen:e,data:r,schema:n}=t,a=(0,Jl.schemaRefOrVal)(t,n,"type");return{gen:e,keyword:"type",data:r,schema:n.type,schemaCode:a,schemaValue:a,parentSchema:n,params:{},it:t}}});var ec=j(Ba=>{"use strict";Object.defineProperty(Ba,"__esModule",{value:!0});Ba.assignDefaults=void 0;var Wr=Z(),Jf=ue();function Qf(t,e){let{properties:r,items:n}=t.schema;if(e==="object"&&r)for(let a in r)Zl(t,a,r[a].default);else e==="array"&&Array.isArray(n)&&n.forEach((a,s)=>Zl(t,s,a.default))}Ba.assignDefaults=Qf;function Zl(t,e,r){let{gen:n,compositeRule:a,data:s,opts:i}=t;if(r===void 0)return;let c=(0,Wr._)`${s}${(0,Wr.getProperty)(e)}`;if(a){(0,Jf.checkStrictMode)(t,`default is ignored for: ${c}`);return}let f=(0,Wr._)`${c} === undefined`;i.useDefaults==="empty"&&(f=(0,Wr._)`${f} || ${c} === null || ${c} === ""`),n.if(f,(0,Wr._)`${c} = ${(0,Wr.stringify)(r)}`)}});var gt=j(ye=>{"use strict";Object.defineProperty(ye,"__esModule",{value:!0});ye.validateUnion=ye.validateArray=ye.usePattern=ye.callValidateCode=ye.schemaProperties=ye.allSchemaProperties=ye.noPropertyInData=ye.propertyInData=ye.isOwnProperty=ye.hasPropFunc=ye.reportMissingProp=ye.checkMissingProp=ye.checkReportMissingProp=void 0;var Se=Z(),Ci=ue(),cr=Yt(),Xf=ue();function Zf(t,e){let{gen:r,data:n,it:a}=t;r.if(Ti(r,n,e,a.opts.ownProperties),()=>{t.setParams({missingProperty:(0,Se._)`${e}`},!0),t.error()})}ye.checkReportMissingProp=Zf;function em({gen:t,data:e,it:{opts:r}},n,a){return(0,Se.or)(...n.map(s=>(0,Se.and)(Ti(t,e,s,r.ownProperties),(0,Se._)`${a} = ${s}`)))}ye.checkMissingProp=em;function tm(t,e){t.setParams({missingProperty:e},!0),t.error()}ye.reportMissingProp=tm;function tc(t){return t.scopeValue("func",{ref:Object.prototype.hasOwnProperty,code:(0,Se._)`Object.prototype.hasOwnProperty`})}ye.hasPropFunc=tc;function Mi(t,e,r){return(0,Se._)`${tc(t)}.call(${e}, ${r})`}ye.isOwnProperty=Mi;function rm(t,e,r,n){let a=(0,Se._)`${e}${(0,Se.getProperty)(r)} !== undefined`;return n?(0,Se._)`${a} && ${Mi(t,e,r)}`:a}ye.propertyInData=rm;function Ti(t,e,r,n){let a=(0,Se._)`${e}${(0,Se.getProperty)(r)} === undefined`;return n?(0,Se.or)(a,(0,Se.not)(Mi(t,e,r))):a}ye.noPropertyInData=Ti;function rc(t){return t?Object.keys(t).filter(e=>e!=="__proto__"):[]}ye.allSchemaProperties=rc;function nm(t,e){return rc(e).filter(r=>!(0,Ci.alwaysValidSchema)(t,e[r]))}ye.schemaProperties=nm;function am({schemaCode:t,data:e,it:{gen:r,topSchemaRef:n,schemaPath:a,errorPath:s},it:i},c,f,y){let p=y?(0,Se._)`${t}, ${e}, ${n}${a}`:e,E=[[cr.default.instancePath,(0,Se.strConcat)(cr.default.instancePath,s)],[cr.default.parentData,i.parentData],[cr.default.parentDataProperty,i.parentDataProperty],[cr.default.rootData,cr.default.rootData]];i.opts.dynamicRef&&E.push([cr.default.dynamicAnchors,cr.default.dynamicAnchors]);let _=(0,Se._)`${p}, ${r.object(...E)}`;return f!==Se.nil?(0,Se._)`${c}.call(${f}, ${_})`:(0,Se._)`${c}(${_})`}ye.callValidateCode=am;var sm=(0,Se._)`new RegExp`;function im({gen:t,it:{opts:e}},r){let n=e.unicodeRegExp?"u":"",{regExp:a}=e.code,s=a(r,n);return t.scopeValue("pattern",{key:s.toString(),ref:s,code:(0,Se._)`${a.code==="new RegExp"?sm:(0,Xf.useFunc)(t,a)}(${r}, ${n})`})}ye.usePattern=im;function om(t){let{gen:e,data:r,keyword:n,it:a}=t,s=e.name("valid");if(a.allErrors){let c=e.let("valid",!0);return i(()=>e.assign(c,!1)),c}return e.var(s,!0),i(()=>e.break()),s;function i(c){let f=e.const("len",(0,Se._)`${r}.length`);e.forRange("i",0,f,y=>{t.subschema({keyword:n,dataProp:y,dataPropType:Ci.Type.Num},s),e.if((0,Se.not)(s),c)})}}ye.validateArray=om;function lm(t){let{gen:e,schema:r,keyword:n,it:a}=t;if(!Array.isArray(r))throw new Error("ajv implementation error");if(r.some(f=>(0,Ci.alwaysValidSchema)(a,f))&&!a.opts.unevaluated)return;let i=e.let("valid",!1),c=e.name("_valid");e.block(()=>r.forEach((f,y)=>{let p=t.subschema({keyword:n,schemaProp:y,compositeRule:!0},c);e.assign(i,(0,Se._)`${i} || ${c}`),t.mergeValidEvaluated(p,c)||e.if((0,Se.not)(i))})),t.result(i,()=>t.reset(),()=>t.error(!0))}ye.validateUnion=lm});var sc=j(jt=>{"use strict";Object.defineProperty(jt,"__esModule",{value:!0});jt.validateKeywordUsage=jt.validSchemaType=jt.funcKeywordCode=jt.macroKeywordCode=void 0;var Ze=Z(),Sr=Yt(),cm=gt(),um=Rn();function dm(t,e){let{gen:r,keyword:n,schema:a,parentSchema:s,it:i}=t,c=e.macro.call(i.self,a,s,i),f=ac(r,n,c);i.opts.validateSchema!==!1&&i.self.validateSchema(c,!0);let y=r.name("valid");t.subschema({schema:c,schemaPath:Ze.nil,errSchemaPath:`${i.errSchemaPath}/${n}`,topSchemaRef:f,compositeRule:!0},y),t.pass(y,()=>t.error(!0))}jt.macroKeywordCode=dm;function fm(t,e){var r;let{gen:n,keyword:a,schema:s,parentSchema:i,$data:c,it:f}=t;pm(f,e);let y=!c&&e.compile?e.compile.call(f.self,s,i,f):e.validate,p=ac(n,a,y),E=n.let("valid");t.block$data(E,_),t.ok((r=e.valid)!==null&&r!==void 0?r:E);function _(){if(e.errors===!1)M(),e.modifying&&nc(t),R(()=>t.error());else{let N=e.async?$():C();e.modifying&&nc(t),R(()=>mm(t,N))}}function $(){let N=n.let("ruleErrs",null);return n.try(()=>M((0,Ze._)`await `),U=>n.assign(E,!1).if((0,Ze._)`${U} instanceof ${f.ValidationError}`,()=>n.assign(N,(0,Ze._)`${U}.errors`),()=>n.throw(U))),N}function C(){let N=(0,Ze._)`${p}.errors`;return n.assign(N,null),M(Ze.nil),N}function M(N=e.async?(0,Ze._)`await `:Ze.nil){let U=f.opts.passContext?Sr.default.this:Sr.default.self,H=!("compile"in e&&!c||e.schema===!1);n.assign(E,(0,Ze._)`${N}${(0,cm.callValidateCode)(t,p,U,H)}`,e.modifying)}function R(N){var U;n.if((0,Ze.not)((U=e.valid)!==null&&U!==void 0?U:E),N)}}jt.funcKeywordCode=fm;function nc(t){let{gen:e,data:r,it:n}=t;e.if(n.parentData,()=>e.assign(r,(0,Ze._)`${n.parentData}[${n.parentDataProperty}]`))}function mm(t,e){let{gen:r}=t;r.if((0,Ze._)`Array.isArray(${e})`,()=>{r.assign(Sr.default.vErrors,(0,Ze._)`${Sr.default.vErrors} === null ? ${e} : ${Sr.default.vErrors}.concat(${e})`).assign(Sr.default.errors,(0,Ze._)`${Sr.default.vErrors}.length`),(0,um.extendErrors)(t)},()=>t.error())}function pm({schemaEnv:t},e){if(e.async&&!t.$async)throw new Error("async keyword in sync schema")}function ac(t,e,r){if(r===void 0)throw new Error(`keyword "${e}" failed to compile`);return t.scopeValue("keyword",typeof r=="function"?{ref:r}:{ref:r,code:(0,Ze.stringify)(r)})}function hm(t,e,r=!1){return!e.length||e.some(n=>n==="array"?Array.isArray(t):n==="object"?t&&typeof t=="object"&&!Array.isArray(t):typeof t==n||r&&typeof t>"u")}jt.validSchemaType=hm;function vm({schema:t,opts:e,self:r,errSchemaPath:n},a,s){if(Array.isArray(a.keyword)?!a.keyword.includes(s):a.keyword!==s)throw new Error("ajv implementation error");let i=a.dependencies;if(i!=null&&i.some(c=>!Object.prototype.hasOwnProperty.call(t,c)))throw new Error(`parent schema must have dependencies of ${s}: ${i.join(",")}`);if(a.validateSchema&&!a.validateSchema(t[s])){let f=`keyword "${s}" value is invalid at path "${n}": `+r.errorsText(a.validateSchema.errors);if(e.validateSchema==="log")r.logger.error(f);else throw new Error(f)}}jt.validateKeywordUsage=vm});var oc=j(ur=>{"use strict";Object.defineProperty(ur,"__esModule",{value:!0});ur.extendSubschemaMode=ur.extendSubschemaData=ur.getSubschema=void 0;var Ft=Z(),ic=ue();function gm(t,{keyword:e,schemaProp:r,schema:n,schemaPath:a,errSchemaPath:s,topSchemaRef:i}){if(e!==void 0&&n!==void 0)throw new Error('both "keyword" and "schema" passed, only one allowed');if(e!==void 0){let c=t.schema[e];return r===void 0?{schema:c,schemaPath:(0,Ft._)`${t.schemaPath}${(0,Ft.getProperty)(e)}`,errSchemaPath:`${t.errSchemaPath}/${e}`}:{schema:c[r],schemaPath:(0,Ft._)`${t.schemaPath}${(0,Ft.getProperty)(e)}${(0,Ft.getProperty)(r)}`,errSchemaPath:`${t.errSchemaPath}/${e}/${(0,ic.escapeFragment)(r)}`}}if(n!==void 0){if(a===void 0||s===void 0||i===void 0)throw new Error('"schemaPath", "errSchemaPath" and "topSchemaRef" are required with "schema"');return{schema:n,schemaPath:a,topSchemaRef:i,errSchemaPath:s}}throw new Error('either "keyword" or "schema" must be passed')}ur.getSubschema=gm;function ym(t,e,{dataProp:r,dataPropType:n,data:a,dataTypes:s,propertyName:i}){if(a!==void 0&&r!==void 0)throw new Error('both "data" and "dataProp" passed, only one allowed');let{gen:c}=e;if(r!==void 0){let{errorPath:y,dataPathArr:p,opts:E}=e,_=c.let("data",(0,Ft._)`${e.data}${(0,Ft.getProperty)(r)}`,!0);f(_),t.errorPath=(0,Ft.str)`${y}${(0,ic.getErrorPath)(r,n,E.jsPropertySyntax)}`,t.parentDataProperty=(0,Ft._)`${r}`,t.dataPathArr=[...p,t.parentDataProperty]}if(a!==void 0){let y=a instanceof Ft.Name?a:c.let("data",a,!0);f(y),i!==void 0&&(t.propertyName=i)}s&&(t.dataTypes=s);function f(y){t.data=y,t.dataLevel=e.dataLevel+1,t.dataTypes=[],e.definedProperties=new Set,t.parentData=e.data,t.dataNames=[...e.dataNames,y]}}ur.extendSubschemaData=ym;function bm(t,{jtdDiscriminator:e,jtdMetadata:r,compositeRule:n,createErrors:a,allErrors:s}){n!==void 0&&(t.compositeRule=n),a!==void 0&&(t.createErrors=a),s!==void 0&&(t.allErrors=s),t.jtdDiscriminator=e,t.jtdMetadata=r}ur.extendSubschemaMode=bm});var Pi=j((Ib,lc)=>{"use strict";lc.exports=function t(e,r){if(e===r)return!0;if(e&&r&&typeof e=="object"&&typeof r=="object"){if(e.constructor!==r.constructor)return!1;var n,a,s;if(Array.isArray(e)){if(n=e.length,n!=r.length)return!1;for(a=n;a--!==0;)if(!t(e[a],r[a]))return!1;return!0}if(e.constructor===RegExp)return e.source===r.source&&e.flags===r.flags;if(e.valueOf!==Object.prototype.valueOf)return e.valueOf()===r.valueOf();if(e.toString!==Object.prototype.toString)return e.toString()===r.toString();if(s=Object.keys(e),n=s.length,n!==Object.keys(r).length)return!1;for(a=n;a--!==0;)if(!Object.prototype.hasOwnProperty.call(r,s[a]))return!1;for(a=n;a--!==0;){var i=s[a];if(!t(e[i],r[i]))return!1}return!0}return e!==e&&r!==r}});var uc=j((Db,cc)=>{"use strict";var dr=cc.exports=function(t,e,r){typeof e=="function"&&(r=e,e={}),r=e.cb||r;var n=typeof r=="function"?r:r.pre||function(){},a=r.post||function(){};Ua(e,n,a,t,"",t)};dr.keywords={additionalItems:!0,items:!0,contains:!0,additionalProperties:!0,propertyNames:!0,not:!0,if:!0,then:!0,else:!0};dr.arrayKeywords={items:!0,allOf:!0,anyOf:!0,oneOf:!0};dr.propsKeywords={$defs:!0,definitions:!0,properties:!0,patternProperties:!0,dependencies:!0};dr.skipKeywords={default:!0,enum:!0,const:!0,required:!0,maximum:!0,minimum:!0,exclusiveMaximum:!0,exclusiveMinimum:!0,multipleOf:!0,maxLength:!0,minLength:!0,pattern:!0,format:!0,maxItems:!0,minItems:!0,uniqueItems:!0,maxProperties:!0,minProperties:!0};function Ua(t,e,r,n,a,s,i,c,f,y){if(n&&typeof n=="object"&&!Array.isArray(n)){e(n,a,s,i,c,f,y);for(var p in n){var E=n[p];if(Array.isArray(E)){if(p in dr.arrayKeywords)for(var _=0;_<E.length;_++)Ua(t,e,r,E[_],a+"/"+p+"/"+_,s,a,p,n,_)}else if(p in dr.propsKeywords){if(E&&typeof E=="object")for(var $ in E)Ua(t,e,r,E[$],a+"/"+p+"/"+_m($),s,a,p,n,$)}else(p in dr.keywords||t.allKeys&&!(p in dr.skipKeywords))&&Ua(t,e,r,E,a+"/"+p,s,a,p,n)}r(n,a,s,i,c,f,y)}}function _m(t){return t.replace(/~/g,"~0").replace(/\//g,"~1")}});var Ln=j(ot=>{"use strict";Object.defineProperty(ot,"__esModule",{value:!0});ot.getSchemaRefs=ot.resolveUrl=ot.normalizeId=ot._getFullPath=ot.getFullPath=ot.inlineRef=void 0;var Em=ue(),$m=Pi(),Sm=uc(),wm=new Set(["type","format","pattern","maxLength","minLength","maxProperties","minProperties","maxItems","minItems","maximum","minimum","uniqueItems","multipleOf","required","enum","const"]);function Cm(t,e=!0){return typeof t=="boolean"?!0:e===!0?!ki(t):e?dc(t)<=e:!1}ot.inlineRef=Cm;var Mm=new Set(["$ref","$recursiveRef","$recursiveAnchor","$dynamicRef","$dynamicAnchor"]);function ki(t){for(let e in t){if(Mm.has(e))return!0;let r=t[e];if(Array.isArray(r)&&r.some(ki)||typeof r=="object"&&ki(r))return!0}return!1}function dc(t){let e=0;for(let r in t){if(r==="$ref")return 1/0;if(e++,!wm.has(r)&&(typeof t[r]=="object"&&(0,Em.eachItem)(t[r],n=>e+=dc(n)),e===1/0))return 1/0}return e}function fc(t,e="",r){r!==!1&&(e=Yr(e));let n=t.parse(e);return mc(t,n)}ot.getFullPath=fc;function mc(t,e){return t.serialize(e).split("#")[0]+"#"}ot._getFullPath=mc;var Tm=/#\/?$/;function Yr(t){return t?t.replace(Tm,""):""}ot.normalizeId=Yr;function Pm(t,e,r){return r=Yr(r),t.resolve(e,r)}ot.resolveUrl=Pm;var km=/^[a-z_][-a-z0-9._]*$/i;function Im(t,e){if(typeof t=="boolean")return{};let{schemaId:r,uriResolver:n}=this.opts,a=Yr(t[r]||e),s={"":a},i=fc(n,a,!1),c={},f=new Set;return Sm(t,{allKeys:!0},(E,_,$,C)=>{if(C===void 0)return;let M=i+_,R=s[C];typeof E[r]=="string"&&(R=N.call(this,E[r])),U.call(this,E.$anchor),U.call(this,E.$dynamicAnchor),s[_]=R;function N(H){let oe=this.opts.uriResolver.resolve;if(H=Yr(R?oe(R,H):H),f.has(H))throw p(H);f.add(H);let B=this.refs[H];return typeof B=="string"&&(B=this.refs[B]),typeof B=="object"?y(E,B.schema,H):H!==Yr(M)&&(H[0]==="#"?(y(E,c[H],H),c[H]=E):this.refs[H]=M),H}function U(H){if(typeof H=="string"){if(!km.test(H))throw new Error(`invalid anchor "${H}"`);N.call(this,`#${H}`)}}}),c;function y(E,_,$){if(_!==void 0&&!$m(E,_))throw p($)}function p(E){return new Error(`reference "${E}" resolves to more than one schema`)}}ot.getSchemaRefs=Im});var xn=j(fr=>{"use strict";Object.defineProperty(fr,"__esModule",{value:!0});fr.getData=fr.KeywordCxt=fr.validateFunctionCode=void 0;var bc=Kl(),pc=An(),Di=Ei(),Ga=An(),Dm=ec(),qn=sc(),Ii=oc(),V=Z(),G=Yt(),Rm=Ln(),Jt=ue(),On=Rn();function Nm(t){if($c(t)&&(Sc(t),Ec(t))){Om(t);return}_c(t,()=>(0,bc.topBoolOrEmptySchema)(t))}fr.validateFunctionCode=Nm;function _c({gen:t,validateName:e,schema:r,schemaEnv:n,opts:a},s){a.code.es5?t.func(e,(0,V._)`${G.default.data}, ${G.default.valCxt}`,n.$async,()=>{t.code((0,V._)`"use strict"; ${hc(r,a)}`),Lm(t,a),t.code(s)}):t.func(e,(0,V._)`${G.default.data}, ${Am(a)}`,n.$async,()=>t.code(hc(r,a)).code(s))}function Am(t){return(0,V._)`{${G.default.instancePath}="", ${G.default.parentData}, ${G.default.parentDataProperty}, ${G.default.rootData}=${G.default.data}${t.dynamicRef?(0,V._)`, ${G.default.dynamicAnchors}={}`:V.nil}}={}`}function Lm(t,e){t.if(G.default.valCxt,()=>{t.var(G.default.instancePath,(0,V._)`${G.default.valCxt}.${G.default.instancePath}`),t.var(G.default.parentData,(0,V._)`${G.default.valCxt}.${G.default.parentData}`),t.var(G.default.parentDataProperty,(0,V._)`${G.default.valCxt}.${G.default.parentDataProperty}`),t.var(G.default.rootData,(0,V._)`${G.default.valCxt}.${G.default.rootData}`),e.dynamicRef&&t.var(G.default.dynamicAnchors,(0,V._)`${G.default.valCxt}.${G.default.dynamicAnchors}`)},()=>{t.var(G.default.instancePath,(0,V._)`""`),t.var(G.default.parentData,(0,V._)`undefined`),t.var(G.default.parentDataProperty,(0,V._)`undefined`),t.var(G.default.rootData,G.default.data),e.dynamicRef&&t.var(G.default.dynamicAnchors,(0,V._)`{}`)})}function Om(t){let{schema:e,opts:r,gen:n}=t;_c(t,()=>{r.$comment&&e.$comment&&Cc(t),Hm(t),n.let(G.default.vErrors,null),n.let(G.default.errors,0),r.unevaluated&&qm(t),wc(t),Um(t)})}function qm(t){let{gen:e,validateName:r}=t;t.evaluated=e.const("evaluated",(0,V._)`${r}.evaluated`),e.if((0,V._)`${t.evaluated}.dynamicProps`,()=>e.assign((0,V._)`${t.evaluated}.props`,(0,V._)`undefined`)),e.if((0,V._)`${t.evaluated}.dynamicItems`,()=>e.assign((0,V._)`${t.evaluated}.items`,(0,V._)`undefined`))}function hc(t,e){let r=typeof t=="object"&&t[e.schemaId];return r&&(e.code.source||e.code.process)?(0,V._)`/*# sourceURL=${r} */`:V.nil}function xm(t,e){if($c(t)&&(Sc(t),Ec(t))){jm(t,e);return}(0,bc.boolOrEmptySchema)(t,e)}function Ec({schema:t,self:e}){if(typeof t=="boolean")return!t;for(let r in t)if(e.RULES.all[r])return!0;return!1}function $c(t){return typeof t.schema!="boolean"}function jm(t,e){let{schema:r,gen:n,opts:a}=t;a.$comment&&r.$comment&&Cc(t),Vm(t),Bm(t);let s=n.const("_errs",G.default.errors);wc(t,s),n.var(e,(0,V._)`${s} === ${G.default.errors}`)}function Sc(t){(0,Jt.checkUnknownRules)(t),Fm(t)}function wc(t,e){if(t.opts.jtd)return vc(t,[],!1,e);let r=(0,pc.getSchemaTypes)(t.schema),n=(0,pc.coerceAndCheckDataType)(t,r);vc(t,r,!n,e)}function Fm(t){let{schema:e,errSchemaPath:r,opts:n,self:a}=t;e.$ref&&n.ignoreKeywordsWithRef&&(0,Jt.schemaHasRulesButRef)(e,a.RULES)&&a.logger.warn(`$ref: keywords ignored in schema at path "${r}"`)}function Hm(t){let{schema:e,opts:r}=t;e.default!==void 0&&r.useDefaults&&r.strictSchema&&(0,Jt.checkStrictMode)(t,"default is ignored in the schema root")}function Vm(t){let e=t.schema[t.opts.schemaId];e&&(t.baseId=(0,Rm.resolveUrl)(t.opts.uriResolver,t.baseId,e))}function Bm(t){if(t.schema.$async&&!t.schemaEnv.$async)throw new Error("async schema in sync schema")}function Cc({gen:t,schemaEnv:e,schema:r,errSchemaPath:n,opts:a}){let s=r.$comment;if(a.$comment===!0)t.code((0,V._)`${G.default.self}.logger.log(${s})`);else if(typeof a.$comment=="function"){let i=(0,V.str)`${n}/$comment`,c=t.scopeValue("root",{ref:e.root});t.code((0,V._)`${G.default.self}.opts.$comment(${s}, ${i}, ${c}.schema)`)}}function Um(t){let{gen:e,schemaEnv:r,validateName:n,ValidationError:a,opts:s}=t;r.$async?e.if((0,V._)`${G.default.errors} === 0`,()=>e.return(G.default.data),()=>e.throw((0,V._)`new ${a}(${G.default.vErrors})`)):(e.assign((0,V._)`${n}.errors`,G.default.vErrors),s.unevaluated&&Gm(t),e.return((0,V._)`${G.default.errors} === 0`))}function Gm({gen:t,evaluated:e,props:r,items:n}){r instanceof V.Name&&t.assign((0,V._)`${e}.props`,r),n instanceof V.Name&&t.assign((0,V._)`${e}.items`,n)}function vc(t,e,r,n){let{gen:a,schema:s,data:i,allErrors:c,opts:f,self:y}=t,{RULES:p}=y;if(s.$ref&&(f.ignoreKeywordsWithRef||!(0,Jt.schemaHasRulesButRef)(s,p))){a.block(()=>Mc(t,"$ref",p.all.$ref.definition));return}f.jtd||zm(t,e),a.block(()=>{for(let _ of p.rules)E(_);E(p.post)});function E(_){!(0,Di.shouldUseGroup)(s,_)||(_.type?(a.if((0,Ga.checkDataType)(_.type,i,f.strictNumbers)),gc(t,_),e.length===1&&e[0]===_.type&&r&&(a.else(),(0,Ga.reportTypeError)(t)),a.endIf()):gc(t,_),c||a.if((0,V._)`${G.default.errors} === ${n||0}`))}}function gc(t,e){let{gen:r,schema:n,opts:{useDefaults:a}}=t;a&&(0,Dm.assignDefaults)(t,e.type),r.block(()=>{for(let s of e.rules)(0,Di.shouldUseRule)(n,s)&&Mc(t,s.keyword,s.definition,e.type)})}function zm(t,e){t.schemaEnv.meta||!t.opts.strictTypes||(Km(t,e),t.opts.allowUnionTypes||Wm(t,e),Ym(t,t.dataTypes))}function Km(t,e){if(!!e.length){if(!t.dataTypes.length){t.dataTypes=e;return}e.forEach(r=>{yc(t.dataTypes,r)||Ri(t,`type "${r}" not allowed by context "${t.dataTypes.join(",")}"`)}),t.dataTypes=t.dataTypes.filter(r=>yc(e,r))}}function Wm(t,e){e.length>1&&!(e.length===2&&e.includes("null"))&&Ri(t,"use allowUnionTypes to allow union type keyword")}function Ym(t,e){let r=t.self.RULES.all;for(let n in r){let a=r[n];if(typeof a=="object"&&(0,Di.shouldUseRule)(t.schema,a)){let{type:s}=a.definition;s.length&&!s.some(i=>Jm(e,i))&&Ri(t,`missing type "${s.join(",")}" for keyword "${n}"`)}}}function Jm(t,e){return t.includes(e)||e==="number"&&t.includes("integer")}function yc(t,e){return t.includes(e)||e==="integer"&&t.includes("number")}function Ri(t,e){let r=t.schemaEnv.baseId+t.errSchemaPath;e+=` at "${r}" (strictTypes)`,(0,Jt.checkStrictMode)(t,e,t.opts.strictTypes)}var za=class{constructor(e,r,n){if((0,qn.validateKeywordUsage)(e,r,n),this.gen=e.gen,this.allErrors=e.allErrors,this.keyword=n,this.data=e.data,this.schema=e.schema[n],this.$data=r.$data&&e.opts.$data&&this.schema&&this.schema.$data,this.schemaValue=(0,Jt.schemaRefOrVal)(e,this.schema,n,this.$data),this.schemaType=r.schemaType,this.parentSchema=e.schema,this.params={},this.it=e,this.def=r,this.$data)this.schemaCode=e.gen.const("vSchema",Tc(this.$data,e));else if(this.schemaCode=this.schemaValue,!(0,qn.validSchemaType)(this.schema,r.schemaType,r.allowUndefined))throw new Error(`${n} value must be ${JSON.stringify(r.schemaType)}`);("code"in r?r.trackErrors:r.errors!==!1)&&(this.errsCount=e.gen.const("_errs",G.default.errors))}result(e,r,n){this.failResult((0,V.not)(e),r,n)}failResult(e,r,n){this.gen.if(e),n?n():this.error(),r?(this.gen.else(),r(),this.allErrors&&this.gen.endIf()):this.allErrors?this.gen.endIf():this.gen.else()}pass(e,r){this.failResult((0,V.not)(e),void 0,r)}fail(e){if(e===void 0){this.error(),this.allErrors||this.gen.if(!1);return}this.gen.if(e),this.error(),this.allErrors?this.gen.endIf():this.gen.else()}fail$data(e){if(!this.$data)return this.fail(e);let{schemaCode:r}=this;this.fail((0,V._)`${r} !== undefined && (${(0,V.or)(this.invalid$data(),e)})`)}error(e,r,n){if(r){this.setParams(r),this._error(e,n),this.setParams({});return}this._error(e,n)}_error(e,r){(e?On.reportExtraError:On.reportError)(this,this.def.error,r)}$dataError(){(0,On.reportError)(this,this.def.$dataError||On.keyword$DataError)}reset(){if(this.errsCount===void 0)throw new Error('add "trackErrors" to keyword definition');(0,On.resetErrorsCount)(this.gen,this.errsCount)}ok(e){this.allErrors||this.gen.if(e)}setParams(e,r){r?Object.assign(this.params,e):this.params=e}block$data(e,r,n=V.nil){this.gen.block(()=>{this.check$data(e,n),r()})}check$data(e=V.nil,r=V.nil){if(!this.$data)return;let{gen:n,schemaCode:a,schemaType:s,def:i}=this;n.if((0,V.or)((0,V._)`${a} === undefined`,r)),e!==V.nil&&n.assign(e,!0),(s.length||i.validateSchema)&&(n.elseIf(this.invalid$data()),this.$dataError(),e!==V.nil&&n.assign(e,!1)),n.else()}invalid$data(){let{gen:e,schemaCode:r,schemaType:n,def:a,it:s}=this;return(0,V.or)(i(),c());function i(){if(n.length){if(!(r instanceof V.Name))throw new Error("ajv implementation error");let f=Array.isArray(n)?n:[n];return(0,V._)`${(0,Ga.checkDataTypes)(f,r,s.opts.strictNumbers,Ga.DataType.Wrong)}`}return V.nil}function c(){if(a.validateSchema){let f=e.scopeValue("validate$data",{ref:a.validateSchema});return(0,V._)`!${f}(${r})`}return V.nil}}subschema(e,r){let n=(0,Ii.getSubschema)(this.it,e);(0,Ii.extendSubschemaData)(n,this.it,e),(0,Ii.extendSubschemaMode)(n,e);let a=Le(ve(ve({},this.it),n),{items:void 0,props:void 0});return xm(a,r),a}mergeEvaluated(e,r){let{it:n,gen:a}=this;!n.opts.unevaluated||(n.props!==!0&&e.props!==void 0&&(n.props=Jt.mergeEvaluated.props(a,e.props,n.props,r)),n.items!==!0&&e.items!==void 0&&(n.items=Jt.mergeEvaluated.items(a,e.items,n.items,r)))}mergeValidEvaluated(e,r){let{it:n,gen:a}=this;if(n.opts.unevaluated&&(n.props!==!0||n.items!==!0))return a.if(r,()=>this.mergeEvaluated(e,V.Name)),!0}};fr.KeywordCxt=za;function Mc(t,e,r,n){let a=new za(t,r,e);"code"in r?r.code(a,n):a.$data&&r.validate?(0,qn.funcKeywordCode)(a,r):"macro"in r?(0,qn.macroKeywordCode)(a,r):(r.compile||r.validate)&&(0,qn.funcKeywordCode)(a,r)}var Qm=/^\/(?:[^~]|~0|~1)*$/,Xm=/^([0-9]+)(#|\/(?:[^~]|~0|~1)*)?$/;function Tc(t,{dataLevel:e,dataNames:r,dataPathArr:n}){let a,s;if(t==="")return G.default.rootData;if(t[0]==="/"){if(!Qm.test(t))throw new Error(`Invalid JSON-pointer: ${t}`);a=t,s=G.default.rootData}else{let y=Xm.exec(t);if(!y)throw new Error(`Invalid JSON-pointer: ${t}`);let p=+y[1];if(a=y[2],a==="#"){if(p>=e)throw new Error(f("property/index",p));return n[e-p]}if(p>e)throw new Error(f("data",p));if(s=r[e-p],!a)return s}let i=s,c=a.split("/");for(let y of c)y&&(s=(0,V._)`${s}${(0,V.getProperty)((0,Jt.unescapeJsonPointer)(y))}`,i=(0,V._)`${i} && ${s}`);return i;function f(y,p){return`Cannot access ${y} ${p} levels up, current level is ${e}`}}fr.getData=Tc});var Ka=j(Ai=>{"use strict";Object.defineProperty(Ai,"__esModule",{value:!0});var Ni=class extends Error{constructor(e){super("validation failed"),this.errors=e,this.ajv=this.validation=!0}};Ai.default=Ni});var Wa=j(qi=>{"use strict";Object.defineProperty(qi,"__esModule",{value:!0});var Li=Ln(),Oi=class extends Error{constructor(e,r,n,a){super(a||`can't resolve reference ${n} from id ${r}`),this.missingRef=(0,Li.resolveUrl)(e,r,n),this.missingSchema=(0,Li.normalizeId)((0,Li.getFullPath)(e,this.missingRef))}};qi.default=Oi});var Ja=j(yt=>{"use strict";Object.defineProperty(yt,"__esModule",{value:!0});yt.resolveSchema=yt.getCompilingSchema=yt.resolveRef=yt.compileSchema=yt.SchemaEnv=void 0;var Tt=Z(),Zm=Ka(),wr=Yt(),Pt=Ln(),Pc=ue(),ep=xn(),Jr=class{constructor(e){var r;this.refs={},this.dynamicAnchors={};let n;typeof e.schema=="object"&&(n=e.schema),this.schema=e.schema,this.schemaId=e.schemaId,this.root=e.root||this,this.baseId=(r=e.baseId)!==null&&r!==void 0?r:(0,Pt.normalizeId)(n==null?void 0:n[e.schemaId||"$id"]),this.schemaPath=e.schemaPath,this.localRefs=e.localRefs,this.meta=e.meta,this.$async=n==null?void 0:n.$async,this.refs={}}};yt.SchemaEnv=Jr;function ji(t){let e=kc.call(this,t);if(e)return e;let r=(0,Pt.getFullPath)(this.opts.uriResolver,t.root.baseId),{es5:n,lines:a}=this.opts.code,{ownProperties:s}=this.opts,i=new Tt.CodeGen(this.scope,{es5:n,lines:a,ownProperties:s}),c;t.$async&&(c=i.scopeValue("Error",{ref:Zm.default,code:(0,Tt._)`require("ajv/dist/runtime/validation_error").default`}));let f=i.scopeName("validate");t.validateName=f;let y={gen:i,allErrors:this.opts.allErrors,data:wr.default.data,parentData:wr.default.parentData,parentDataProperty:wr.default.parentDataProperty,dataNames:[wr.default.data],dataPathArr:[Tt.nil],dataLevel:0,dataTypes:[],definedProperties:new Set,topSchemaRef:i.scopeValue("schema",this.opts.code.source===!0?{ref:t.schema,code:(0,Tt.stringify)(t.schema)}:{ref:t.schema}),validateName:f,ValidationError:c,schema:t.schema,schemaEnv:t,rootId:r,baseId:t.baseId||r,schemaPath:Tt.nil,errSchemaPath:t.schemaPath||(this.opts.jtd?"":"#"),errorPath:(0,Tt._)`""`,opts:this.opts,self:this},p;try{this._compilations.add(t),(0,ep.validateFunctionCode)(y),i.optimize(this.opts.code.optimize);let E=i.toString();p=`${i.scopeRefs(wr.default.scope)}return ${E}`,this.opts.code.process&&(p=this.opts.code.process(p,t));let $=new Function(`${wr.default.self}`,`${wr.default.scope}`,p)(this,this.scope.get());if(this.scope.value(f,{ref:$}),$.errors=null,$.schema=t.schema,$.schemaEnv=t,t.$async&&($.$async=!0),this.opts.code.source===!0&&($.source={validateName:f,validateCode:E,scopeValues:i._values}),this.opts.unevaluated){let{props:C,items:M}=y;$.evaluated={props:C instanceof Tt.Name?void 0:C,items:M instanceof Tt.Name?void 0:M,dynamicProps:C instanceof Tt.Name,dynamicItems:M instanceof Tt.Name},$.source&&($.source.evaluated=(0,Tt.stringify)($.evaluated))}return t.validate=$,t}catch(E){throw delete t.validate,delete t.validateName,p&&this.logger.error("Error compiling schema, function code:",p),E}finally{this._compilations.delete(t)}}yt.compileSchema=ji;function tp(t,e,r){var n;r=(0,Pt.resolveUrl)(this.opts.uriResolver,e,r);let a=t.refs[r];if(a)return a;let s=ap.call(this,t,r);if(s===void 0){let i=(n=t.localRefs)===null||n===void 0?void 0:n[r],{schemaId:c}=this.opts;i&&(s=new Jr({schema:i,schemaId:c,root:t,baseId:e}))}if(s!==void 0)return t.refs[r]=rp.call(this,s)}yt.resolveRef=tp;function rp(t){return(0,Pt.inlineRef)(t.schema,this.opts.inlineRefs)?t.schema:t.validate?t:ji.call(this,t)}function kc(t){for(let e of this._compilations)if(np(e,t))return e}yt.getCompilingSchema=kc;function np(t,e){return t.schema===e.schema&&t.root===e.root&&t.baseId===e.baseId}function ap(t,e){let r;for(;typeof(r=this.refs[e])=="string";)e=r;return r||this.schemas[e]||Ya.call(this,t,e)}function Ya(t,e){let r=this.opts.uriResolver.parse(e),n=(0,Pt._getFullPath)(this.opts.uriResolver,r),a=(0,Pt.getFullPath)(this.opts.uriResolver,t.baseId,void 0);if(Object.keys(t.schema).length>0&&n===a)return xi.call(this,r,t);let s=(0,Pt.normalizeId)(n),i=this.refs[s]||this.schemas[s];if(typeof i=="string"){let c=Ya.call(this,t,i);return typeof(c==null?void 0:c.schema)!="object"?void 0:xi.call(this,r,c)}if(typeof(i==null?void 0:i.schema)=="object"){if(i.validate||ji.call(this,i),s===(0,Pt.normalizeId)(e)){let{schema:c}=i,{schemaId:f}=this.opts,y=c[f];return y&&(a=(0,Pt.resolveUrl)(this.opts.uriResolver,a,y)),new Jr({schema:c,schemaId:f,root:t,baseId:a})}return xi.call(this,r,i)}}yt.resolveSchema=Ya;var sp=new Set(["properties","patternProperties","enum","dependencies","definitions"]);function xi(t,{baseId:e,schema:r,root:n}){var a;if(((a=t.fragment)===null||a===void 0?void 0:a[0])!=="/")return;for(let c of t.fragment.slice(1).split("/")){if(typeof r=="boolean")return;let f=r[(0,Pc.unescapeFragment)(c)];if(f===void 0)return;r=f;let y=typeof r=="object"&&r[this.opts.schemaId];!sp.has(c)&&y&&(e=(0,Pt.resolveUrl)(this.opts.uriResolver,e,y))}let s;if(typeof r!="boolean"&&r.$ref&&!(0,Pc.schemaHasRulesButRef)(r,this.RULES)){let c=(0,Pt.resolveUrl)(this.opts.uriResolver,e,r.$ref);s=Ya.call(this,n,c)}let{schemaId:i}=this.opts;if(s=s||new Jr({schema:r,schemaId:i,root:n,baseId:e}),s.schema!==s.root.schema)return s}});var Ic=j((xb,ip)=>{ip.exports={$id:"https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",description:"Meta-schema for $data reference (JSON AnySchema extension proposal)",type:"object",required:["$data"],properties:{$data:{type:"string",anyOf:[{format:"relative-json-pointer"},{format:"json-pointer"}]}},additionalProperties:!1}});var Rc=j((Qa,Dc)=>{(function(t,e){typeof Qa=="object"&&typeof Dc<"u"?e(Qa):typeof define=="function"&&define.amd?define(["exports"],e):e(t.URI=t.URI||{})})(Qa,function(t){"use strict";function e(){for(var m=arguments.length,u=Array(m),h=0;h<m;h++)u[h]=arguments[h];if(u.length>1){u[0]=u[0].slice(0,-1);for(var S=u.length-1,w=1;w<S;++w)u[w]=u[w].slice(1,-1);return u[S]=u[S].slice(1),u.join("")}else return u[0]}function r(m){return"(?:"+m+")"}function n(m){return m===void 0?"undefined":m===null?"null":Object.prototype.toString.call(m).split(" ").pop().split("]").shift().toLowerCase()}function a(m){return m.toUpperCase()}function s(m){return m!=null?m instanceof Array?m:typeof m.length!="number"||m.split||m.setInterval||m.call?[m]:Array.prototype.slice.call(m):[]}function i(m,u){var h=m;if(u)for(var S in u)h[S]=u[S];return h}function c(m){var u="[A-Za-z]",h="[\\x0D]",S="[0-9]",w="[\\x22]",q=e(S,"[A-Fa-f]"),K="[\\x0A]",re="[\\x20]",de=r(r("%[EFef]"+q+"%"+q+q+"%"+q+q)+"|"+r("%[89A-Fa-f]"+q+"%"+q+q)+"|"+r("%"+q+q)),Me="[\\:\\/\\?\\#\\[\\]\\@]",ee="[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]",Ee=e(Me,ee),Te=m?"[\\xA0-\\u200D\\u2010-\\u2029\\u202F-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF]":"[]",_e=m?"[\\uE000-\\uF8FF]":"[]",se=e(u,S,"[\\-\\.\\_\\~]",Te),$e=r(u+e(u,S,"[\\+\\-\\.]")+"*"),me=r(r(de+"|"+e(se,ee,"[\\:]"))+"*"),Bt=r(r("25[0-5]")+"|"+r("2[0-4]"+S)+"|"+r("1"+S+S)+"|"+r("[1-9]"+S)+"|"+S),Ve=r(r("25[0-5]")+"|"+r("2[0-4]"+S)+"|"+r("1"+S+S)+"|"+r("0?[1-9]"+S)+"|0?0?"+S),Ne=r(Ve+"\\."+Ve+"\\."+Ve+"\\."+Ve),pe=r(q+"{1,4}"),Re=r(r(pe+"\\:"+pe)+"|"+Ne),nt=r(r(pe+"\\:")+"{6}"+Re),Ke=r("\\:\\:"+r(pe+"\\:")+"{5}"+Re),St=r(r(pe)+"?\\:\\:"+r(pe+"\\:")+"{4}"+Re),wt=r(r(r(pe+"\\:")+"{0,1}"+pe)+"?\\:\\:"+r(pe+"\\:")+"{3}"+Re),pr=r(r(r(pe+"\\:")+"{0,2}"+pe)+"?\\:\\:"+r(pe+"\\:")+"{2}"+Re),nr=r(r(r(pe+"\\:")+"{0,3}"+pe)+"?\\:\\:"+pe+"\\:"+Re),Rr=r(r(r(pe+"\\:")+"{0,4}"+pe)+"?\\:\\:"+Re),ar=r(r(r(pe+"\\:")+"{0,5}"+pe)+"?\\:\\:"+pe),o=r(r(r(pe+"\\:")+"{0,6}"+pe)+"?\\:\\:"),d=r([nt,Ke,St,wt,pr,nr,Rr,ar,o].join("|")),l=r(r(se+"|"+de)+"+"),g=r(d+"\\%25"+l),b=r(d+r("\\%25|\\%(?!"+q+"{2})")+l),v=r("[vV]"+q+"+\\."+e(se,ee,"[\\:]")+"+"),T=r("\\["+r(b+"|"+d+"|"+v)+"\\]"),k=r(r(de+"|"+e(se,ee))+"*"),I=r(T+"|"+Ne+"(?!"+k+")|"+k),D=r(S+"*"),A=r(r(me+"@")+"?"+I+r("\\:"+D)+"?"),F=r(de+"|"+e(se,ee,"[\\:\\@]")),Y=r(F+"*"),le=r(F+"+"),fe=r(r(de+"|"+e(se,ee,"[\\@]"))+"+"),he=r(r("\\/"+Y)+"*"),ge=r("\\/"+r(le+he)+"?"),Be=r(fe+he),Rt=r(le+he),Nt="(?!"+F+")",Ao=r(he+"|"+ge+"|"+Be+"|"+Rt+"|"+Nt),At=r(r(F+"|"+e("[\\/\\?]",_e))+"*"),Nr=r(r(F+"|[\\/\\?]")+"*"),ha=r(r("\\/\\/"+A+he)+"|"+ge+"|"+Rt+"|"+Nt),ws=r($e+"\\:"+ha+r("\\?"+At)+"?"+r("\\#"+Nr)+"?"),va=r(r("\\/\\/"+A+he)+"|"+ge+"|"+Be+"|"+Nt),ad=r(va+r("\\?"+At)+"?"+r("\\#"+Nr)+"?"),Qv=r(ws+"|"+ad),Xv=r($e+"\\:"+ha+r("\\?"+At)+"?"),Zv="^("+$e+")\\:"+r(r("\\/\\/("+r("("+me+")@")+"?("+I+")"+r("\\:("+D+")")+"?)")+"?("+he+"|"+ge+"|"+Rt+"|"+Nt+")")+r("\\?("+At+")")+"?"+r("\\#("+Nr+")")+"?$",eg="^(){0}"+r(r("\\/\\/("+r("("+me+")@")+"?("+I+")"+r("\\:("+D+")")+"?)")+"?("+he+"|"+ge+"|"+Be+"|"+Nt+")")+r("\\?("+At+")")+"?"+r("\\#("+Nr+")")+"?$",tg="^("+$e+")\\:"+r(r("\\/\\/("+r("("+me+")@")+"?("+I+")"+r("\\:("+D+")")+"?)")+"?("+he+"|"+ge+"|"+Rt+"|"+Nt+")")+r("\\?("+At+")")+"?$",rg="^"+r("\\#("+Nr+")")+"?$",ng="^"+r("("+me+")@")+"?("+I+")"+r("\\:("+D+")")+"?$";return{NOT_SCHEME:new RegExp(e("[^]",u,S,"[\\+\\-\\.]"),"g"),NOT_USERINFO:new RegExp(e("[^\\%\\:]",se,ee),"g"),NOT_HOST:new RegExp(e("[^\\%\\[\\]\\:]",se,ee),"g"),NOT_PATH:new RegExp(e("[^\\%\\/\\:\\@]",se,ee),"g"),NOT_PATH_NOSCHEME:new RegExp(e("[^\\%\\/\\@]",se,ee),"g"),NOT_QUERY:new RegExp(e("[^\\%]",se,ee,"[\\:\\@\\/\\?]",_e),"g"),NOT_FRAGMENT:new RegExp(e("[^\\%]",se,ee,"[\\:\\@\\/\\?]"),"g"),ESCAPE:new RegExp(e("[^]",se,ee),"g"),UNRESERVED:new RegExp(se,"g"),OTHER_CHARS:new RegExp(e("[^\\%]",se,Ee),"g"),PCT_ENCODED:new RegExp(de,"g"),IPV4ADDRESS:new RegExp("^("+Ne+")$"),IPV6ADDRESS:new RegExp("^\\[?("+d+")"+r(r("\\%25|\\%(?!"+q+"{2})")+"("+l+")")+"?\\]?$")}}var f=c(!1),y=c(!0),p=function(){function m(u,h){var S=[],w=!0,q=!1,K=void 0;try{for(var re=u[Symbol.iterator](),de;!(w=(de=re.next()).done)&&(S.push(de.value),!(h&&S.length===h));w=!0);}catch(Me){q=!0,K=Me}finally{try{!w&&re.return&&re.return()}finally{if(q)throw K}}return S}return function(u,h){if(Array.isArray(u))return u;if(Symbol.iterator in Object(u))return m(u,h);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),E=function(m){if(Array.isArray(m)){for(var u=0,h=Array(m.length);u<m.length;u++)h[u]=m[u];return h}else return Array.from(m)},_=2147483647,$=36,C=1,M=26,R=38,N=700,U=72,H=128,oe="-",B=/^xn--/,L=/[^\0-\x7E]/,J=/[\x2E\u3002\uFF0E\uFF61]/g,z={overflow:"Overflow: input needs wider integers to process","not-basic":"Illegal input >= 0x80 (not a basic code point)","invalid-input":"Invalid input"},te=$-C,ae=Math.floor,ke=String.fromCharCode;function we(m){throw new RangeError(z[m])}function Ae(m,u){for(var h=[],S=m.length;S--;)h[S]=u(m[S]);return h}function et(m,u){var h=m.split("@"),S="";h.length>1&&(S=h[0]+"@",m=h[1]),m=m.replace(J,".");var w=m.split("."),q=Ae(w,u).join(".");return S+q}function Qt(m){for(var u=[],h=0,S=m.length;h<S;){var w=m.charCodeAt(h++);if(w>=55296&&w<=56319&&h<S){var q=m.charCodeAt(h++);(q&64512)==56320?u.push(((w&1023)<<10)+(q&1023)+65536):(u.push(w),h--)}else u.push(w)}return u}var Pr=function(u){return String.fromCodePoint.apply(String,E(u))},rn=function(u){return u-48<10?u-22:u-65<26?u-65:u-97<26?u-97:$},Vt=function(u,h){return u+22+75*(u<26)-((h!=0)<<5)},nn=function(u,h,S){var w=0;for(u=S?ae(u/N):u>>1,u+=ae(u/h);u>te*M>>1;w+=$)u=ae(u/te);return ae(w+(te+1)*u/(u+R))},Xn=function(u){var h=[],S=u.length,w=0,q=H,K=U,re=u.lastIndexOf(oe);re<0&&(re=0);for(var de=0;de<re;++de)u.charCodeAt(de)>=128&&we("not-basic"),h.push(u.charCodeAt(de));for(var Me=re>0?re+1:0;Me<S;){for(var ee=w,Ee=1,Te=$;;Te+=$){Me>=S&&we("invalid-input");var _e=rn(u.charCodeAt(Me++));(_e>=$||_e>ae((_-w)/Ee))&&we("overflow"),w+=_e*Ee;var se=Te<=K?C:Te>=K+M?M:Te-K;if(_e<se)break;var $e=$-se;Ee>ae(_/$e)&&we("overflow"),Ee*=$e}var me=h.length+1;K=nn(w-ee,me,ee==0),ae(w/me)>_-q&&we("overflow"),q+=ae(w/me),w%=me,h.splice(w++,0,q)}return String.fromCodePoint.apply(String,h)},Zn=function(u){var h=[];u=Qt(u);var S=u.length,w=H,q=0,K=U,re=!0,de=!1,Me=void 0;try{for(var ee=u[Symbol.iterator](),Ee;!(re=(Ee=ee.next()).done);re=!0){var Te=Ee.value;Te<128&&h.push(ke(Te))}}catch(b){de=!0,Me=b}finally{try{!re&&ee.return&&ee.return()}finally{if(de)throw Me}}var _e=h.length,se=_e;for(_e&&h.push(oe);se<S;){var $e=_,me=!0,Bt=!1,Ve=void 0;try{for(var Ne=u[Symbol.iterator](),pe;!(me=(pe=Ne.next()).done);me=!0){var Re=pe.value;Re>=w&&Re<$e&&($e=Re)}}catch(b){Bt=!0,Ve=b}finally{try{!me&&Ne.return&&Ne.return()}finally{if(Bt)throw Ve}}var nt=se+1;$e-w>ae((_-q)/nt)&&we("overflow"),q+=($e-w)*nt,w=$e;var Ke=!0,St=!1,wt=void 0;try{for(var pr=u[Symbol.iterator](),nr;!(Ke=(nr=pr.next()).done);Ke=!0){var Rr=nr.value;if(Rr<w&&++q>_&&we("overflow"),Rr==w){for(var ar=q,o=$;;o+=$){var d=o<=K?C:o>=K+M?M:o-K;if(ar<d)break;var l=ar-d,g=$-d;h.push(ke(Vt(d+l%g,0))),ar=ae(l/g)}h.push(ke(Vt(ar,0))),K=nn(q,nt,se==_e),q=0,++se}}}catch(b){St=!0,wt=b}finally{try{!Ke&&pr.return&&pr.return()}finally{if(St)throw wt}}++q,++w}return h.join("")},_t=function(u){return et(u,function(h){return B.test(h)?Xn(h.slice(4).toLowerCase()):h})},ea=function(u){return et(u,function(h){return L.test(h)?"xn--"+Zn(h):h})},Xt={version:"2.1.0",ucs2:{decode:Qt,encode:Pr},decode:Xn,encode:Zn,toASCII:ea,toUnicode:_t},tt={};function ct(m){var u=m.charCodeAt(0),h=void 0;return u<16?h="%0"+u.toString(16).toUpperCase():u<128?h="%"+u.toString(16).toUpperCase():u<2048?h="%"+(u>>6|192).toString(16).toUpperCase()+"%"+(u&63|128).toString(16).toUpperCase():h="%"+(u>>12|224).toString(16).toUpperCase()+"%"+(u>>6&63|128).toString(16).toUpperCase()+"%"+(u&63|128).toString(16).toUpperCase(),h}function Zt(m){for(var u="",h=0,S=m.length;h<S;){var w=parseInt(m.substr(h+1,2),16);if(w<128)u+=String.fromCharCode(w),h+=3;else if(w>=194&&w<224){if(S-h>=6){var q=parseInt(m.substr(h+4,2),16);u+=String.fromCharCode((w&31)<<6|q&63)}else u+=m.substr(h,6);h+=6}else if(w>=224){if(S-h>=9){var K=parseInt(m.substr(h+4,2),16),re=parseInt(m.substr(h+7,2),16);u+=String.fromCharCode((w&15)<<12|(K&63)<<6|re&63)}else u+=m.substr(h,9);h+=9}else u+=m.substr(h,3),h+=3}return u}function an(m,u){function h(S){var w=Zt(S);return w.match(u.UNRESERVED)?w:S}return m.scheme&&(m.scheme=String(m.scheme).replace(u.PCT_ENCODED,h).toLowerCase().replace(u.NOT_SCHEME,"")),m.userinfo!==void 0&&(m.userinfo=String(m.userinfo).replace(u.PCT_ENCODED,h).replace(u.NOT_USERINFO,ct).replace(u.PCT_ENCODED,a)),m.host!==void 0&&(m.host=String(m.host).replace(u.PCT_ENCODED,h).toLowerCase().replace(u.NOT_HOST,ct).replace(u.PCT_ENCODED,a)),m.path!==void 0&&(m.path=String(m.path).replace(u.PCT_ENCODED,h).replace(m.scheme?u.NOT_PATH:u.NOT_PATH_NOSCHEME,ct).replace(u.PCT_ENCODED,a)),m.query!==void 0&&(m.query=String(m.query).replace(u.PCT_ENCODED,h).replace(u.NOT_QUERY,ct).replace(u.PCT_ENCODED,a)),m.fragment!==void 0&&(m.fragment=String(m.fragment).replace(u.PCT_ENCODED,h).replace(u.NOT_FRAGMENT,ct).replace(u.PCT_ENCODED,a)),m}function sn(m){return m.replace(/^0*(.*)/,"$1")||"0"}function on(m,u){var h=m.match(u.IPV4ADDRESS)||[],S=p(h,2),w=S[1];return w?w.split(".").map(sn).join("."):m}function ta(m,u){var h=m.match(u.IPV6ADDRESS)||[],S=p(h,3),w=S[1],q=S[2];if(w){for(var K=w.toLowerCase().split("::").reverse(),re=p(K,2),de=re[0],Me=re[1],ee=Me?Me.split(":").map(sn):[],Ee=de.split(":").map(sn),Te=u.IPV4ADDRESS.test(Ee[Ee.length-1]),_e=Te?7:8,se=Ee.length-_e,$e=Array(_e),me=0;me<_e;++me)$e[me]=ee[me]||Ee[se+me]||"";Te&&($e[_e-1]=on($e[_e-1],u));var Bt=$e.reduce(function(nt,Ke,St){if(!Ke||Ke==="0"){var wt=nt[nt.length-1];wt&&wt.index+wt.length===St?wt.length++:nt.push({index:St,length:1})}return nt},[]),Ve=Bt.sort(function(nt,Ke){return Ke.length-nt.length})[0],Ne=void 0;if(Ve&&Ve.length>1){var pe=$e.slice(0,Ve.index),Re=$e.slice(Ve.index+Ve.length);Ne=pe.join(":")+"::"+Re.join(":")}else Ne=$e.join(":");return q&&(Ne+="%"+q),Ne}else return m}var hs=/^(?:([^:\/?#]+):)?(?:\/\/((?:([^\/?#@]*)@)?(\[[^\/?#\]]+\]|[^\/?#:]*)(?:\:(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#((?:.|\n|\r)*))?/i,vs="".match(/(){0}/)[1]===void 0;function Et(m){var u=arguments.length>1&&arguments[1]!==void 0?arguments[1]:{},h={},S=u.iri!==!1?y:f;u.reference==="suffix"&&(m=(u.scheme?u.scheme+":":"")+"//"+m);var w=m.match(hs);if(w){vs?(h.scheme=w[1],h.userinfo=w[3],h.host=w[4],h.port=parseInt(w[5],10),h.path=w[6]||"",h.query=w[7],h.fragment=w[8],isNaN(h.port)&&(h.port=w[5])):(h.scheme=w[1]||void 0,h.userinfo=m.indexOf("@")!==-1?w[3]:void 0,h.host=m.indexOf("//")!==-1?w[4]:void 0,h.port=parseInt(w[5],10),h.path=w[6]||"",h.query=m.indexOf("?")!==-1?w[7]:void 0,h.fragment=m.indexOf("#")!==-1?w[8]:void 0,isNaN(h.port)&&(h.port=m.match(/\/\/(?:.|\n)*\:(?:\/|\?|\#|$)/)?w[4]:void 0)),h.host&&(h.host=ta(on(h.host,S),S)),h.scheme===void 0&&h.userinfo===void 0&&h.host===void 0&&h.port===void 0&&!h.path&&h.query===void 0?h.reference="same-document":h.scheme===void 0?h.reference="relative":h.fragment===void 0?h.reference="absolute":h.reference="uri",u.reference&&u.reference!=="suffix"&&u.reference!==h.reference&&(h.error=h.error||"URI is not a "+u.reference+" reference.");var q=tt[(u.scheme||h.scheme||"").toLowerCase()];if(!u.unicodeSupport&&(!q||!q.unicodeSupport)){if(h.host&&(u.domainHost||q&&q.domainHost))try{h.host=Xt.toASCII(h.host.replace(S.PCT_ENCODED,Zt).toLowerCase())}catch(K){h.error=h.error||"Host's domain name can not be converted to ASCII via punycode: "+K}an(h,f)}else an(h,S);q&&q.parse&&q.parse(h,u)}else h.error=h.error||"URI can not be parsed.";return h}function gs(m,u){var h=u.iri!==!1?y:f,S=[];return m.userinfo!==void 0&&(S.push(m.userinfo),S.push("@")),m.host!==void 0&&S.push(ta(on(String(m.host),h),h).replace(h.IPV6ADDRESS,function(w,q,K){return"["+q+(K?"%25"+K:"")+"]"})),(typeof m.port=="number"||typeof m.port=="string")&&(S.push(":"),S.push(String(m.port))),S.length?S.join(""):void 0}var $t=/^\.\.?\//,ra=/^\/\.(\/|$)/,ln=/^\/\.\.(\/|$)/,kr=/^\/?(?:.|\n)*?(?=\/|$)/;function It(m){for(var u=[];m.length;)if(m.match($t))m=m.replace($t,"");else if(m.match(ra))m=m.replace(ra,"/");else if(m.match(ln))m=m.replace(ln,"/"),u.pop();else if(m==="."||m==="..")m="";else{var h=m.match(kr);if(h){var S=h[0];m=m.slice(S.length),u.push(S)}else throw new Error("Unexpected dot segment condition")}return u.join("")}function rt(m){var u=arguments.length>1&&arguments[1]!==void 0?arguments[1]:{},h=u.iri?y:f,S=[],w=tt[(u.scheme||m.scheme||"").toLowerCase()];if(w&&w.serialize&&w.serialize(m,u),m.host&&!h.IPV6ADDRESS.test(m.host)){if(u.domainHost||w&&w.domainHost)try{m.host=u.iri?Xt.toUnicode(m.host):Xt.toASCII(m.host.replace(h.PCT_ENCODED,Zt).toLowerCase())}catch(re){m.error=m.error||"Host's domain name can not be converted to "+(u.iri?"Unicode":"ASCII")+" via punycode: "+re}}an(m,h),u.reference!=="suffix"&&m.scheme&&(S.push(m.scheme),S.push(":"));var q=gs(m,u);if(q!==void 0&&(u.reference!=="suffix"&&S.push("//"),S.push(q),m.path&&m.path.charAt(0)!=="/"&&S.push("/")),m.path!==void 0){var K=m.path;!u.absolutePath&&(!w||!w.absolutePath)&&(K=It(K)),q===void 0&&(K=K.replace(/^\/\//,"/%2F")),S.push(K)}return m.query!==void 0&&(S.push("?"),S.push(m.query)),m.fragment!==void 0&&(S.push("#"),S.push(m.fragment)),S.join("")}function Ir(m,u){var h=arguments.length>2&&arguments[2]!==void 0?arguments[2]:{},S=arguments[3],w={};return S||(m=Et(rt(m,h),h),u=Et(rt(u,h),h)),h=h||{},!h.tolerant&&u.scheme?(w.scheme=u.scheme,w.userinfo=u.userinfo,w.host=u.host,w.port=u.port,w.path=It(u.path||""),w.query=u.query):(u.userinfo!==void 0||u.host!==void 0||u.port!==void 0?(w.userinfo=u.userinfo,w.host=u.host,w.port=u.port,w.path=It(u.path||""),w.query=u.query):(u.path?(u.path.charAt(0)==="/"?w.path=It(u.path):((m.userinfo!==void 0||m.host!==void 0||m.port!==void 0)&&!m.path?w.path="/"+u.path:m.path?w.path=m.path.slice(0,m.path.lastIndexOf("/")+1)+u.path:w.path=u.path,w.path=It(w.path)),w.query=u.query):(w.path=m.path,u.query!==void 0?w.query=u.query:w.query=m.query),w.userinfo=m.userinfo,w.host=m.host,w.port=m.port),w.scheme=m.scheme),w.fragment=u.fragment,w}function na(m,u,h){var S=i({scheme:"null"},h);return rt(Ir(Et(m,S),Et(u,S),S,!0),S)}function aa(m,u){return typeof m=="string"?m=rt(Et(m,u),u):n(m)==="object"&&(m=Et(rt(m,u),u)),m}function sa(m,u,h){return typeof m=="string"?m=rt(Et(m,h),h):n(m)==="object"&&(m=rt(m,h)),typeof u=="string"?u=rt(Et(u,h),h):n(u)==="object"&&(u=rt(u,h)),m===u}function ia(m,u){return m&&m.toString().replace(!u||!u.iri?f.ESCAPE:y.ESCAPE,ct)}function ut(m,u){return m&&m.toString().replace(!u||!u.iri?f.PCT_ENCODED:y.PCT_ENCODED,Zt)}var er={scheme:"http",domainHost:!0,parse:function(u,h){return u.host||(u.error=u.error||"HTTP URIs must have a host."),u},serialize:function(u,h){var S=String(u.scheme).toLowerCase()==="https";return(u.port===(S?443:80)||u.port==="")&&(u.port=void 0),u.path||(u.path="/"),u}},cn={scheme:"https",domainHost:er.domainHost,parse:er.parse,serialize:er.serialize};function un(m){return typeof m.secure=="boolean"?m.secure:String(m.scheme).toLowerCase()==="wss"}var tr={scheme:"ws",domainHost:!0,parse:function(u,h){var S=u;return S.secure=un(S),S.resourceName=(S.path||"/")+(S.query?"?"+S.query:""),S.path=void 0,S.query=void 0,S},serialize:function(u,h){if((u.port===(un(u)?443:80)||u.port==="")&&(u.port=void 0),typeof u.secure=="boolean"&&(u.scheme=u.secure?"wss":"ws",u.secure=void 0),u.resourceName){var S=u.resourceName.split("?"),w=p(S,2),q=w[0],K=w[1];u.path=q&&q!=="/"?q:void 0,u.query=K,u.resourceName=void 0}return u.fragment=void 0,u}},dn={scheme:"wss",domainHost:tr.domainHost,parse:tr.parse,serialize:tr.serialize},oa={},la=!0,Dr="[A-Za-z0-9\\-\\.\\_\\~"+(la?"\\xA0-\\u200D\\u2010-\\u2029\\u202F-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF":"")+"]",dt="[0-9A-Fa-f]",ys=r(r("%[EFef]"+dt+"%"+dt+dt+"%"+dt+dt)+"|"+r("%[89A-Fa-f]"+dt+"%"+dt+dt)+"|"+r("%"+dt+dt)),fn="[A-Za-z0-9\\!\\$\\%\\'\\*\\+\\-\\^\\_\\`\\{\\|\\}\\~]",ca="[\\!\\$\\%\\'\\(\\)\\*\\+\\,\\-\\.0-9\\<\\>A-Z\\x5E-\\x7E]",bs=e(ca,'[\\"\\\\]'),Dt="[\\!\\$\\'\\(\\)\\*\\+\\,\\;\\:\\@]",_s=new RegExp(Dr,"g"),rr=new RegExp(ys,"g"),ua=new RegExp(e("[^]",fn,"[\\.]",'[\\"]',bs),"g"),da=new RegExp(e("[^]",Dr,Dt),"g"),Es=da;function mn(m){var u=Zt(m);return u.match(_s)?u:m}var fa={scheme:"mailto",parse:function(u,h){var S=u,w=S.to=S.path?S.path.split(","):[];if(S.path=void 0,S.query){for(var q=!1,K={},re=S.query.split("&"),de=0,Me=re.length;de<Me;++de){var ee=re[de].split("=");switch(ee[0]){case"to":for(var Ee=ee[1].split(","),Te=0,_e=Ee.length;Te<_e;++Te)w.push(Ee[Te]);break;case"subject":S.subject=ut(ee[1],h);break;case"body":S.body=ut(ee[1],h);break;default:q=!0,K[ut(ee[0],h)]=ut(ee[1],h);break}}q&&(S.headers=K)}S.query=void 0;for(var se=0,$e=w.length;se<$e;++se){var me=w[se].split("@");if(me[0]=ut(me[0]),h.unicodeSupport)me[1]=ut(me[1],h).toLowerCase();else try{me[1]=Xt.toASCII(ut(me[1],h).toLowerCase())}catch(Bt){S.error=S.error||"Email address's domain name can not be converted to ASCII via punycode: "+Bt}w[se]=me.join("@")}return S},serialize:function(u,h){var S=u,w=s(u.to);if(w){for(var q=0,K=w.length;q<K;++q){var re=String(w[q]),de=re.lastIndexOf("@"),Me=re.slice(0,de).replace(rr,mn).replace(rr,a).replace(ua,ct),ee=re.slice(de+1);try{ee=h.iri?Xt.toUnicode(ee):Xt.toASCII(ut(ee,h).toLowerCase())}catch(se){S.error=S.error||"Email address's domain name can not be converted to "+(h.iri?"Unicode":"ASCII")+" via punycode: "+se}w[q]=Me+"@"+ee}S.path=w.join(",")}var Ee=u.headers=u.headers||{};u.subject&&(Ee.subject=u.subject),u.body&&(Ee.body=u.body);var Te=[];for(var _e in Ee)Ee[_e]!==oa[_e]&&Te.push(_e.replace(rr,mn).replace(rr,a).replace(da,ct)+"="+Ee[_e].replace(rr,mn).replace(rr,a).replace(Es,ct));return Te.length&&(S.query=Te.join("&")),S}},$s=/^([^\:]+)\:(.*)/,ma={scheme:"urn",parse:function(u,h){var S=u.path&&u.path.match($s),w=u;if(S){var q=h.scheme||w.scheme||"urn",K=S[1].toLowerCase(),re=S[2],de=q+":"+(h.nid||K),Me=tt[de];w.nid=K,w.nss=re,w.path=void 0,Me&&(w=Me.parse(w,h))}else w.error=w.error||"URN can not be parsed.";return w},serialize:function(u,h){var S=h.scheme||u.scheme||"urn",w=u.nid,q=S+":"+(h.nid||w),K=tt[q];K&&(u=K.serialize(u,h));var re=u,de=u.nss;return re.path=(w||h.nid)+":"+de,re}},Ss=/^[0-9A-Fa-f]{8}(?:\-[0-9A-Fa-f]{4}){3}\-[0-9A-Fa-f]{12}$/,pa={scheme:"urn:uuid",parse:function(u,h){var S=u;return S.uuid=S.nss,S.nss=void 0,!h.tolerant&&(!S.uuid||!S.uuid.match(Ss))&&(S.error=S.error||"UUID is not valid."),S},serialize:function(u,h){var S=u;return S.nss=(u.uuid||"").toLowerCase(),S}};tt[er.scheme]=er,tt[cn.scheme]=cn,tt[tr.scheme]=tr,tt[dn.scheme]=dn,tt[fa.scheme]=fa,tt[ma.scheme]=ma,tt[pa.scheme]=pa,t.SCHEMES=tt,t.pctEncChar=ct,t.pctDecChars=Zt,t.parse=Et,t.removeDotSegments=It,t.serialize=rt,t.resolveComponents=Ir,t.resolve=na,t.normalize=aa,t.equal=sa,t.escapeComponent=ia,t.unescapeComponent=ut,Object.defineProperty(t,"__esModule",{value:!0})})});var Ac=j(Fi=>{"use strict";Object.defineProperty(Fi,"__esModule",{value:!0});var Nc=Rc();Nc.code='require("ajv/dist/runtime/uri").default';Fi.default=Nc});var Vc=j(Fe=>{"use strict";Object.defineProperty(Fe,"__esModule",{value:!0});Fe.CodeGen=Fe.Name=Fe.nil=Fe.stringify=Fe.str=Fe._=Fe.KeywordCxt=void 0;var op=xn();Object.defineProperty(Fe,"KeywordCxt",{enumerable:!0,get:function(){return op.KeywordCxt}});var Qr=Z();Object.defineProperty(Fe,"_",{enumerable:!0,get:function(){return Qr._}});Object.defineProperty(Fe,"str",{enumerable:!0,get:function(){return Qr.str}});Object.defineProperty(Fe,"stringify",{enumerable:!0,get:function(){return Qr.stringify}});Object.defineProperty(Fe,"nil",{enumerable:!0,get:function(){return Qr.nil}});Object.defineProperty(Fe,"Name",{enumerable:!0,get:function(){return Qr.Name}});Object.defineProperty(Fe,"CodeGen",{enumerable:!0,get:function(){return Qr.CodeGen}});var lp=Ka(),jc=Wa(),cp=_i(),jn=Ja(),up=Z(),Fn=Ln(),Xa=An(),Vi=ue(),Lc=Ic(),dp=Ac(),Fc=(t,e)=>new RegExp(t,e);Fc.code="new RegExp";var fp=["removeAdditional","useDefaults","coerceTypes"],mp=new Set(["validate","serialize","parse","wrapper","root","schema","keyword","pattern","formats","validate$data","func","obj","Error"]),pp={errorDataPath:"",format:"`validateFormats: false` can be used instead.",nullable:'"nullable" keyword is supported by default.',jsonPointers:"Deprecated jsPropertySyntax can be used instead.",extendRefs:"Deprecated ignoreKeywordsWithRef can be used instead.",missingRefs:"Pass empty schema with $id that should be ignored to ajv.addSchema.",processCode:"Use option `code: {process: (code, schemaEnv: object) => string}`",sourceCode:"Use option `code: {source: true}`",strictDefaults:"It is default now, see option `strict`.",strictKeywords:"It is default now, see option `strict`.",uniqueItems:'"uniqueItems" keyword is always validated.',unknownFormats:"Disable strict mode or pass `true` to `ajv.addFormat` (or `formats` option).",cache:"Map is used as cache, schema object as key.",serialize:"Map is used as cache, schema object as key.",ajvErrors:"It is default now."},hp={ignoreKeywordsWithRef:"",jsPropertySyntax:"",unicode:'"minLength"/"maxLength" account for unicode characters by default.'},Oc=200;function vp(t){var e,r,n,a,s,i,c,f,y,p,E,_,$,C,M,R,N,U,H,oe,B,L,J,z,te;let ae=t.strict,ke=(e=t.code)===null||e===void 0?void 0:e.optimize,we=ke===!0||ke===void 0?1:ke||0,Ae=(n=(r=t.code)===null||r===void 0?void 0:r.regExp)!==null&&n!==void 0?n:Fc,et=(a=t.uriResolver)!==null&&a!==void 0?a:dp.default;return{strictSchema:(i=(s=t.strictSchema)!==null&&s!==void 0?s:ae)!==null&&i!==void 0?i:!0,strictNumbers:(f=(c=t.strictNumbers)!==null&&c!==void 0?c:ae)!==null&&f!==void 0?f:!0,strictTypes:(p=(y=t.strictTypes)!==null&&y!==void 0?y:ae)!==null&&p!==void 0?p:"log",strictTuples:(_=(E=t.strictTuples)!==null&&E!==void 0?E:ae)!==null&&_!==void 0?_:"log",strictRequired:(C=($=t.strictRequired)!==null&&$!==void 0?$:ae)!==null&&C!==void 0?C:!1,code:t.code?Le(ve({},t.code),{optimize:we,regExp:Ae}):{optimize:we,regExp:Ae},loopRequired:(M=t.loopRequired)!==null&&M!==void 0?M:Oc,loopEnum:(R=t.loopEnum)!==null&&R!==void 0?R:Oc,meta:(N=t.meta)!==null&&N!==void 0?N:!0,messages:(U=t.messages)!==null&&U!==void 0?U:!0,inlineRefs:(H=t.inlineRefs)!==null&&H!==void 0?H:!0,schemaId:(oe=t.schemaId)!==null&&oe!==void 0?oe:"$id",addUsedSchema:(B=t.addUsedSchema)!==null&&B!==void 0?B:!0,validateSchema:(L=t.validateSchema)!==null&&L!==void 0?L:!0,validateFormats:(J=t.validateFormats)!==null&&J!==void 0?J:!0,unicodeRegExp:(z=t.unicodeRegExp)!==null&&z!==void 0?z:!0,int32range:(te=t.int32range)!==null&&te!==void 0?te:!0,uriResolver:et}}var Hn=class{constructor(e={}){this.schemas={},this.refs={},this.formats={},this._compilations=new Set,this._loading={},this._cache=new Map,e=this.opts=ve(ve({},e),vp(e));let{es5:r,lines:n}=this.opts.code;this.scope=new up.ValueScope({scope:{},prefixes:mp,es5:r,lines:n}),this.logger=$p(e.logger);let a=e.validateFormats;e.validateFormats=!1,this.RULES=(0,cp.getRules)(),qc.call(this,pp,e,"NOT SUPPORTED"),qc.call(this,hp,e,"DEPRECATED","warn"),this._metaOpts=_p.call(this),e.formats&&yp.call(this),this._addVocabularies(),this._addDefaultMetaSchema(),e.keywords&&bp.call(this,e.keywords),typeof e.meta=="object"&&this.addMetaSchema(e.meta),gp.call(this),e.validateFormats=a}_addVocabularies(){this.addKeyword("$async")}_addDefaultMetaSchema(){let{$data:e,meta:r,schemaId:n}=this.opts,a=Lc;n==="id"&&(a=ve({},Lc),a.id=a.$id,delete a.$id),r&&e&&this.addMetaSchema(a,a[n],!1)}defaultMeta(){let{meta:e,schemaId:r}=this.opts;return this.opts.defaultMeta=typeof e=="object"?e[r]||e:void 0}validate(e,r){let n;if(typeof e=="string"){if(n=this.getSchema(e),!n)throw new Error(`no schema with key or ref "${e}"`)}else n=this.compile(e);let a=n(r);return"$async"in n||(this.errors=n.errors),a}compile(e,r){let n=this._addSchema(e,r);return n.validate||this._compileSchemaEnv(n)}compileAsync(e,r){if(typeof this.opts.loadSchema!="function")throw new Error("options.loadSchema should be a function");let{loadSchema:n}=this.opts;return a.call(this,e,r);async function a(p,E){await s.call(this,p.$schema);let _=this._addSchema(p,E);return _.validate||i.call(this,_)}async function s(p){p&&!this.getSchema(p)&&await a.call(this,{$ref:p},!0)}async function i(p){try{return this._compileSchemaEnv(p)}catch(E){if(!(E instanceof jc.default))throw E;return c.call(this,E),await f.call(this,E.missingSchema),i.call(this,p)}}function c({missingSchema:p,missingRef:E}){if(this.refs[p])throw new Error(`AnySchema ${p} is loaded but ${E} cannot be resolved`)}async function f(p){let E=await y.call(this,p);this.refs[p]||await s.call(this,E.$schema),this.refs[p]||this.addSchema(E,p,r)}async function y(p){let E=this._loading[p];if(E)return E;try{return await(this._loading[p]=n(p))}finally{delete this._loading[p]}}}addSchema(e,r,n,a=this.opts.validateSchema){if(Array.isArray(e)){for(let i of e)this.addSchema(i,void 0,n,a);return this}let s;if(typeof e=="object"){let{schemaId:i}=this.opts;if(s=e[i],s!==void 0&&typeof s!="string")throw new Error(`schema ${i} must be string`)}return r=(0,Fn.normalizeId)(r||s),this._checkUnique(r),this.schemas[r]=this._addSchema(e,n,r,a,!0),this}addMetaSchema(e,r,n=this.opts.validateSchema){return this.addSchema(e,r,!0,n),this}validateSchema(e,r){if(typeof e=="boolean")return!0;let n;if(n=e.$schema,n!==void 0&&typeof n!="string")throw new Error("$schema must be a string");if(n=n||this.opts.defaultMeta||this.defaultMeta(),!n)return this.logger.warn("meta-schema not available"),this.errors=null,!0;let a=this.validate(n,e);if(!a&&r){let s="schema is invalid: "+this.errorsText();if(this.opts.validateSchema==="log")this.logger.error(s);else throw new Error(s)}return a}getSchema(e){let r;for(;typeof(r=xc.call(this,e))=="string";)e=r;if(r===void 0){let{schemaId:n}=this.opts,a=new jn.SchemaEnv({schema:{},schemaId:n});if(r=jn.resolveSchema.call(this,a,e),!r)return;this.refs[e]=r}return r.validate||this._compileSchemaEnv(r)}removeSchema(e){if(e instanceof RegExp)return this._removeAllSchemas(this.schemas,e),this._removeAllSchemas(this.refs,e),this;switch(typeof e){case"undefined":return this._removeAllSchemas(this.schemas),this._removeAllSchemas(this.refs),this._cache.clear(),this;case"string":{let r=xc.call(this,e);return typeof r=="object"&&this._cache.delete(r.schema),delete this.schemas[e],delete this.refs[e],this}case"object":{let r=e;this._cache.delete(r);let n=e[this.opts.schemaId];return n&&(n=(0,Fn.normalizeId)(n),delete this.schemas[n],delete this.refs[n]),this}default:throw new Error("ajv.removeSchema: invalid parameter")}}addVocabulary(e){for(let r of e)this.addKeyword(r);return this}addKeyword(e,r){let n;if(typeof e=="string")n=e,typeof r=="object"&&(this.logger.warn("these parameters are deprecated, see docs for addKeyword"),r.keyword=n);else if(typeof e=="object"&&r===void 0){if(r=e,n=r.keyword,Array.isArray(n)&&!n.length)throw new Error("addKeywords: keyword must be string or non-empty array")}else throw new Error("invalid addKeywords parameters");if(wp.call(this,n,r),!r)return(0,Vi.eachItem)(n,s=>Hi.call(this,s)),this;Mp.call(this,r);let a=Le(ve({},r),{type:(0,Xa.getJSONTypes)(r.type),schemaType:(0,Xa.getJSONTypes)(r.schemaType)});return(0,Vi.eachItem)(n,a.type.length===0?s=>Hi.call(this,s,a):s=>a.type.forEach(i=>Hi.call(this,s,a,i))),this}getKeyword(e){let r=this.RULES.all[e];return typeof r=="object"?r.definition:!!r}removeKeyword(e){let{RULES:r}=this;delete r.keywords[e],delete r.all[e];for(let n of r.rules){let a=n.rules.findIndex(s=>s.keyword===e);a>=0&&n.rules.splice(a,1)}return this}addFormat(e,r){return typeof r=="string"&&(r=new RegExp(r)),this.formats[e]=r,this}errorsText(e=this.errors,{separator:r=", ",dataVar:n="data"}={}){return!e||e.length===0?"No errors":e.map(a=>`${n}${a.instancePath} ${a.message}`).reduce((a,s)=>a+r+s)}$dataMetaSchema(e,r){let n=this.RULES.all;e=JSON.parse(JSON.stringify(e));for(let a of r){let s=a.split("/").slice(1),i=e;for(let c of s)i=i[c];for(let c in n){let f=n[c];if(typeof f!="object")continue;let{$data:y}=f.definition,p=i[c];y&&p&&(i[c]=Hc(p))}}return e}_removeAllSchemas(e,r){for(let n in e){let a=e[n];(!r||r.test(n))&&(typeof a=="string"?delete e[n]:a&&!a.meta&&(this._cache.delete(a.schema),delete e[n]))}}_addSchema(e,r,n,a=this.opts.validateSchema,s=this.opts.addUsedSchema){let i,{schemaId:c}=this.opts;if(typeof e=="object")i=e[c];else{if(this.opts.jtd)throw new Error("schema must be object");if(typeof e!="boolean")throw new Error("schema must be object or boolean")}let f=this._cache.get(e);if(f!==void 0)return f;n=(0,Fn.normalizeId)(i||n);let y=Fn.getSchemaRefs.call(this,e,n);return f=new jn.SchemaEnv({schema:e,schemaId:c,meta:r,baseId:n,localRefs:y}),this._cache.set(f.schema,f),s&&!n.startsWith("#")&&(n&&this._checkUnique(n),this.refs[n]=f),a&&this.validateSchema(e,!0),f}_checkUnique(e){if(this.schemas[e]||this.refs[e])throw new Error(`schema with key or id "${e}" already exists`)}_compileSchemaEnv(e){if(e.meta?this._compileMetaSchema(e):jn.compileSchema.call(this,e),!e.validate)throw new Error("ajv implementation error");return e.validate}_compileMetaSchema(e){let r=this.opts;this.opts=this._metaOpts;try{jn.compileSchema.call(this,e)}finally{this.opts=r}}};Fe.default=Hn;Hn.ValidationError=lp.default;Hn.MissingRefError=jc.default;function qc(t,e,r,n="error"){for(let a in t){let s=a;s in e&&this.logger[n](`${r}: option ${a}. ${t[s]}`)}}function xc(t){return t=(0,Fn.normalizeId)(t),this.schemas[t]||this.refs[t]}function gp(){let t=this.opts.schemas;if(!!t)if(Array.isArray(t))this.addSchema(t);else for(let e in t)this.addSchema(t[e],e)}function yp(){for(let t in this.opts.formats){let e=this.opts.formats[t];e&&this.addFormat(t,e)}}function bp(t){if(Array.isArray(t)){this.addVocabulary(t);return}this.logger.warn("keywords option as map is deprecated, pass array");for(let e in t){let r=t[e];r.keyword||(r.keyword=e),this.addKeyword(r)}}function _p(){let t=ve({},this.opts);for(let e of fp)delete t[e];return t}var Ep={log(){},warn(){},error(){}};function $p(t){if(t===!1)return Ep;if(t===void 0)return console;if(t.log&&t.warn&&t.error)return t;throw new Error("logger must implement log, warn and error methods")}var Sp=/^[a-z_$][a-z0-9_$:-]*$/i;function wp(t,e){let{RULES:r}=this;if((0,Vi.eachItem)(t,n=>{if(r.keywords[n])throw new Error(`Keyword ${n} is already defined`);if(!Sp.test(n))throw new Error(`Keyword ${n} has invalid name`)}),!!e&&e.$data&&!("code"in e||"validate"in e))throw new Error('$data keyword must have "code" or "validate" function')}function Hi(t,e,r){var n;let a=e==null?void 0:e.post;if(r&&a)throw new Error('keyword with "post" flag cannot have "type"');let{RULES:s}=this,i=a?s.post:s.rules.find(({type:f})=>f===r);if(i||(i={type:r,rules:[]},s.rules.push(i)),s.keywords[t]=!0,!e)return;let c={keyword:t,definition:Le(ve({},e),{type:(0,Xa.getJSONTypes)(e.type),schemaType:(0,Xa.getJSONTypes)(e.schemaType)})};e.before?Cp.call(this,i,c,e.before):i.rules.push(c),s.all[t]=c,(n=e.implements)===null||n===void 0||n.forEach(f=>this.addKeyword(f))}function Cp(t,e,r){let n=t.rules.findIndex(a=>a.keyword===r);n>=0?t.rules.splice(n,0,e):(t.rules.push(e),this.logger.warn(`rule ${r} is not defined`))}function Mp(t){let{metaSchema:e}=t;e!==void 0&&(t.$data&&this.opts.$data&&(e=Hc(e)),t.validateSchema=this.compile(e,!0))}var Tp={$ref:"https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#"};function Hc(t){return{anyOf:[t,Tp]}}});var Bc=j(Bi=>{"use strict";Object.defineProperty(Bi,"__esModule",{value:!0});var Pp={keyword:"id",code(){throw new Error('NOT SUPPORTED: keyword "id", use "$id" for schema ID')}};Bi.default=Pp});var Kc=j(Cr=>{"use strict";Object.defineProperty(Cr,"__esModule",{value:!0});Cr.callRef=Cr.getValidate=void 0;var kp=Wa(),Uc=gt(),lt=Z(),Xr=Yt(),Gc=Ja(),Za=ue(),Ip={keyword:"$ref",schemaType:"string",code(t){let{gen:e,schema:r,it:n}=t,{baseId:a,schemaEnv:s,validateName:i,opts:c,self:f}=n,{root:y}=s;if((r==="#"||r==="#/")&&a===y.baseId)return E();let p=Gc.resolveRef.call(f,y,a,r);if(p===void 0)throw new kp.default(n.opts.uriResolver,a,r);if(p instanceof Gc.SchemaEnv)return _(p);return $(p);function E(){if(s===y)return es(t,i,s,s.$async);let C=e.scopeValue("root",{ref:y});return es(t,(0,lt._)`${C}.validate`,y,y.$async)}function _(C){let M=zc(t,C);es(t,M,C,C.$async)}function $(C){let M=e.scopeValue("schema",c.code.source===!0?{ref:C,code:(0,lt.stringify)(C)}:{ref:C}),R=e.name("valid"),N=t.subschema({schema:C,dataTypes:[],schemaPath:lt.nil,topSchemaRef:M,errSchemaPath:r},R);t.mergeEvaluated(N),t.ok(R)}}};function zc(t,e){let{gen:r}=t;return e.validate?r.scopeValue("validate",{ref:e.validate}):(0,lt._)`${r.scopeValue("wrapper",{ref:e})}.validate`}Cr.getValidate=zc;function es(t,e,r,n){let{gen:a,it:s}=t,{allErrors:i,schemaEnv:c,opts:f}=s,y=f.passContext?Xr.default.this:lt.nil;n?p():E();function p(){if(!c.$async)throw new Error("async schema referenced by sync schema");let C=a.let("valid");a.try(()=>{a.code((0,lt._)`await ${(0,Uc.callValidateCode)(t,e,y)}`),$(e),i||a.assign(C,!0)},M=>{a.if((0,lt._)`!(${M} instanceof ${s.ValidationError})`,()=>a.throw(M)),_(M),i||a.assign(C,!1)}),t.ok(C)}function E(){t.result((0,Uc.callValidateCode)(t,e,y),()=>$(e),()=>_(e))}function _(C){let M=(0,lt._)`${C}.errors`;a.assign(Xr.default.vErrors,(0,lt._)`${Xr.default.vErrors} === null ? ${M} : ${Xr.default.vErrors}.concat(${M})`),a.assign(Xr.default.errors,(0,lt._)`${Xr.default.vErrors}.length`)}function $(C){var M;if(!s.opts.unevaluated)return;let R=(M=r==null?void 0:r.validate)===null||M===void 0?void 0:M.evaluated;if(s.props!==!0)if(R&&!R.dynamicProps)R.props!==void 0&&(s.props=Za.mergeEvaluated.props(a,R.props,s.props));else{let N=a.var("props",(0,lt._)`${C}.evaluated.props`);s.props=Za.mergeEvaluated.props(a,N,s.props,lt.Name)}if(s.items!==!0)if(R&&!R.dynamicItems)R.items!==void 0&&(s.items=Za.mergeEvaluated.items(a,R.items,s.items));else{let N=a.var("items",(0,lt._)`${C}.evaluated.items`);s.items=Za.mergeEvaluated.items(a,N,s.items,lt.Name)}}}Cr.callRef=es;Cr.default=Ip});var Wc=j(Ui=>{"use strict";Object.defineProperty(Ui,"__esModule",{value:!0});var Dp=Bc(),Rp=Kc(),Np=["$schema","$id","$defs","$vocabulary",{keyword:"$comment"},"definitions",Dp.default,Rp.default];Ui.default=Np});var Yc=j(Gi=>{"use strict";Object.defineProperty(Gi,"__esModule",{value:!0});var ts=Z(),mr=ts.operators,rs={maximum:{okStr:"<=",ok:mr.LTE,fail:mr.GT},minimum:{okStr:">=",ok:mr.GTE,fail:mr.LT},exclusiveMaximum:{okStr:"<",ok:mr.LT,fail:mr.GTE},exclusiveMinimum:{okStr:">",ok:mr.GT,fail:mr.LTE}},Ap={message:({keyword:t,schemaCode:e})=>(0,ts.str)`must be ${rs[t].okStr} ${e}`,params:({keyword:t,schemaCode:e})=>(0,ts._)`{comparison: ${rs[t].okStr}, limit: ${e}}`},Lp={keyword:Object.keys(rs),type:"number",schemaType:"number",$data:!0,error:Ap,code(t){let{keyword:e,data:r,schemaCode:n}=t;t.fail$data((0,ts._)`${r} ${rs[e].fail} ${n} || isNaN(${r})`)}};Gi.default=Lp});var Jc=j(zi=>{"use strict";Object.defineProperty(zi,"__esModule",{value:!0});var Vn=Z(),Op={message:({schemaCode:t})=>(0,Vn.str)`must be multiple of ${t}`,params:({schemaCode:t})=>(0,Vn._)`{multipleOf: ${t}}`},qp={keyword:"multipleOf",type:"number",schemaType:"number",$data:!0,error:Op,code(t){let{gen:e,data:r,schemaCode:n,it:a}=t,s=a.opts.multipleOfPrecision,i=e.let("res"),c=s?(0,Vn._)`Math.abs(Math.round(${i}) - ${i}) > 1e-${s}`:(0,Vn._)`${i} !== parseInt(${i})`;t.fail$data((0,Vn._)`(${n} === 0 || (${i} = ${r}/${n}, ${c}))`)}};zi.default=qp});var Xc=j(Ki=>{"use strict";Object.defineProperty(Ki,"__esModule",{value:!0});function Qc(t){let e=t.length,r=0,n=0,a;for(;n<e;)r++,a=t.charCodeAt(n++),a>=55296&&a<=56319&&n<e&&(a=t.charCodeAt(n),(a&64512)===56320&&n++);return r}Ki.default=Qc;Qc.code='require("ajv/dist/runtime/ucs2length").default'});var Zc=j(Wi=>{"use strict";Object.defineProperty(Wi,"__esModule",{value:!0});var Mr=Z(),xp=ue(),jp=Xc(),Fp={message({keyword:t,schemaCode:e}){let r=t==="maxLength"?"more":"fewer";return(0,Mr.str)`must NOT have ${r} than ${e} characters`},params:({schemaCode:t})=>(0,Mr._)`{limit: ${t}}`},Hp={keyword:["maxLength","minLength"],type:"string",schemaType:"number",$data:!0,error:Fp,code(t){let{keyword:e,data:r,schemaCode:n,it:a}=t,s=e==="maxLength"?Mr.operators.GT:Mr.operators.LT,i=a.opts.unicode===!1?(0,Mr._)`${r}.length`:(0,Mr._)`${(0,xp.useFunc)(t.gen,jp.default)}(${r})`;t.fail$data((0,Mr._)`${i} ${s} ${n}`)}};Wi.default=Hp});var eu=j(Yi=>{"use strict";Object.defineProperty(Yi,"__esModule",{value:!0});var Vp=gt(),ns=Z(),Bp={message:({schemaCode:t})=>(0,ns.str)`must match pattern "${t}"`,params:({schemaCode:t})=>(0,ns._)`{pattern: ${t}}`},Up={keyword:"pattern",type:"string",schemaType:"string",$data:!0,error:Bp,code(t){let{data:e,$data:r,schema:n,schemaCode:a,it:s}=t,i=s.opts.unicodeRegExp?"u":"",c=r?(0,ns._)`(new RegExp(${a}, ${i}))`:(0,Vp.usePattern)(t,n);t.fail$data((0,ns._)`!${c}.test(${e})`)}};Yi.default=Up});var tu=j(Ji=>{"use strict";Object.defineProperty(Ji,"__esModule",{value:!0});var Bn=Z(),Gp={message({keyword:t,schemaCode:e}){let r=t==="maxProperties"?"more":"fewer";return(0,Bn.str)`must NOT have ${r} than ${e} properties`},params:({schemaCode:t})=>(0,Bn._)`{limit: ${t}}`},zp={keyword:["maxProperties","minProperties"],type:"object",schemaType:"number",$data:!0,error:Gp,code(t){let{keyword:e,data:r,schemaCode:n}=t,a=e==="maxProperties"?Bn.operators.GT:Bn.operators.LT;t.fail$data((0,Bn._)`Object.keys(${r}).length ${a} ${n}`)}};Ji.default=zp});var ru=j(Qi=>{"use strict";Object.defineProperty(Qi,"__esModule",{value:!0});var Un=gt(),Gn=Z(),Kp=ue(),Wp={message:({params:{missingProperty:t}})=>(0,Gn.str)`must have required property '${t}'`,params:({params:{missingProperty:t}})=>(0,Gn._)`{missingProperty: ${t}}`},Yp={keyword:"required",type:"object",schemaType:"array",$data:!0,error:Wp,code(t){let{gen:e,schema:r,schemaCode:n,data:a,$data:s,it:i}=t,{opts:c}=i;if(!s&&r.length===0)return;let f=r.length>=c.loopRequired;if(i.allErrors?y():p(),c.strictRequired){let $=t.parentSchema.properties,{definedProperties:C}=t.it;for(let M of r)if(($==null?void 0:$[M])===void 0&&!C.has(M)){let R=i.schemaEnv.baseId+i.errSchemaPath,N=`required property "${M}" is not defined at "${R}" (strictRequired)`;(0,Kp.checkStrictMode)(i,N,i.opts.strictRequired)}}function y(){if(f||s)t.block$data(Gn.nil,E);else for(let $ of r)(0,Un.checkReportMissingProp)(t,$)}function p(){let $=e.let("missing");if(f||s){let C=e.let("valid",!0);t.block$data(C,()=>_($,C)),t.ok(C)}else e.if((0,Un.checkMissingProp)(t,r,$)),(0,Un.reportMissingProp)(t,$),e.else()}function E(){e.forOf("prop",n,$=>{t.setParams({missingProperty:$}),e.if((0,Un.noPropertyInData)(e,a,$,c.ownProperties),()=>t.error())})}function _($,C){t.setParams({missingProperty:$}),e.forOf($,n,()=>{e.assign(C,(0,Un.propertyInData)(e,a,$,c.ownProperties)),e.if((0,Gn.not)(C),()=>{t.error(),e.break()})},Gn.nil)}}};Qi.default=Yp});var nu=j(Xi=>{"use strict";Object.defineProperty(Xi,"__esModule",{value:!0});var zn=Z(),Jp={message({keyword:t,schemaCode:e}){let r=t==="maxItems"?"more":"fewer";return(0,zn.str)`must NOT have ${r} than ${e} items`},params:({schemaCode:t})=>(0,zn._)`{limit: ${t}}`},Qp={keyword:["maxItems","minItems"],type:"array",schemaType:"number",$data:!0,error:Jp,code(t){let{keyword:e,data:r,schemaCode:n}=t,a=e==="maxItems"?zn.operators.GT:zn.operators.LT;t.fail$data((0,zn._)`${r}.length ${a} ${n}`)}};Xi.default=Qp});var as=j(Zi=>{"use strict";Object.defineProperty(Zi,"__esModule",{value:!0});var au=Pi();au.code='require("ajv/dist/runtime/equal").default';Zi.default=au});var su=j(to=>{"use strict";Object.defineProperty(to,"__esModule",{value:!0});var eo=An(),He=Z(),Xp=ue(),Zp=as(),eh={message:({params:{i:t,j:e}})=>(0,He.str)`must NOT have duplicate items (items ## ${e} and ${t} are identical)`,params:({params:{i:t,j:e}})=>(0,He._)`{i: ${t}, j: ${e}}`},th={keyword:"uniqueItems",type:"array",schemaType:"boolean",$data:!0,error:eh,code(t){let{gen:e,data:r,$data:n,schema:a,parentSchema:s,schemaCode:i,it:c}=t;if(!n&&!a)return;let f=e.let("valid"),y=s.items?(0,eo.getSchemaTypes)(s.items):[];t.block$data(f,p,(0,He._)`${i} === false`),t.ok(f);function p(){let C=e.let("i",(0,He._)`${r}.length`),M=e.let("j");t.setParams({i:C,j:M}),e.assign(f,!0),e.if((0,He._)`${C} > 1`,()=>(E()?_:$)(C,M))}function E(){return y.length>0&&!y.some(C=>C==="object"||C==="array")}function _(C,M){let R=e.name("item"),N=(0,eo.checkDataTypes)(y,R,c.opts.strictNumbers,eo.DataType.Wrong),U=e.const("indices",(0,He._)`{}`);e.for((0,He._)`;${C}--;`,()=>{e.let(R,(0,He._)`${r}[${C}]`),e.if(N,(0,He._)`continue`),y.length>1&&e.if((0,He._)`typeof ${R} == "string"`,(0,He._)`${R} += "_"`),e.if((0,He._)`typeof ${U}[${R}] == "number"`,()=>{e.assign(M,(0,He._)`${U}[${R}]`),t.error(),e.assign(f,!1).break()}).code((0,He._)`${U}[${R}] = ${C}`)})}function $(C,M){let R=(0,Xp.useFunc)(e,Zp.default),N=e.name("outer");e.label(N).for((0,He._)`;${C}--;`,()=>e.for((0,He._)`${M} = ${C}; ${M}--;`,()=>e.if((0,He._)`${R}(${r}[${C}], ${r}[${M}])`,()=>{t.error(),e.assign(f,!1).break(N)})))}}};to.default=th});var iu=j(no=>{"use strict";Object.defineProperty(no,"__esModule",{value:!0});var ro=Z(),rh=ue(),nh=as(),ah={message:"must be equal to constant",params:({schemaCode:t})=>(0,ro._)`{allowedValue: ${t}}`},sh={keyword:"const",$data:!0,error:ah,code(t){let{gen:e,data:r,$data:n,schemaCode:a,schema:s}=t;n||s&&typeof s=="object"?t.fail$data((0,ro._)`!${(0,rh.useFunc)(e,nh.default)}(${r}, ${a})`):t.fail((0,ro._)`${s} !== ${r}`)}};no.default=sh});var ou=j(ao=>{"use strict";Object.defineProperty(ao,"__esModule",{value:!0});var Kn=Z(),ih=ue(),oh=as(),lh={message:"must be equal to one of the allowed values",params:({schemaCode:t})=>(0,Kn._)`{allowedValues: ${t}}`},ch={keyword:"enum",schemaType:"array",$data:!0,error:lh,code(t){let{gen:e,data:r,$data:n,schema:a,schemaCode:s,it:i}=t;if(!n&&a.length===0)throw new Error("enum must have non-empty array");let c=a.length>=i.opts.loopEnum,f,y=()=>f!=null?f:f=(0,ih.useFunc)(e,oh.default),p;if(c||n)p=e.let("valid"),t.block$data(p,E);else{if(!Array.isArray(a))throw new Error("ajv implementation error");let $=e.const("vSchema",s);p=(0,Kn.or)(...a.map((C,M)=>_($,M)))}t.pass(p);function E(){e.assign(p,!1),e.forOf("v",s,$=>e.if((0,Kn._)`${y()}(${r}, ${$})`,()=>e.assign(p,!0).break()))}function _($,C){let M=a[C];return typeof M=="object"&&M!==null?(0,Kn._)`${y()}(${r}, ${$}[${C}])`:(0,Kn._)`${r} === ${M}`}}};ao.default=ch});var lu=j(so=>{"use strict";Object.defineProperty(so,"__esModule",{value:!0});var uh=Yc(),dh=Jc(),fh=Zc(),mh=eu(),ph=tu(),hh=ru(),vh=nu(),gh=su(),yh=iu(),bh=ou(),_h=[uh.default,dh.default,fh.default,mh.default,ph.default,hh.default,vh.default,gh.default,{keyword:"type",schemaType:["string","array"]},{keyword:"nullable",schemaType:"boolean"},yh.default,bh.default];so.default=_h});var oo=j(Wn=>{"use strict";Object.defineProperty(Wn,"__esModule",{value:!0});Wn.validateAdditionalItems=void 0;var Tr=Z(),io=ue(),Eh={message:({params:{len:t}})=>(0,Tr.str)`must NOT have more than ${t} items`,params:({params:{len:t}})=>(0,Tr._)`{limit: ${t}}`},$h={keyword:"additionalItems",type:"array",schemaType:["boolean","object"],before:"uniqueItems",error:Eh,code(t){let{parentSchema:e,it:r}=t,{items:n}=e;if(!Array.isArray(n)){(0,io.checkStrictMode)(r,'"additionalItems" is ignored when "items" is not an array of schemas');return}cu(t,n)}};function cu(t,e){let{gen:r,schema:n,data:a,keyword:s,it:i}=t;i.items=!0;let c=r.const("len",(0,Tr._)`${a}.length`);if(n===!1)t.setParams({len:e.length}),t.pass((0,Tr._)`${c} <= ${e.length}`);else if(typeof n=="object"&&!(0,io.alwaysValidSchema)(i,n)){let y=r.var("valid",(0,Tr._)`${c} <= ${e.length}`);r.if((0,Tr.not)(y),()=>f(y)),t.ok(y)}function f(y){r.forRange("i",e.length,c,p=>{t.subschema({keyword:s,dataProp:p,dataPropType:io.Type.Num},y),i.allErrors||r.if((0,Tr.not)(y),()=>r.break())})}}Wn.validateAdditionalItems=cu;Wn.default=$h});var lo=j(Yn=>{"use strict";Object.defineProperty(Yn,"__esModule",{value:!0});Yn.validateTuple=void 0;var uu=Z(),ss=ue(),Sh=gt(),wh={keyword:"items",type:"array",schemaType:["object","array","boolean"],before:"uniqueItems",code(t){let{schema:e,it:r}=t;if(Array.isArray(e))return du(t,"additionalItems",e);r.items=!0,!(0,ss.alwaysValidSchema)(r,e)&&t.ok((0,Sh.validateArray)(t))}};function du(t,e,r=t.schema){let{gen:n,parentSchema:a,data:s,keyword:i,it:c}=t;p(a),c.opts.unevaluated&&r.length&&c.items!==!0&&(c.items=ss.mergeEvaluated.items(n,r.length,c.items));let f=n.name("valid"),y=n.const("len",(0,uu._)`${s}.length`);r.forEach((E,_)=>{(0,ss.alwaysValidSchema)(c,E)||(n.if((0,uu._)`${y} > ${_}`,()=>t.subschema({keyword:i,schemaProp:_,dataProp:_},f)),t.ok(f))});function p(E){let{opts:_,errSchemaPath:$}=c,C=r.length,M=C===E.minItems&&(C===E.maxItems||E[e]===!1);if(_.strictTuples&&!M){let R=`"${i}" is ${C}-tuple, but minItems or maxItems/${e} are not specified or different at path "${$}"`;(0,ss.checkStrictMode)(c,R,_.strictTuples)}}}Yn.validateTuple=du;Yn.default=wh});var fu=j(co=>{"use strict";Object.defineProperty(co,"__esModule",{value:!0});var Ch=lo(),Mh={keyword:"prefixItems",type:"array",schemaType:["array"],before:"uniqueItems",code:t=>(0,Ch.validateTuple)(t,"items")};co.default=Mh});var pu=j(uo=>{"use strict";Object.defineProperty(uo,"__esModule",{value:!0});var mu=Z(),Th=ue(),Ph=gt(),kh=oo(),Ih={message:({params:{len:t}})=>(0,mu.str)`must NOT have more than ${t} items`,params:({params:{len:t}})=>(0,mu._)`{limit: ${t}}`},Dh={keyword:"items",type:"array",schemaType:["object","boolean"],before:"uniqueItems",error:Ih,code(t){let{schema:e,parentSchema:r,it:n}=t,{prefixItems:a}=r;n.items=!0,!(0,Th.alwaysValidSchema)(n,e)&&(a?(0,kh.validateAdditionalItems)(t,a):t.ok((0,Ph.validateArray)(t)))}};uo.default=Dh});var hu=j(fo=>{"use strict";Object.defineProperty(fo,"__esModule",{value:!0});var bt=Z(),is=ue(),Rh={message:({params:{min:t,max:e}})=>e===void 0?(0,bt.str)`must contain at least ${t} valid item(s)`:(0,bt.str)`must contain at least ${t} and no more than ${e} valid item(s)`,params:({params:{min:t,max:e}})=>e===void 0?(0,bt._)`{minContains: ${t}}`:(0,bt._)`{minContains: ${t}, maxContains: ${e}}`},Nh={keyword:"contains",type:"array",schemaType:["object","boolean"],before:"uniqueItems",trackErrors:!0,error:Rh,code(t){let{gen:e,schema:r,parentSchema:n,data:a,it:s}=t,i,c,{minContains:f,maxContains:y}=n;s.opts.next?(i=f===void 0?1:f,c=y):i=1;let p=e.const("len",(0,bt._)`${a}.length`);if(t.setParams({min:i,max:c}),c===void 0&&i===0){(0,is.checkStrictMode)(s,'"minContains" == 0 without "maxContains": "contains" keyword ignored');return}if(c!==void 0&&i>c){(0,is.checkStrictMode)(s,'"minContains" > "maxContains" is always invalid'),t.fail();return}if((0,is.alwaysValidSchema)(s,r)){let M=(0,bt._)`${p} >= ${i}`;c!==void 0&&(M=(0,bt._)`${M} && ${p} <= ${c}`),t.pass(M);return}s.items=!0;let E=e.name("valid");c===void 0&&i===1?$(E,()=>e.if(E,()=>e.break())):i===0?(e.let(E,!0),c!==void 0&&e.if((0,bt._)`${a}.length > 0`,_)):(e.let(E,!1),_()),t.result(E,()=>t.reset());function _(){let M=e.name("_valid"),R=e.let("count",0);$(M,()=>e.if(M,()=>C(R)))}function $(M,R){e.forRange("i",0,p,N=>{t.subschema({keyword:"contains",dataProp:N,dataPropType:is.Type.Num,compositeRule:!0},M),R()})}function C(M){e.code((0,bt._)`${M}++`),c===void 0?e.if((0,bt._)`${M} >= ${i}`,()=>e.assign(E,!0).break()):(e.if((0,bt._)`${M} > ${c}`,()=>e.assign(E,!1).break()),i===1?e.assign(E,!0):e.if((0,bt._)`${M} >= ${i}`,()=>e.assign(E,!0)))}}};fo.default=Nh});var yu=j(Ht=>{"use strict";Object.defineProperty(Ht,"__esModule",{value:!0});Ht.validateSchemaDeps=Ht.validatePropertyDeps=Ht.error=void 0;var mo=Z(),Ah=ue(),Jn=gt();Ht.error={message:({params:{property:t,depsCount:e,deps:r}})=>{let n=e===1?"property":"properties";return(0,mo.str)`must have ${n} ${r} when property ${t} is present`},params:({params:{property:t,depsCount:e,deps:r,missingProperty:n}})=>(0,mo._)`{property: ${t},
-    missingProperty: ${n},
-    depsCount: ${e},
-    deps: ${r}}`};var Lh={keyword:"dependencies",type:"object",schemaType:"object",error:Ht.error,code(t){let[e,r]=Oh(t);vu(t,e),gu(t,r)}};function Oh({schema:t}){let e={},r={};for(let n in t){if(n==="__proto__")continue;let a=Array.isArray(t[n])?e:r;a[n]=t[n]}return[e,r]}function vu(t,e=t.schema){let{gen:r,data:n,it:a}=t;if(Object.keys(e).length===0)return;let s=r.let("missing");for(let i in e){let c=e[i];if(c.length===0)continue;let f=(0,Jn.propertyInData)(r,n,i,a.opts.ownProperties);t.setParams({property:i,depsCount:c.length,deps:c.join(", ")}),a.allErrors?r.if(f,()=>{for(let y of c)(0,Jn.checkReportMissingProp)(t,y)}):(r.if((0,mo._)`${f} && (${(0,Jn.checkMissingProp)(t,c,s)})`),(0,Jn.reportMissingProp)(t,s),r.else())}}Ht.validatePropertyDeps=vu;function gu(t,e=t.schema){let{gen:r,data:n,keyword:a,it:s}=t,i=r.name("valid");for(let c in e)(0,Ah.alwaysValidSchema)(s,e[c])||(r.if((0,Jn.propertyInData)(r,n,c,s.opts.ownProperties),()=>{let f=t.subschema({keyword:a,schemaProp:c},i);t.mergeValidEvaluated(f,i)},()=>r.var(i,!0)),t.ok(i))}Ht.validateSchemaDeps=gu;Ht.default=Lh});var _u=j(po=>{"use strict";Object.defineProperty(po,"__esModule",{value:!0});var bu=Z(),qh=ue(),xh={message:"property name must be valid",params:({params:t})=>(0,bu._)`{propertyName: ${t.propertyName}}`},jh={keyword:"propertyNames",type:"object",schemaType:["object","boolean"],error:xh,code(t){let{gen:e,schema:r,data:n,it:a}=t;if((0,qh.alwaysValidSchema)(a,r))return;let s=e.name("valid");e.forIn("key",n,i=>{t.setParams({propertyName:i}),t.subschema({keyword:"propertyNames",data:i,dataTypes:["string"],propertyName:i,compositeRule:!0},s),e.if((0,bu.not)(s),()=>{t.error(!0),a.allErrors||e.break()})}),t.ok(s)}};po.default=jh});var vo=j(ho=>{"use strict";Object.defineProperty(ho,"__esModule",{value:!0});var os=gt(),kt=Z(),Fh=Yt(),ls=ue(),Hh={message:"must NOT have additional properties",params:({params:t})=>(0,kt._)`{additionalProperty: ${t.additionalProperty}}`},Vh={keyword:"additionalProperties",type:["object"],schemaType:["boolean","object"],allowUndefined:!0,trackErrors:!0,error:Hh,code(t){let{gen:e,schema:r,parentSchema:n,data:a,errsCount:s,it:i}=t;if(!s)throw new Error("ajv implementation error");let{allErrors:c,opts:f}=i;if(i.props=!0,f.removeAdditional!=="all"&&(0,ls.alwaysValidSchema)(i,r))return;let y=(0,os.allSchemaProperties)(n.properties),p=(0,os.allSchemaProperties)(n.patternProperties);E(),t.ok((0,kt._)`${s} === ${Fh.default.errors}`);function E(){e.forIn("key",a,R=>{!y.length&&!p.length?C(R):e.if(_(R),()=>C(R))})}function _(R){let N;if(y.length>8){let U=(0,ls.schemaRefOrVal)(i,n.properties,"properties");N=(0,os.isOwnProperty)(e,U,R)}else y.length?N=(0,kt.or)(...y.map(U=>(0,kt._)`${R} === ${U}`)):N=kt.nil;return p.length&&(N=(0,kt.or)(N,...p.map(U=>(0,kt._)`${(0,os.usePattern)(t,U)}.test(${R})`))),(0,kt.not)(N)}function $(R){e.code((0,kt._)`delete ${a}[${R}]`)}function C(R){if(f.removeAdditional==="all"||f.removeAdditional&&r===!1){$(R);return}if(r===!1){t.setParams({additionalProperty:R}),t.error(),c||e.break();return}if(typeof r=="object"&&!(0,ls.alwaysValidSchema)(i,r)){let N=e.name("valid");f.removeAdditional==="failing"?(M(R,N,!1),e.if((0,kt.not)(N),()=>{t.reset(),$(R)})):(M(R,N),c||e.if((0,kt.not)(N),()=>e.break()))}}function M(R,N,U){let H={keyword:"additionalProperties",dataProp:R,dataPropType:ls.Type.Str};U===!1&&Object.assign(H,{compositeRule:!0,createErrors:!1,allErrors:!1}),t.subschema(H,N)}}};ho.default=Vh});var Su=j(yo=>{"use strict";Object.defineProperty(yo,"__esModule",{value:!0});var Bh=xn(),Eu=gt(),go=ue(),$u=vo(),Uh={keyword:"properties",type:"object",schemaType:"object",code(t){let{gen:e,schema:r,parentSchema:n,data:a,it:s}=t;s.opts.removeAdditional==="all"&&n.additionalProperties===void 0&&$u.default.code(new Bh.KeywordCxt(s,$u.default,"additionalProperties"));let i=(0,Eu.allSchemaProperties)(r);for(let E of i)s.definedProperties.add(E);s.opts.unevaluated&&i.length&&s.props!==!0&&(s.props=go.mergeEvaluated.props(e,(0,go.toHash)(i),s.props));let c=i.filter(E=>!(0,go.alwaysValidSchema)(s,r[E]));if(c.length===0)return;let f=e.name("valid");for(let E of c)y(E)?p(E):(e.if((0,Eu.propertyInData)(e,a,E,s.opts.ownProperties)),p(E),s.allErrors||e.else().var(f,!0),e.endIf()),t.it.definedProperties.add(E),t.ok(f);function y(E){return s.opts.useDefaults&&!s.compositeRule&&r[E].default!==void 0}function p(E){t.subschema({keyword:"properties",schemaProp:E,dataProp:E},f)}}};yo.default=Uh});var Tu=j(bo=>{"use strict";Object.defineProperty(bo,"__esModule",{value:!0});var wu=gt(),cs=Z(),Cu=ue(),Mu=ue(),Gh={keyword:"patternProperties",type:"object",schemaType:"object",code(t){let{gen:e,schema:r,data:n,parentSchema:a,it:s}=t,{opts:i}=s,c=(0,wu.allSchemaProperties)(r),f=c.filter(M=>(0,Cu.alwaysValidSchema)(s,r[M]));if(c.length===0||f.length===c.length&&(!s.opts.unevaluated||s.props===!0))return;let y=i.strictSchema&&!i.allowMatchingProperties&&a.properties,p=e.name("valid");s.props!==!0&&!(s.props instanceof cs.Name)&&(s.props=(0,Mu.evaluatedPropsToName)(e,s.props));let{props:E}=s;_();function _(){for(let M of c)y&&$(M),s.allErrors?C(M):(e.var(p,!0),C(M),e.if(p))}function $(M){for(let R in y)new RegExp(M).test(R)&&(0,Cu.checkStrictMode)(s,`property ${R} matches pattern ${M} (use allowMatchingProperties)`)}function C(M){e.forIn("key",n,R=>{e.if((0,cs._)`${(0,wu.usePattern)(t,M)}.test(${R})`,()=>{let N=f.includes(M);N||t.subschema({keyword:"patternProperties",schemaProp:M,dataProp:R,dataPropType:Mu.Type.Str},p),s.opts.unevaluated&&E!==!0?e.assign((0,cs._)`${E}[${R}]`,!0):!N&&!s.allErrors&&e.if((0,cs.not)(p),()=>e.break())})})}}};bo.default=Gh});var Pu=j(_o=>{"use strict";Object.defineProperty(_o,"__esModule",{value:!0});var zh=ue(),Kh={keyword:"not",schemaType:["object","boolean"],trackErrors:!0,code(t){let{gen:e,schema:r,it:n}=t;if((0,zh.alwaysValidSchema)(n,r)){t.fail();return}let a=e.name("valid");t.subschema({keyword:"not",compositeRule:!0,createErrors:!1,allErrors:!1},a),t.failResult(a,()=>t.reset(),()=>t.error())},error:{message:"must NOT be valid"}};_o.default=Kh});var ku=j(Eo=>{"use strict";Object.defineProperty(Eo,"__esModule",{value:!0});var Wh=gt(),Yh={keyword:"anyOf",schemaType:"array",trackErrors:!0,code:Wh.validateUnion,error:{message:"must match a schema in anyOf"}};Eo.default=Yh});var Iu=j($o=>{"use strict";Object.defineProperty($o,"__esModule",{value:!0});var us=Z(),Jh=ue(),Qh={message:"must match exactly one schema in oneOf",params:({params:t})=>(0,us._)`{passingSchemas: ${t.passing}}`},Xh={keyword:"oneOf",schemaType:"array",trackErrors:!0,error:Qh,code(t){let{gen:e,schema:r,parentSchema:n,it:a}=t;if(!Array.isArray(r))throw new Error("ajv implementation error");if(a.opts.discriminator&&n.discriminator)return;let s=r,i=e.let("valid",!1),c=e.let("passing",null),f=e.name("_valid");t.setParams({passing:c}),e.block(y),t.result(i,()=>t.reset(),()=>t.error(!0));function y(){s.forEach((p,E)=>{let _;(0,Jh.alwaysValidSchema)(a,p)?e.var(f,!0):_=t.subschema({keyword:"oneOf",schemaProp:E,compositeRule:!0},f),E>0&&e.if((0,us._)`${f} && ${i}`).assign(i,!1).assign(c,(0,us._)`[${c}, ${E}]`).else(),e.if(f,()=>{e.assign(i,!0),e.assign(c,E),_&&t.mergeEvaluated(_,us.Name)})})}}};$o.default=Xh});var Du=j(So=>{"use strict";Object.defineProperty(So,"__esModule",{value:!0});var Zh=ue(),ev={keyword:"allOf",schemaType:"array",code(t){let{gen:e,schema:r,it:n}=t;if(!Array.isArray(r))throw new Error("ajv implementation error");let a=e.name("valid");r.forEach((s,i)=>{if((0,Zh.alwaysValidSchema)(n,s))return;let c=t.subschema({keyword:"allOf",schemaProp:i},a);t.ok(a),t.mergeEvaluated(c)})}};So.default=ev});var Au=j(wo=>{"use strict";Object.defineProperty(wo,"__esModule",{value:!0});var ds=Z(),Nu=ue(),tv={message:({params:t})=>(0,ds.str)`must match "${t.ifClause}" schema`,params:({params:t})=>(0,ds._)`{failingKeyword: ${t.ifClause}}`},rv={keyword:"if",schemaType:["object","boolean"],trackErrors:!0,error:tv,code(t){let{gen:e,parentSchema:r,it:n}=t;r.then===void 0&&r.else===void 0&&(0,Nu.checkStrictMode)(n,'"if" without "then" and "else" is ignored');let a=Ru(n,"then"),s=Ru(n,"else");if(!a&&!s)return;let i=e.let("valid",!0),c=e.name("_valid");if(f(),t.reset(),a&&s){let p=e.let("ifClause");t.setParams({ifClause:p}),e.if(c,y("then",p),y("else",p))}else a?e.if(c,y("then")):e.if((0,ds.not)(c),y("else"));t.pass(i,()=>t.error(!0));function f(){let p=t.subschema({keyword:"if",compositeRule:!0,createErrors:!1,allErrors:!1},c);t.mergeEvaluated(p)}function y(p,E){return()=>{let _=t.subschema({keyword:p},c);e.assign(i,c),t.mergeValidEvaluated(_,i),E?e.assign(E,(0,ds._)`${p}`):t.setParams({ifClause:p})}}}};function Ru(t,e){let r=t.schema[e];return r!==void 0&&!(0,Nu.alwaysValidSchema)(t,r)}wo.default=rv});var Lu=j(Co=>{"use strict";Object.defineProperty(Co,"__esModule",{value:!0});var nv=ue(),av={keyword:["then","else"],schemaType:["object","boolean"],code({keyword:t,parentSchema:e,it:r}){e.if===void 0&&(0,nv.checkStrictMode)(r,`"${t}" without "if" is ignored`)}};Co.default=av});var Ou=j(Mo=>{"use strict";Object.defineProperty(Mo,"__esModule",{value:!0});var sv=oo(),iv=fu(),ov=lo(),lv=pu(),cv=hu(),uv=yu(),dv=_u(),fv=vo(),mv=Su(),pv=Tu(),hv=Pu(),vv=ku(),gv=Iu(),yv=Du(),bv=Au(),_v=Lu();function Ev(t=!1){let e=[hv.default,vv.default,gv.default,yv.default,bv.default,_v.default,dv.default,fv.default,uv.default,mv.default,pv.default];return t?e.push(iv.default,lv.default):e.push(sv.default,ov.default),e.push(cv.default),e}Mo.default=Ev});var qu=j(To=>{"use strict";Object.defineProperty(To,"__esModule",{value:!0});var De=Z(),$v={message:({schemaCode:t})=>(0,De.str)`must match format "${t}"`,params:({schemaCode:t})=>(0,De._)`{format: ${t}}`},Sv={keyword:"format",type:["number","string"],schemaType:"string",$data:!0,error:$v,code(t,e){let{gen:r,data:n,$data:a,schema:s,schemaCode:i,it:c}=t,{opts:f,errSchemaPath:y,schemaEnv:p,self:E}=c;if(!f.validateFormats)return;a?_():$();function _(){let C=r.scopeValue("formats",{ref:E.formats,code:f.code.formats}),M=r.const("fDef",(0,De._)`${C}[${i}]`),R=r.let("fType"),N=r.let("format");r.if((0,De._)`typeof ${M} == "object" && !(${M} instanceof RegExp)`,()=>r.assign(R,(0,De._)`${M}.type || "string"`).assign(N,(0,De._)`${M}.validate`),()=>r.assign(R,(0,De._)`"string"`).assign(N,M)),t.fail$data((0,De.or)(U(),H()));function U(){return f.strictSchema===!1?De.nil:(0,De._)`${i} && !${N}`}function H(){let oe=p.$async?(0,De._)`(${M}.async ? await ${N}(${n}) : ${N}(${n}))`:(0,De._)`${N}(${n})`,B=(0,De._)`(typeof ${N} == "function" ? ${oe} : ${N}.test(${n}))`;return(0,De._)`${N} && ${N} !== true && ${R} === ${e} && !${B}`}}function $(){let C=E.formats[s];if(!C){U();return}if(C===!0)return;let[M,R,N]=H(C);M===e&&t.pass(oe());function U(){if(f.strictSchema===!1){E.logger.warn(B());return}throw new Error(B());function B(){return`unknown format "${s}" ignored in schema at path "${y}"`}}function H(B){let L=B instanceof RegExp?(0,De.regexpCode)(B):f.code.formats?(0,De._)`${f.code.formats}${(0,De.getProperty)(s)}`:void 0,J=r.scopeValue("formats",{key:s,ref:B,code:L});return typeof B=="object"&&!(B instanceof RegExp)?[B.type||"string",B.validate,(0,De._)`${J}.validate`]:["string",B,J]}function oe(){if(typeof C=="object"&&!(C instanceof RegExp)&&C.async){if(!p.$async)throw new Error("async format in sync schema");return(0,De._)`await ${N}(${n})`}return typeof R=="function"?(0,De._)`${N}(${n})`:(0,De._)`${N}.test(${n})`}}}};To.default=Sv});var xu=j(Po=>{"use strict";Object.defineProperty(Po,"__esModule",{value:!0});var wv=qu(),Cv=[wv.default];Po.default=Cv});var ju=j(Zr=>{"use strict";Object.defineProperty(Zr,"__esModule",{value:!0});Zr.contentVocabulary=Zr.metadataVocabulary=void 0;Zr.metadataVocabulary=["title","description","default","deprecated","readOnly","writeOnly","examples"];Zr.contentVocabulary=["contentMediaType","contentEncoding","contentSchema"]});var Hu=j(ko=>{"use strict";Object.defineProperty(ko,"__esModule",{value:!0});var Mv=Wc(),Tv=lu(),Pv=Ou(),kv=xu(),Fu=ju(),Iv=[Mv.default,Tv.default,(0,Pv.default)(),kv.default,Fu.metadataVocabulary,Fu.contentVocabulary];ko.default=Iv});var Vu=j(Qn=>{"use strict";Object.defineProperty(Qn,"__esModule",{value:!0});Qn.DiscrError=void 0;var Dv;(function(t){t.Tag="tag",t.Mapping="mapping"})(Dv=Qn.DiscrError||(Qn.DiscrError={}))});var Uu=j(Do=>{"use strict";Object.defineProperty(Do,"__esModule",{value:!0});var en=Z(),Io=Vu(),Bu=Ja(),Rv=ue(),Nv={message:({params:{discrError:t,tagName:e}})=>t===Io.DiscrError.Tag?`tag "${e}" must be string`:`value of tag "${e}" must be in oneOf`,params:({params:{discrError:t,tag:e,tagName:r}})=>(0,en._)`{error: ${t}, tag: ${r}, tagValue: ${e}}`},Av={keyword:"discriminator",type:"object",schemaType:"object",error:Nv,code(t){let{gen:e,data:r,schema:n,parentSchema:a,it:s}=t,{oneOf:i}=a;if(!s.opts.discriminator)throw new Error("discriminator: requires discriminator option");let c=n.propertyName;if(typeof c!="string")throw new Error("discriminator: requires propertyName");if(n.mapping)throw new Error("discriminator: mapping is not supported");if(!i)throw new Error("discriminator: requires oneOf keyword");let f=e.let("valid",!1),y=e.const("tag",(0,en._)`${r}${(0,en.getProperty)(c)}`);e.if((0,en._)`typeof ${y} == "string"`,()=>p(),()=>t.error(!1,{discrError:Io.DiscrError.Tag,tag:y,tagName:c})),t.ok(f);function p(){let $=_();e.if(!1);for(let C in $)e.elseIf((0,en._)`${y} === ${C}`),e.assign(f,E($[C]));e.else(),t.error(!1,{discrError:Io.DiscrError.Mapping,tag:y,tagName:c}),e.endIf()}function E($){let C=e.name("valid"),M=t.subschema({keyword:"oneOf",schemaProp:$},C);return t.mergeEvaluated(M,en.Name),C}function _(){var $;let C={},M=N(a),R=!0;for(let oe=0;oe<i.length;oe++){let B=i[oe];(B==null?void 0:B.$ref)&&!(0,Rv.schemaHasRulesButRef)(B,s.self.RULES)&&(B=Bu.resolveRef.call(s.self,s.schemaEnv.root,s.baseId,B==null?void 0:B.$ref),B instanceof Bu.SchemaEnv&&(B=B.schema));let L=($=B==null?void 0:B.properties)===null||$===void 0?void 0:$[c];if(typeof L!="object")throw new Error(`discriminator: oneOf subschemas (or referenced schemas) must have "properties/${c}"`);R=R&&(M||N(B)),U(L,oe)}if(!R)throw new Error(`discriminator: "${c}" must be required`);return C;function N({required:oe}){return Array.isArray(oe)&&oe.includes(c)}function U(oe,B){if(oe.const)H(oe.const,B);else if(oe.enum)for(let L of oe.enum)H(L,B);else throw new Error(`discriminator: "properties/${c}" must have "const" or "enum"`)}function H(oe,B){if(typeof oe!="string"||oe in C)throw new Error(`discriminator: "${c}" values must be unique strings`);C[oe]=B}}}};Do.default=Av});var Gu=j((T_,Lv)=>{Lv.exports={$schema:"http://json-schema.org/draft-07/schema#",$id:"http://json-schema.org/draft-07/schema#",title:"Core schema meta-schema",definitions:{schemaArray:{type:"array",minItems:1,items:{$ref:"#"}},nonNegativeInteger:{type:"integer",minimum:0},nonNegativeIntegerDefault0:{allOf:[{$ref:"#/definitions/nonNegativeInteger"},{default:0}]},simpleTypes:{enum:["array","boolean","integer","null","number","object","string"]},stringArray:{type:"array",items:{type:"string"},uniqueItems:!0,default:[]}},type:["object","boolean"],properties:{$id:{type:"string",format:"uri-reference"},$schema:{type:"string",format:"uri"},$ref:{type:"string",format:"uri-reference"},$comment:{type:"string"},title:{type:"string"},description:{type:"string"},default:!0,readOnly:{type:"boolean",default:!1},examples:{type:"array",items:!0},multipleOf:{type:"number",exclusiveMinimum:0},maximum:{type:"number"},exclusiveMaximum:{type:"number"},minimum:{type:"number"},exclusiveMinimum:{type:"number"},maxLength:{$ref:"#/definitions/nonNegativeInteger"},minLength:{$ref:"#/definitions/nonNegativeIntegerDefault0"},pattern:{type:"string",format:"regex"},additionalItems:{$ref:"#"},items:{anyOf:[{$ref:"#"},{$ref:"#/definitions/schemaArray"}],default:!0},maxItems:{$ref:"#/definitions/nonNegativeInteger"},minItems:{$ref:"#/definitions/nonNegativeIntegerDefault0"},uniqueItems:{type:"boolean",default:!1},contains:{$ref:"#"},maxProperties:{$ref:"#/definitions/nonNegativeInteger"},minProperties:{$ref:"#/definitions/nonNegativeIntegerDefault0"},required:{$ref:"#/definitions/stringArray"},additionalProperties:{$ref:"#"},definitions:{type:"object",additionalProperties:{$ref:"#"},default:{}},properties:{type:"object",additionalProperties:{$ref:"#"},default:{}},patternProperties:{type:"object",additionalProperties:{$ref:"#"},propertyNames:{format:"regex"},default:{}},dependencies:{type:"object",additionalProperties:{anyOf:[{$ref:"#"},{$ref:"#/definitions/stringArray"}]}},propertyNames:{$ref:"#"},const:!0,enum:{type:"array",items:!0,minItems:1,uniqueItems:!0},type:{anyOf:[{$ref:"#/definitions/simpleTypes"},{type:"array",items:{$ref:"#/definitions/simpleTypes"},minItems:1,uniqueItems:!0}]},format:{type:"string"},contentMediaType:{type:"string"},contentEncoding:{type:"string"},if:{$ref:"#"},then:{$ref:"#"},else:{$ref:"#"},allOf:{$ref:"#/definitions/schemaArray"},anyOf:{$ref:"#/definitions/schemaArray"},oneOf:{$ref:"#/definitions/schemaArray"},not:{$ref:"#"}},default:!0}});var Wu=j((Ce,Ku)=>{"use strict";Object.defineProperty(Ce,"__esModule",{value:!0});Ce.MissingRefError=Ce.ValidationError=Ce.CodeGen=Ce.Name=Ce.nil=Ce.stringify=Ce.str=Ce._=Ce.KeywordCxt=void 0;var Ov=Vc(),qv=Hu(),xv=Uu(),zu=Gu(),jv=["/properties"],fs="http://json-schema.org/draft-07/schema",ms=class extends Ov.default{_addVocabularies(){super._addVocabularies(),qv.default.forEach(e=>this.addVocabulary(e)),this.opts.discriminator&&this.addKeyword(xv.default)}_addDefaultMetaSchema(){if(super._addDefaultMetaSchema(),!this.opts.meta)return;let e=this.opts.$data?this.$dataMetaSchema(zu,jv):zu;this.addMetaSchema(e,fs,!1),this.refs["http://json-schema.org/schema"]=fs}defaultMeta(){return this.opts.defaultMeta=super.defaultMeta()||(this.getSchema(fs)?fs:void 0)}};Ku.exports=Ce=ms;Object.defineProperty(Ce,"__esModule",{value:!0});Ce.default=ms;var Fv=xn();Object.defineProperty(Ce,"KeywordCxt",{enumerable:!0,get:function(){return Fv.KeywordCxt}});var tn=Z();Object.defineProperty(Ce,"_",{enumerable:!0,get:function(){return tn._}});Object.defineProperty(Ce,"str",{enumerable:!0,get:function(){return tn.str}});Object.defineProperty(Ce,"stringify",{enumerable:!0,get:function(){return tn.stringify}});Object.defineProperty(Ce,"nil",{enumerable:!0,get:function(){return tn.nil}});Object.defineProperty(Ce,"Name",{enumerable:!0,get:function(){return tn.Name}});Object.defineProperty(Ce,"CodeGen",{enumerable:!0,get:function(){return tn.CodeGen}});var Hv=Ka();Object.defineProperty(Ce,"ValidationError",{enumerable:!0,get:function(){return Hv.default}});var Vv=Wa();Object.defineProperty(Ce,"MissingRefError",{enumerable:!0,get:function(){return Vv.default}})});var xo=(t,e)=>(t+e)/2,ga=(t,e)=>Math.random()*(e-t)+t;var Ar=(t,e,r)=>Math.max(e,Math.min(t,r));var jo=location.hostname==="localhost"||location.hostname==="127.0.0.1";function O(t,e){let r=(e||document).querySelector(t);if(!r)throw Error(`HTMLElement with selectors ${t} could not be found!`);return r}function ya(t,e,r){let n=[...t.querySelectorAll(":scope > [data-tab-target]")];for(let a of n)a.addEventListener("click",()=>{n.forEach(c=>c.classList.toggle("selected",c===a));let s=a.getAttribute("data-tab-target"),i=O(`[data-tab-content="${s}"]`,e);r(a,i)})}function ba(t,e){var n;let r=t.getAttribute("data-tab-target");[...((n=e.parentElement)==null?void 0:n.children)||[]].filter(a=>a.hasAttribute("data-tab-content")).forEach(a=>{a.classList.toggle("hidden",a.getAttribute("data-tab-content")!==r)})}function We(t,e){let r="data-highlight-notification";if(t.classList.contains("selected"))return;t.setAttribute(r,"");let n=()=>{t.removeAttribute(r),t.removeEventListener(e,n)};t.addEventListener(e,n)}var Fo={$schema:"./configListSchema.json",list:[{name:"Demo",rawUrl:"public/gconfig/demo.json",description:"This is a short configuration for demonstration purposes"}]};var Ps=qo(Vo(),1),sr={save:pd,load:hd};async function pd(t,e){try{switch(t){case"Game":return await vd("ts-game",e)}}catch(r){console.error(r)}}async function hd(t){try{switch(t){case"Game":let e=await gd("ts-game");return e||null;default:return null}}catch(e){console.error(e)}}async function vd(t,e){let r=window.btoa(JSON.stringify(e)),n=new Blob([r],{type:"text/plain"});return await Ps.default.setItem(t,n)}async function gd(t){let e=await Ps.default.getItem(t);if(!e)return e;let r=await e.text();return JSON.parse(window.atob(r))}var Ds,_a=class{constructor(){P(this,"config");P(this,"remoteEntryHandler",new ks);P(this,"savedEntryHandler",new Is)}getActiveEntry(){return Ds}async getEntryListElements(e){switch(e){case"new":return await this.remoteEntryHandler.getEntryListElements();case"save":return await this.savedEntryHandler.getEntryListElements()}}},ks=class{constructor(){}async getEntries(){return Fo.list.map(e=>Le(ve({},e),{id:crypto.randomUUID(),type:"new"}))}async getEntryListElements(){let e=await this.getEntries(),r=[];for(let n of e){let a=document.createElement("li");a.classList.add("g-list-item");let s=n.rawUrl.startsWith("https:")?"":" (Local)";a.textContent=n.name+s,a.addEventListener("click",()=>{Ds=n}),r.push(a)}return r}},Is=class{constructor(){}async getEntries(){let e=await sr.load("Game");if(!e)return[];try{return Object.values(e).sort((n,a)=>a.meta.lastSavedAt-n.meta.lastSavedAt).map(n=>Le(ve({},n.meta),{type:"save"}))}catch(r){console.error(r)}return[]}async getEntryListElements(){let e=await this.getEntries(),r=[];for(let n of e.filter(a=>a.rawUrl)){let a=document.createElement("li");a.classList.add("g-list-item");let s=this.generateTimeText(n.lastSavedAt);a.insertAdjacentHTML("beforeend",`<div>${n.name}</div><div class="g-text-small">${s}</div>`),a.addEventListener("click",()=>{Ds=n,O('[data-config-info] button[data-role="delete"]').setAttribute("data-id",n.id)}),r.push(a)}return r}generateTimeText(e=0){let r=Date.now()-e,n=Math.floor(r/36e5)%24,a=(Math.floor(r/6e4)%60).toFixed();return`Last played: ${n>0?n+"h ":""}${a}min`}};var ft=class{constructor(){P(this,"listeners",new Map)}listen(e,r){let n={callback:e,opts:r};this.listeners.set(e,n)}removeListener(e){this.listeners.delete(e)}removeAllListeners(){this.listeners.clear()}invoke(e){var r;this.listeners.forEach(n=>{n.callback(e)});for(let[n,a]of this.listeners.entries())(r=a.opts)!=null&&r.once&&this.listeners.delete(n)}};var Ye=class{constructor(e){P(this,"defaultValue");P(this,"value");P(this,"listeners",new Map([["change",new ft],["set",new ft],["add",new ft],["subtract",new ft]]));this.defaultValue=e,this.value=e}set(e){var r,n;this.value=e,(r=this.listeners.get("set"))==null||r.invoke(this.value),(n=this.listeners.get("change"))==null||n.invoke(this.value)}get(){return this.value}add(e){var r,n;this.value+=e,(r=this.listeners.get("add"))==null||r.invoke(this.value),(n=this.listeners.get("change"))==null||n.invoke(this.value)}subtract(e){var r,n;this.value-=e,(r=this.listeners.get("subtract"))==null||r.invoke(this.value),(n=this.listeners.get("change"))==null||n.invoke(this.value)}reset(){this.value=this.defaultValue,this.listeners.forEach(e=>e.removeAllListeners())}addListener(e,r){var n;(n=this.listeners.get(e))==null||n.listen(r)}removeListener(e,r){var n;(n=this.listeners.get(e))==null||n.removeListener(r)}};var mt={None:1<<0,Attack:1<<1,Physical:1<<2,Elemental:1<<3,Chaos:1<<4,Skill:1<<5},Ea=[{desc:"#% Increased Physical Damage",tags:["Physical"],stats:[{name:"Damage",valueType:"Inc",flags:mt.Physical}]},{desc:"#% More Physical Damage",tags:["Physical"],stats:[{name:"Damage",valueType:"More",flags:mt.Physical}]},{desc:"#% More Damage",tags:[],stats:[{name:"Damage",valueType:"More"}]},{desc:"Adds # To # Physical Damage",tags:["Physical"],stats:[{name:"MinDamage",valueType:"Base",flags:mt.Physical},{name:"MaxDamage",valueType:"Base",flags:mt.Physical}]},{desc:"+#% Hit Chance",tags:[],stats:[{name:"HitChance",valueType:"Base"}]},{desc:"#% Increased Attack Speed",tags:["Speed"],stats:[{name:"AttackSpeed",valueType:"Inc"}]},{desc:"#% More Attack Speed",tags:["Speed"],stats:[{name:"AttackSpeed",valueType:"More"}]},{desc:"#% Increased Maximum Mana",tags:["Mana"],stats:[{name:"MaxMana",valueType:"Inc"}]},{desc:"+# Maximum Mana",tags:["Mana"],stats:[{name:"MaxMana",valueType:"Base"}]},{desc:"+# Mana Regeneration",tags:["Mana"],stats:[{name:"ManaRegen",valueType:"Base"}]},{desc:"+#% Critical Hit Chance",tags:["Critical"],stats:[{name:"CritChance",valueType:"Base"}]},{desc:"+#% Critical Hit Multiplier",tags:["Critical"],stats:[{name:"CritMulti",valueType:"Base"}]},{desc:"+# Gold Per Second",tags:["Gold"],stats:[{name:"GoldPerSecond",valueType:"Base"}]},{desc:"#% Increased Gold Per Second",tags:["Gold"],stats:[{name:"GoldPerSecond",valueType:"Inc"}]},{desc:"#% Increased Skill Duration",tags:["Gold"],stats:[{name:"Duration",valueType:"Inc",flags:mt.Skill}]}],Je=class{constructor(e){P(this,"text");P(this,"template");P(this,"tags",[]);P(this,"stats",[]);this.text=e;let r=[...e.matchAll(new RegExp("{(?<v1>\\d+(\\.\\d+)?)(-(?<v2>\\d+(\\.\\d+)?))?\\}","g"))],n=e.replace(/{[^}]+}/g,"#");if(!Ea.some(a=>a.desc===n))throw Error("Failed to find mod template. Invalid mod description");this.template=Ea.find(a=>a.desc===n),this.tags=this.template.tags;for(let a of this.template.stats){let s=r[this.template.stats.indexOf(a)].groups;if(!s)throw Error();let{v1:i,v2:c}=s,f=parseFloat(i),y=parseFloat(c)||f,p=f;this.stats.push(new hr({name:a.name,valueType:a.valueType,value:p,min:f,max:y,flags:a.flags||0}))}}get templateDesc(){return this.template.desc}get desc(){let e=0;return this.templateDesc.replace(/#+/g,r=>{var s;return((s=this.stats[e++].value)==null?void 0:s.toFixed(r.length-1))||"#"})}static compare(e,r){return e.compare(r)}static sort(e,r){return e.sort(r)}sort(e){return Ea.findIndex(r=>r.desc===this.templateDesc)-Ea.findIndex(r=>r.desc===e.templateDesc)}compare(e){return this.templateDesc===e.templateDesc}copy(){return new Je(this.text)}setStatValues(e){if(this.stats.length===e.length)return this.stats.forEach((r,n)=>r.value=e[n]),!0}},hr=class{constructor(e){P(this,"name");P(this,"valueType");P(this,"value");P(this,"flags");P(this,"min");P(this,"max");P(this,"source");this.name=e.name,this.valueType=e.valueType,this.value=e.value,this.flags=e.flags||0,this.min=e.min||this.value,this.max=e.max||this.value||this.min,this.source=e.source}randomizeValue(){this.value=Math.random()*(this.max-this.min)+this.min}},$a=class{constructor(){P(this,"_modList");P(this,"onChange");this._modList=[],this.onChange=new ft}get modList(){return this._modList}add(e,r){e.forEach(n=>n.source=r),this.modList.push(...e),this.onChange.invoke([...this.modList])}removeBySource(e){this._modList=this.modList.filter(r=>r.source!==e),this.onChange.invoke([...this.modList])}clear(){this._modList=[],this.onChange.invoke([...this.modList])}};var Sa={Physical:1<<0,Elemental:1<<1,Chaos:1<<2},yd=(()=>{let t=[],e=Object.values(Sa).reduce((r,n)=>r+n);for(let r=0;r<=e;r++){let n=["Damage"];Object.entries(Sa).forEach(([a,s])=>{if(s&r){let i=`${a}Damage`;n.push(i)}}),t.push(n)}return t})();function Bo(t){let e={statModList:t,flags:mt.Attack,calcMinMax:ga},r=pt("HitChance",e)/100,n=ga(0,1),a=r>=n;if(!a)return!1;e.flags=mt.Attack;let s=Rs(e),i=Math.min(pt("CritChance",e),100)/100,c=ga(0,1),f=i>=c,y=1;f&&(y=pt("CritMulti",e)/100);let E=Ut("BaseDamageMultiplier",e)/100*y,_=s.totalBaseDamage*E,$=s.physicalDamage*E;return{hit:a,crit:f,totalDamage:_,totalPhysicalDamage:$}}function Rs(t){let e=bd(t),r={totalBaseDamage:0,minPhysicalDamage:0,maxPhysicalDamage:0,physicalDamage:0,minElementalDamage:0,maxElementalDamage:0,elementalDamage:0,minChaosDamage:0,maxChaosDamage:0,chaosDamage:0},n=0;{t.flags|=mt.Physical;let{min:a,max:s}=Uo("Physical",t,e);r.minPhysicalDamage=a,r.maxPhysicalDamage=s;let i=t.calcMinMax(a,s);r.physicalDamage=i,n+=i}return r.totalBaseDamage=n,r}function Uo(t,e,r,n=0){n|=Sa[t];let a=0,s=0,i=["Physical","Elemental","Chaos"];for(let _ of i){if(_===t)break;let $=r[_][t];if($>0){let{min:C,max:M}=Uo(_,e,r,n);a+=Math.ceil(C*$),s+=Math.ceil(M*$)}}let c=Ut("MinDamage",e),f=Ut("MaxDamage",e),y=yd[n],p=Math.round(wa(y,c,e)+a),E=Math.round(wa(y,f,e)+s);return{min:p,max:E}}function bd(t){let e={},r=Object.keys(Sa);for(let n=0;n<r.length;n++){let a=r[n],s={},i={},c={},f=0,y=0;for(let _=n+1;_<r.length;_++){let $=r[n],C=`${a}ConvertedTo${$}`;s[$]=Ut(C,t),f+=s[$],i[$]=Ut(C,t),y+=i[$],c[$]=Ut(`${a}GainAs${$}`,t)}let p=y>100?100/y:(100-y)/f;for(let _ of Object.keys(i))i[_]*=p;let E={multi:1};for(let[_,$]of Object.entries(s)){let C=i[_]||0,M=c[_]||0;E[_]=($+C+M)/100}E.multi=1-Math.min((f+y)/100,1),e[a]=E}return e.Chaos={multi:1},e}function Go(t){let e={statModList:t,flags:mt.Attack,calcMinMax:xo},r=pt("HitChance",e)/100,n=Ar(r,0,1),a=pt("AttackSpeed",e),s=Ut("BaseDamageMultiplier",e)/100,i=pt("MaxMana",e),c=pt("ManaRegen",e),f=pt("AttackManaCost",e),y=pt("CritChance",e)/100,p=Ar(y,0,1),E=Math.max(pt("CritMulti",e),100)/100,_=1+p*E,$=Rs(e),C=s*_,M=$.totalBaseDamage*n*a*C;return{hitChance:r*100,clampedHitChance:n*100,attackSpeed:a,critChance:y*100,clampedCritChance:p*100,critMulti:E*100,maxMana:i,manaRegen:c,attackManaCost:f,dps:M,minPhysicalDamage:$.minPhysicalDamage,maxPhysicalDamage:$.maxPhysicalDamage,goldPerSecond:pt("GoldPerSecond",e),skillDurationMultiplier:wa("Duration",1,Object.assign({},e,{flags:mt.Skill}))}}function Ut(t,e){return Ns("Base",t,e)}function zo(t,e){return Math.max(0,1+Ns("Inc",t,e)/100)}function Ko(t,e){return Math.max(0,Ns("More",t,e))}function wa(t,e,r){if(e<=0)return 0;let n=zo(t,r),a=Ko(t,r);return e*n*a}function pt(t,e){let r=Ut(t,e);if(r===0)return 0;let n=zo(t,e),a=Ko(t,e);return r*n*a}function Ns(t,e,r){e=Array.isArray(e)?e:[e];let n=t==="More"?1:0,a=(i,c)=>(i&c)===c,s=r.statModList.filter(i=>!(!e.includes(i.name)||i.valueType!==t||!a(r.flags,i.flags||0)));for(let i of s){let c=i.value;t==="More"?n*=1+c/100:n+=c}return Math.max(0,n)}var As=O(".p-game .s-enemy [data-health-bar]"),Lt,Ue,ir,Ls=new ft;Ls.listen(()=>{Ue=Lt[++ir],Ue.init()});function Os(t){Lt=[],ir=0,Lt.push(...t.enemyList.map(e=>new Ca(e))),Lt.push(new Ma),Ue=Lt[ir],Ue.init()}function _d(t){Ue.takeDamage(t)}function Ed(t){ir=Ar(t-1,0,Lt.length-1),Ue=Lt[ir],Ue.init()}function Wo(t){t.enemy={index:ir,health:Ue.health,dummyDamage:Ue==null?void 0:Ue.damage}}function Yo(t){let e=t.enemy;!e||(ir=e.index||0,Ue=Lt[ir],Ue.health=e.health,Ue instanceof Ma&&(Ue.damage=e.dummyDamage||0),Ue.init())}var Ca=class{constructor(e){this.maxHealth=e;P(this,"health");this.health=e}init(){this.updateHealthBar()}takeDamage(e){this.health=Ar(this.health-e,0,this.health),this.updateHealthBar(),this.health===0&&Ls.invoke(this)}updateHealthBar(){let e=this.health/this.maxHealth*100;As.style.width=`${e}%`}},Ma=class extends Ca{constructor(){super(1);P(this,"damage");this.damage=0}init(){As.style.width="100%",this.updateHealthBar()}takeDamage(r){this.damage+=r,this.updateHealthBar()}updateHealthBar(){As.setAttribute("data-damage",this.damage.toFixed())}},qs={init:Os,spawnEnemyAt:Ed,dealDamage:_d,onDeath:Ls};var Lr=(t,e)=>{let r=new IntersectionObserver(n);return r.observe(t),r;function n(a){a.forEach(s=>{e(s.isIntersecting,r)})}};var Ot=class extends Ye{constructor(r,n){super(r);P(this,"hidden");this.hidden=n||!1}},Or={"Time Played":new Ot(0),"Gold Generated":new Ot(0),"Mana Generated":new Ot(0),Hits:new Ot(0),"Critical Hits":new Ot(0),"Total Damage":new Ot(0),"Total Physical Damage":new Ot(0),"Prestige Count":new Ot(0)},Oe=Or,Jo=0;Lr(document.querySelector(".p-game .p-statistics"),$d);function $d(t){t?(Object.entries(Or).forEach(([e,r])=>Qo(e,r)),Jo=Ie.subscribe(()=>Object.entries(Or).forEach(([e,r])=>Qo(e,r)),{intervalMilliseconds:1e3})):Ie.unsubscribe(Jo)}function Xo(){let t=[],e=r=>{let n=document.createElement("li");n.classList.add("g-field","hidden");let a=document.createElement("div");n.appendChild(a);let s=document.createElement("var");return n.appendChild(s),a.textContent=r,s.setAttribute("data-stat",r),s.setAttribute("data-format-type",Sd(r)),n};for(let r of Object.keys(Or)){let n=e(r);t.push(n)}document.querySelector(".p-statistics ul").replaceChildren(...t)}function Sd(t){switch(t){case"Time Played":return"time"}return""}function Qo(t,e){var s;let r=document.querySelector(`.p-statistics [data-stat="${t}"]`);if(!r)return;let n=e.get()===0;if((s=r.parentElement)==null||s.classList.toggle("hidden",n),n)return;switch(r.getAttribute("data-format-type")){case"time":let i=new Date(0);i.setSeconds(e.get());let c=i.toISOString().substring(11,19);r.textContent=c;break;default:r.textContent=e.get().toFixed(0)}}function Zo(t){t.statistics=Object.entries(Or).map(([e,r])=>({name:e,value:r.get()}))}function el(t){var e;(e=t.statistics)==null||e.forEach(r=>{var n;(n=Or[r.name])==null||n.set(r.value)})}var xs=document.querySelector(".p-game > .s-stats"),wd=document.querySelector(".p-combat [data-mana-bar]"),tl,Pe=new $a;Pe.onChange.listen(js);qs.onDeath.listen(()=>{x.level.get()<Lt.length-1&&x.level.add(1)});var x=Object.freeze({level:new Ye(1),gold:new Ye(0),goldPerSecond:new Ye(0),attackSpeed:new Ye(0),attackManaCost:new Ye(0),maxMana:new Ye(0),curMana:new Ye(0),manaRegen:new Ye(0),skillDurationMultiplier:new Ye(1)});function rl(t){Pe.clear(),Object.values(x).forEach(e=>e.reset()),x.level.addListener("change",e=>O('[data-stat="level"]',xs).textContent=e.toFixed()),x.gold.addListener("change",e=>O('[data-stat="gold"]',xs).textContent=e.toFixed()),x.level.set(1),x.gold.set(0),x.curMana.addListener("change",e=>{let r=x.maxMana.get();e>r&&x.curMana.set(r),Cd()}),t&&t.modList.forEach(e=>{Pe.add(new Je(e).stats,"Player")}),Ie.subscribe(()=>{let e=x.goldPerSecond.get();x.gold.add(e),Oe["Gold Generated"].add(e)},{intervalMilliseconds:1e3}),Ie.subscribe(e=>{let r=x.manaRegen.get()*e;x.curMana.add(r),Oe["Mana Generated"].add(r)}),Md()}async function Ta(){await js(),x.curMana.set(x.maxMana.get())}async function js(){return new Promise(t=>{clearTimeout(tl),tl=window.setTimeout(async()=>{let e=Go(Pe.modList);x.attackSpeed.set(e.attackSpeed),x.goldPerSecond.set(e.goldPerSecond),x.maxMana.set(e.maxMana),x.manaRegen.set(e.manaRegen),x.attackManaCost.set(e.attackManaCost),x.skillDurationMultiplier.set(e.skillDurationMultiplier),xs.querySelectorAll("[data-stat]").forEach(r=>{let n=r.getAttribute("data-stat"),a=e[n];if(typeof a=="number"){let s=Number(r.getAttribute("data-digits")||0);r.textContent=a.toFixed(s)}}),t(null)},1)})}function Cd(){let t=x.curMana.get()/x.maxMana.get()*100;wd.style.width=t+"%"}function Md(){let t=0;Ie.subscribe(e=>{let r=1/x.attackSpeed.get();if(t+=e,t>=r){let n=x.curMana.get(),a=x.attackManaCost.get();n>a&&(x.curMana.subtract(a),Td(),t=0)}})}function Td(){let t=Bo(Pe.modList);!t||(Oe.Hits.add(1),Oe["Total Damage"].add(t.totalDamage),Oe["Total Physical Damage"].add(t.totalPhysicalDamage),t.crit&&Oe["Critical Hits"].add(1),qs.dealDamage(t.totalDamage))}function nl(t){t.player={level:x.level.get(),gold:x.gold.get(),curMana:x.curMana.get()}}async function al(t){let e=t.player;!e||(x.level.set(e.level||1),x.gold.set(e.gold||0),x.curMana.set(e.curMana||0),await js())}var Pa=class{constructor(){P(this,"modalElement",O(".p-game .p-combat [data-skill-modal]"));P(this,"skillListContainer",O("[data-skill-list]",this.modalElement));P(this,"skillInfoContainer",O("[data-skill-info]",this.modalElement));P(this,"applyButton",O('[data-value="apply"]',this.modalElement));P(this,"removeButton",O('[data-value="remove"]',this.modalElement));P(this,"cancelButton",O('[data-value="cancel"]',this.modalElement));P(this,"skillSlot");P(this,"selectedSkill");this.applyButton.addEventListener("click",()=>this.apply()),this.removeButton.addEventListener("click",()=>this.remove()),this.cancelButton.addEventListener("click",()=>this.cancel())}open(e){this.skillSlot=e.skillSlot,this.removeButton.classList.toggle("hidden",!e.canRemove),this.removeButton.toggleAttribute("disabled",this.skillSlot.skill===void 0),this.populateSkillList(e.skills),this.modalElement.classList.remove("hidden")}populateSkillList(e){var a,s,i,c,f,y;let r=Array.from(((s=(a=this.skillSlot)==null?void 0:a.element.parentElement)==null?void 0:s.children)||[]).map(p=>p.getAttribute("data-skill-name")),n=[];for(let p of e){let E=document.createElement("li");E.textContent=p.name,E.classList.add("g-list-item"),E.classList.toggle("hidden",p.levelReq>x.level.get()),E.setAttribute("data-skill-name",p.name);let _=r.some($=>$===p.name);E.toggleAttribute("disabled",_),E.addEventListener("click",()=>{var C;this.showInfo(p),n.forEach(M=>M.classList.toggle("selected",M===E)),this.applyButton.toggleAttribute("disabled",p===((C=this.skillSlot)==null?void 0:C.skill));let $=p;this.selectedSkill=$}),n.push(E)}if(this.skillListContainer.replaceChildren(...n),(i=this.skillSlot)!=null&&i.skill){let p=this.skillListContainer.querySelector(`[data-skill-name="${(f=(c=this.skillSlot)==null?void 0:c.skill)==null?void 0:f.name}"]`);p&&p.click()}else(y=n[0])==null||y.click()}showInfo(e){var i,c,f;O("[data-title]").textContent=e.name,O('[data-stat="manaCost"]',this.skillInfoContainer).textContent=e.manaCost.toFixed();let r=O('[data-stat="attackSpeed"]',this.skillInfoContainer),n=O('[data-stat="baseDamageMultiplier"]',this.skillInfoContainer),a=O('[data-stat="baseDuration"]',this.skillInfoContainer);[r,n,a].forEach(y=>{var p;return(p=y.parentElement)==null?void 0:p.classList.add("hidden")}),e instanceof qr?((i=r.parentElement)==null||i.classList.remove("hidden"),r.textContent=e.attackSpeed.toFixed(2),(c=n.parentElement)==null||c.classList.remove("hidden"),n.textContent=e.baseDamageMultiplier.toFixed(0)+"%"):e instanceof hn&&((f=a.parentElement)==null||f.classList.remove("hidden"),a.textContent=`${e.baseDuration.toFixed()}s`);let s=[];for(let y of e.mods){let p=document.createElement("div");p.classList.add("g-mod-desc"),p.textContent=y.desc,s.push(p)}O("[data-mod-list]",this.skillInfoContainer).replaceChildren(...s)}apply(){!this.selectedSkill||!this.skillSlot||(this.skillSlot.set(this.selectedSkill),this.close())}remove(){!this.skillSlot||(this.skillSlot.set(void 0),this.close())}cancel(){this.close()}close(){this.modalElement.classList.add("hidden")}};var sl=new Pa,ka=class{constructor(){P(this,"element");P(this,"_skill");this.element=this.createElement()}get skill(){return this._skill}set(e){this._skill=e;let r=(e==null?void 0:e.name)||"[Empty]";this.element.setAttribute("data-skill-name",r),O("[data-label]",this.element).textContent=r}},Ia=class extends ka{constructor(r){super();P(this,"skillSlotContainer",O(".p-game .s-player .s-skills [data-attack-skill]"));P(this,"skills");this.skillSlotContainer.appendChild(this.element),this.skills=r}set(r){var n;super.set(r),(n=this._skill)==null||n.enable()}edit(){sl.open({canRemove:!1,skills:this.skills,skillSlot:this})}createElement(){let r=document.createElement("div");return r.classList.add("g-field"),r.setAttribute("data-skill-slot","attack-skill"),r.insertAdjacentHTML("beforeend","<div data-label></div>"),r.insertAdjacentHTML("beforeend",'<button class="g-button" data-edit>Edit</button>'),r.querySelector("button[data-edit]").addEventListener("click",()=>this.edit()),r}},vn=class extends ka{constructor(r){super();P(this,"buffSkillList",O(".p-game .s-player .s-skills ul[data-buff-skill-list]"));P(this,"progressBar");P(this,"skills");P(this,"running",!1);this.buffSkillList.appendChild(this.element),this.progressBar=O("[data-progress-bar]",this.element),this.skills=r,this.set(void 0)}trigger(){!this._skill||this.running||!(x.curMana.get()>=this._skill.manaCost)||(x.curMana.subtract(this._skill.manaCost),this.start())}start(){if(!this._skill)return;let r=()=>{var p;return((p=this._skill)==null?void 0:p.baseDuration)||0*x.skillDurationMultiplier.get()},n=r(),a=100,s=n,i=-1,c=()=>{s=r(),n=s*(a/100)};x.skillDurationMultiplier.addListener("change",c),Pe.add(this._skill.mods.flatMap(p=>p.stats),this._skill.sourceName);let f=()=>{i=Ie.subscribe(p=>{if(n<=0){Ie.unsubscribe(i),y();return}n-=p,a=Math.max(0,n/s*100),this.progressBar.style.width=`${a}%`})},y=()=>{x.skillDurationMultiplier.removeListener("change",c),this._skill&&Pe.removeBySource(this._skill.sourceName),this.running=!1,this.progressBar.style.width="0%"};f(),this.running=!0}edit(){sl.open({canRemove:!0,skills:this.skills,skillSlot:this})}createElement(){let r=document.createElement("li");return r.classList.add("g-field"),r.setAttribute("data-skill-slot","buff-skill"),r.insertAdjacentHTML("beforeend",`
-        <div class="wrapper">
-            <div data-progress-bar></div>
-            <div class="g-button" data-label></div>
-        </div>`),r.insertAdjacentHTML("beforeend",'<button class="g-button" data-edit>Edit</button>'),O("[data-edit]",r).addEventListener("click",()=>this.edit()),O("[data-label]",r).addEventListener("click",()=>this.trigger()),r}};var xr,gn,Da,yn,Pd=document.querySelector(".p-game .s-player .s-skills [data-attack-skill]"),kd=document.querySelector(".p-game .s-player .s-skills ul[data-buff-skill-list]");function il(t){if(xr=[],gn=[],yn=[],Pd.replaceChildren(),kd.replaceChildren(),t.attackSkills.skillList.sort((e,r)=>e.levelReq-r.levelReq),t.attackSkills.skillList[0].levelReq>1)throw Error("There must be an attack skill with a level requirement of 1");if(xr=t.attackSkills.skillList.map(e=>new qr(e)),Da=new Ia(xr),Da.set(xr[0]),t.buffSkills){gn=t.buffSkills.skillList.map(e=>new hn(e));for(let e of t.buffSkills.skillSlots){if(e.levelReq<=1){yn.push(new vn(gn));continue}let r=n=>{n<e.levelReq||(yn.push(new vn(gn)),x.level.removeListener("change",r))};x.level.addListener("change",r)}}}function ol(t){var e;t.skills={attackSkillName:((e=Da.skill)==null?void 0:e.name)||"invalid name",buffSkillNames:yn.map(r=>{var n;return((n=r.skill)==null?void 0:n.name)||""}).filter(r=>(r==null?void 0:r.length)>0)}}function ll(t){let e=xr.find(r=>{var n;return r.name===((n=t.skills)==null?void 0:n.attackSkillName)});Da.set(e||xr[0]),yn.forEach((r,n)=>r==null?void 0:r.set(gn.find(a=>{var s,i;return a.name===((i=(s=t.skills)==null?void 0:s.buffSkillNames)==null?void 0:i[n])})))}var Ra=class{constructor(e){P(this,"name");P(this,"levelReq");P(this,"manaCost");P(this,"mods");var r;this.name=e.name,this.levelReq=e.levelReq,this.manaCost=e.manaCost,this.mods=((r=e.mods)==null?void 0:r.map(n=>new Je(n)))||[]}get sourceName(){return`Skill/${this.name}`}},Na=class extends Ra{constructor(r){super(r);P(this,"attackSpeed");P(this,"baseDamageMultiplier");this.attackSpeed=r.attackSpeed,this.baseDamageMultiplier=r.baseDamageMultiplier}enable(){var r;Pe.removeBySource((r=Na.active)==null?void 0:r.sourceName),Na.active=this,Pe.add([new hr({name:"BaseDamageMultiplier",valueType:"Base",value:this.baseDamageMultiplier})],this.sourceName),Pe.add([new hr({name:"AttackSpeed",valueType:"Base",value:this.attackSpeed})],this.sourceName),Pe.add([new hr({name:"AttackManaCost",valueType:"Base",value:this.manaCost})],this.sourceName),this.mods.forEach(n=>Pe.add(n.stats,this.sourceName))}},qr=Na;P(qr,"active");var hn=class extends Ra{constructor(r){super(r);P(this,"baseDuration");this.baseDuration=r.baseDuration}};var bn=class{constructor(){P(this,"running",!1);P(this,"instances",new Map);P(this,"animInstances",new Map);P(this,"loopId",0);P(this,"animLoopId",0);P(this,"counter",0);P(this,"animCounter",0)}subscribe(e,r){let n=this.counter++,a={callback:e,time:0,id:n,options:r};return this.instances.set(n,a),n}subscribeAnim(e){let r=this.animCounter++,n={callback:e,id:r};return this.animInstances.set(r,n),r}unsubscribe(e){this.instances.delete(e)}unsubscribeAnim(e){this.animInstances.delete(e)}reset(){this.instances.clear(),this.running=!1}start(){this.running||(this.running=!0,this.beginLoop(),this.beginAnimationLoop())}stop(){this.running=!1,clearTimeout(this.loopId),cancelAnimationFrame(this.animLoopId||0)}beginLoop(){let e=0,r=performance.now(),n=()=>{clearTimeout(this.loopId),this.loopId=window.setTimeout(()=>{let a=performance.now()-r+e;for(r=performance.now();a>=40;)a-=40,this.instances.forEach(s=>{var c;s.time+=40;let i=((c=s.options)==null?void 0:c.intervalMilliseconds)||0;s.time>i&&(s.callback(.04),s.time-=i||s.time)});e=a,n()},40)};n()}beginAnimationLoop(){let e=performance.now(),r=()=>{let n=performance.now()-e;e=performance.now();let a=n/1e3;for(let s of this.animInstances.values())s.callback(a);this.animLoopId=requestAnimationFrame(r)};this.animLoopId=requestAnimationFrame(r)}};var cl="Passives",Fs=O('.p-game > menu [data-tab-target="passives"]'),Aa=O(".p-game .p-passives"),Id=O("[data-passives-list]",Aa),Dd=O("header [data-cur-points]",Aa),Rd=O("header [data-max-points]",Aa),Nd=O("header [data-clear]",Aa);Nd.addEventListener("click",()=>Ld());var ul=()=>Hs*(x.level.get()-1),Ad=()=>at.filter(t=>t.assigned).reduce((t,e)=>t+=e.points,0),at,Hs;function dl(t){if(!!t){at=[],Hs=1;for(let e of t.passiveList){let r=new Vs(e);at.push(r)}if(Id.replaceChildren(...at.map(e=>e.element)),_n(),t.levelReq>1){let e=r=>{r>=t.levelReq&&(Fs.classList.remove("hidden"),x.level.removeListener("change",e))};x.level.addListener("change",e)}x.level.addListener("change",e=>{at.forEach(n=>n.tryUnlock()),Math.floor(ul()-(Hs*e-2))>0&&We(Fs,"click"),_n()})}}function Ld(){at.filter(t=>t.assigned).forEach(t=>t.unassign()),_n()}function _n(){let t=ul(),e=Ad(),r=t-e;Rd.textContent=t.toFixed(),Dd.textContent=e.toFixed();for(let n of at)n.assigned||n.element.toggleAttribute("disabled",n.points>r),n.element.classList.toggle("selected",n.assigned)}function fl(t){t.passives={list:at.filter(e=>e.assigned).map(e=>({index:at.indexOf(e),desc:e.mod.desc}))}}function ml(t){let e=t.passives;if(!e){at.forEach(n=>n.unassign());return}e.list.every(n=>at[n.index].mod.desc===n.desc)&&(e.list.forEach(n=>{at[n.index].assign()}),_n())}var Vs=class{constructor(e){P(this,"levelReq");P(this,"points");P(this,"mod");P(this,"element");P(this,"_assigned");P(this,"locked");this.levelReq=e.levelReq,this.points=e.points,this.mod=new Je(e.mod),this.element=this.createElement(),this.locked=this.levelReq>1,this.element.classList.toggle("hidden",this.locked),this._assigned=!1}get assigned(){return this._assigned}tryUnlock(){!this.locked||x.level.get()<this.levelReq||(this.locked=!1,this.element.classList.remove("hidden"),We(Fs,"click"),We(this.element,"mouseover"))}assign(){this._assigned=!0,Pe.add(this.mod.copy().stats,cl.concat("/",at.indexOf(this).toFixed()))}unassign(){this._assigned=!1,Pe.removeBySource(cl.concat("/",at.indexOf(this).toFixed()))}toggle(){this._assigned?this.unassign():this.assign()}createElement(){let e=document.createElement("li");return e.classList.add("g-list-item","g-field"),e.insertAdjacentHTML("beforeend",`<div>${this.mod.desc}</div>`),e.insertAdjacentHTML("beforeend",`<var>${this.points}</var>`),e.addEventListener("click",()=>{this.toggle(),_n()}),e}};var Fr={reforge:{desc:"Reforge the item with new random modifiers",validate:t=>new qe().modsIsNotEmpty(t.modTables.general),getItemMods:t=>new xe().addMultiple(t.modTables.general,jr(0)).modList},reforgeIncludePhysical:{desc:"Reforge the item with new random modifiers, including a [physical] modifier",validate:t=>new qe().modsIsNotEmpty(t.modTables.general).modsContainsTag(t.modTables.general,"Physical"),getItemMods:t=>new xe().addOneByTag(t.modTables.general,"Physical").addMultiple(t.modTables.general,jr(1)).modList},reforgeIncludeMana:{desc:"Reforge the item with new random modifiers, including a [mana] modifier",validate:t=>new qe().modsIsNotEmpty(t.modTables.general).modsContainsTag(t.modTables.general,"Mana"),getItemMods:t=>new xe().addOneByTag(t.modTables.general,"Mana").addMultiple(t.modTables.general,jr(1)).modList},reforgeIncludeCritical:{desc:"Reforge the item with new random modifiers, including a [critical] modifier",validate:t=>new qe().modsIsNotEmpty(t.modTables.general).modsContainsTag(t.modTables.general,"Critical"),getItemMods:t=>new xe().addOneByTag(t.modTables.general,"Critical").addMultiple(t.modTables.general,jr(1)).modList},reforgeHigherChanceSameMods:{desc:"Reforge the item with a higher chance of receiving the same modifiers",validate:t=>new qe().itemHasModifiers(t.itemModList).modsIsNotEmpty(t.modTables.general),getItemMods:t=>{let e=[...t.modTables.general].map(r=>r.copy()).reduce((r,n)=>(t.itemModList.some(a=>a===n)&&(n.weight*=20),r.push(n),r),[]);return new xe().addMultiple(e,jr(0)).modList}},reforgeLowerChanceSameMods:{desc:"Reforge the item with a lower chance of receiving the same modifiers",validate:t=>new qe().itemHasModifiers(t.itemModList).modsIsNotEmpty(t.modTables.general),getItemMods:t=>{let e=[...t.modTables.general].map(r=>r.copy()).reduce((r,n)=>(t.itemModList.some(a=>a===n)&&(n.weight*=.02),r.push(n),r),[]);return new xe().addMultiple(e,jr(0)).modList}},addRandom:{desc:"Add a random modifier",validate:t=>new qe().itemHasSpaceForMods(t.itemModList).modsIsNotEmpty(t.modTables.general),getItemMods:t=>new xe(t.itemModList).addOne(t.modTables.general).modList},addPhysical:{desc:"Add a [physical] modifier",validate:t=>new qe().modsIsNotEmpty(t.modTables.general).itemHasSpaceForMods(t.itemModList).itemCanCraftModWithTag(t.itemModList,t.modTables.general,"Physical"),getItemMods:t=>new xe(t.itemModList).addOneByTag(t.modTables.general,"Physical").modList},addMana:{desc:"Add a [mana] modifier",validate:t=>new qe().modsIsNotEmpty(t.modTables.general).itemHasSpaceForMods(t.itemModList).itemCanCraftModWithTag(t.itemModList,t.modTables.general,"Mana"),getItemMods:t=>new xe(t.itemModList).addOneByTag(t.modTables.general,"Mana").modList},addCritical:{desc:"Add a [critical] modifier",validate:t=>new qe().modsIsNotEmpty(t.modTables.general).itemHasSpaceForMods(t.itemModList).itemCanCraftModWithTag(t.itemModList,t.modTables.general,"Critical"),getItemMods:t=>new xe(t.itemModList).addOneByTag(t.modTables.general,"Critical").modList},removeRandom:{desc:"Remove a random modifier",validate:t=>new qe().itemHasModifiers(t.itemModList),getItemMods:t=>new xe(t.itemModList).removeRandom().modList},removeRandomAddRandom:{desc:"Remove a random modifier and add a new random modifier",validate:t=>new qe().itemHasModifiers(t.itemModList).modsIsNotEmpty(t.modTables.general),getItemMods:t=>new xe(t.itemModList).removeRandom().addOne(t.modTables.general).modList},removeRandomAddPhysical:{desc:"Remove a random modifier and add a new [physical] modifier",validate:t=>new qe().itemHasModifiers(t.itemModList).modsContainsTag(t.modTables.general,"Physical").itemCanCraftModWithTag(t.itemModList,t.modTables.general,"Physical"),getItemMods:t=>new xe(t.itemModList).removeRandom().addOneByTag(t.modTables.general,"Physical").modList},removeRandomAddMana:{desc:"Remove a random modifier and add a new [mana] modifier",validate:t=>new qe().itemHasModifiers(t.itemModList).modsContainsTag(t.modTables.general,"Mana").itemCanCraftModWithTag(t.itemModList,t.modTables.general,"Mana"),getItemMods:t=>new xe(t.itemModList).removeRandom().addOneByTag(t.modTables.general,"Mana").modList},removeRandomAddCritical:{desc:"Remove a random modifier and add a new [critical] modifier",validate:t=>new qe().itemHasModifiers(t.itemModList).modsContainsTag(t.modTables.general,"Critical").itemCanCraftModWithTag(t.itemModList,t.modTables.general,"Critical"),getItemMods:t=>new xe(t.itemModList).removeRandom().addOneByTag(t.modTables.general,"Critical").modList}},qe=class{constructor(){P(this,"errors",[]);this.errors=[]}itemHasSpaceForMods(e){return e.length>=6&&this.errors.push("Item cannot have any more modifiers"),this}itemHasModifiers(e){return e.length===0&&this.errors.push("Item has no modifiers"),this}itemCanCraftModWithTag(e,r,n){return r.filter(s=>{var i;return((i=s.tags)==null?void 0:i.includes(n))&&!e.some(c=>c.compare(s))}).length===0&&this.errors.push(`There are no ${n} modifiers available`),this}modsIsNotEmpty(e){return e.length===0&&this.errors.push("No modifiers available"),this}modsContainsTag(e,r){return e.some(n=>{var a;return(a=n.tags)==null?void 0:a.includes(r)})||this.errors.push(`No modifier was available with the tag: ${r}`),this}},xe=class{constructor(e=[]){P(this,"modList");this.modList=[...e]}addOne(e){return this.modList.push(...this.generateMods(e,this.modList,1)),this}addOneByTag(e,r){return e=e.filter(n=>{var a;return(a=n.tags)==null?void 0:a.includes(r)}),this.modList.push(...this.generateMods(e,this.modList,1)),this}addMultiple(e,r){return this.modList.push(...this.generateMods(e,this.modList,r)),this}removeRandom(){let e=this.randomRangeInt(0,this.modList.length);return this.modList.splice(e,1),this}generateMods(e,r=[],n){let a=[];for(let s=0;s<n;s++){let i=[...a,...r];e=e.filter(y=>!i.some(p=>y.templateDesc===p.templateDesc));let c=e.reduce((y,p)=>y+=p.weight,0),f=Math.random()*c;for(let y of e)if(c-=y.weight,c<=f){let p=y.copy();p.stats.forEach(E=>E.randomizeValue()),a.push(p);break}}return a}randomRangeInt(e,r){return Math.floor(Math.random()*(r-e)+e)}},jr=(t=0)=>{let e=[0,0,40,50,30,20].slice(t,6),r=e.reduce((a,s)=>a+s),n=Math.random()*r;for(let a=0;a<e.length;a++)if(r-=e[a],r<=n)return a+1;throw Error()};var Vr=O(".p-game .p-items"),pl=O("menu[data-item-list]",Vr),Od=O("ul[data-mod-list]",Vr),Us=O(".s-preset-container",Vr),qd=O("[data-new]",Us),hl=O("[data-edit]",Us),Bs=O("[data-preset-list]",Us),st=O("[data-craft-preset-modal]",Vr),xd=O("[data-craft-list]",st),Hr=O(".s-craft-container",Vr),jd=O("button[data-craft-button]",Hr),En=O('.p-game > menu [data-tab-target="items"]');qd.addEventListener("click",()=>{yl("New Preset",[]).edit()});hl.addEventListener("click",()=>{var t;return(t=ht.active)==null?void 0:t.edit()});O('footer [data-value="apply"]',st).addEventListener("click",()=>{var t;return(t=ht.active)==null?void 0:t.apply()});O('footer [data-value="delete"]',st).addEventListener("click",()=>{var t;return(t=ht.active)==null?void 0:t.delete()});O('footer [data-value="apply"]',st).addEventListener("click",()=>{st.classList.add("hidden")});O('footer [data-value="delete"]',st).addEventListener("click",()=>{st.classList.add("hidden")});O('footer [data-value="cancel"]',st).addEventListener("click",()=>{st.classList.add("hidden")});jd.addEventListener("click",()=>Bd());Lr(Vr,()=>{gr()});var vl=()=>Gt.filter(t=>t.levelReq<=x.level.get()).map(t=>t.id),La,yr,Gt,qt;function gl(t){if(La=[],yr=[],Gt=[],qt==null||qt.forEach(e=>e.delete()),qt=[],!!t){for(let e of t.modTables.general)for(let r=0;r<e.length;r++){let n=e[r];La.push(new $n(n,e))}if(Fd(t.itemList),Hd(t.craftList),yl("All",Object.keys(Fr),!0),Vd(),yr[0].element.click(),x.level.addListener("add",e=>Gt.forEach(r=>r.tryUnlock(e))),x.gold.addListener("change",()=>{gr(),Gs()}),t.levelReq>1){let e=r=>{t.levelReq<=r&&(x.level.removeListener("change",e),En.classList.remove("hidden"),We(En,"mouseover"))};x.level.addListener("change",e)}else En.classList.remove("hidden")}}function Fd(t){for(let e of t){let r=new xt(e);if(yr.push(r),r.levelReq<=1){r.element.classList.remove("hidden");continue}let n=a=>{e.levelReq<=a&&(r.element.classList.remove("hidden"),We(En,"click"),We(r.element,"mouseover"),x.level.removeListener("change",n))};x.level.addListener("change",n)}pl.replaceChildren(...yr.map(e=>e.element))}function Hd(t){var e;for(let r of t){let n=new zt(r);Gt.push(n),n.element.addEventListener("click",()=>{Gt.map(a=>a.element).forEach(a=>{a.classList.toggle("selected",a===n.element)}),n.select(),Gs()})}O("[data-craft-list]",Hr).replaceChildren(...Gt.map(r=>r.element)),(e=Gt.find(r=>!r.locked))==null||e.select()}function yl(t,e,r=!1){let n=new ht(t,e,r);return Bs.appendChild(n.element),n.select(),n}function Vd(){let t=Gt.map(e=>e.element.cloneNode(!0));t.forEach(e=>{e.addEventListener("click",()=>{e.classList.toggle("selected",!e.classList.contains("selected"))})}),xd.replaceChildren(...t)}function bl(){var t;if((t=xt.active)!=null&&t.mods){let e=[];for(let r of xt.active.mods.sort(Je.sort)){let n=r.desc,a=document.createElement("li");a.classList.add("g-mod-desc"),a.textContent=n,e.push(a)}Od.replaceChildren(...e)}}function gr(){var n;if(!ht.active)return;let t=vl(),e=ht.active.ids.filter(a=>t.includes(a));Gt.forEach(a=>{let s=a.cost<=x.gold.get(),i=O("[data-cost]",a.element);i==null||i.toggleAttribute("data-insufficient-cost",!s),a.element.classList.toggle("hidden",a.locked||!e.includes(a.id))}),Hr.querySelector("[data-craft-id].selected:not(.hidden)")||(n=Hr.querySelector("[data-craft-id]:not(.hidden)"))==null||n.click()}function _l(){return{itemModList:xt.active.mods,modTables:{general:La.filter(t=>t.levelReq<=x.level.get())}}}function Gs(){if(!xt.active)return;let t="",e=Fr[zt.active.id];if(!e){console.error("invalid craft id");return}x.gold.get()<zt.active.cost&&(t="You cannot afford this craft");let r=_l(),n=e.validate(r);n.errors.length>0&&(t=n.errors[0]),O("[data-craft-message]",Hr).textContent=t,O("[data-craft-button]",Hr).toggleAttribute("disabled",t.length>0)}function Bd(){if(!xt.active||!Fr[zt.active.id])return;let t=Fr[zt.active.id],e=_l();xt.active.mods=t.getItemMods(e),x.gold.subtract(zt.active.cost),bl(),gr()}var zs=class{constructor({name:e,levelReq:r}){P(this,"name");P(this,"levelReq");P(this,"element");P(this,"sourceName");P(this,"_mods");this.name=e,this.levelReq=r,this._mods=[],this.element=this.createElement(),this.sourceName=`Skills/${e}`}get mods(){return this._mods}set mods(e){Pe.removeBySource(this.sourceName),this._mods=e,Pe.add(this.mods.flatMap(r=>r.stats),this.sourceName)}createElement(){let e=document.createElement("li");return e.classList.add("g-list-item","hidden"),e.textContent=this.name,e.addEventListener("click",()=>{zs.active=this,pl.querySelectorAll("li").forEach(r=>{r.classList.toggle("selected",r===e)}),bl(),Gs()}),e}},xt=zs;P(xt,"active");var $n=class extends Je{constructor(r,n){super(r.mod);P(this,"itemModData");P(this,"levelReq");P(this,"weight");P(this,"groupIndex");P(this,"modGroup");this.itemModData=r,this.levelReq=r.levelReq,this.weight=r.weight,this.groupIndex=n.findIndex(a=>a===r),this.modGroup=n}get tier(){let r=this.modGroup.filter(n=>n.levelReq<=x.level.get()).length-1;return Math.max(1,r-this.groupIndex)}copy(){return new $n(this.itemModData,this.modGroup)}},Ks=class{constructor(e){P(this,"id");P(this,"levelReq");P(this,"cost");P(this,"element");P(this,"_locked",!0);this.id=e.id,this.levelReq=e.levelReq,this.cost=e.cost,this.element=this.createElement(),this._locked=this.levelReq>1}get locked(){return this._locked}tryUnlock(e){this.locked&&e>=this.levelReq&&(We(En,"click"),We(ht.default.element,"click"),We(this.element,"mouseover"),gr(),this._locked=!1)}select(){Ks.active=this,this.element.click()}createElement(){let e=document.createElement("li");e.classList.add("g-field","g-list-item","hidden");let r=Fr[this.id].desc.replace(/\[\w+\]/g,n=>`<span>${n.substring(1,n.length-1)}</span>`);return e.insertAdjacentHTML("beforeend",`<div>${r}</div>`),e.insertAdjacentHTML("beforeend",`<i data-cost="${this.cost}">${this.cost}</i>`),e.setAttribute("data-craft-id",this.id),e}},zt=Ks;P(zt,"active");var vr=class{constructor(e,r=[],n=!1){P(this,"name");P(this,"ids");P(this,"element");this.name=e,this.ids=[...r],n&&(vr.default=this),this.element=this.createElement(),this.setName(this.name),qt.push(this)}get isDefault(){return vr.default===this}static create(){return new vr("New Preset",[])}select(){this.element.click()}setName(e){this.name=e.replace(/[^A-Za-z 0-9]/g,""),this.element.textContent=this.name}edit(){this.openModal()}delete(){var e,r;vr.active=null,this.element.previousElementSibling?(e=this.element.previousElementSibling)==null||e.click():(r=this.element.nextElementSibling)==null||r.click(),this.element.remove(),qt=qt.filter(n=>n!==this),gr()}apply(){let e=O("input[data-name]",st).value;this.setName(e);let r=st.querySelectorAll("[data-craft-list] [data-craft-id].selected");this.ids=Array.from(r).map(n=>n.getAttribute("data-craft-id")),gr()}createElement(){let e=document.createElement("li");return e.classList.add("g-list-item","preset"),e.addEventListener("click",()=>{vr.active=this,Bs.querySelectorAll("li").forEach(r=>{r.classList.toggle("selected",r===e)}),hl.toggleAttribute("disabled",this.isDefault),gr()}),Bs.appendChild(e),e}openModal(){st.querySelector("input[data-name]").value=this.name;let e=vl();st.querySelectorAll("[data-craft-list] [data-craft-id]").forEach(r=>{let n=r.getAttribute("data-craft-id"),a=!e.includes(n);r.classList.toggle("hidden",a);let s=!a&&this.ids.includes(n);r.classList.toggle("selected",s)}),st.classList.remove("hidden")}},ht=vr;P(ht,"active"),P(ht,"default");function El(t){t.items={items:yr.map(e=>({name:e.name,modList:e.mods.map(r=>({desc:r.templateDesc,values:r.stats.map(n=>n.value)}))})),craftPresets:qt.filter(e=>!e.isDefault).map(e=>({name:e.name,ids:e.ids}))}}function $l(t){var e,r,n;if(!!t.items){qt.filter(a=>!a.isDefault).forEach(a=>a.delete());for(let a of t.items.items){let s=yr.find(c=>c.name===a.name);if(!s){console.warn("Could not load Item with name: ",a.name);continue}let i=[];for(let c of a.modList){let f=(e=La.find(p=>c.desc===p.templateDesc))==null?void 0:e.copy();!f||!f.setStatValues(c.values)||i.push(f)}s.mods=i}for(let a of t.items.craftPresets)new ht(a.name,a.ids);(r=qt[0])==null||r.select(),(n=yr[0])==null||n.element.click()}}var Ud=[[/^Reach Level {(\d+)}$/,()=>x.level.get().toFixed()],[/^Prestige {\d+}?$/,()=>Oe["Prestige Count"].get().toFixed()],[/^Deal Damage {(\d+)}$/,()=>Oe["Total Damage"].get().toFixed()],[/^Deal Physical Damage {(\d+)}$/,()=>Oe["Total Physical Damage"].get().toFixed()],[/^Perform Hits {(\d+)}$/,()=>Oe.Hits.get().toFixed()],[/^Perform Critical Hits {(\d+)}$/,()=>Oe["Critical Hits"].get().toFixed()],[/^Generate Gold {(\d+)}$/,()=>Oe["Gold Generated"].get().toFixed()],[/^Regenerate Mana {(\d+)}$/,()=>Oe["Mana Generated"].get().toFixed()]],Ws=document.querySelector('.p-game > menu [data-tab-target="achievements"]'),Br=[],Sl=-1;Lr(document.querySelector(".p-game .p-achievements"),zd);function wl(t){Br.splice(0);for(let e of t.list)Br.push(new Ys(e));if(document.querySelector(".p-achievements ul").replaceChildren(...Br.map(e=>e.element)),Ie.subscribe(()=>{Gd()},{intervalMilliseconds:1e3}),t.levelReq>1){let e=r=>{r>=t.levelReq&&(x.level.removeListener("change",e),Ws.classList.remove("hidden"),We(Ws,"click"))};x.level.addListener("change",e)}}function Gd(){Br.forEach(t=>{t.validate()&&t.complete()})}function zd(t){t?(Br.forEach(e=>e.updateDescription()),Sl=Ie.subscribe(()=>Br.forEach(e=>e.updateDescription()),{intervalMilliseconds:1e3})):Ie.unsubscribe(Sl)}var Ys=class{constructor(e){P(this,"completed",!1);P(this,"validator");P(this,"matchIndex");P(this,"targetValue");P(this,"description");P(this,"modList");P(this,"element");var a;this.description=e.description.replace(/[{}]/g,""),this.modList=[...(e==null?void 0:e.modList)||[]];let r=Ud.find(s=>s[0].exec(e.description));if(!r)throw Error("no achievement validator found");this.validator=r;let n=r[0].exec(e.description);this.targetValue=Number(n[1]),this.matchIndex=(a=e.description.match(/{\d+}/))==null?void 0:a.index,this.element=this.createElement()}updateDescription(){this.completed||(this.element.querySelector("[data-cur-value]").textContent=this.validator[1]())}validate(){if(this.completed)return;let e=Number(this.validator[1]()),r=!1;return this.validator[2]?r=this.validator[2](e,this.targetValue):r=e>=this.targetValue,r}complete(){this.completed=!0,this.applyModifiers(),this.removeCurValueFromDesc(),this.element.querySelector("var").toggleAttribute("data-valid",this.completed),We(Ws,"click"),We(this.element,"mouseover")}applyModifiers(){let e=this.modList.map(r=>new Je(r));Pe.add(e.flatMap(r=>r.stats),"Achievement/"+this.description)}removeCurValueFromDesc(){let e=this.element.querySelector("var"),r=e.innerHTML,n=r.indexOf("</span>");e.innerHTML=r.substring(n+8)}createElement(){let e=document.createElement("li");e.classList.add("g-accordion");let r=document.createElement("div");if(e.appendChild(r),r.classList.add("header"),r.insertAdjacentHTML("beforeend",`<div>${this.description.substring(0,this.matchIndex)}<var><span data-cur-value>${this.validator[1]()}</span>/${this.targetValue.toString()}</var>${this.description.substring(this.matchIndex+this.targetValue.toString().length)}</div>`),this.modList.length>0){let n=document.createElement("div");e.appendChild(n),n.classList.add("content");for(let a of this.modList)n.insertAdjacentHTML("beforeend",`<div class="g-mod-desc">${a.replace(/[{}]/g,"")}</div>`);r.insertAdjacentHTML("beforeend","<i></i>"),r.addEventListener("click",()=>{r.toggleAttribute("data-open")})}return e}};var Kd=["passives","items","achievements"];function Cl(t){let e=Object.fromEntries(Object.entries(t).filter(([r])=>t[r]&&Kd.includes(r)));for(let r of Object.keys(e))if(!!e[r])switch(r){case"passives":dl(e.passives);break;case"items":gl(e.items);break;case"achievements":wl(e.achievements);break}}function Ml(t){fl(t),El(t)}function Tl(t){ml(t),$l(t)}async function Js(){let t=await sr.load("Game");return t?new Map(Object.entries(t)):new Map}async function Qs(t){let e=await Js(),r=e.get(t.id)||{meta:ve({},t)};return r.meta.lastSavedAt=Date.now(),console.log(t),[nl,Wo,ol,Zo,Ml].forEach(n=>n(r)),e.set(t.id,r),sr.save("Game",Object.fromEntries(e)),!0}async function Xs(t){let e=t.meta.id,n=(await Js()).get(e);return n?(t.meta=ve(ve({},t.meta),n.meta),[al,Yo,ll,el,Tl].forEach(a=>a(n)),Ta(),!0):(console.log("could not load",e),!1)}async function Pl(){try{return[...await Js()].map(e=>e[1]).sort((e,r)=>r.meta.lastSavedAt-e.meta.lastSavedAt)[0]}catch(t){console.error(t)}}var kl=O(".p-game");ya(O(":scope > menu",kl),O(".s-middle",kl),ba);var Ie=new bn,Sn;async function Il(t){Sn=t,Ie.reset(),Os(t.enemies),rl(t.player),il(t.skills),Cl(t),Ie.subscribe(()=>{Oe["Time Played"].add(1)},{intervalMilliseconds:1e3}),Ie.subscribe(()=>{Qs(t.meta)},{intervalMilliseconds:1e3*60}),await Ta(),Xo(),jo?Wd():Ie.start(),await Xs(t),document.querySelectorAll("[data-highlight-notification]").forEach(e=>e.removeAttribute("data-highlight-notification"))}function Wd(){"TS"in window||(Object.defineProperty(window,"TS",{value:{setLevel:t=>x.level.set(t),setGold:t=>x.gold.set(t),save:()=>{Sn&&Qs(Sn.meta)},load:()=>{Sn&&Xs(Sn)}}}),console.log("Press Space to toggle GameLoop"),document.addEventListener("keydown",t=>{t.code==="Space"&&(Ie.running?(document.title="Tinkerers Subject (Stopped)",Ie.stop()):(Ie.start(),document.title="Tinkerers Subject (Running)"))}))}var Ju=qo(Wu(),1);var Yu={$schema:"http://json-schema.org/draft-07/schema#",type:"object",required:["skills","enemies"],properties:{enemies:{type:"object",required:["enemyList"],properties:{enemyList:{type:"array",minItems:1,items:{type:"integer",minimum:1}}}},player:{type:"object",properties:{modList:{type:"array",items:{$ref:"#/definitions/mod"}}}},skills:{type:"object",required:["attackSkills"],properties:{attackSkills:{type:"object",required:["skillList"],properties:{skillList:{type:"array",minItems:1,items:{type:"object",required:["name","attackSpeed","manaCost","baseDamageMultiplier","levelReq"],properties:{name:{type:"string"},levelReq:{type:"integer",minimum:1,default:1,description:`Required player level
-Note - At least one skill must have a value of 1`},attackSpeed:{type:"number",minimum:.001,maximum:10,default:1,description:"Number of attacks per second"},manaCost:{type:"integer",minimum:0},baseDamageMultiplier:{type:"integer",minimum:1,default:100,description:"A multiplier used to balance the skill. A value of 100 is 100% of base damage."},mods:{type:"array",items:{$ref:"#/definitions/mod"}}}}}}},buffSkills:{type:"object",required:["skillList","skillSlots"],properties:{skillSlots:{type:"array",minItems:1,items:{type:"object",required:["levelReq"],properties:{levelReq:{type:"integer",minimum:1}}}},skillList:{type:"array",items:{type:"object",required:["name","baseDuration","manaCost","levelReq"],properties:{name:{type:"string"},levelReq:{type:"number"},baseDuration:{type:"integer"},manaCost:{type:"integer"},mods:{type:"array",items:{$ref:"#/definitions/mod"}}}}}}}}},passives:{type:"object",required:["levelReq","passiveList"],properties:{levelReq:{$ref:"#/definitions/levelReq"},passiveList:{type:"array",items:{type:"object",required:["levelReq","mod","points"],properties:{levelReq:{$ref:"#/definitions/levelReq"},mod:{$ref:"#/definitions/mod"},points:{type:"integer",minimum:1}}}}}},items:{type:"object",required:["itemList","craftList","modTables"],properties:{levelReq:{$ref:"#/definitions/levelReq"},itemList:{type:"array",items:{type:"object",properties:{name:{type:"string"},levelReq:{type:"integer",minimum:0}}}},craftList:{type:"array",minItems:1,items:{type:"object",required:["id","levelReq","cost"],properties:{id:{enum:["reforge","reforgeIncludePhysical","reforgeIncludeCritical","reforgeIncludeMana","reforgeHigherChanceSameMods","reforgeLowerChanceSameMods","addRandom","addPhysical","addCritical","addMana","removeRandom","removePhysical","removeCritical","removeMana","removeRandomAddPhysical","removeRandomAddCritical","removeRandomAddMana"]},levelReq:{type:"integer",minimum:0},cost:{type:"integer",minimum:0}}}},modTables:{type:"object",required:["general"],properties:{general:{type:"array",items:{type:"array",items:{type:"object",required:["weight","levelReq","mod"],properties:{weight:{type:"integer",minimum:0},levelReq:{type:"integer",minimum:0},mod:{$ref:"#/definitions/mod"}}}}}}}}},achievements:{type:"object",properties:{levelReq:{$ref:"#/definitions/levelReq"},list:{type:"array",items:{type:"object",required:["description"],properties:{description:{type:"string",anyOf:[{enum:["Reach Level {#}"]},{pattern:"^Reach Level \\{\\d+\\}$"},{enum:["Prestige {#}"]},{pattern:"^Prestige \\{\\d+?\\}$"},{enum:["Deal Damage {#}","Deal Physical Damage {#}"]},{pattern:"^Deal( Physical| Elemental)? Damage \\{\\d+\\}$"},{enum:["Generate Gold {#}"]},{pattern:"^Generate Gold \\{\\d+\\}$"},{enum:["Regenerate Mana {#}"]},{pattern:"^Regenerate Mana \\{\\d+\\}$"},{enum:["Perform Hits {#}"]},{pattern:"^Perform Hits \\{\\d+\\}$"},{enum:["Perform Critical Hits {#} Total Critical Hits"]},{pattern:"^Perform Critical Hits \\{\\d+\\}$"}]},modList:{type:"array",description:"Each mod will be applied upon completing the achievement",items:{$ref:"#/definitions/mod"}}}}}}},prestige:{type:"object",required:["goldMultiplier"],properties:{goldMultiplier:{type:"integer",default:20,description:"Each prestige will apply this multiplier to gold per second"}}}},definitions:{mod:{type:"string",oneOf:[{enum:["Adds {#} To {#} Physical Damage"]},{pattern:"^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Physical Damage$"},{enum:["{#}% Increased Physical Damage"]},{pattern:"^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Physical Damage$"},{enum:["{#}% More Physical Damage"]},{pattern:"^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Physical Damage$"},{enum:["{#}% More Damage"]},{pattern:"^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$"},{enum:["+{#}% Hit Chance"]},{pattern:"^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$"},{enum:["{#}% Increased Attack Speed"]},{pattern:"^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$"},{enum:["{#}% More Attack Speed"]},{pattern:"^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Attack Speed$"},{enum:["+{#}% Critical Hit Chance"]},{pattern:"^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$"},{enum:["+{#}% Critical Hit Multiplier"]},{pattern:"^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$"},{enum:["+{#} Maximum Mana"]},{pattern:"^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$"},{enum:["{#}% Increased Maximum Mana"]},{pattern:"^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$"},{enum:["+{#} Mana Regeneration"]},{pattern:"^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$"},{enum:["+{#} Gold Per Second"]},{pattern:"^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$"},{enum:["{#}% Increased Gold Per Second"]},{pattern:"^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$"}]},name:{type:"string",pattern:"^[A-Za-z 0-9]{3,16}$"},levelReq:{type:"integer",default:1,minimum:1}}};var Qu=new Ju.default().compile(Yu);var Uv=O('menu [data-type="new"]'),td=O('menu [data-type="save"]'),No=O('.p-home [data-config-info] [data-role="delete"]');No.addEventListener("click",async()=>{let t=No.getAttribute("data-id");if(!t)return;let e=await sr.load("Game");delete e[t],await sr.save("Game",e),td.click()});var Xu=O("[data-config-list]"),ps=O("[data-config-info]"),Zu=O("[data-start]",ps),ed=new _a,Ro;[Uv,td].forEach((t,e,r)=>{t.addEventListener("click",async()=>{r.forEach(a=>a.classList.toggle("selected",a===t));let n=t.getAttribute("data-type");Kv(n)}),e===0&&t.click()});async function rd(){await Gv()}async function Gv(){let t=await Pl();return t?(await nd(Le(ve({},t.meta),{type:"save"})),!0):!1}async function nd(t){let e=await Wv(t.rawUrl);if(!e){console.error("invalid url");return}if(!Qu(e)){console.error("invalid configuration");return}e.meta={name:t.name,description:t.description,rawUrl:t.rawUrl,id:t.id,createdAt:t.createdAt||Date.now()},await Il(e);let r=O('header [data-tab-target="game"]');return r.classList.remove("hidden"),r.click(),!0}async function zv(t){O("[data-title]",ps).textContent=t.name,O("[data-desc]",ps).textContent=t.description||"",Zu.removeEventListener("click",Ro),Ro=async()=>{let e=await nd(t)},Zu.addEventListener("click",Ro)}async function Kv(t){let e=await ed.getEntryListElements(t);if(ps.classList.toggle("hidden",e.length===0),e.length===0){let r="";switch(t){case"new":r="Failed to load any configurations";break;case"save":r="You do not have any saved games yet";break}Xu.textContent=r;return}No.classList.toggle("hidden",t!=="save");for(let r of e)r.addEventListener("click",()=>{e.forEach(a=>a.classList.toggle("selected",a===r));let n=ed.getActiveEntry();n.type=t,zv(n)});Xu.replaceChildren(...e),e[0].click()}async function Wv(t){try{return await(await fetch(t)).json()}catch(e){console.error(e)}}var Yv=O("body > header button");ya(Yv.parentElement,document.body,(t,e)=>{switch(ba(t,e),t.getAttribute("data-tab-target")){case"home":t.textContent="Back",t.setAttribute("data-tab-target","game");break;case"game":t.textContent="Home",t.setAttribute("data-tab-target","home");break}});Jv();async function Jv(){await rd(),document.body.classList.remove("hidden")}})();
+"use strict";
+(() => {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __defProps = Object.defineProperties;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+  var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+    get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
+  }) : x)(function(x) {
+    if (typeof require !== "undefined")
+      return require.apply(this, arguments);
+    throw new Error('Dynamic require of "' + x + '" is not supported');
+  });
+  var __commonJS = (cb, mod) => function __require2() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
+  var __publicField = (obj, key, value) => {
+    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+    return value;
+  };
+
+  // node_modules/ajv/dist/compile/codegen/code.js
+  var require_code = __commonJS({
+    "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
+      var _CodeOrName = class {
+      };
+      exports._CodeOrName = _CodeOrName;
+      exports.IDENTIFIER = /^[a-z$_][a-z$_0-9]*$/i;
+      var Name = class extends _CodeOrName {
+        constructor(s) {
+          super();
+          if (!exports.IDENTIFIER.test(s))
+            throw new Error("CodeGen: name must be a valid identifier");
+          this.str = s;
+        }
+        toString() {
+          return this.str;
+        }
+        emptyStr() {
+          return false;
+        }
+        get names() {
+          return { [this.str]: 1 };
+        }
+      };
+      exports.Name = Name;
+      var _Code = class extends _CodeOrName {
+        constructor(code) {
+          super();
+          this._items = typeof code === "string" ? [code] : code;
+        }
+        toString() {
+          return this.str;
+        }
+        emptyStr() {
+          if (this._items.length > 1)
+            return false;
+          const item = this._items[0];
+          return item === "" || item === '""';
+        }
+        get str() {
+          var _a;
+          return (_a = this._str) !== null && _a !== void 0 ? _a : this._str = this._items.reduce((s, c) => `${s}${c}`, "");
+        }
+        get names() {
+          var _a;
+          return (_a = this._names) !== null && _a !== void 0 ? _a : this._names = this._items.reduce((names, c) => {
+            if (c instanceof Name)
+              names[c.str] = (names[c.str] || 0) + 1;
+            return names;
+          }, {});
+        }
+      };
+      exports._Code = _Code;
+      exports.nil = new _Code("");
+      function _(strs, ...args) {
+        const code = [strs[0]];
+        let i = 0;
+        while (i < args.length) {
+          addCodeArg(code, args[i]);
+          code.push(strs[++i]);
+        }
+        return new _Code(code);
+      }
+      exports._ = _;
+      var plus = new _Code("+");
+      function str(strs, ...args) {
+        const expr = [safeStringify(strs[0])];
+        let i = 0;
+        while (i < args.length) {
+          expr.push(plus);
+          addCodeArg(expr, args[i]);
+          expr.push(plus, safeStringify(strs[++i]));
+        }
+        optimize(expr);
+        return new _Code(expr);
+      }
+      exports.str = str;
+      function addCodeArg(code, arg) {
+        if (arg instanceof _Code)
+          code.push(...arg._items);
+        else if (arg instanceof Name)
+          code.push(arg);
+        else
+          code.push(interpolate(arg));
+      }
+      exports.addCodeArg = addCodeArg;
+      function optimize(expr) {
+        let i = 1;
+        while (i < expr.length - 1) {
+          if (expr[i] === plus) {
+            const res = mergeExprItems(expr[i - 1], expr[i + 1]);
+            if (res !== void 0) {
+              expr.splice(i - 1, 3, res);
+              continue;
+            }
+            expr[i++] = "+";
+          }
+          i++;
+        }
+      }
+      function mergeExprItems(a, b) {
+        if (b === '""')
+          return a;
+        if (a === '""')
+          return b;
+        if (typeof a == "string") {
+          if (b instanceof Name || a[a.length - 1] !== '"')
+            return;
+          if (typeof b != "string")
+            return `${a.slice(0, -1)}${b}"`;
+          if (b[0] === '"')
+            return a.slice(0, -1) + b.slice(1);
+          return;
+        }
+        if (typeof b == "string" && b[0] === '"' && !(a instanceof Name))
+          return `"${a}${b.slice(1)}`;
+        return;
+      }
+      function strConcat(c1, c2) {
+        return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str`${c1}${c2}`;
+      }
+      exports.strConcat = strConcat;
+      function interpolate(x) {
+        return typeof x == "number" || typeof x == "boolean" || x === null ? x : safeStringify(Array.isArray(x) ? x.join(",") : x);
+      }
+      function stringify(x) {
+        return new _Code(safeStringify(x));
+      }
+      exports.stringify = stringify;
+      function safeStringify(x) {
+        return JSON.stringify(x).replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+      }
+      exports.safeStringify = safeStringify;
+      function getProperty(key) {
+        return typeof key == "string" && exports.IDENTIFIER.test(key) ? new _Code(`.${key}`) : _`[${key}]`;
+      }
+      exports.getProperty = getProperty;
+      function getEsmExportName(key) {
+        if (typeof key == "string" && exports.IDENTIFIER.test(key)) {
+          return new _Code(`${key}`);
+        }
+        throw new Error(`CodeGen: invalid export name: ${key}, use explicit $id name mapping`);
+      }
+      exports.getEsmExportName = getEsmExportName;
+      function regexpCode(rx) {
+        return new _Code(rx.toString());
+      }
+      exports.regexpCode = regexpCode;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/codegen/scope.js
+  var require_scope = __commonJS({
+    "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
+      var code_1 = require_code();
+      var ValueError = class extends Error {
+        constructor(name) {
+          super(`CodeGen: "code" for ${name} not defined`);
+          this.value = name.value;
+        }
+      };
+      var UsedValueState;
+      (function(UsedValueState2) {
+        UsedValueState2[UsedValueState2["Started"] = 0] = "Started";
+        UsedValueState2[UsedValueState2["Completed"] = 1] = "Completed";
+      })(UsedValueState = exports.UsedValueState || (exports.UsedValueState = {}));
+      exports.varKinds = {
+        const: new code_1.Name("const"),
+        let: new code_1.Name("let"),
+        var: new code_1.Name("var")
+      };
+      var Scope = class {
+        constructor({ prefixes, parent } = {}) {
+          this._names = {};
+          this._prefixes = prefixes;
+          this._parent = parent;
+        }
+        toName(nameOrPrefix) {
+          return nameOrPrefix instanceof code_1.Name ? nameOrPrefix : this.name(nameOrPrefix);
+        }
+        name(prefix) {
+          return new code_1.Name(this._newName(prefix));
+        }
+        _newName(prefix) {
+          const ng = this._names[prefix] || this._nameGroup(prefix);
+          return `${prefix}${ng.index++}`;
+        }
+        _nameGroup(prefix) {
+          var _a, _b;
+          if (((_b = (_a = this._parent) === null || _a === void 0 ? void 0 : _a._prefixes) === null || _b === void 0 ? void 0 : _b.has(prefix)) || this._prefixes && !this._prefixes.has(prefix)) {
+            throw new Error(`CodeGen: prefix "${prefix}" is not allowed in this scope`);
+          }
+          return this._names[prefix] = { prefix, index: 0 };
+        }
+      };
+      exports.Scope = Scope;
+      var ValueScopeName = class extends code_1.Name {
+        constructor(prefix, nameStr) {
+          super(nameStr);
+          this.prefix = prefix;
+        }
+        setValue(value, { property, itemIndex }) {
+          this.value = value;
+          this.scopePath = (0, code_1._)`.${new code_1.Name(property)}[${itemIndex}]`;
+        }
+      };
+      exports.ValueScopeName = ValueScopeName;
+      var line = (0, code_1._)`\n`;
+      var ValueScope = class extends Scope {
+        constructor(opts) {
+          super(opts);
+          this._values = {};
+          this._scope = opts.scope;
+          this.opts = __spreadProps(__spreadValues({}, opts), { _n: opts.lines ? line : code_1.nil });
+        }
+        get() {
+          return this._scope;
+        }
+        name(prefix) {
+          return new ValueScopeName(prefix, this._newName(prefix));
+        }
+        value(nameOrPrefix, value) {
+          var _a;
+          if (value.ref === void 0)
+            throw new Error("CodeGen: ref must be passed in value");
+          const name = this.toName(nameOrPrefix);
+          const { prefix } = name;
+          const valueKey = (_a = value.key) !== null && _a !== void 0 ? _a : value.ref;
+          let vs = this._values[prefix];
+          if (vs) {
+            const _name = vs.get(valueKey);
+            if (_name)
+              return _name;
+          } else {
+            vs = this._values[prefix] = /* @__PURE__ */ new Map();
+          }
+          vs.set(valueKey, name);
+          const s = this._scope[prefix] || (this._scope[prefix] = []);
+          const itemIndex = s.length;
+          s[itemIndex] = value.ref;
+          name.setValue(value, { property: prefix, itemIndex });
+          return name;
+        }
+        getValue(prefix, keyOrRef) {
+          const vs = this._values[prefix];
+          if (!vs)
+            return;
+          return vs.get(keyOrRef);
+        }
+        scopeRefs(scopeName, values = this._values) {
+          return this._reduceValues(values, (name) => {
+            if (name.scopePath === void 0)
+              throw new Error(`CodeGen: name "${name}" has no value`);
+            return (0, code_1._)`${scopeName}${name.scopePath}`;
+          });
+        }
+        scopeCode(values = this._values, usedValues, getCode) {
+          return this._reduceValues(values, (name) => {
+            if (name.value === void 0)
+              throw new Error(`CodeGen: name "${name}" has no value`);
+            return name.value.code;
+          }, usedValues, getCode);
+        }
+        _reduceValues(values, valueCode, usedValues = {}, getCode) {
+          let code = code_1.nil;
+          for (const prefix in values) {
+            const vs = values[prefix];
+            if (!vs)
+              continue;
+            const nameSet = usedValues[prefix] = usedValues[prefix] || /* @__PURE__ */ new Map();
+            vs.forEach((name) => {
+              if (nameSet.has(name))
+                return;
+              nameSet.set(name, UsedValueState.Started);
+              let c = valueCode(name);
+              if (c) {
+                const def = this.opts.es5 ? exports.varKinds.var : exports.varKinds.const;
+                code = (0, code_1._)`${code}${def} ${name} = ${c};${this.opts._n}`;
+              } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name)) {
+                code = (0, code_1._)`${code}${c}${this.opts._n}`;
+              } else {
+                throw new ValueError(name);
+              }
+              nameSet.set(name, UsedValueState.Completed);
+            });
+          }
+          return code;
+        }
+      };
+      exports.ValueScope = ValueScope;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/codegen/index.js
+  var require_codegen = __commonJS({
+    "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
+      var code_1 = require_code();
+      var scope_1 = require_scope();
+      var code_2 = require_code();
+      Object.defineProperty(exports, "_", { enumerable: true, get: function() {
+        return code_2._;
+      } });
+      Object.defineProperty(exports, "str", { enumerable: true, get: function() {
+        return code_2.str;
+      } });
+      Object.defineProperty(exports, "strConcat", { enumerable: true, get: function() {
+        return code_2.strConcat;
+      } });
+      Object.defineProperty(exports, "nil", { enumerable: true, get: function() {
+        return code_2.nil;
+      } });
+      Object.defineProperty(exports, "getProperty", { enumerable: true, get: function() {
+        return code_2.getProperty;
+      } });
+      Object.defineProperty(exports, "stringify", { enumerable: true, get: function() {
+        return code_2.stringify;
+      } });
+      Object.defineProperty(exports, "regexpCode", { enumerable: true, get: function() {
+        return code_2.regexpCode;
+      } });
+      Object.defineProperty(exports, "Name", { enumerable: true, get: function() {
+        return code_2.Name;
+      } });
+      var scope_2 = require_scope();
+      Object.defineProperty(exports, "Scope", { enumerable: true, get: function() {
+        return scope_2.Scope;
+      } });
+      Object.defineProperty(exports, "ValueScope", { enumerable: true, get: function() {
+        return scope_2.ValueScope;
+      } });
+      Object.defineProperty(exports, "ValueScopeName", { enumerable: true, get: function() {
+        return scope_2.ValueScopeName;
+      } });
+      Object.defineProperty(exports, "varKinds", { enumerable: true, get: function() {
+        return scope_2.varKinds;
+      } });
+      exports.operators = {
+        GT: new code_1._Code(">"),
+        GTE: new code_1._Code(">="),
+        LT: new code_1._Code("<"),
+        LTE: new code_1._Code("<="),
+        EQ: new code_1._Code("==="),
+        NEQ: new code_1._Code("!=="),
+        NOT: new code_1._Code("!"),
+        OR: new code_1._Code("||"),
+        AND: new code_1._Code("&&"),
+        ADD: new code_1._Code("+")
+      };
+      var Node = class {
+        optimizeNodes() {
+          return this;
+        }
+        optimizeNames(_names, _constants) {
+          return this;
+        }
+      };
+      var Def = class extends Node {
+        constructor(varKind, name, rhs) {
+          super();
+          this.varKind = varKind;
+          this.name = name;
+          this.rhs = rhs;
+        }
+        render({ es5, _n }) {
+          const varKind = es5 ? scope_1.varKinds.var : this.varKind;
+          const rhs = this.rhs === void 0 ? "" : ` = ${this.rhs}`;
+          return `${varKind} ${this.name}${rhs};` + _n;
+        }
+        optimizeNames(names, constants) {
+          if (!names[this.name.str])
+            return;
+          if (this.rhs)
+            this.rhs = optimizeExpr(this.rhs, names, constants);
+          return this;
+        }
+        get names() {
+          return this.rhs instanceof code_1._CodeOrName ? this.rhs.names : {};
+        }
+      };
+      var Assign = class extends Node {
+        constructor(lhs, rhs, sideEffects) {
+          super();
+          this.lhs = lhs;
+          this.rhs = rhs;
+          this.sideEffects = sideEffects;
+        }
+        render({ _n }) {
+          return `${this.lhs} = ${this.rhs};` + _n;
+        }
+        optimizeNames(names, constants) {
+          if (this.lhs instanceof code_1.Name && !names[this.lhs.str] && !this.sideEffects)
+            return;
+          this.rhs = optimizeExpr(this.rhs, names, constants);
+          return this;
+        }
+        get names() {
+          const names = this.lhs instanceof code_1.Name ? {} : __spreadValues({}, this.lhs.names);
+          return addExprNames(names, this.rhs);
+        }
+      };
+      var AssignOp = class extends Assign {
+        constructor(lhs, op, rhs, sideEffects) {
+          super(lhs, rhs, sideEffects);
+          this.op = op;
+        }
+        render({ _n }) {
+          return `${this.lhs} ${this.op}= ${this.rhs};` + _n;
+        }
+      };
+      var Label = class extends Node {
+        constructor(label) {
+          super();
+          this.label = label;
+          this.names = {};
+        }
+        render({ _n }) {
+          return `${this.label}:` + _n;
+        }
+      };
+      var Break = class extends Node {
+        constructor(label) {
+          super();
+          this.label = label;
+          this.names = {};
+        }
+        render({ _n }) {
+          const label = this.label ? ` ${this.label}` : "";
+          return `break${label};` + _n;
+        }
+      };
+      var Throw = class extends Node {
+        constructor(error) {
+          super();
+          this.error = error;
+        }
+        render({ _n }) {
+          return `throw ${this.error};` + _n;
+        }
+        get names() {
+          return this.error.names;
+        }
+      };
+      var AnyCode = class extends Node {
+        constructor(code) {
+          super();
+          this.code = code;
+        }
+        render({ _n }) {
+          return `${this.code};` + _n;
+        }
+        optimizeNodes() {
+          return `${this.code}` ? this : void 0;
+        }
+        optimizeNames(names, constants) {
+          this.code = optimizeExpr(this.code, names, constants);
+          return this;
+        }
+        get names() {
+          return this.code instanceof code_1._CodeOrName ? this.code.names : {};
+        }
+      };
+      var ParentNode = class extends Node {
+        constructor(nodes = []) {
+          super();
+          this.nodes = nodes;
+        }
+        render(opts) {
+          return this.nodes.reduce((code, n) => code + n.render(opts), "");
+        }
+        optimizeNodes() {
+          const { nodes } = this;
+          let i = nodes.length;
+          while (i--) {
+            const n = nodes[i].optimizeNodes();
+            if (Array.isArray(n))
+              nodes.splice(i, 1, ...n);
+            else if (n)
+              nodes[i] = n;
+            else
+              nodes.splice(i, 1);
+          }
+          return nodes.length > 0 ? this : void 0;
+        }
+        optimizeNames(names, constants) {
+          const { nodes } = this;
+          let i = nodes.length;
+          while (i--) {
+            const n = nodes[i];
+            if (n.optimizeNames(names, constants))
+              continue;
+            subtractNames(names, n.names);
+            nodes.splice(i, 1);
+          }
+          return nodes.length > 0 ? this : void 0;
+        }
+        get names() {
+          return this.nodes.reduce((names, n) => addNames(names, n.names), {});
+        }
+      };
+      var BlockNode = class extends ParentNode {
+        render(opts) {
+          return "{" + opts._n + super.render(opts) + "}" + opts._n;
+        }
+      };
+      var Root = class extends ParentNode {
+      };
+      var Else = class extends BlockNode {
+      };
+      Else.kind = "else";
+      var If = class extends BlockNode {
+        constructor(condition, nodes) {
+          super(nodes);
+          this.condition = condition;
+        }
+        render(opts) {
+          let code = `if(${this.condition})` + super.render(opts);
+          if (this.else)
+            code += "else " + this.else.render(opts);
+          return code;
+        }
+        optimizeNodes() {
+          super.optimizeNodes();
+          const cond = this.condition;
+          if (cond === true)
+            return this.nodes;
+          let e = this.else;
+          if (e) {
+            const ns = e.optimizeNodes();
+            e = this.else = Array.isArray(ns) ? new Else(ns) : ns;
+          }
+          if (e) {
+            if (cond === false)
+              return e instanceof If ? e : e.nodes;
+            if (this.nodes.length)
+              return this;
+            return new If(not(cond), e instanceof If ? [e] : e.nodes);
+          }
+          if (cond === false || !this.nodes.length)
+            return void 0;
+          return this;
+        }
+        optimizeNames(names, constants) {
+          var _a;
+          this.else = (_a = this.else) === null || _a === void 0 ? void 0 : _a.optimizeNames(names, constants);
+          if (!(super.optimizeNames(names, constants) || this.else))
+            return;
+          this.condition = optimizeExpr(this.condition, names, constants);
+          return this;
+        }
+        get names() {
+          const names = super.names;
+          addExprNames(names, this.condition);
+          if (this.else)
+            addNames(names, this.else.names);
+          return names;
+        }
+      };
+      If.kind = "if";
+      var For = class extends BlockNode {
+      };
+      For.kind = "for";
+      var ForLoop = class extends For {
+        constructor(iteration) {
+          super();
+          this.iteration = iteration;
+        }
+        render(opts) {
+          return `for(${this.iteration})` + super.render(opts);
+        }
+        optimizeNames(names, constants) {
+          if (!super.optimizeNames(names, constants))
+            return;
+          this.iteration = optimizeExpr(this.iteration, names, constants);
+          return this;
+        }
+        get names() {
+          return addNames(super.names, this.iteration.names);
+        }
+      };
+      var ForRange = class extends For {
+        constructor(varKind, name, from, to) {
+          super();
+          this.varKind = varKind;
+          this.name = name;
+          this.from = from;
+          this.to = to;
+        }
+        render(opts) {
+          const varKind = opts.es5 ? scope_1.varKinds.var : this.varKind;
+          const { name, from, to } = this;
+          return `for(${varKind} ${name}=${from}; ${name}<${to}; ${name}++)` + super.render(opts);
+        }
+        get names() {
+          const names = addExprNames(super.names, this.from);
+          return addExprNames(names, this.to);
+        }
+      };
+      var ForIter = class extends For {
+        constructor(loop, varKind, name, iterable) {
+          super();
+          this.loop = loop;
+          this.varKind = varKind;
+          this.name = name;
+          this.iterable = iterable;
+        }
+        render(opts) {
+          return `for(${this.varKind} ${this.name} ${this.loop} ${this.iterable})` + super.render(opts);
+        }
+        optimizeNames(names, constants) {
+          if (!super.optimizeNames(names, constants))
+            return;
+          this.iterable = optimizeExpr(this.iterable, names, constants);
+          return this;
+        }
+        get names() {
+          return addNames(super.names, this.iterable.names);
+        }
+      };
+      var Func = class extends BlockNode {
+        constructor(name, args, async) {
+          super();
+          this.name = name;
+          this.args = args;
+          this.async = async;
+        }
+        render(opts) {
+          const _async = this.async ? "async " : "";
+          return `${_async}function ${this.name}(${this.args})` + super.render(opts);
+        }
+      };
+      Func.kind = "func";
+      var Return = class extends ParentNode {
+        render(opts) {
+          return "return " + super.render(opts);
+        }
+      };
+      Return.kind = "return";
+      var Try = class extends BlockNode {
+        render(opts) {
+          let code = "try" + super.render(opts);
+          if (this.catch)
+            code += this.catch.render(opts);
+          if (this.finally)
+            code += this.finally.render(opts);
+          return code;
+        }
+        optimizeNodes() {
+          var _a, _b;
+          super.optimizeNodes();
+          (_a = this.catch) === null || _a === void 0 ? void 0 : _a.optimizeNodes();
+          (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNodes();
+          return this;
+        }
+        optimizeNames(names, constants) {
+          var _a, _b;
+          super.optimizeNames(names, constants);
+          (_a = this.catch) === null || _a === void 0 ? void 0 : _a.optimizeNames(names, constants);
+          (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants);
+          return this;
+        }
+        get names() {
+          const names = super.names;
+          if (this.catch)
+            addNames(names, this.catch.names);
+          if (this.finally)
+            addNames(names, this.finally.names);
+          return names;
+        }
+      };
+      var Catch = class extends BlockNode {
+        constructor(error) {
+          super();
+          this.error = error;
+        }
+        render(opts) {
+          return `catch(${this.error})` + super.render(opts);
+        }
+      };
+      Catch.kind = "catch";
+      var Finally = class extends BlockNode {
+        render(opts) {
+          return "finally" + super.render(opts);
+        }
+      };
+      Finally.kind = "finally";
+      var CodeGen = class {
+        constructor(extScope, opts = {}) {
+          this._values = {};
+          this._blockStarts = [];
+          this._constants = {};
+          this.opts = __spreadProps(__spreadValues({}, opts), { _n: opts.lines ? "\n" : "" });
+          this._extScope = extScope;
+          this._scope = new scope_1.Scope({ parent: extScope });
+          this._nodes = [new Root()];
+        }
+        toString() {
+          return this._root.render(this.opts);
+        }
+        name(prefix) {
+          return this._scope.name(prefix);
+        }
+        scopeName(prefix) {
+          return this._extScope.name(prefix);
+        }
+        scopeValue(prefixOrName, value) {
+          const name = this._extScope.value(prefixOrName, value);
+          const vs = this._values[name.prefix] || (this._values[name.prefix] = /* @__PURE__ */ new Set());
+          vs.add(name);
+          return name;
+        }
+        getScopeValue(prefix, keyOrRef) {
+          return this._extScope.getValue(prefix, keyOrRef);
+        }
+        scopeRefs(scopeName) {
+          return this._extScope.scopeRefs(scopeName, this._values);
+        }
+        scopeCode() {
+          return this._extScope.scopeCode(this._values);
+        }
+        _def(varKind, nameOrPrefix, rhs, constant) {
+          const name = this._scope.toName(nameOrPrefix);
+          if (rhs !== void 0 && constant)
+            this._constants[name.str] = rhs;
+          this._leafNode(new Def(varKind, name, rhs));
+          return name;
+        }
+        const(nameOrPrefix, rhs, _constant) {
+          return this._def(scope_1.varKinds.const, nameOrPrefix, rhs, _constant);
+        }
+        let(nameOrPrefix, rhs, _constant) {
+          return this._def(scope_1.varKinds.let, nameOrPrefix, rhs, _constant);
+        }
+        var(nameOrPrefix, rhs, _constant) {
+          return this._def(scope_1.varKinds.var, nameOrPrefix, rhs, _constant);
+        }
+        assign(lhs, rhs, sideEffects) {
+          return this._leafNode(new Assign(lhs, rhs, sideEffects));
+        }
+        add(lhs, rhs) {
+          return this._leafNode(new AssignOp(lhs, exports.operators.ADD, rhs));
+        }
+        code(c) {
+          if (typeof c == "function")
+            c();
+          else if (c !== code_1.nil)
+            this._leafNode(new AnyCode(c));
+          return this;
+        }
+        object(...keyValues) {
+          const code = ["{"];
+          for (const [key, value] of keyValues) {
+            if (code.length > 1)
+              code.push(",");
+            code.push(key);
+            if (key !== value || this.opts.es5) {
+              code.push(":");
+              (0, code_1.addCodeArg)(code, value);
+            }
+          }
+          code.push("}");
+          return new code_1._Code(code);
+        }
+        if(condition, thenBody, elseBody) {
+          this._blockNode(new If(condition));
+          if (thenBody && elseBody) {
+            this.code(thenBody).else().code(elseBody).endIf();
+          } else if (thenBody) {
+            this.code(thenBody).endIf();
+          } else if (elseBody) {
+            throw new Error('CodeGen: "else" body without "then" body');
+          }
+          return this;
+        }
+        elseIf(condition) {
+          return this._elseNode(new If(condition));
+        }
+        else() {
+          return this._elseNode(new Else());
+        }
+        endIf() {
+          return this._endBlockNode(If, Else);
+        }
+        _for(node, forBody) {
+          this._blockNode(node);
+          if (forBody)
+            this.code(forBody).endFor();
+          return this;
+        }
+        for(iteration, forBody) {
+          return this._for(new ForLoop(iteration), forBody);
+        }
+        forRange(nameOrPrefix, from, to, forBody, varKind = this.opts.es5 ? scope_1.varKinds.var : scope_1.varKinds.let) {
+          const name = this._scope.toName(nameOrPrefix);
+          return this._for(new ForRange(varKind, name, from, to), () => forBody(name));
+        }
+        forOf(nameOrPrefix, iterable, forBody, varKind = scope_1.varKinds.const) {
+          const name = this._scope.toName(nameOrPrefix);
+          if (this.opts.es5) {
+            const arr = iterable instanceof code_1.Name ? iterable : this.var("_arr", iterable);
+            return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i) => {
+              this.var(name, (0, code_1._)`${arr}[${i}]`);
+              forBody(name);
+            });
+          }
+          return this._for(new ForIter("of", varKind, name, iterable), () => forBody(name));
+        }
+        forIn(nameOrPrefix, obj, forBody, varKind = this.opts.es5 ? scope_1.varKinds.var : scope_1.varKinds.const) {
+          if (this.opts.ownProperties) {
+            return this.forOf(nameOrPrefix, (0, code_1._)`Object.keys(${obj})`, forBody);
+          }
+          const name = this._scope.toName(nameOrPrefix);
+          return this._for(new ForIter("in", varKind, name, obj), () => forBody(name));
+        }
+        endFor() {
+          return this._endBlockNode(For);
+        }
+        label(label) {
+          return this._leafNode(new Label(label));
+        }
+        break(label) {
+          return this._leafNode(new Break(label));
+        }
+        return(value) {
+          const node = new Return();
+          this._blockNode(node);
+          this.code(value);
+          if (node.nodes.length !== 1)
+            throw new Error('CodeGen: "return" should have one node');
+          return this._endBlockNode(Return);
+        }
+        try(tryBody, catchCode, finallyCode) {
+          if (!catchCode && !finallyCode)
+            throw new Error('CodeGen: "try" without "catch" and "finally"');
+          const node = new Try();
+          this._blockNode(node);
+          this.code(tryBody);
+          if (catchCode) {
+            const error = this.name("e");
+            this._currNode = node.catch = new Catch(error);
+            catchCode(error);
+          }
+          if (finallyCode) {
+            this._currNode = node.finally = new Finally();
+            this.code(finallyCode);
+          }
+          return this._endBlockNode(Catch, Finally);
+        }
+        throw(error) {
+          return this._leafNode(new Throw(error));
+        }
+        block(body, nodeCount) {
+          this._blockStarts.push(this._nodes.length);
+          if (body)
+            this.code(body).endBlock(nodeCount);
+          return this;
+        }
+        endBlock(nodeCount) {
+          const len = this._blockStarts.pop();
+          if (len === void 0)
+            throw new Error("CodeGen: not in self-balancing block");
+          const toClose = this._nodes.length - len;
+          if (toClose < 0 || nodeCount !== void 0 && toClose !== nodeCount) {
+            throw new Error(`CodeGen: wrong number of nodes: ${toClose} vs ${nodeCount} expected`);
+          }
+          this._nodes.length = len;
+          return this;
+        }
+        func(name, args = code_1.nil, async, funcBody) {
+          this._blockNode(new Func(name, args, async));
+          if (funcBody)
+            this.code(funcBody).endFunc();
+          return this;
+        }
+        endFunc() {
+          return this._endBlockNode(Func);
+        }
+        optimize(n = 1) {
+          while (n-- > 0) {
+            this._root.optimizeNodes();
+            this._root.optimizeNames(this._root.names, this._constants);
+          }
+        }
+        _leafNode(node) {
+          this._currNode.nodes.push(node);
+          return this;
+        }
+        _blockNode(node) {
+          this._currNode.nodes.push(node);
+          this._nodes.push(node);
+        }
+        _endBlockNode(N1, N2) {
+          const n = this._currNode;
+          if (n instanceof N1 || N2 && n instanceof N2) {
+            this._nodes.pop();
+            return this;
+          }
+          throw new Error(`CodeGen: not in block "${N2 ? `${N1.kind}/${N2.kind}` : N1.kind}"`);
+        }
+        _elseNode(node) {
+          const n = this._currNode;
+          if (!(n instanceof If)) {
+            throw new Error('CodeGen: "else" without "if"');
+          }
+          this._currNode = n.else = node;
+          return this;
+        }
+        get _root() {
+          return this._nodes[0];
+        }
+        get _currNode() {
+          const ns = this._nodes;
+          return ns[ns.length - 1];
+        }
+        set _currNode(node) {
+          const ns = this._nodes;
+          ns[ns.length - 1] = node;
+        }
+      };
+      exports.CodeGen = CodeGen;
+      function addNames(names, from) {
+        for (const n in from)
+          names[n] = (names[n] || 0) + (from[n] || 0);
+        return names;
+      }
+      function addExprNames(names, from) {
+        return from instanceof code_1._CodeOrName ? addNames(names, from.names) : names;
+      }
+      function optimizeExpr(expr, names, constants) {
+        if (expr instanceof code_1.Name)
+          return replaceName(expr);
+        if (!canOptimize(expr))
+          return expr;
+        return new code_1._Code(expr._items.reduce((items, c) => {
+          if (c instanceof code_1.Name)
+            c = replaceName(c);
+          if (c instanceof code_1._Code)
+            items.push(...c._items);
+          else
+            items.push(c);
+          return items;
+        }, []));
+        function replaceName(n) {
+          const c = constants[n.str];
+          if (c === void 0 || names[n.str] !== 1)
+            return n;
+          delete names[n.str];
+          return c;
+        }
+        function canOptimize(e) {
+          return e instanceof code_1._Code && e._items.some((c) => c instanceof code_1.Name && names[c.str] === 1 && constants[c.str] !== void 0);
+        }
+      }
+      function subtractNames(names, from) {
+        for (const n in from)
+          names[n] = (names[n] || 0) - (from[n] || 0);
+      }
+      function not(x) {
+        return typeof x == "boolean" || typeof x == "number" || x === null ? !x : (0, code_1._)`!${par(x)}`;
+      }
+      exports.not = not;
+      var andCode = mappend(exports.operators.AND);
+      function and(...args) {
+        return args.reduce(andCode);
+      }
+      exports.and = and;
+      var orCode = mappend(exports.operators.OR);
+      function or(...args) {
+        return args.reduce(orCode);
+      }
+      exports.or = or;
+      function mappend(op) {
+        return (x, y) => x === code_1.nil ? y : y === code_1.nil ? x : (0, code_1._)`${par(x)} ${op} ${par(y)}`;
+      }
+      function par(x) {
+        return x instanceof code_1.Name ? x : (0, code_1._)`(${x})`;
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/compile/util.js
+  var require_util = __commonJS({
+    "node_modules/ajv/dist/compile/util.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
+      var codegen_1 = require_codegen();
+      var code_1 = require_code();
+      function toHash(arr) {
+        const hash = {};
+        for (const item of arr)
+          hash[item] = true;
+        return hash;
+      }
+      exports.toHash = toHash;
+      function alwaysValidSchema(it, schema) {
+        if (typeof schema == "boolean")
+          return schema;
+        if (Object.keys(schema).length === 0)
+          return true;
+        checkUnknownRules(it, schema);
+        return !schemaHasRules(schema, it.self.RULES.all);
+      }
+      exports.alwaysValidSchema = alwaysValidSchema;
+      function checkUnknownRules(it, schema = it.schema) {
+        const { opts, self: self2 } = it;
+        if (!opts.strictSchema)
+          return;
+        if (typeof schema === "boolean")
+          return;
+        const rules = self2.RULES.keywords;
+        for (const key in schema) {
+          if (!rules[key])
+            checkStrictMode(it, `unknown keyword: "${key}"`);
+        }
+      }
+      exports.checkUnknownRules = checkUnknownRules;
+      function schemaHasRules(schema, rules) {
+        if (typeof schema == "boolean")
+          return !schema;
+        for (const key in schema)
+          if (rules[key])
+            return true;
+        return false;
+      }
+      exports.schemaHasRules = schemaHasRules;
+      function schemaHasRulesButRef(schema, RULES) {
+        if (typeof schema == "boolean")
+          return !schema;
+        for (const key in schema)
+          if (key !== "$ref" && RULES.all[key])
+            return true;
+        return false;
+      }
+      exports.schemaHasRulesButRef = schemaHasRulesButRef;
+      function schemaRefOrVal({ topSchemaRef, schemaPath }, schema, keyword, $data) {
+        if (!$data) {
+          if (typeof schema == "number" || typeof schema == "boolean")
+            return schema;
+          if (typeof schema == "string")
+            return (0, codegen_1._)`${schema}`;
+        }
+        return (0, codegen_1._)`${topSchemaRef}${schemaPath}${(0, codegen_1.getProperty)(keyword)}`;
+      }
+      exports.schemaRefOrVal = schemaRefOrVal;
+      function unescapeFragment(str) {
+        return unescapeJsonPointer(decodeURIComponent(str));
+      }
+      exports.unescapeFragment = unescapeFragment;
+      function escapeFragment(str) {
+        return encodeURIComponent(escapeJsonPointer(str));
+      }
+      exports.escapeFragment = escapeFragment;
+      function escapeJsonPointer(str) {
+        if (typeof str == "number")
+          return `${str}`;
+        return str.replace(/~/g, "~0").replace(/\//g, "~1");
+      }
+      exports.escapeJsonPointer = escapeJsonPointer;
+      function unescapeJsonPointer(str) {
+        return str.replace(/~1/g, "/").replace(/~0/g, "~");
+      }
+      exports.unescapeJsonPointer = unescapeJsonPointer;
+      function eachItem(xs, f) {
+        if (Array.isArray(xs)) {
+          for (const x of xs)
+            f(x);
+        } else {
+          f(xs);
+        }
+      }
+      exports.eachItem = eachItem;
+      function makeMergeEvaluated({ mergeNames, mergeToName, mergeValues, resultToName }) {
+        return (gen, from, to, toName) => {
+          const res = to === void 0 ? from : to instanceof codegen_1.Name ? (from instanceof codegen_1.Name ? mergeNames(gen, from, to) : mergeToName(gen, from, to), to) : from instanceof codegen_1.Name ? (mergeToName(gen, to, from), from) : mergeValues(from, to);
+          return toName === codegen_1.Name && !(res instanceof codegen_1.Name) ? resultToName(gen, res) : res;
+        };
+      }
+      exports.mergeEvaluated = {
+        props: makeMergeEvaluated({
+          mergeNames: (gen, from, to) => gen.if((0, codegen_1._)`${to} !== true && ${from} !== undefined`, () => {
+            gen.if((0, codegen_1._)`${from} === true`, () => gen.assign(to, true), () => gen.assign(to, (0, codegen_1._)`${to} || {}`).code((0, codegen_1._)`Object.assign(${to}, ${from})`));
+          }),
+          mergeToName: (gen, from, to) => gen.if((0, codegen_1._)`${to} !== true`, () => {
+            if (from === true) {
+              gen.assign(to, true);
+            } else {
+              gen.assign(to, (0, codegen_1._)`${to} || {}`);
+              setEvaluated(gen, to, from);
+            }
+          }),
+          mergeValues: (from, to) => from === true ? true : __spreadValues(__spreadValues({}, from), to),
+          resultToName: evaluatedPropsToName
+        }),
+        items: makeMergeEvaluated({
+          mergeNames: (gen, from, to) => gen.if((0, codegen_1._)`${to} !== true && ${from} !== undefined`, () => gen.assign(to, (0, codegen_1._)`${from} === true ? true : ${to} > ${from} ? ${to} : ${from}`)),
+          mergeToName: (gen, from, to) => gen.if((0, codegen_1._)`${to} !== true`, () => gen.assign(to, from === true ? true : (0, codegen_1._)`${to} > ${from} ? ${to} : ${from}`)),
+          mergeValues: (from, to) => from === true ? true : Math.max(from, to),
+          resultToName: (gen, items) => gen.var("items", items)
+        })
+      };
+      function evaluatedPropsToName(gen, ps) {
+        if (ps === true)
+          return gen.var("props", true);
+        const props = gen.var("props", (0, codegen_1._)`{}`);
+        if (ps !== void 0)
+          setEvaluated(gen, props, ps);
+        return props;
+      }
+      exports.evaluatedPropsToName = evaluatedPropsToName;
+      function setEvaluated(gen, props, ps) {
+        Object.keys(ps).forEach((p) => gen.assign((0, codegen_1._)`${props}${(0, codegen_1.getProperty)(p)}`, true));
+      }
+      exports.setEvaluated = setEvaluated;
+      var snippets = {};
+      function useFunc(gen, f) {
+        return gen.scopeValue("func", {
+          ref: f,
+          code: snippets[f.code] || (snippets[f.code] = new code_1._Code(f.code))
+        });
+      }
+      exports.useFunc = useFunc;
+      var Type;
+      (function(Type2) {
+        Type2[Type2["Num"] = 0] = "Num";
+        Type2[Type2["Str"] = 1] = "Str";
+      })(Type = exports.Type || (exports.Type = {}));
+      function getErrorPath(dataProp, dataPropType, jsPropertySyntax) {
+        if (dataProp instanceof codegen_1.Name) {
+          const isNumber = dataPropType === Type.Num;
+          return jsPropertySyntax ? isNumber ? (0, codegen_1._)`"[" + ${dataProp} + "]"` : (0, codegen_1._)`"['" + ${dataProp} + "']"` : isNumber ? (0, codegen_1._)`"/" + ${dataProp}` : (0, codegen_1._)`"/" + ${dataProp}.replace(/~/g, "~0").replace(/\\//g, "~1")`;
+        }
+        return jsPropertySyntax ? (0, codegen_1.getProperty)(dataProp).toString() : "/" + escapeJsonPointer(dataProp);
+      }
+      exports.getErrorPath = getErrorPath;
+      function checkStrictMode(it, msg, mode = it.opts.strictSchema) {
+        if (!mode)
+          return;
+        msg = `strict mode: ${msg}`;
+        if (mode === true)
+          throw new Error(msg);
+        it.self.logger.warn(msg);
+      }
+      exports.checkStrictMode = checkStrictMode;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/names.js
+  var require_names = __commonJS({
+    "node_modules/ajv/dist/compile/names.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var names = {
+        data: new codegen_1.Name("data"),
+        valCxt: new codegen_1.Name("valCxt"),
+        instancePath: new codegen_1.Name("instancePath"),
+        parentData: new codegen_1.Name("parentData"),
+        parentDataProperty: new codegen_1.Name("parentDataProperty"),
+        rootData: new codegen_1.Name("rootData"),
+        dynamicAnchors: new codegen_1.Name("dynamicAnchors"),
+        vErrors: new codegen_1.Name("vErrors"),
+        errors: new codegen_1.Name("errors"),
+        this: new codegen_1.Name("this"),
+        self: new codegen_1.Name("self"),
+        scope: new codegen_1.Name("scope"),
+        json: new codegen_1.Name("json"),
+        jsonPos: new codegen_1.Name("jsonPos"),
+        jsonLen: new codegen_1.Name("jsonLen"),
+        jsonPart: new codegen_1.Name("jsonPart")
+      };
+      exports.default = names;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/errors.js
+  var require_errors = __commonJS({
+    "node_modules/ajv/dist/compile/errors.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var names_1 = require_names();
+      exports.keywordError = {
+        message: ({ keyword }) => (0, codegen_1.str)`must pass "${keyword}" keyword validation`
+      };
+      exports.keyword$DataError = {
+        message: ({ keyword, schemaType }) => schemaType ? (0, codegen_1.str)`"${keyword}" keyword must be ${schemaType} ($data)` : (0, codegen_1.str)`"${keyword}" keyword is invalid ($data)`
+      };
+      function reportError(cxt, error = exports.keywordError, errorPaths, overrideAllErrors) {
+        const { it } = cxt;
+        const { gen, compositeRule, allErrors } = it;
+        const errObj = errorObjectCode(cxt, error, errorPaths);
+        if (overrideAllErrors !== null && overrideAllErrors !== void 0 ? overrideAllErrors : compositeRule || allErrors) {
+          addError(gen, errObj);
+        } else {
+          returnErrors(it, (0, codegen_1._)`[${errObj}]`);
+        }
+      }
+      exports.reportError = reportError;
+      function reportExtraError(cxt, error = exports.keywordError, errorPaths) {
+        const { it } = cxt;
+        const { gen, compositeRule, allErrors } = it;
+        const errObj = errorObjectCode(cxt, error, errorPaths);
+        addError(gen, errObj);
+        if (!(compositeRule || allErrors)) {
+          returnErrors(it, names_1.default.vErrors);
+        }
+      }
+      exports.reportExtraError = reportExtraError;
+      function resetErrorsCount(gen, errsCount) {
+        gen.assign(names_1.default.errors, errsCount);
+        gen.if((0, codegen_1._)`${names_1.default.vErrors} !== null`, () => gen.if(errsCount, () => gen.assign((0, codegen_1._)`${names_1.default.vErrors}.length`, errsCount), () => gen.assign(names_1.default.vErrors, null)));
+      }
+      exports.resetErrorsCount = resetErrorsCount;
+      function extendErrors({ gen, keyword, schemaValue, data, errsCount, it }) {
+        if (errsCount === void 0)
+          throw new Error("ajv implementation error");
+        const err = gen.name("err");
+        gen.forRange("i", errsCount, names_1.default.errors, (i) => {
+          gen.const(err, (0, codegen_1._)`${names_1.default.vErrors}[${i}]`);
+          gen.if((0, codegen_1._)`${err}.instancePath === undefined`, () => gen.assign((0, codegen_1._)`${err}.instancePath`, (0, codegen_1.strConcat)(names_1.default.instancePath, it.errorPath)));
+          gen.assign((0, codegen_1._)`${err}.schemaPath`, (0, codegen_1.str)`${it.errSchemaPath}/${keyword}`);
+          if (it.opts.verbose) {
+            gen.assign((0, codegen_1._)`${err}.schema`, schemaValue);
+            gen.assign((0, codegen_1._)`${err}.data`, data);
+          }
+        });
+      }
+      exports.extendErrors = extendErrors;
+      function addError(gen, errObj) {
+        const err = gen.const("err", errObj);
+        gen.if((0, codegen_1._)`${names_1.default.vErrors} === null`, () => gen.assign(names_1.default.vErrors, (0, codegen_1._)`[${err}]`), (0, codegen_1._)`${names_1.default.vErrors}.push(${err})`);
+        gen.code((0, codegen_1._)`${names_1.default.errors}++`);
+      }
+      function returnErrors(it, errs) {
+        const { gen, validateName, schemaEnv } = it;
+        if (schemaEnv.$async) {
+          gen.throw((0, codegen_1._)`new ${it.ValidationError}(${errs})`);
+        } else {
+          gen.assign((0, codegen_1._)`${validateName}.errors`, errs);
+          gen.return(false);
+        }
+      }
+      var E = {
+        keyword: new codegen_1.Name("keyword"),
+        schemaPath: new codegen_1.Name("schemaPath"),
+        params: new codegen_1.Name("params"),
+        propertyName: new codegen_1.Name("propertyName"),
+        message: new codegen_1.Name("message"),
+        schema: new codegen_1.Name("schema"),
+        parentSchema: new codegen_1.Name("parentSchema")
+      };
+      function errorObjectCode(cxt, error, errorPaths) {
+        const { createErrors } = cxt.it;
+        if (createErrors === false)
+          return (0, codegen_1._)`{}`;
+        return errorObject(cxt, error, errorPaths);
+      }
+      function errorObject(cxt, error, errorPaths = {}) {
+        const { gen, it } = cxt;
+        const keyValues = [
+          errorInstancePath(it, errorPaths),
+          errorSchemaPath(cxt, errorPaths)
+        ];
+        extraErrorProps(cxt, error, keyValues);
+        return gen.object(...keyValues);
+      }
+      function errorInstancePath({ errorPath }, { instancePath }) {
+        const instPath = instancePath ? (0, codegen_1.str)`${errorPath}${(0, util_1.getErrorPath)(instancePath, util_1.Type.Str)}` : errorPath;
+        return [names_1.default.instancePath, (0, codegen_1.strConcat)(names_1.default.instancePath, instPath)];
+      }
+      function errorSchemaPath({ keyword, it: { errSchemaPath } }, { schemaPath, parentSchema }) {
+        let schPath = parentSchema ? errSchemaPath : (0, codegen_1.str)`${errSchemaPath}/${keyword}`;
+        if (schemaPath) {
+          schPath = (0, codegen_1.str)`${schPath}${(0, util_1.getErrorPath)(schemaPath, util_1.Type.Str)}`;
+        }
+        return [E.schemaPath, schPath];
+      }
+      function extraErrorProps(cxt, { params, message }, keyValues) {
+        const { keyword, data, schemaValue, it } = cxt;
+        const { opts, propertyName, topSchemaRef, schemaPath } = it;
+        keyValues.push([E.keyword, keyword], [E.params, typeof params == "function" ? params(cxt) : params || (0, codegen_1._)`{}`]);
+        if (opts.messages) {
+          keyValues.push([E.message, typeof message == "function" ? message(cxt) : message]);
+        }
+        if (opts.verbose) {
+          keyValues.push([E.schema, schemaValue], [E.parentSchema, (0, codegen_1._)`${topSchemaRef}${schemaPath}`], [names_1.default.data, data]);
+        }
+        if (propertyName)
+          keyValues.push([E.propertyName, propertyName]);
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/compile/validate/boolSchema.js
+  var require_boolSchema = __commonJS({
+    "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
+      var errors_1 = require_errors();
+      var codegen_1 = require_codegen();
+      var names_1 = require_names();
+      var boolError = {
+        message: "boolean schema is false"
+      };
+      function topBoolOrEmptySchema(it) {
+        const { gen, schema, validateName } = it;
+        if (schema === false) {
+          falseSchemaError(it, false);
+        } else if (typeof schema == "object" && schema.$async === true) {
+          gen.return(names_1.default.data);
+        } else {
+          gen.assign((0, codegen_1._)`${validateName}.errors`, null);
+          gen.return(true);
+        }
+      }
+      exports.topBoolOrEmptySchema = topBoolOrEmptySchema;
+      function boolOrEmptySchema(it, valid) {
+        const { gen, schema } = it;
+        if (schema === false) {
+          gen.var(valid, false);
+          falseSchemaError(it);
+        } else {
+          gen.var(valid, true);
+        }
+      }
+      exports.boolOrEmptySchema = boolOrEmptySchema;
+      function falseSchemaError(it, overrideAllErrors) {
+        const { gen, data } = it;
+        const cxt = {
+          gen,
+          keyword: "false schema",
+          data,
+          schema: false,
+          schemaCode: false,
+          schemaValue: false,
+          params: {},
+          it
+        };
+        (0, errors_1.reportError)(cxt, boolError, void 0, overrideAllErrors);
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/compile/rules.js
+  var require_rules = __commonJS({
+    "node_modules/ajv/dist/compile/rules.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.getRules = exports.isJSONType = void 0;
+      var _jsonTypes = ["string", "number", "integer", "boolean", "null", "object", "array"];
+      var jsonTypes = new Set(_jsonTypes);
+      function isJSONType(x) {
+        return typeof x == "string" && jsonTypes.has(x);
+      }
+      exports.isJSONType = isJSONType;
+      function getRules() {
+        const groups = {
+          number: { type: "number", rules: [] },
+          string: { type: "string", rules: [] },
+          array: { type: "array", rules: [] },
+          object: { type: "object", rules: [] }
+        };
+        return {
+          types: __spreadProps(__spreadValues({}, groups), { integer: true, boolean: true, null: true }),
+          rules: [{ rules: [] }, groups.number, groups.string, groups.array, groups.object],
+          post: { rules: [] },
+          all: {},
+          keywords: {}
+        };
+      }
+      exports.getRules = getRules;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/validate/applicability.js
+  var require_applicability = __commonJS({
+    "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
+      function schemaHasRulesForType({ schema, self: self2 }, type) {
+        const group = self2.RULES.types[type];
+        return group && group !== true && shouldUseGroup(schema, group);
+      }
+      exports.schemaHasRulesForType = schemaHasRulesForType;
+      function shouldUseGroup(schema, group) {
+        return group.rules.some((rule) => shouldUseRule(schema, rule));
+      }
+      exports.shouldUseGroup = shouldUseGroup;
+      function shouldUseRule(schema, rule) {
+        var _a;
+        return schema[rule.keyword] !== void 0 || ((_a = rule.definition.implements) === null || _a === void 0 ? void 0 : _a.some((kwd) => schema[kwd] !== void 0));
+      }
+      exports.shouldUseRule = shouldUseRule;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/validate/dataType.js
+  var require_dataType = __commonJS({
+    "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
+      var rules_1 = require_rules();
+      var applicability_1 = require_applicability();
+      var errors_1 = require_errors();
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var DataType;
+      (function(DataType2) {
+        DataType2[DataType2["Correct"] = 0] = "Correct";
+        DataType2[DataType2["Wrong"] = 1] = "Wrong";
+      })(DataType = exports.DataType || (exports.DataType = {}));
+      function getSchemaTypes(schema) {
+        const types = getJSONTypes(schema.type);
+        const hasNull = types.includes("null");
+        if (hasNull) {
+          if (schema.nullable === false)
+            throw new Error("type: null contradicts nullable: false");
+        } else {
+          if (!types.length && schema.nullable !== void 0) {
+            throw new Error('"nullable" cannot be used without "type"');
+          }
+          if (schema.nullable === true)
+            types.push("null");
+        }
+        return types;
+      }
+      exports.getSchemaTypes = getSchemaTypes;
+      function getJSONTypes(ts) {
+        const types = Array.isArray(ts) ? ts : ts ? [ts] : [];
+        if (types.every(rules_1.isJSONType))
+          return types;
+        throw new Error("type must be JSONType or JSONType[]: " + types.join(","));
+      }
+      exports.getJSONTypes = getJSONTypes;
+      function coerceAndCheckDataType(it, types) {
+        const { gen, data, opts } = it;
+        const coerceTo = coerceToTypes(types, opts.coerceTypes);
+        const checkTypes = types.length > 0 && !(coerceTo.length === 0 && types.length === 1 && (0, applicability_1.schemaHasRulesForType)(it, types[0]));
+        if (checkTypes) {
+          const wrongType = checkDataTypes(types, data, opts.strictNumbers, DataType.Wrong);
+          gen.if(wrongType, () => {
+            if (coerceTo.length)
+              coerceData(it, types, coerceTo);
+            else
+              reportTypeError(it);
+          });
+        }
+        return checkTypes;
+      }
+      exports.coerceAndCheckDataType = coerceAndCheckDataType;
+      var COERCIBLE = /* @__PURE__ */ new Set(["string", "number", "integer", "boolean", "null"]);
+      function coerceToTypes(types, coerceTypes) {
+        return coerceTypes ? types.filter((t) => COERCIBLE.has(t) || coerceTypes === "array" && t === "array") : [];
+      }
+      function coerceData(it, types, coerceTo) {
+        const { gen, data, opts } = it;
+        const dataType = gen.let("dataType", (0, codegen_1._)`typeof ${data}`);
+        const coerced = gen.let("coerced", (0, codegen_1._)`undefined`);
+        if (opts.coerceTypes === "array") {
+          gen.if((0, codegen_1._)`${dataType} == 'object' && Array.isArray(${data}) && ${data}.length == 1`, () => gen.assign(data, (0, codegen_1._)`${data}[0]`).assign(dataType, (0, codegen_1._)`typeof ${data}`).if(checkDataTypes(types, data, opts.strictNumbers), () => gen.assign(coerced, data)));
+        }
+        gen.if((0, codegen_1._)`${coerced} !== undefined`);
+        for (const t of coerceTo) {
+          if (COERCIBLE.has(t) || t === "array" && opts.coerceTypes === "array") {
+            coerceSpecificType(t);
+          }
+        }
+        gen.else();
+        reportTypeError(it);
+        gen.endIf();
+        gen.if((0, codegen_1._)`${coerced} !== undefined`, () => {
+          gen.assign(data, coerced);
+          assignParentData(it, coerced);
+        });
+        function coerceSpecificType(t) {
+          switch (t) {
+            case "string":
+              gen.elseIf((0, codegen_1._)`${dataType} == "number" || ${dataType} == "boolean"`).assign(coerced, (0, codegen_1._)`"" + ${data}`).elseIf((0, codegen_1._)`${data} === null`).assign(coerced, (0, codegen_1._)`""`);
+              return;
+            case "number":
+              gen.elseIf((0, codegen_1._)`${dataType} == "boolean" || ${data} === null
+              || (${dataType} == "string" && ${data} && ${data} == +${data})`).assign(coerced, (0, codegen_1._)`+${data}`);
+              return;
+            case "integer":
+              gen.elseIf((0, codegen_1._)`${dataType} === "boolean" || ${data} === null
+              || (${dataType} === "string" && ${data} && ${data} == +${data} && !(${data} % 1))`).assign(coerced, (0, codegen_1._)`+${data}`);
+              return;
+            case "boolean":
+              gen.elseIf((0, codegen_1._)`${data} === "false" || ${data} === 0 || ${data} === null`).assign(coerced, false).elseIf((0, codegen_1._)`${data} === "true" || ${data} === 1`).assign(coerced, true);
+              return;
+            case "null":
+              gen.elseIf((0, codegen_1._)`${data} === "" || ${data} === 0 || ${data} === false`);
+              gen.assign(coerced, null);
+              return;
+            case "array":
+              gen.elseIf((0, codegen_1._)`${dataType} === "string" || ${dataType} === "number"
+              || ${dataType} === "boolean" || ${data} === null`).assign(coerced, (0, codegen_1._)`[${data}]`);
+          }
+        }
+      }
+      function assignParentData({ gen, parentData, parentDataProperty }, expr) {
+        gen.if((0, codegen_1._)`${parentData} !== undefined`, () => gen.assign((0, codegen_1._)`${parentData}[${parentDataProperty}]`, expr));
+      }
+      function checkDataType(dataType, data, strictNums, correct = DataType.Correct) {
+        const EQ = correct === DataType.Correct ? codegen_1.operators.EQ : codegen_1.operators.NEQ;
+        let cond;
+        switch (dataType) {
+          case "null":
+            return (0, codegen_1._)`${data} ${EQ} null`;
+          case "array":
+            cond = (0, codegen_1._)`Array.isArray(${data})`;
+            break;
+          case "object":
+            cond = (0, codegen_1._)`${data} && typeof ${data} == "object" && !Array.isArray(${data})`;
+            break;
+          case "integer":
+            cond = numCond((0, codegen_1._)`!(${data} % 1) && !isNaN(${data})`);
+            break;
+          case "number":
+            cond = numCond();
+            break;
+          default:
+            return (0, codegen_1._)`typeof ${data} ${EQ} ${dataType}`;
+        }
+        return correct === DataType.Correct ? cond : (0, codegen_1.not)(cond);
+        function numCond(_cond = codegen_1.nil) {
+          return (0, codegen_1.and)((0, codegen_1._)`typeof ${data} == "number"`, _cond, strictNums ? (0, codegen_1._)`isFinite(${data})` : codegen_1.nil);
+        }
+      }
+      exports.checkDataType = checkDataType;
+      function checkDataTypes(dataTypes, data, strictNums, correct) {
+        if (dataTypes.length === 1) {
+          return checkDataType(dataTypes[0], data, strictNums, correct);
+        }
+        let cond;
+        const types = (0, util_1.toHash)(dataTypes);
+        if (types.array && types.object) {
+          const notObj = (0, codegen_1._)`typeof ${data} != "object"`;
+          cond = types.null ? notObj : (0, codegen_1._)`!${data} || ${notObj}`;
+          delete types.null;
+          delete types.array;
+          delete types.object;
+        } else {
+          cond = codegen_1.nil;
+        }
+        if (types.number)
+          delete types.integer;
+        for (const t in types)
+          cond = (0, codegen_1.and)(cond, checkDataType(t, data, strictNums, correct));
+        return cond;
+      }
+      exports.checkDataTypes = checkDataTypes;
+      var typeError = {
+        message: ({ schema }) => `must be ${schema}`,
+        params: ({ schema, schemaValue }) => typeof schema == "string" ? (0, codegen_1._)`{type: ${schema}}` : (0, codegen_1._)`{type: ${schemaValue}}`
+      };
+      function reportTypeError(it) {
+        const cxt = getTypeErrorContext(it);
+        (0, errors_1.reportError)(cxt, typeError);
+      }
+      exports.reportTypeError = reportTypeError;
+      function getTypeErrorContext(it) {
+        const { gen, data, schema } = it;
+        const schemaCode = (0, util_1.schemaRefOrVal)(it, schema, "type");
+        return {
+          gen,
+          keyword: "type",
+          data,
+          schema: schema.type,
+          schemaCode,
+          schemaValue: schemaCode,
+          parentSchema: schema,
+          params: {},
+          it
+        };
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/compile/validate/defaults.js
+  var require_defaults = __commonJS({
+    "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.assignDefaults = void 0;
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      function assignDefaults(it, ty) {
+        const { properties, items } = it.schema;
+        if (ty === "object" && properties) {
+          for (const key in properties) {
+            assignDefault(it, key, properties[key].default);
+          }
+        } else if (ty === "array" && Array.isArray(items)) {
+          items.forEach((sch, i) => assignDefault(it, i, sch.default));
+        }
+      }
+      exports.assignDefaults = assignDefaults;
+      function assignDefault(it, prop, defaultValue) {
+        const { gen, compositeRule, data, opts } = it;
+        if (defaultValue === void 0)
+          return;
+        const childData = (0, codegen_1._)`${data}${(0, codegen_1.getProperty)(prop)}`;
+        if (compositeRule) {
+          (0, util_1.checkStrictMode)(it, `default is ignored for: ${childData}`);
+          return;
+        }
+        let condition = (0, codegen_1._)`${childData} === undefined`;
+        if (opts.useDefaults === "empty") {
+          condition = (0, codegen_1._)`${condition} || ${childData} === null || ${childData} === ""`;
+        }
+        gen.if(condition, (0, codegen_1._)`${childData} = ${(0, codegen_1.stringify)(defaultValue)}`);
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/code.js
+  var require_code2 = __commonJS({
+    "node_modules/ajv/dist/vocabularies/code.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var names_1 = require_names();
+      var util_2 = require_util();
+      function checkReportMissingProp(cxt, prop) {
+        const { gen, data, it } = cxt;
+        gen.if(noPropertyInData(gen, data, prop, it.opts.ownProperties), () => {
+          cxt.setParams({ missingProperty: (0, codegen_1._)`${prop}` }, true);
+          cxt.error();
+        });
+      }
+      exports.checkReportMissingProp = checkReportMissingProp;
+      function checkMissingProp({ gen, data, it: { opts } }, properties, missing) {
+        return (0, codegen_1.or)(...properties.map((prop) => (0, codegen_1.and)(noPropertyInData(gen, data, prop, opts.ownProperties), (0, codegen_1._)`${missing} = ${prop}`)));
+      }
+      exports.checkMissingProp = checkMissingProp;
+      function reportMissingProp(cxt, missing) {
+        cxt.setParams({ missingProperty: missing }, true);
+        cxt.error();
+      }
+      exports.reportMissingProp = reportMissingProp;
+      function hasPropFunc(gen) {
+        return gen.scopeValue("func", {
+          ref: Object.prototype.hasOwnProperty,
+          code: (0, codegen_1._)`Object.prototype.hasOwnProperty`
+        });
+      }
+      exports.hasPropFunc = hasPropFunc;
+      function isOwnProperty(gen, data, property) {
+        return (0, codegen_1._)`${hasPropFunc(gen)}.call(${data}, ${property})`;
+      }
+      exports.isOwnProperty = isOwnProperty;
+      function propertyInData(gen, data, property, ownProperties) {
+        const cond = (0, codegen_1._)`${data}${(0, codegen_1.getProperty)(property)} !== undefined`;
+        return ownProperties ? (0, codegen_1._)`${cond} && ${isOwnProperty(gen, data, property)}` : cond;
+      }
+      exports.propertyInData = propertyInData;
+      function noPropertyInData(gen, data, property, ownProperties) {
+        const cond = (0, codegen_1._)`${data}${(0, codegen_1.getProperty)(property)} === undefined`;
+        return ownProperties ? (0, codegen_1.or)(cond, (0, codegen_1.not)(isOwnProperty(gen, data, property))) : cond;
+      }
+      exports.noPropertyInData = noPropertyInData;
+      function allSchemaProperties(schemaMap) {
+        return schemaMap ? Object.keys(schemaMap).filter((p) => p !== "__proto__") : [];
+      }
+      exports.allSchemaProperties = allSchemaProperties;
+      function schemaProperties(it, schemaMap) {
+        return allSchemaProperties(schemaMap).filter((p) => !(0, util_1.alwaysValidSchema)(it, schemaMap[p]));
+      }
+      exports.schemaProperties = schemaProperties;
+      function callValidateCode({ schemaCode, data, it: { gen, topSchemaRef, schemaPath, errorPath }, it }, func, context, passSchema) {
+        const dataAndSchema = passSchema ? (0, codegen_1._)`${schemaCode}, ${data}, ${topSchemaRef}${schemaPath}` : data;
+        const valCxt = [
+          [names_1.default.instancePath, (0, codegen_1.strConcat)(names_1.default.instancePath, errorPath)],
+          [names_1.default.parentData, it.parentData],
+          [names_1.default.parentDataProperty, it.parentDataProperty],
+          [names_1.default.rootData, names_1.default.rootData]
+        ];
+        if (it.opts.dynamicRef)
+          valCxt.push([names_1.default.dynamicAnchors, names_1.default.dynamicAnchors]);
+        const args = (0, codegen_1._)`${dataAndSchema}, ${gen.object(...valCxt)}`;
+        return context !== codegen_1.nil ? (0, codegen_1._)`${func}.call(${context}, ${args})` : (0, codegen_1._)`${func}(${args})`;
+      }
+      exports.callValidateCode = callValidateCode;
+      var newRegExp = (0, codegen_1._)`new RegExp`;
+      function usePattern({ gen, it: { opts } }, pattern) {
+        const u = opts.unicodeRegExp ? "u" : "";
+        const { regExp } = opts.code;
+        const rx = regExp(pattern, u);
+        return gen.scopeValue("pattern", {
+          key: rx.toString(),
+          ref: rx,
+          code: (0, codegen_1._)`${regExp.code === "new RegExp" ? newRegExp : (0, util_2.useFunc)(gen, regExp)}(${pattern}, ${u})`
+        });
+      }
+      exports.usePattern = usePattern;
+      function validateArray(cxt) {
+        const { gen, data, keyword, it } = cxt;
+        const valid = gen.name("valid");
+        if (it.allErrors) {
+          const validArr = gen.let("valid", true);
+          validateItems(() => gen.assign(validArr, false));
+          return validArr;
+        }
+        gen.var(valid, true);
+        validateItems(() => gen.break());
+        return valid;
+        function validateItems(notValid) {
+          const len = gen.const("len", (0, codegen_1._)`${data}.length`);
+          gen.forRange("i", 0, len, (i) => {
+            cxt.subschema({
+              keyword,
+              dataProp: i,
+              dataPropType: util_1.Type.Num
+            }, valid);
+            gen.if((0, codegen_1.not)(valid), notValid);
+          });
+        }
+      }
+      exports.validateArray = validateArray;
+      function validateUnion(cxt) {
+        const { gen, schema, keyword, it } = cxt;
+        if (!Array.isArray(schema))
+          throw new Error("ajv implementation error");
+        const alwaysValid = schema.some((sch) => (0, util_1.alwaysValidSchema)(it, sch));
+        if (alwaysValid && !it.opts.unevaluated)
+          return;
+        const valid = gen.let("valid", false);
+        const schValid = gen.name("_valid");
+        gen.block(() => schema.forEach((_sch, i) => {
+          const schCxt = cxt.subschema({
+            keyword,
+            schemaProp: i,
+            compositeRule: true
+          }, schValid);
+          gen.assign(valid, (0, codegen_1._)`${valid} || ${schValid}`);
+          const merged = cxt.mergeValidEvaluated(schCxt, schValid);
+          if (!merged)
+            gen.if((0, codegen_1.not)(valid));
+        }));
+        cxt.result(valid, () => cxt.reset(), () => cxt.error(true));
+      }
+      exports.validateUnion = validateUnion;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/validate/keyword.js
+  var require_keyword = __commonJS({
+    "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
+      var codegen_1 = require_codegen();
+      var names_1 = require_names();
+      var code_1 = require_code2();
+      var errors_1 = require_errors();
+      function macroKeywordCode(cxt, def) {
+        const { gen, keyword, schema, parentSchema, it } = cxt;
+        const macroSchema = def.macro.call(it.self, schema, parentSchema, it);
+        const schemaRef = useKeyword(gen, keyword, macroSchema);
+        if (it.opts.validateSchema !== false)
+          it.self.validateSchema(macroSchema, true);
+        const valid = gen.name("valid");
+        cxt.subschema({
+          schema: macroSchema,
+          schemaPath: codegen_1.nil,
+          errSchemaPath: `${it.errSchemaPath}/${keyword}`,
+          topSchemaRef: schemaRef,
+          compositeRule: true
+        }, valid);
+        cxt.pass(valid, () => cxt.error(true));
+      }
+      exports.macroKeywordCode = macroKeywordCode;
+      function funcKeywordCode(cxt, def) {
+        var _a;
+        const { gen, keyword, schema, parentSchema, $data, it } = cxt;
+        checkAsyncKeyword(it, def);
+        const validate = !$data && def.compile ? def.compile.call(it.self, schema, parentSchema, it) : def.validate;
+        const validateRef = useKeyword(gen, keyword, validate);
+        const valid = gen.let("valid");
+        cxt.block$data(valid, validateKeyword);
+        cxt.ok((_a = def.valid) !== null && _a !== void 0 ? _a : valid);
+        function validateKeyword() {
+          if (def.errors === false) {
+            assignValid();
+            if (def.modifying)
+              modifyData(cxt);
+            reportErrs(() => cxt.error());
+          } else {
+            const ruleErrs = def.async ? validateAsync() : validateSync();
+            if (def.modifying)
+              modifyData(cxt);
+            reportErrs(() => addErrs(cxt, ruleErrs));
+          }
+        }
+        function validateAsync() {
+          const ruleErrs = gen.let("ruleErrs", null);
+          gen.try(() => assignValid((0, codegen_1._)`await `), (e) => gen.assign(valid, false).if((0, codegen_1._)`${e} instanceof ${it.ValidationError}`, () => gen.assign(ruleErrs, (0, codegen_1._)`${e}.errors`), () => gen.throw(e)));
+          return ruleErrs;
+        }
+        function validateSync() {
+          const validateErrs = (0, codegen_1._)`${validateRef}.errors`;
+          gen.assign(validateErrs, null);
+          assignValid(codegen_1.nil);
+          return validateErrs;
+        }
+        function assignValid(_await = def.async ? (0, codegen_1._)`await ` : codegen_1.nil) {
+          const passCxt = it.opts.passContext ? names_1.default.this : names_1.default.self;
+          const passSchema = !("compile" in def && !$data || def.schema === false);
+          gen.assign(valid, (0, codegen_1._)`${_await}${(0, code_1.callValidateCode)(cxt, validateRef, passCxt, passSchema)}`, def.modifying);
+        }
+        function reportErrs(errors) {
+          var _a2;
+          gen.if((0, codegen_1.not)((_a2 = def.valid) !== null && _a2 !== void 0 ? _a2 : valid), errors);
+        }
+      }
+      exports.funcKeywordCode = funcKeywordCode;
+      function modifyData(cxt) {
+        const { gen, data, it } = cxt;
+        gen.if(it.parentData, () => gen.assign(data, (0, codegen_1._)`${it.parentData}[${it.parentDataProperty}]`));
+      }
+      function addErrs(cxt, errs) {
+        const { gen } = cxt;
+        gen.if((0, codegen_1._)`Array.isArray(${errs})`, () => {
+          gen.assign(names_1.default.vErrors, (0, codegen_1._)`${names_1.default.vErrors} === null ? ${errs} : ${names_1.default.vErrors}.concat(${errs})`).assign(names_1.default.errors, (0, codegen_1._)`${names_1.default.vErrors}.length`);
+          (0, errors_1.extendErrors)(cxt);
+        }, () => cxt.error());
+      }
+      function checkAsyncKeyword({ schemaEnv }, def) {
+        if (def.async && !schemaEnv.$async)
+          throw new Error("async keyword in sync schema");
+      }
+      function useKeyword(gen, keyword, result) {
+        if (result === void 0)
+          throw new Error(`keyword "${keyword}" failed to compile`);
+        return gen.scopeValue("keyword", typeof result == "function" ? { ref: result } : { ref: result, code: (0, codegen_1.stringify)(result) });
+      }
+      function validSchemaType(schema, schemaType, allowUndefined = false) {
+        return !schemaType.length || schemaType.some((st) => st === "array" ? Array.isArray(schema) : st === "object" ? schema && typeof schema == "object" && !Array.isArray(schema) : typeof schema == st || allowUndefined && typeof schema == "undefined");
+      }
+      exports.validSchemaType = validSchemaType;
+      function validateKeywordUsage({ schema, opts, self: self2, errSchemaPath }, def, keyword) {
+        if (Array.isArray(def.keyword) ? !def.keyword.includes(keyword) : def.keyword !== keyword) {
+          throw new Error("ajv implementation error");
+        }
+        const deps = def.dependencies;
+        if (deps === null || deps === void 0 ? void 0 : deps.some((kwd) => !Object.prototype.hasOwnProperty.call(schema, kwd))) {
+          throw new Error(`parent schema must have dependencies of ${keyword}: ${deps.join(",")}`);
+        }
+        if (def.validateSchema) {
+          const valid = def.validateSchema(schema[keyword]);
+          if (!valid) {
+            const msg = `keyword "${keyword}" value is invalid at path "${errSchemaPath}": ` + self2.errorsText(def.validateSchema.errors);
+            if (opts.validateSchema === "log")
+              self2.logger.error(msg);
+            else
+              throw new Error(msg);
+          }
+        }
+      }
+      exports.validateKeywordUsage = validateKeywordUsage;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/validate/subschema.js
+  var require_subschema = __commonJS({
+    "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      function getSubschema(it, { keyword, schemaProp, schema, schemaPath, errSchemaPath, topSchemaRef }) {
+        if (keyword !== void 0 && schema !== void 0) {
+          throw new Error('both "keyword" and "schema" passed, only one allowed');
+        }
+        if (keyword !== void 0) {
+          const sch = it.schema[keyword];
+          return schemaProp === void 0 ? {
+            schema: sch,
+            schemaPath: (0, codegen_1._)`${it.schemaPath}${(0, codegen_1.getProperty)(keyword)}`,
+            errSchemaPath: `${it.errSchemaPath}/${keyword}`
+          } : {
+            schema: sch[schemaProp],
+            schemaPath: (0, codegen_1._)`${it.schemaPath}${(0, codegen_1.getProperty)(keyword)}${(0, codegen_1.getProperty)(schemaProp)}`,
+            errSchemaPath: `${it.errSchemaPath}/${keyword}/${(0, util_1.escapeFragment)(schemaProp)}`
+          };
+        }
+        if (schema !== void 0) {
+          if (schemaPath === void 0 || errSchemaPath === void 0 || topSchemaRef === void 0) {
+            throw new Error('"schemaPath", "errSchemaPath" and "topSchemaRef" are required with "schema"');
+          }
+          return {
+            schema,
+            schemaPath,
+            topSchemaRef,
+            errSchemaPath
+          };
+        }
+        throw new Error('either "keyword" or "schema" must be passed');
+      }
+      exports.getSubschema = getSubschema;
+      function extendSubschemaData(subschema, it, { dataProp, dataPropType: dpType, data, dataTypes, propertyName }) {
+        if (data !== void 0 && dataProp !== void 0) {
+          throw new Error('both "data" and "dataProp" passed, only one allowed');
+        }
+        const { gen } = it;
+        if (dataProp !== void 0) {
+          const { errorPath, dataPathArr, opts } = it;
+          const nextData = gen.let("data", (0, codegen_1._)`${it.data}${(0, codegen_1.getProperty)(dataProp)}`, true);
+          dataContextProps(nextData);
+          subschema.errorPath = (0, codegen_1.str)`${errorPath}${(0, util_1.getErrorPath)(dataProp, dpType, opts.jsPropertySyntax)}`;
+          subschema.parentDataProperty = (0, codegen_1._)`${dataProp}`;
+          subschema.dataPathArr = [...dataPathArr, subschema.parentDataProperty];
+        }
+        if (data !== void 0) {
+          const nextData = data instanceof codegen_1.Name ? data : gen.let("data", data, true);
+          dataContextProps(nextData);
+          if (propertyName !== void 0)
+            subschema.propertyName = propertyName;
+        }
+        if (dataTypes)
+          subschema.dataTypes = dataTypes;
+        function dataContextProps(_nextData) {
+          subschema.data = _nextData;
+          subschema.dataLevel = it.dataLevel + 1;
+          subschema.dataTypes = [];
+          it.definedProperties = /* @__PURE__ */ new Set();
+          subschema.parentData = it.data;
+          subschema.dataNames = [...it.dataNames, _nextData];
+        }
+      }
+      exports.extendSubschemaData = extendSubschemaData;
+      function extendSubschemaMode(subschema, { jtdDiscriminator, jtdMetadata, compositeRule, createErrors, allErrors }) {
+        if (compositeRule !== void 0)
+          subschema.compositeRule = compositeRule;
+        if (createErrors !== void 0)
+          subschema.createErrors = createErrors;
+        if (allErrors !== void 0)
+          subschema.allErrors = allErrors;
+        subschema.jtdDiscriminator = jtdDiscriminator;
+        subschema.jtdMetadata = jtdMetadata;
+      }
+      exports.extendSubschemaMode = extendSubschemaMode;
+    }
+  });
+
+  // node_modules/fast-deep-equal/index.js
+  var require_fast_deep_equal = __commonJS({
+    "node_modules/fast-deep-equal/index.js"(exports, module) {
+      "use strict";
+      module.exports = function equal(a, b) {
+        if (a === b)
+          return true;
+        if (a && b && typeof a == "object" && typeof b == "object") {
+          if (a.constructor !== b.constructor)
+            return false;
+          var length, i, keys;
+          if (Array.isArray(a)) {
+            length = a.length;
+            if (length != b.length)
+              return false;
+            for (i = length; i-- !== 0; )
+              if (!equal(a[i], b[i]))
+                return false;
+            return true;
+          }
+          if (a.constructor === RegExp)
+            return a.source === b.source && a.flags === b.flags;
+          if (a.valueOf !== Object.prototype.valueOf)
+            return a.valueOf() === b.valueOf();
+          if (a.toString !== Object.prototype.toString)
+            return a.toString() === b.toString();
+          keys = Object.keys(a);
+          length = keys.length;
+          if (length !== Object.keys(b).length)
+            return false;
+          for (i = length; i-- !== 0; )
+            if (!Object.prototype.hasOwnProperty.call(b, keys[i]))
+              return false;
+          for (i = length; i-- !== 0; ) {
+            var key = keys[i];
+            if (!equal(a[key], b[key]))
+              return false;
+          }
+          return true;
+        }
+        return a !== a && b !== b;
+      };
+    }
+  });
+
+  // node_modules/json-schema-traverse/index.js
+  var require_json_schema_traverse = __commonJS({
+    "node_modules/json-schema-traverse/index.js"(exports, module) {
+      "use strict";
+      var traverse = module.exports = function(schema, opts, cb) {
+        if (typeof opts == "function") {
+          cb = opts;
+          opts = {};
+        }
+        cb = opts.cb || cb;
+        var pre = typeof cb == "function" ? cb : cb.pre || function() {
+        };
+        var post = cb.post || function() {
+        };
+        _traverse(opts, pre, post, schema, "", schema);
+      };
+      traverse.keywords = {
+        additionalItems: true,
+        items: true,
+        contains: true,
+        additionalProperties: true,
+        propertyNames: true,
+        not: true,
+        if: true,
+        then: true,
+        else: true
+      };
+      traverse.arrayKeywords = {
+        items: true,
+        allOf: true,
+        anyOf: true,
+        oneOf: true
+      };
+      traverse.propsKeywords = {
+        $defs: true,
+        definitions: true,
+        properties: true,
+        patternProperties: true,
+        dependencies: true
+      };
+      traverse.skipKeywords = {
+        default: true,
+        enum: true,
+        const: true,
+        required: true,
+        maximum: true,
+        minimum: true,
+        exclusiveMaximum: true,
+        exclusiveMinimum: true,
+        multipleOf: true,
+        maxLength: true,
+        minLength: true,
+        pattern: true,
+        format: true,
+        maxItems: true,
+        minItems: true,
+        uniqueItems: true,
+        maxProperties: true,
+        minProperties: true
+      };
+      function _traverse(opts, pre, post, schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex) {
+        if (schema && typeof schema == "object" && !Array.isArray(schema)) {
+          pre(schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex);
+          for (var key in schema) {
+            var sch = schema[key];
+            if (Array.isArray(sch)) {
+              if (key in traverse.arrayKeywords) {
+                for (var i = 0; i < sch.length; i++)
+                  _traverse(opts, pre, post, sch[i], jsonPtr + "/" + key + "/" + i, rootSchema, jsonPtr, key, schema, i);
+              }
+            } else if (key in traverse.propsKeywords) {
+              if (sch && typeof sch == "object") {
+                for (var prop in sch)
+                  _traverse(opts, pre, post, sch[prop], jsonPtr + "/" + key + "/" + escapeJsonPtr(prop), rootSchema, jsonPtr, key, schema, prop);
+              }
+            } else if (key in traverse.keywords || opts.allKeys && !(key in traverse.skipKeywords)) {
+              _traverse(opts, pre, post, sch, jsonPtr + "/" + key, rootSchema, jsonPtr, key, schema);
+            }
+          }
+          post(schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex);
+        }
+      }
+      function escapeJsonPtr(str) {
+        return str.replace(/~/g, "~0").replace(/\//g, "~1");
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/compile/resolve.js
+  var require_resolve = __commonJS({
+    "node_modules/ajv/dist/compile/resolve.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
+      var util_1 = require_util();
+      var equal = require_fast_deep_equal();
+      var traverse = require_json_schema_traverse();
+      var SIMPLE_INLINED = /* @__PURE__ */ new Set([
+        "type",
+        "format",
+        "pattern",
+        "maxLength",
+        "minLength",
+        "maxProperties",
+        "minProperties",
+        "maxItems",
+        "minItems",
+        "maximum",
+        "minimum",
+        "uniqueItems",
+        "multipleOf",
+        "required",
+        "enum",
+        "const"
+      ]);
+      function inlineRef(schema, limit = true) {
+        if (typeof schema == "boolean")
+          return true;
+        if (limit === true)
+          return !hasRef(schema);
+        if (!limit)
+          return false;
+        return countKeys(schema) <= limit;
+      }
+      exports.inlineRef = inlineRef;
+      var REF_KEYWORDS = /* @__PURE__ */ new Set([
+        "$ref",
+        "$recursiveRef",
+        "$recursiveAnchor",
+        "$dynamicRef",
+        "$dynamicAnchor"
+      ]);
+      function hasRef(schema) {
+        for (const key in schema) {
+          if (REF_KEYWORDS.has(key))
+            return true;
+          const sch = schema[key];
+          if (Array.isArray(sch) && sch.some(hasRef))
+            return true;
+          if (typeof sch == "object" && hasRef(sch))
+            return true;
+        }
+        return false;
+      }
+      function countKeys(schema) {
+        let count = 0;
+        for (const key in schema) {
+          if (key === "$ref")
+            return Infinity;
+          count++;
+          if (SIMPLE_INLINED.has(key))
+            continue;
+          if (typeof schema[key] == "object") {
+            (0, util_1.eachItem)(schema[key], (sch) => count += countKeys(sch));
+          }
+          if (count === Infinity)
+            return Infinity;
+        }
+        return count;
+      }
+      function getFullPath(resolver, id = "", normalize) {
+        if (normalize !== false)
+          id = normalizeId(id);
+        const p = resolver.parse(id);
+        return _getFullPath(resolver, p);
+      }
+      exports.getFullPath = getFullPath;
+      function _getFullPath(resolver, p) {
+        const serialized = resolver.serialize(p);
+        return serialized.split("#")[0] + "#";
+      }
+      exports._getFullPath = _getFullPath;
+      var TRAILING_SLASH_HASH = /#\/?$/;
+      function normalizeId(id) {
+        return id ? id.replace(TRAILING_SLASH_HASH, "") : "";
+      }
+      exports.normalizeId = normalizeId;
+      function resolveUrl(resolver, baseId, id) {
+        id = normalizeId(id);
+        return resolver.resolve(baseId, id);
+      }
+      exports.resolveUrl = resolveUrl;
+      var ANCHOR = /^[a-z_][-a-z0-9._]*$/i;
+      function getSchemaRefs(schema, baseId) {
+        if (typeof schema == "boolean")
+          return {};
+        const { schemaId, uriResolver } = this.opts;
+        const schId = normalizeId(schema[schemaId] || baseId);
+        const baseIds = { "": schId };
+        const pathPrefix = getFullPath(uriResolver, schId, false);
+        const localRefs = {};
+        const schemaRefs = /* @__PURE__ */ new Set();
+        traverse(schema, { allKeys: true }, (sch, jsonPtr, _, parentJsonPtr) => {
+          if (parentJsonPtr === void 0)
+            return;
+          const fullPath = pathPrefix + jsonPtr;
+          let baseId2 = baseIds[parentJsonPtr];
+          if (typeof sch[schemaId] == "string")
+            baseId2 = addRef.call(this, sch[schemaId]);
+          addAnchor.call(this, sch.$anchor);
+          addAnchor.call(this, sch.$dynamicAnchor);
+          baseIds[jsonPtr] = baseId2;
+          function addRef(ref) {
+            const _resolve = this.opts.uriResolver.resolve;
+            ref = normalizeId(baseId2 ? _resolve(baseId2, ref) : ref);
+            if (schemaRefs.has(ref))
+              throw ambiguos(ref);
+            schemaRefs.add(ref);
+            let schOrRef = this.refs[ref];
+            if (typeof schOrRef == "string")
+              schOrRef = this.refs[schOrRef];
+            if (typeof schOrRef == "object") {
+              checkAmbiguosRef(sch, schOrRef.schema, ref);
+            } else if (ref !== normalizeId(fullPath)) {
+              if (ref[0] === "#") {
+                checkAmbiguosRef(sch, localRefs[ref], ref);
+                localRefs[ref] = sch;
+              } else {
+                this.refs[ref] = fullPath;
+              }
+            }
+            return ref;
+          }
+          function addAnchor(anchor) {
+            if (typeof anchor == "string") {
+              if (!ANCHOR.test(anchor))
+                throw new Error(`invalid anchor "${anchor}"`);
+              addRef.call(this, `#${anchor}`);
+            }
+          }
+        });
+        return localRefs;
+        function checkAmbiguosRef(sch1, sch2, ref) {
+          if (sch2 !== void 0 && !equal(sch1, sch2))
+            throw ambiguos(ref);
+        }
+        function ambiguos(ref) {
+          return new Error(`reference "${ref}" resolves to more than one schema`);
+        }
+      }
+      exports.getSchemaRefs = getSchemaRefs;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/validate/index.js
+  var require_validate = __commonJS({
+    "node_modules/ajv/dist/compile/validate/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
+      var boolSchema_1 = require_boolSchema();
+      var dataType_1 = require_dataType();
+      var applicability_1 = require_applicability();
+      var dataType_2 = require_dataType();
+      var defaults_1 = require_defaults();
+      var keyword_1 = require_keyword();
+      var subschema_1 = require_subschema();
+      var codegen_1 = require_codegen();
+      var names_1 = require_names();
+      var resolve_1 = require_resolve();
+      var util_1 = require_util();
+      var errors_1 = require_errors();
+      function validateFunctionCode(it) {
+        if (isSchemaObj(it)) {
+          checkKeywords(it);
+          if (schemaCxtHasRules(it)) {
+            topSchemaObjCode(it);
+            return;
+          }
+        }
+        validateFunction(it, () => (0, boolSchema_1.topBoolOrEmptySchema)(it));
+      }
+      exports.validateFunctionCode = validateFunctionCode;
+      function validateFunction({ gen, validateName, schema, schemaEnv, opts }, body) {
+        if (opts.code.es5) {
+          gen.func(validateName, (0, codegen_1._)`${names_1.default.data}, ${names_1.default.valCxt}`, schemaEnv.$async, () => {
+            gen.code((0, codegen_1._)`"use strict"; ${funcSourceUrl(schema, opts)}`);
+            destructureValCxtES5(gen, opts);
+            gen.code(body);
+          });
+        } else {
+          gen.func(validateName, (0, codegen_1._)`${names_1.default.data}, ${destructureValCxt(opts)}`, schemaEnv.$async, () => gen.code(funcSourceUrl(schema, opts)).code(body));
+        }
+      }
+      function destructureValCxt(opts) {
+        return (0, codegen_1._)`{${names_1.default.instancePath}="", ${names_1.default.parentData}, ${names_1.default.parentDataProperty}, ${names_1.default.rootData}=${names_1.default.data}${opts.dynamicRef ? (0, codegen_1._)`, ${names_1.default.dynamicAnchors}={}` : codegen_1.nil}}={}`;
+      }
+      function destructureValCxtES5(gen, opts) {
+        gen.if(names_1.default.valCxt, () => {
+          gen.var(names_1.default.instancePath, (0, codegen_1._)`${names_1.default.valCxt}.${names_1.default.instancePath}`);
+          gen.var(names_1.default.parentData, (0, codegen_1._)`${names_1.default.valCxt}.${names_1.default.parentData}`);
+          gen.var(names_1.default.parentDataProperty, (0, codegen_1._)`${names_1.default.valCxt}.${names_1.default.parentDataProperty}`);
+          gen.var(names_1.default.rootData, (0, codegen_1._)`${names_1.default.valCxt}.${names_1.default.rootData}`);
+          if (opts.dynamicRef)
+            gen.var(names_1.default.dynamicAnchors, (0, codegen_1._)`${names_1.default.valCxt}.${names_1.default.dynamicAnchors}`);
+        }, () => {
+          gen.var(names_1.default.instancePath, (0, codegen_1._)`""`);
+          gen.var(names_1.default.parentData, (0, codegen_1._)`undefined`);
+          gen.var(names_1.default.parentDataProperty, (0, codegen_1._)`undefined`);
+          gen.var(names_1.default.rootData, names_1.default.data);
+          if (opts.dynamicRef)
+            gen.var(names_1.default.dynamicAnchors, (0, codegen_1._)`{}`);
+        });
+      }
+      function topSchemaObjCode(it) {
+        const { schema, opts, gen } = it;
+        validateFunction(it, () => {
+          if (opts.$comment && schema.$comment)
+            commentKeyword(it);
+          checkNoDefault(it);
+          gen.let(names_1.default.vErrors, null);
+          gen.let(names_1.default.errors, 0);
+          if (opts.unevaluated)
+            resetEvaluated(it);
+          typeAndKeywords(it);
+          returnResults(it);
+        });
+        return;
+      }
+      function resetEvaluated(it) {
+        const { gen, validateName } = it;
+        it.evaluated = gen.const("evaluated", (0, codegen_1._)`${validateName}.evaluated`);
+        gen.if((0, codegen_1._)`${it.evaluated}.dynamicProps`, () => gen.assign((0, codegen_1._)`${it.evaluated}.props`, (0, codegen_1._)`undefined`));
+        gen.if((0, codegen_1._)`${it.evaluated}.dynamicItems`, () => gen.assign((0, codegen_1._)`${it.evaluated}.items`, (0, codegen_1._)`undefined`));
+      }
+      function funcSourceUrl(schema, opts) {
+        const schId = typeof schema == "object" && schema[opts.schemaId];
+        return schId && (opts.code.source || opts.code.process) ? (0, codegen_1._)`/*# sourceURL=${schId} */` : codegen_1.nil;
+      }
+      function subschemaCode(it, valid) {
+        if (isSchemaObj(it)) {
+          checkKeywords(it);
+          if (schemaCxtHasRules(it)) {
+            subSchemaObjCode(it, valid);
+            return;
+          }
+        }
+        (0, boolSchema_1.boolOrEmptySchema)(it, valid);
+      }
+      function schemaCxtHasRules({ schema, self: self2 }) {
+        if (typeof schema == "boolean")
+          return !schema;
+        for (const key in schema)
+          if (self2.RULES.all[key])
+            return true;
+        return false;
+      }
+      function isSchemaObj(it) {
+        return typeof it.schema != "boolean";
+      }
+      function subSchemaObjCode(it, valid) {
+        const { schema, gen, opts } = it;
+        if (opts.$comment && schema.$comment)
+          commentKeyword(it);
+        updateContext(it);
+        checkAsyncSchema(it);
+        const errsCount = gen.const("_errs", names_1.default.errors);
+        typeAndKeywords(it, errsCount);
+        gen.var(valid, (0, codegen_1._)`${errsCount} === ${names_1.default.errors}`);
+      }
+      function checkKeywords(it) {
+        (0, util_1.checkUnknownRules)(it);
+        checkRefsAndKeywords(it);
+      }
+      function typeAndKeywords(it, errsCount) {
+        if (it.opts.jtd)
+          return schemaKeywords(it, [], false, errsCount);
+        const types = (0, dataType_1.getSchemaTypes)(it.schema);
+        const checkedTypes = (0, dataType_1.coerceAndCheckDataType)(it, types);
+        schemaKeywords(it, types, !checkedTypes, errsCount);
+      }
+      function checkRefsAndKeywords(it) {
+        const { schema, errSchemaPath, opts, self: self2 } = it;
+        if (schema.$ref && opts.ignoreKeywordsWithRef && (0, util_1.schemaHasRulesButRef)(schema, self2.RULES)) {
+          self2.logger.warn(`$ref: keywords ignored in schema at path "${errSchemaPath}"`);
+        }
+      }
+      function checkNoDefault(it) {
+        const { schema, opts } = it;
+        if (schema.default !== void 0 && opts.useDefaults && opts.strictSchema) {
+          (0, util_1.checkStrictMode)(it, "default is ignored in the schema root");
+        }
+      }
+      function updateContext(it) {
+        const schId = it.schema[it.opts.schemaId];
+        if (schId)
+          it.baseId = (0, resolve_1.resolveUrl)(it.opts.uriResolver, it.baseId, schId);
+      }
+      function checkAsyncSchema(it) {
+        if (it.schema.$async && !it.schemaEnv.$async)
+          throw new Error("async schema in sync schema");
+      }
+      function commentKeyword({ gen, schemaEnv, schema, errSchemaPath, opts }) {
+        const msg = schema.$comment;
+        if (opts.$comment === true) {
+          gen.code((0, codegen_1._)`${names_1.default.self}.logger.log(${msg})`);
+        } else if (typeof opts.$comment == "function") {
+          const schemaPath = (0, codegen_1.str)`${errSchemaPath}/$comment`;
+          const rootName = gen.scopeValue("root", { ref: schemaEnv.root });
+          gen.code((0, codegen_1._)`${names_1.default.self}.opts.$comment(${msg}, ${schemaPath}, ${rootName}.schema)`);
+        }
+      }
+      function returnResults(it) {
+        const { gen, schemaEnv, validateName, ValidationError, opts } = it;
+        if (schemaEnv.$async) {
+          gen.if((0, codegen_1._)`${names_1.default.errors} === 0`, () => gen.return(names_1.default.data), () => gen.throw((0, codegen_1._)`new ${ValidationError}(${names_1.default.vErrors})`));
+        } else {
+          gen.assign((0, codegen_1._)`${validateName}.errors`, names_1.default.vErrors);
+          if (opts.unevaluated)
+            assignEvaluated(it);
+          gen.return((0, codegen_1._)`${names_1.default.errors} === 0`);
+        }
+      }
+      function assignEvaluated({ gen, evaluated, props, items }) {
+        if (props instanceof codegen_1.Name)
+          gen.assign((0, codegen_1._)`${evaluated}.props`, props);
+        if (items instanceof codegen_1.Name)
+          gen.assign((0, codegen_1._)`${evaluated}.items`, items);
+      }
+      function schemaKeywords(it, types, typeErrors, errsCount) {
+        const { gen, schema, data, allErrors, opts, self: self2 } = it;
+        const { RULES } = self2;
+        if (schema.$ref && (opts.ignoreKeywordsWithRef || !(0, util_1.schemaHasRulesButRef)(schema, RULES))) {
+          gen.block(() => keywordCode(it, "$ref", RULES.all.$ref.definition));
+          return;
+        }
+        if (!opts.jtd)
+          checkStrictTypes(it, types);
+        gen.block(() => {
+          for (const group of RULES.rules)
+            groupKeywords(group);
+          groupKeywords(RULES.post);
+        });
+        function groupKeywords(group) {
+          if (!(0, applicability_1.shouldUseGroup)(schema, group))
+            return;
+          if (group.type) {
+            gen.if((0, dataType_2.checkDataType)(group.type, data, opts.strictNumbers));
+            iterateKeywords(it, group);
+            if (types.length === 1 && types[0] === group.type && typeErrors) {
+              gen.else();
+              (0, dataType_2.reportTypeError)(it);
+            }
+            gen.endIf();
+          } else {
+            iterateKeywords(it, group);
+          }
+          if (!allErrors)
+            gen.if((0, codegen_1._)`${names_1.default.errors} === ${errsCount || 0}`);
+        }
+      }
+      function iterateKeywords(it, group) {
+        const { gen, schema, opts: { useDefaults } } = it;
+        if (useDefaults)
+          (0, defaults_1.assignDefaults)(it, group.type);
+        gen.block(() => {
+          for (const rule of group.rules) {
+            if ((0, applicability_1.shouldUseRule)(schema, rule)) {
+              keywordCode(it, rule.keyword, rule.definition, group.type);
+            }
+          }
+        });
+      }
+      function checkStrictTypes(it, types) {
+        if (it.schemaEnv.meta || !it.opts.strictTypes)
+          return;
+        checkContextTypes(it, types);
+        if (!it.opts.allowUnionTypes)
+          checkMultipleTypes(it, types);
+        checkKeywordTypes(it, it.dataTypes);
+      }
+      function checkContextTypes(it, types) {
+        if (!types.length)
+          return;
+        if (!it.dataTypes.length) {
+          it.dataTypes = types;
+          return;
+        }
+        types.forEach((t) => {
+          if (!includesType(it.dataTypes, t)) {
+            strictTypesError(it, `type "${t}" not allowed by context "${it.dataTypes.join(",")}"`);
+          }
+        });
+        it.dataTypes = it.dataTypes.filter((t) => includesType(types, t));
+      }
+      function checkMultipleTypes(it, ts) {
+        if (ts.length > 1 && !(ts.length === 2 && ts.includes("null"))) {
+          strictTypesError(it, "use allowUnionTypes to allow union type keyword");
+        }
+      }
+      function checkKeywordTypes(it, ts) {
+        const rules = it.self.RULES.all;
+        for (const keyword in rules) {
+          const rule = rules[keyword];
+          if (typeof rule == "object" && (0, applicability_1.shouldUseRule)(it.schema, rule)) {
+            const { type } = rule.definition;
+            if (type.length && !type.some((t) => hasApplicableType(ts, t))) {
+              strictTypesError(it, `missing type "${type.join(",")}" for keyword "${keyword}"`);
+            }
+          }
+        }
+      }
+      function hasApplicableType(schTs, kwdT) {
+        return schTs.includes(kwdT) || kwdT === "number" && schTs.includes("integer");
+      }
+      function includesType(ts, t) {
+        return ts.includes(t) || t === "integer" && ts.includes("number");
+      }
+      function strictTypesError(it, msg) {
+        const schemaPath = it.schemaEnv.baseId + it.errSchemaPath;
+        msg += ` at "${schemaPath}" (strictTypes)`;
+        (0, util_1.checkStrictMode)(it, msg, it.opts.strictTypes);
+      }
+      var KeywordCxt = class {
+        constructor(it, def, keyword) {
+          (0, keyword_1.validateKeywordUsage)(it, def, keyword);
+          this.gen = it.gen;
+          this.allErrors = it.allErrors;
+          this.keyword = keyword;
+          this.data = it.data;
+          this.schema = it.schema[keyword];
+          this.$data = def.$data && it.opts.$data && this.schema && this.schema.$data;
+          this.schemaValue = (0, util_1.schemaRefOrVal)(it, this.schema, keyword, this.$data);
+          this.schemaType = def.schemaType;
+          this.parentSchema = it.schema;
+          this.params = {};
+          this.it = it;
+          this.def = def;
+          if (this.$data) {
+            this.schemaCode = it.gen.const("vSchema", getData(this.$data, it));
+          } else {
+            this.schemaCode = this.schemaValue;
+            if (!(0, keyword_1.validSchemaType)(this.schema, def.schemaType, def.allowUndefined)) {
+              throw new Error(`${keyword} value must be ${JSON.stringify(def.schemaType)}`);
+            }
+          }
+          if ("code" in def ? def.trackErrors : def.errors !== false) {
+            this.errsCount = it.gen.const("_errs", names_1.default.errors);
+          }
+        }
+        result(condition, successAction, failAction) {
+          this.failResult((0, codegen_1.not)(condition), successAction, failAction);
+        }
+        failResult(condition, successAction, failAction) {
+          this.gen.if(condition);
+          if (failAction)
+            failAction();
+          else
+            this.error();
+          if (successAction) {
+            this.gen.else();
+            successAction();
+            if (this.allErrors)
+              this.gen.endIf();
+          } else {
+            if (this.allErrors)
+              this.gen.endIf();
+            else
+              this.gen.else();
+          }
+        }
+        pass(condition, failAction) {
+          this.failResult((0, codegen_1.not)(condition), void 0, failAction);
+        }
+        fail(condition) {
+          if (condition === void 0) {
+            this.error();
+            if (!this.allErrors)
+              this.gen.if(false);
+            return;
+          }
+          this.gen.if(condition);
+          this.error();
+          if (this.allErrors)
+            this.gen.endIf();
+          else
+            this.gen.else();
+        }
+        fail$data(condition) {
+          if (!this.$data)
+            return this.fail(condition);
+          const { schemaCode } = this;
+          this.fail((0, codegen_1._)`${schemaCode} !== undefined && (${(0, codegen_1.or)(this.invalid$data(), condition)})`);
+        }
+        error(append, errorParams, errorPaths) {
+          if (errorParams) {
+            this.setParams(errorParams);
+            this._error(append, errorPaths);
+            this.setParams({});
+            return;
+          }
+          this._error(append, errorPaths);
+        }
+        _error(append, errorPaths) {
+          ;
+          (append ? errors_1.reportExtraError : errors_1.reportError)(this, this.def.error, errorPaths);
+        }
+        $dataError() {
+          (0, errors_1.reportError)(this, this.def.$dataError || errors_1.keyword$DataError);
+        }
+        reset() {
+          if (this.errsCount === void 0)
+            throw new Error('add "trackErrors" to keyword definition');
+          (0, errors_1.resetErrorsCount)(this.gen, this.errsCount);
+        }
+        ok(cond) {
+          if (!this.allErrors)
+            this.gen.if(cond);
+        }
+        setParams(obj, assign) {
+          if (assign)
+            Object.assign(this.params, obj);
+          else
+            this.params = obj;
+        }
+        block$data(valid, codeBlock, $dataValid = codegen_1.nil) {
+          this.gen.block(() => {
+            this.check$data(valid, $dataValid);
+            codeBlock();
+          });
+        }
+        check$data(valid = codegen_1.nil, $dataValid = codegen_1.nil) {
+          if (!this.$data)
+            return;
+          const { gen, schemaCode, schemaType, def } = this;
+          gen.if((0, codegen_1.or)((0, codegen_1._)`${schemaCode} === undefined`, $dataValid));
+          if (valid !== codegen_1.nil)
+            gen.assign(valid, true);
+          if (schemaType.length || def.validateSchema) {
+            gen.elseIf(this.invalid$data());
+            this.$dataError();
+            if (valid !== codegen_1.nil)
+              gen.assign(valid, false);
+          }
+          gen.else();
+        }
+        invalid$data() {
+          const { gen, schemaCode, schemaType, def, it } = this;
+          return (0, codegen_1.or)(wrong$DataType(), invalid$DataSchema());
+          function wrong$DataType() {
+            if (schemaType.length) {
+              if (!(schemaCode instanceof codegen_1.Name))
+                throw new Error("ajv implementation error");
+              const st = Array.isArray(schemaType) ? schemaType : [schemaType];
+              return (0, codegen_1._)`${(0, dataType_2.checkDataTypes)(st, schemaCode, it.opts.strictNumbers, dataType_2.DataType.Wrong)}`;
+            }
+            return codegen_1.nil;
+          }
+          function invalid$DataSchema() {
+            if (def.validateSchema) {
+              const validateSchemaRef = gen.scopeValue("validate$data", { ref: def.validateSchema });
+              return (0, codegen_1._)`!${validateSchemaRef}(${schemaCode})`;
+            }
+            return codegen_1.nil;
+          }
+        }
+        subschema(appl, valid) {
+          const subschema = (0, subschema_1.getSubschema)(this.it, appl);
+          (0, subschema_1.extendSubschemaData)(subschema, this.it, appl);
+          (0, subschema_1.extendSubschemaMode)(subschema, appl);
+          const nextContext = __spreadProps(__spreadValues(__spreadValues({}, this.it), subschema), { items: void 0, props: void 0 });
+          subschemaCode(nextContext, valid);
+          return nextContext;
+        }
+        mergeEvaluated(schemaCxt, toName) {
+          const { it, gen } = this;
+          if (!it.opts.unevaluated)
+            return;
+          if (it.props !== true && schemaCxt.props !== void 0) {
+            it.props = util_1.mergeEvaluated.props(gen, schemaCxt.props, it.props, toName);
+          }
+          if (it.items !== true && schemaCxt.items !== void 0) {
+            it.items = util_1.mergeEvaluated.items(gen, schemaCxt.items, it.items, toName);
+          }
+        }
+        mergeValidEvaluated(schemaCxt, valid) {
+          const { it, gen } = this;
+          if (it.opts.unevaluated && (it.props !== true || it.items !== true)) {
+            gen.if(valid, () => this.mergeEvaluated(schemaCxt, codegen_1.Name));
+            return true;
+          }
+        }
+      };
+      exports.KeywordCxt = KeywordCxt;
+      function keywordCode(it, keyword, def, ruleType) {
+        const cxt = new KeywordCxt(it, def, keyword);
+        if ("code" in def) {
+          def.code(cxt, ruleType);
+        } else if (cxt.$data && def.validate) {
+          (0, keyword_1.funcKeywordCode)(cxt, def);
+        } else if ("macro" in def) {
+          (0, keyword_1.macroKeywordCode)(cxt, def);
+        } else if (def.compile || def.validate) {
+          (0, keyword_1.funcKeywordCode)(cxt, def);
+        }
+      }
+      var JSON_POINTER = /^\/(?:[^~]|~0|~1)*$/;
+      var RELATIVE_JSON_POINTER = /^([0-9]+)(#|\/(?:[^~]|~0|~1)*)?$/;
+      function getData($data, { dataLevel, dataNames, dataPathArr }) {
+        let jsonPointer;
+        let data;
+        if ($data === "")
+          return names_1.default.rootData;
+        if ($data[0] === "/") {
+          if (!JSON_POINTER.test($data))
+            throw new Error(`Invalid JSON-pointer: ${$data}`);
+          jsonPointer = $data;
+          data = names_1.default.rootData;
+        } else {
+          const matches = RELATIVE_JSON_POINTER.exec($data);
+          if (!matches)
+            throw new Error(`Invalid JSON-pointer: ${$data}`);
+          const up = +matches[1];
+          jsonPointer = matches[2];
+          if (jsonPointer === "#") {
+            if (up >= dataLevel)
+              throw new Error(errorMsg("property/index", up));
+            return dataPathArr[dataLevel - up];
+          }
+          if (up > dataLevel)
+            throw new Error(errorMsg("data", up));
+          data = dataNames[dataLevel - up];
+          if (!jsonPointer)
+            return data;
+        }
+        let expr = data;
+        const segments = jsonPointer.split("/");
+        for (const segment of segments) {
+          if (segment) {
+            data = (0, codegen_1._)`${data}${(0, codegen_1.getProperty)((0, util_1.unescapeJsonPointer)(segment))}`;
+            expr = (0, codegen_1._)`${expr} && ${data}`;
+          }
+        }
+        return expr;
+        function errorMsg(pointerType, up) {
+          return `Cannot access ${pointerType} ${up} levels up, current level is ${dataLevel}`;
+        }
+      }
+      exports.getData = getData;
+    }
+  });
+
+  // node_modules/ajv/dist/runtime/validation_error.js
+  var require_validation_error = __commonJS({
+    "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var ValidationError = class extends Error {
+        constructor(errors) {
+          super("validation failed");
+          this.errors = errors;
+          this.ajv = this.validation = true;
+        }
+      };
+      exports.default = ValidationError;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/ref_error.js
+  var require_ref_error = __commonJS({
+    "node_modules/ajv/dist/compile/ref_error.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var resolve_1 = require_resolve();
+      var MissingRefError = class extends Error {
+        constructor(resolver, baseId, ref, msg) {
+          super(msg || `can't resolve reference ${ref} from id ${baseId}`);
+          this.missingRef = (0, resolve_1.resolveUrl)(resolver, baseId, ref);
+          this.missingSchema = (0, resolve_1.normalizeId)((0, resolve_1.getFullPath)(resolver, this.missingRef));
+        }
+      };
+      exports.default = MissingRefError;
+    }
+  });
+
+  // node_modules/ajv/dist/compile/index.js
+  var require_compile = __commonJS({
+    "node_modules/ajv/dist/compile/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
+      var codegen_1 = require_codegen();
+      var validation_error_1 = require_validation_error();
+      var names_1 = require_names();
+      var resolve_1 = require_resolve();
+      var util_1 = require_util();
+      var validate_1 = require_validate();
+      var SchemaEnv = class {
+        constructor(env) {
+          var _a;
+          this.refs = {};
+          this.dynamicAnchors = {};
+          let schema;
+          if (typeof env.schema == "object")
+            schema = env.schema;
+          this.schema = env.schema;
+          this.schemaId = env.schemaId;
+          this.root = env.root || this;
+          this.baseId = (_a = env.baseId) !== null && _a !== void 0 ? _a : (0, resolve_1.normalizeId)(schema === null || schema === void 0 ? void 0 : schema[env.schemaId || "$id"]);
+          this.schemaPath = env.schemaPath;
+          this.localRefs = env.localRefs;
+          this.meta = env.meta;
+          this.$async = schema === null || schema === void 0 ? void 0 : schema.$async;
+          this.refs = {};
+        }
+      };
+      exports.SchemaEnv = SchemaEnv;
+      function compileSchema(sch) {
+        const _sch = getCompilingSchema.call(this, sch);
+        if (_sch)
+          return _sch;
+        const rootId = (0, resolve_1.getFullPath)(this.opts.uriResolver, sch.root.baseId);
+        const { es5, lines } = this.opts.code;
+        const { ownProperties } = this.opts;
+        const gen = new codegen_1.CodeGen(this.scope, { es5, lines, ownProperties });
+        let _ValidationError;
+        if (sch.$async) {
+          _ValidationError = gen.scopeValue("Error", {
+            ref: validation_error_1.default,
+            code: (0, codegen_1._)`require("ajv/dist/runtime/validation_error").default`
+          });
+        }
+        const validateName = gen.scopeName("validate");
+        sch.validateName = validateName;
+        const schemaCxt = {
+          gen,
+          allErrors: this.opts.allErrors,
+          data: names_1.default.data,
+          parentData: names_1.default.parentData,
+          parentDataProperty: names_1.default.parentDataProperty,
+          dataNames: [names_1.default.data],
+          dataPathArr: [codegen_1.nil],
+          dataLevel: 0,
+          dataTypes: [],
+          definedProperties: /* @__PURE__ */ new Set(),
+          topSchemaRef: gen.scopeValue("schema", this.opts.code.source === true ? { ref: sch.schema, code: (0, codegen_1.stringify)(sch.schema) } : { ref: sch.schema }),
+          validateName,
+          ValidationError: _ValidationError,
+          schema: sch.schema,
+          schemaEnv: sch,
+          rootId,
+          baseId: sch.baseId || rootId,
+          schemaPath: codegen_1.nil,
+          errSchemaPath: sch.schemaPath || (this.opts.jtd ? "" : "#"),
+          errorPath: (0, codegen_1._)`""`,
+          opts: this.opts,
+          self: this
+        };
+        let sourceCode;
+        try {
+          this._compilations.add(sch);
+          (0, validate_1.validateFunctionCode)(schemaCxt);
+          gen.optimize(this.opts.code.optimize);
+          const validateCode = gen.toString();
+          sourceCode = `${gen.scopeRefs(names_1.default.scope)}return ${validateCode}`;
+          if (this.opts.code.process)
+            sourceCode = this.opts.code.process(sourceCode, sch);
+          const makeValidate = new Function(`${names_1.default.self}`, `${names_1.default.scope}`, sourceCode);
+          const validate = makeValidate(this, this.scope.get());
+          this.scope.value(validateName, { ref: validate });
+          validate.errors = null;
+          validate.schema = sch.schema;
+          validate.schemaEnv = sch;
+          if (sch.$async)
+            validate.$async = true;
+          if (this.opts.code.source === true) {
+            validate.source = { validateName, validateCode, scopeValues: gen._values };
+          }
+          if (this.opts.unevaluated) {
+            const { props, items } = schemaCxt;
+            validate.evaluated = {
+              props: props instanceof codegen_1.Name ? void 0 : props,
+              items: items instanceof codegen_1.Name ? void 0 : items,
+              dynamicProps: props instanceof codegen_1.Name,
+              dynamicItems: items instanceof codegen_1.Name
+            };
+            if (validate.source)
+              validate.source.evaluated = (0, codegen_1.stringify)(validate.evaluated);
+          }
+          sch.validate = validate;
+          return sch;
+        } catch (e) {
+          delete sch.validate;
+          delete sch.validateName;
+          if (sourceCode)
+            this.logger.error("Error compiling schema, function code:", sourceCode);
+          throw e;
+        } finally {
+          this._compilations.delete(sch);
+        }
+      }
+      exports.compileSchema = compileSchema;
+      function resolveRef(root, baseId, ref) {
+        var _a;
+        ref = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, ref);
+        const schOrFunc = root.refs[ref];
+        if (schOrFunc)
+          return schOrFunc;
+        let _sch = resolve.call(this, root, ref);
+        if (_sch === void 0) {
+          const schema = (_a = root.localRefs) === null || _a === void 0 ? void 0 : _a[ref];
+          const { schemaId } = this.opts;
+          if (schema)
+            _sch = new SchemaEnv({ schema, schemaId, root, baseId });
+        }
+        if (_sch === void 0)
+          return;
+        return root.refs[ref] = inlineOrCompile.call(this, _sch);
+      }
+      exports.resolveRef = resolveRef;
+      function inlineOrCompile(sch) {
+        if ((0, resolve_1.inlineRef)(sch.schema, this.opts.inlineRefs))
+          return sch.schema;
+        return sch.validate ? sch : compileSchema.call(this, sch);
+      }
+      function getCompilingSchema(schEnv) {
+        for (const sch of this._compilations) {
+          if (sameSchemaEnv(sch, schEnv))
+            return sch;
+        }
+      }
+      exports.getCompilingSchema = getCompilingSchema;
+      function sameSchemaEnv(s1, s2) {
+        return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
+      }
+      function resolve(root, ref) {
+        let sch;
+        while (typeof (sch = this.refs[ref]) == "string")
+          ref = sch;
+        return sch || this.schemas[ref] || resolveSchema.call(this, root, ref);
+      }
+      function resolveSchema(root, ref) {
+        const p = this.opts.uriResolver.parse(ref);
+        const refPath = (0, resolve_1._getFullPath)(this.opts.uriResolver, p);
+        let baseId = (0, resolve_1.getFullPath)(this.opts.uriResolver, root.baseId, void 0);
+        if (Object.keys(root.schema).length > 0 && refPath === baseId) {
+          return getJsonPointer.call(this, p, root);
+        }
+        const id = (0, resolve_1.normalizeId)(refPath);
+        const schOrRef = this.refs[id] || this.schemas[id];
+        if (typeof schOrRef == "string") {
+          const sch = resolveSchema.call(this, root, schOrRef);
+          if (typeof (sch === null || sch === void 0 ? void 0 : sch.schema) !== "object")
+            return;
+          return getJsonPointer.call(this, p, sch);
+        }
+        if (typeof (schOrRef === null || schOrRef === void 0 ? void 0 : schOrRef.schema) !== "object")
+          return;
+        if (!schOrRef.validate)
+          compileSchema.call(this, schOrRef);
+        if (id === (0, resolve_1.normalizeId)(ref)) {
+          const { schema } = schOrRef;
+          const { schemaId } = this.opts;
+          const schId = schema[schemaId];
+          if (schId)
+            baseId = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, schId);
+          return new SchemaEnv({ schema, schemaId, root, baseId });
+        }
+        return getJsonPointer.call(this, p, schOrRef);
+      }
+      exports.resolveSchema = resolveSchema;
+      var PREVENT_SCOPE_CHANGE = /* @__PURE__ */ new Set([
+        "properties",
+        "patternProperties",
+        "enum",
+        "dependencies",
+        "definitions"
+      ]);
+      function getJsonPointer(parsedRef, { baseId, schema, root }) {
+        var _a;
+        if (((_a = parsedRef.fragment) === null || _a === void 0 ? void 0 : _a[0]) !== "/")
+          return;
+        for (const part of parsedRef.fragment.slice(1).split("/")) {
+          if (typeof schema === "boolean")
+            return;
+          const partSchema = schema[(0, util_1.unescapeFragment)(part)];
+          if (partSchema === void 0)
+            return;
+          schema = partSchema;
+          const schId = typeof schema === "object" && schema[this.opts.schemaId];
+          if (!PREVENT_SCOPE_CHANGE.has(part) && schId) {
+            baseId = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, schId);
+          }
+        }
+        let env;
+        if (typeof schema != "boolean" && schema.$ref && !(0, util_1.schemaHasRulesButRef)(schema, this.RULES)) {
+          const $ref = (0, resolve_1.resolveUrl)(this.opts.uriResolver, baseId, schema.$ref);
+          env = resolveSchema.call(this, root, $ref);
+        }
+        const { schemaId } = this.opts;
+        env = env || new SchemaEnv({ schema, schemaId, root, baseId });
+        if (env.schema !== env.root.schema)
+          return env;
+        return void 0;
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/refs/data.json
+  var require_data = __commonJS({
+    "node_modules/ajv/dist/refs/data.json"(exports, module) {
+      module.exports = {
+        $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
+        description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
+        type: "object",
+        required: ["$data"],
+        properties: {
+          $data: {
+            type: "string",
+            anyOf: [{ format: "relative-json-pointer" }, { format: "json-pointer" }]
+          }
+        },
+        additionalProperties: false
+      };
+    }
+  });
+
+  // node_modules/uri-js/dist/es5/uri.all.js
+  var require_uri_all = __commonJS({
+    "node_modules/uri-js/dist/es5/uri.all.js"(exports, module) {
+      (function(global2, factory) {
+        typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : factory(global2.URI = global2.URI || {});
+      })(exports, function(exports2) {
+        "use strict";
+        function merge() {
+          for (var _len = arguments.length, sets = Array(_len), _key = 0; _key < _len; _key++) {
+            sets[_key] = arguments[_key];
+          }
+          if (sets.length > 1) {
+            sets[0] = sets[0].slice(0, -1);
+            var xl = sets.length - 1;
+            for (var x = 1; x < xl; ++x) {
+              sets[x] = sets[x].slice(1, -1);
+            }
+            sets[xl] = sets[xl].slice(1);
+            return sets.join("");
+          } else {
+            return sets[0];
+          }
+        }
+        function subexp(str) {
+          return "(?:" + str + ")";
+        }
+        function typeOf(o) {
+          return o === void 0 ? "undefined" : o === null ? "null" : Object.prototype.toString.call(o).split(" ").pop().split("]").shift().toLowerCase();
+        }
+        function toUpperCase(str) {
+          return str.toUpperCase();
+        }
+        function toArray(obj) {
+          return obj !== void 0 && obj !== null ? obj instanceof Array ? obj : typeof obj.length !== "number" || obj.split || obj.setInterval || obj.call ? [obj] : Array.prototype.slice.call(obj) : [];
+        }
+        function assign(target, source) {
+          var obj = target;
+          if (source) {
+            for (var key in source) {
+              obj[key] = source[key];
+            }
+          }
+          return obj;
+        }
+        function buildExps(isIRI2) {
+          var ALPHA$$ = "[A-Za-z]", CR$ = "[\\x0D]", DIGIT$$ = "[0-9]", DQUOTE$$ = "[\\x22]", HEXDIG$$2 = merge(DIGIT$$, "[A-Fa-f]"), LF$$ = "[\\x0A]", SP$$ = "[\\x20]", PCT_ENCODED$2 = subexp(subexp("%[EFef]" + HEXDIG$$2 + "%" + HEXDIG$$2 + HEXDIG$$2 + "%" + HEXDIG$$2 + HEXDIG$$2) + "|" + subexp("%[89A-Fa-f]" + HEXDIG$$2 + "%" + HEXDIG$$2 + HEXDIG$$2) + "|" + subexp("%" + HEXDIG$$2 + HEXDIG$$2)), GEN_DELIMS$$ = "[\\:\\/\\?\\#\\[\\]\\@]", SUB_DELIMS$$ = "[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]", RESERVED$$ = merge(GEN_DELIMS$$, SUB_DELIMS$$), UCSCHAR$$ = isIRI2 ? "[\\xA0-\\u200D\\u2010-\\u2029\\u202F-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF]" : "[]", IPRIVATE$$ = isIRI2 ? "[\\uE000-\\uF8FF]" : "[]", UNRESERVED$$2 = merge(ALPHA$$, DIGIT$$, "[\\-\\.\\_\\~]", UCSCHAR$$), SCHEME$ = subexp(ALPHA$$ + merge(ALPHA$$, DIGIT$$, "[\\+\\-\\.]") + "*"), USERINFO$ = subexp(subexp(PCT_ENCODED$2 + "|" + merge(UNRESERVED$$2, SUB_DELIMS$$, "[\\:]")) + "*"), DEC_OCTET$ = subexp(subexp("25[0-5]") + "|" + subexp("2[0-4]" + DIGIT$$) + "|" + subexp("1" + DIGIT$$ + DIGIT$$) + "|" + subexp("[1-9]" + DIGIT$$) + "|" + DIGIT$$), DEC_OCTET_RELAXED$ = subexp(subexp("25[0-5]") + "|" + subexp("2[0-4]" + DIGIT$$) + "|" + subexp("1" + DIGIT$$ + DIGIT$$) + "|" + subexp("0?[1-9]" + DIGIT$$) + "|0?0?" + DIGIT$$), IPV4ADDRESS$ = subexp(DEC_OCTET_RELAXED$ + "\\." + DEC_OCTET_RELAXED$ + "\\." + DEC_OCTET_RELAXED$ + "\\." + DEC_OCTET_RELAXED$), H16$ = subexp(HEXDIG$$2 + "{1,4}"), LS32$ = subexp(subexp(H16$ + "\\:" + H16$) + "|" + IPV4ADDRESS$), IPV6ADDRESS1$ = subexp(subexp(H16$ + "\\:") + "{6}" + LS32$), IPV6ADDRESS2$ = subexp("\\:\\:" + subexp(H16$ + "\\:") + "{5}" + LS32$), IPV6ADDRESS3$ = subexp(subexp(H16$) + "?\\:\\:" + subexp(H16$ + "\\:") + "{4}" + LS32$), IPV6ADDRESS4$ = subexp(subexp(subexp(H16$ + "\\:") + "{0,1}" + H16$) + "?\\:\\:" + subexp(H16$ + "\\:") + "{3}" + LS32$), IPV6ADDRESS5$ = subexp(subexp(subexp(H16$ + "\\:") + "{0,2}" + H16$) + "?\\:\\:" + subexp(H16$ + "\\:") + "{2}" + LS32$), IPV6ADDRESS6$ = subexp(subexp(subexp(H16$ + "\\:") + "{0,3}" + H16$) + "?\\:\\:" + H16$ + "\\:" + LS32$), IPV6ADDRESS7$ = subexp(subexp(subexp(H16$ + "\\:") + "{0,4}" + H16$) + "?\\:\\:" + LS32$), IPV6ADDRESS8$ = subexp(subexp(subexp(H16$ + "\\:") + "{0,5}" + H16$) + "?\\:\\:" + H16$), IPV6ADDRESS9$ = subexp(subexp(subexp(H16$ + "\\:") + "{0,6}" + H16$) + "?\\:\\:"), IPV6ADDRESS$ = subexp([IPV6ADDRESS1$, IPV6ADDRESS2$, IPV6ADDRESS3$, IPV6ADDRESS4$, IPV6ADDRESS5$, IPV6ADDRESS6$, IPV6ADDRESS7$, IPV6ADDRESS8$, IPV6ADDRESS9$].join("|")), ZONEID$ = subexp(subexp(UNRESERVED$$2 + "|" + PCT_ENCODED$2) + "+"), IPV6ADDRZ$ = subexp(IPV6ADDRESS$ + "\\%25" + ZONEID$), IPV6ADDRZ_RELAXED$ = subexp(IPV6ADDRESS$ + subexp("\\%25|\\%(?!" + HEXDIG$$2 + "{2})") + ZONEID$), IPVFUTURE$ = subexp("[vV]" + HEXDIG$$2 + "+\\." + merge(UNRESERVED$$2, SUB_DELIMS$$, "[\\:]") + "+"), IP_LITERAL$ = subexp("\\[" + subexp(IPV6ADDRZ_RELAXED$ + "|" + IPV6ADDRESS$ + "|" + IPVFUTURE$) + "\\]"), REG_NAME$ = subexp(subexp(PCT_ENCODED$2 + "|" + merge(UNRESERVED$$2, SUB_DELIMS$$)) + "*"), HOST$ = subexp(IP_LITERAL$ + "|" + IPV4ADDRESS$ + "(?!" + REG_NAME$ + ")|" + REG_NAME$), PORT$ = subexp(DIGIT$$ + "*"), AUTHORITY$ = subexp(subexp(USERINFO$ + "@") + "?" + HOST$ + subexp("\\:" + PORT$) + "?"), PCHAR$ = subexp(PCT_ENCODED$2 + "|" + merge(UNRESERVED$$2, SUB_DELIMS$$, "[\\:\\@]")), SEGMENT$ = subexp(PCHAR$ + "*"), SEGMENT_NZ$ = subexp(PCHAR$ + "+"), SEGMENT_NZ_NC$ = subexp(subexp(PCT_ENCODED$2 + "|" + merge(UNRESERVED$$2, SUB_DELIMS$$, "[\\@]")) + "+"), PATH_ABEMPTY$ = subexp(subexp("\\/" + SEGMENT$) + "*"), PATH_ABSOLUTE$ = subexp("\\/" + subexp(SEGMENT_NZ$ + PATH_ABEMPTY$) + "?"), PATH_NOSCHEME$ = subexp(SEGMENT_NZ_NC$ + PATH_ABEMPTY$), PATH_ROOTLESS$ = subexp(SEGMENT_NZ$ + PATH_ABEMPTY$), PATH_EMPTY$ = "(?!" + PCHAR$ + ")", PATH$ = subexp(PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_NOSCHEME$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$), QUERY$ = subexp(subexp(PCHAR$ + "|" + merge("[\\/\\?]", IPRIVATE$$)) + "*"), FRAGMENT$ = subexp(subexp(PCHAR$ + "|[\\/\\?]") + "*"), HIER_PART$ = subexp(subexp("\\/\\/" + AUTHORITY$ + PATH_ABEMPTY$) + "|" + PATH_ABSOLUTE$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$), URI$ = subexp(SCHEME$ + "\\:" + HIER_PART$ + subexp("\\?" + QUERY$) + "?" + subexp("\\#" + FRAGMENT$) + "?"), RELATIVE_PART$ = subexp(subexp("\\/\\/" + AUTHORITY$ + PATH_ABEMPTY$) + "|" + PATH_ABSOLUTE$ + "|" + PATH_NOSCHEME$ + "|" + PATH_EMPTY$), RELATIVE$ = subexp(RELATIVE_PART$ + subexp("\\?" + QUERY$) + "?" + subexp("\\#" + FRAGMENT$) + "?"), URI_REFERENCE$ = subexp(URI$ + "|" + RELATIVE$), ABSOLUTE_URI$ = subexp(SCHEME$ + "\\:" + HIER_PART$ + subexp("\\?" + QUERY$) + "?"), GENERIC_REF$ = "^(" + SCHEME$ + ")\\:" + subexp(subexp("\\/\\/(" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?)") + "?(" + PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$ + ")") + subexp("\\?(" + QUERY$ + ")") + "?" + subexp("\\#(" + FRAGMENT$ + ")") + "?$", RELATIVE_REF$ = "^(){0}" + subexp(subexp("\\/\\/(" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?)") + "?(" + PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_NOSCHEME$ + "|" + PATH_EMPTY$ + ")") + subexp("\\?(" + QUERY$ + ")") + "?" + subexp("\\#(" + FRAGMENT$ + ")") + "?$", ABSOLUTE_REF$ = "^(" + SCHEME$ + ")\\:" + subexp(subexp("\\/\\/(" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?)") + "?(" + PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$ + ")") + subexp("\\?(" + QUERY$ + ")") + "?$", SAMEDOC_REF$ = "^" + subexp("\\#(" + FRAGMENT$ + ")") + "?$", AUTHORITY_REF$ = "^" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?$";
+          return {
+            NOT_SCHEME: new RegExp(merge("[^]", ALPHA$$, DIGIT$$, "[\\+\\-\\.]"), "g"),
+            NOT_USERINFO: new RegExp(merge("[^\\%\\:]", UNRESERVED$$2, SUB_DELIMS$$), "g"),
+            NOT_HOST: new RegExp(merge("[^\\%\\[\\]\\:]", UNRESERVED$$2, SUB_DELIMS$$), "g"),
+            NOT_PATH: new RegExp(merge("[^\\%\\/\\:\\@]", UNRESERVED$$2, SUB_DELIMS$$), "g"),
+            NOT_PATH_NOSCHEME: new RegExp(merge("[^\\%\\/\\@]", UNRESERVED$$2, SUB_DELIMS$$), "g"),
+            NOT_QUERY: new RegExp(merge("[^\\%]", UNRESERVED$$2, SUB_DELIMS$$, "[\\:\\@\\/\\?]", IPRIVATE$$), "g"),
+            NOT_FRAGMENT: new RegExp(merge("[^\\%]", UNRESERVED$$2, SUB_DELIMS$$, "[\\:\\@\\/\\?]"), "g"),
+            ESCAPE: new RegExp(merge("[^]", UNRESERVED$$2, SUB_DELIMS$$), "g"),
+            UNRESERVED: new RegExp(UNRESERVED$$2, "g"),
+            OTHER_CHARS: new RegExp(merge("[^\\%]", UNRESERVED$$2, RESERVED$$), "g"),
+            PCT_ENCODED: new RegExp(PCT_ENCODED$2, "g"),
+            IPV4ADDRESS: new RegExp("^(" + IPV4ADDRESS$ + ")$"),
+            IPV6ADDRESS: new RegExp("^\\[?(" + IPV6ADDRESS$ + ")" + subexp(subexp("\\%25|\\%(?!" + HEXDIG$$2 + "{2})") + "(" + ZONEID$ + ")") + "?\\]?$")
+          };
+        }
+        var URI_PROTOCOL = buildExps(false);
+        var IRI_PROTOCOL = buildExps(true);
+        var slicedToArray = function() {
+          function sliceIterator(arr, i) {
+            var _arr = [];
+            var _n = true;
+            var _d = false;
+            var _e = void 0;
+            try {
+              for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+                _arr.push(_s.value);
+                if (i && _arr.length === i)
+                  break;
+              }
+            } catch (err) {
+              _d = true;
+              _e = err;
+            } finally {
+              try {
+                if (!_n && _i["return"])
+                  _i["return"]();
+              } finally {
+                if (_d)
+                  throw _e;
+              }
+            }
+            return _arr;
+          }
+          return function(arr, i) {
+            if (Array.isArray(arr)) {
+              return arr;
+            } else if (Symbol.iterator in Object(arr)) {
+              return sliceIterator(arr, i);
+            } else {
+              throw new TypeError("Invalid attempt to destructure non-iterable instance");
+            }
+          };
+        }();
+        var toConsumableArray = function(arr) {
+          if (Array.isArray(arr)) {
+            for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++)
+              arr2[i] = arr[i];
+            return arr2;
+          } else {
+            return Array.from(arr);
+          }
+        };
+        var maxInt = 2147483647;
+        var base = 36;
+        var tMin = 1;
+        var tMax = 26;
+        var skew = 38;
+        var damp = 700;
+        var initialBias = 72;
+        var initialN = 128;
+        var delimiter = "-";
+        var regexPunycode = /^xn--/;
+        var regexNonASCII = /[^\0-\x7E]/;
+        var regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g;
+        var errors = {
+          "overflow": "Overflow: input needs wider integers to process",
+          "not-basic": "Illegal input >= 0x80 (not a basic code point)",
+          "invalid-input": "Invalid input"
+        };
+        var baseMinusTMin = base - tMin;
+        var floor = Math.floor;
+        var stringFromCharCode = String.fromCharCode;
+        function error$1(type) {
+          throw new RangeError(errors[type]);
+        }
+        function map(array, fn) {
+          var result = [];
+          var length = array.length;
+          while (length--) {
+            result[length] = fn(array[length]);
+          }
+          return result;
+        }
+        function mapDomain(string, fn) {
+          var parts = string.split("@");
+          var result = "";
+          if (parts.length > 1) {
+            result = parts[0] + "@";
+            string = parts[1];
+          }
+          string = string.replace(regexSeparators, ".");
+          var labels = string.split(".");
+          var encoded = map(labels, fn).join(".");
+          return result + encoded;
+        }
+        function ucs2decode(string) {
+          var output = [];
+          var counter = 0;
+          var length = string.length;
+          while (counter < length) {
+            var value = string.charCodeAt(counter++);
+            if (value >= 55296 && value <= 56319 && counter < length) {
+              var extra = string.charCodeAt(counter++);
+              if ((extra & 64512) == 56320) {
+                output.push(((value & 1023) << 10) + (extra & 1023) + 65536);
+              } else {
+                output.push(value);
+                counter--;
+              }
+            } else {
+              output.push(value);
+            }
+          }
+          return output;
+        }
+        var ucs2encode = function ucs2encode2(array) {
+          return String.fromCodePoint.apply(String, toConsumableArray(array));
+        };
+        var basicToDigit = function basicToDigit2(codePoint) {
+          if (codePoint - 48 < 10) {
+            return codePoint - 22;
+          }
+          if (codePoint - 65 < 26) {
+            return codePoint - 65;
+          }
+          if (codePoint - 97 < 26) {
+            return codePoint - 97;
+          }
+          return base;
+        };
+        var digitToBasic = function digitToBasic2(digit, flag) {
+          return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+        };
+        var adapt = function adapt2(delta, numPoints, firstTime) {
+          var k = 0;
+          delta = firstTime ? floor(delta / damp) : delta >> 1;
+          delta += floor(delta / numPoints);
+          for (; delta > baseMinusTMin * tMax >> 1; k += base) {
+            delta = floor(delta / baseMinusTMin);
+          }
+          return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+        };
+        var decode = function decode2(input) {
+          var output = [];
+          var inputLength = input.length;
+          var i = 0;
+          var n = initialN;
+          var bias = initialBias;
+          var basic = input.lastIndexOf(delimiter);
+          if (basic < 0) {
+            basic = 0;
+          }
+          for (var j = 0; j < basic; ++j) {
+            if (input.charCodeAt(j) >= 128) {
+              error$1("not-basic");
+            }
+            output.push(input.charCodeAt(j));
+          }
+          for (var index = basic > 0 ? basic + 1 : 0; index < inputLength; ) {
+            var oldi = i;
+            for (var w = 1, k = base; ; k += base) {
+              if (index >= inputLength) {
+                error$1("invalid-input");
+              }
+              var digit = basicToDigit(input.charCodeAt(index++));
+              if (digit >= base || digit > floor((maxInt - i) / w)) {
+                error$1("overflow");
+              }
+              i += digit * w;
+              var t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
+              if (digit < t) {
+                break;
+              }
+              var baseMinusT = base - t;
+              if (w > floor(maxInt / baseMinusT)) {
+                error$1("overflow");
+              }
+              w *= baseMinusT;
+            }
+            var out = output.length + 1;
+            bias = adapt(i - oldi, out, oldi == 0);
+            if (floor(i / out) > maxInt - n) {
+              error$1("overflow");
+            }
+            n += floor(i / out);
+            i %= out;
+            output.splice(i++, 0, n);
+          }
+          return String.fromCodePoint.apply(String, output);
+        };
+        var encode = function encode2(input) {
+          var output = [];
+          input = ucs2decode(input);
+          var inputLength = input.length;
+          var n = initialN;
+          var delta = 0;
+          var bias = initialBias;
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = void 0;
+          try {
+            for (var _iterator = input[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var _currentValue2 = _step.value;
+              if (_currentValue2 < 128) {
+                output.push(stringFromCharCode(_currentValue2));
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+          var basicLength = output.length;
+          var handledCPCount = basicLength;
+          if (basicLength) {
+            output.push(delimiter);
+          }
+          while (handledCPCount < inputLength) {
+            var m = maxInt;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = void 0;
+            try {
+              for (var _iterator2 = input[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var currentValue = _step2.value;
+                if (currentValue >= n && currentValue < m) {
+                  m = currentValue;
+                }
+              }
+            } catch (err) {
+              _didIteratorError2 = true;
+              _iteratorError2 = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                  _iterator2.return();
+                }
+              } finally {
+                if (_didIteratorError2) {
+                  throw _iteratorError2;
+                }
+              }
+            }
+            var handledCPCountPlusOne = handledCPCount + 1;
+            if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+              error$1("overflow");
+            }
+            delta += (m - n) * handledCPCountPlusOne;
+            n = m;
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = void 0;
+            try {
+              for (var _iterator3 = input[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                var _currentValue = _step3.value;
+                if (_currentValue < n && ++delta > maxInt) {
+                  error$1("overflow");
+                }
+                if (_currentValue == n) {
+                  var q = delta;
+                  for (var k = base; ; k += base) {
+                    var t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
+                    if (q < t) {
+                      break;
+                    }
+                    var qMinusT = q - t;
+                    var baseMinusT = base - t;
+                    output.push(stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0)));
+                    q = floor(qMinusT / baseMinusT);
+                  }
+                  output.push(stringFromCharCode(digitToBasic(q, 0)));
+                  bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+                  delta = 0;
+                  ++handledCPCount;
+                }
+              }
+            } catch (err) {
+              _didIteratorError3 = true;
+              _iteratorError3 = err;
+            } finally {
+              try {
+                if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                  _iterator3.return();
+                }
+              } finally {
+                if (_didIteratorError3) {
+                  throw _iteratorError3;
+                }
+              }
+            }
+            ++delta;
+            ++n;
+          }
+          return output.join("");
+        };
+        var toUnicode = function toUnicode2(input) {
+          return mapDomain(input, function(string) {
+            return regexPunycode.test(string) ? decode(string.slice(4).toLowerCase()) : string;
+          });
+        };
+        var toASCII = function toASCII2(input) {
+          return mapDomain(input, function(string) {
+            return regexNonASCII.test(string) ? "xn--" + encode(string) : string;
+          });
+        };
+        var punycode = {
+          "version": "2.1.0",
+          "ucs2": {
+            "decode": ucs2decode,
+            "encode": ucs2encode
+          },
+          "decode": decode,
+          "encode": encode,
+          "toASCII": toASCII,
+          "toUnicode": toUnicode
+        };
+        var SCHEMES = {};
+        function pctEncChar(chr) {
+          var c = chr.charCodeAt(0);
+          var e = void 0;
+          if (c < 16)
+            e = "%0" + c.toString(16).toUpperCase();
+          else if (c < 128)
+            e = "%" + c.toString(16).toUpperCase();
+          else if (c < 2048)
+            e = "%" + (c >> 6 | 192).toString(16).toUpperCase() + "%" + (c & 63 | 128).toString(16).toUpperCase();
+          else
+            e = "%" + (c >> 12 | 224).toString(16).toUpperCase() + "%" + (c >> 6 & 63 | 128).toString(16).toUpperCase() + "%" + (c & 63 | 128).toString(16).toUpperCase();
+          return e;
+        }
+        function pctDecChars(str) {
+          var newStr = "";
+          var i = 0;
+          var il = str.length;
+          while (i < il) {
+            var c = parseInt(str.substr(i + 1, 2), 16);
+            if (c < 128) {
+              newStr += String.fromCharCode(c);
+              i += 3;
+            } else if (c >= 194 && c < 224) {
+              if (il - i >= 6) {
+                var c2 = parseInt(str.substr(i + 4, 2), 16);
+                newStr += String.fromCharCode((c & 31) << 6 | c2 & 63);
+              } else {
+                newStr += str.substr(i, 6);
+              }
+              i += 6;
+            } else if (c >= 224) {
+              if (il - i >= 9) {
+                var _c = parseInt(str.substr(i + 4, 2), 16);
+                var c3 = parseInt(str.substr(i + 7, 2), 16);
+                newStr += String.fromCharCode((c & 15) << 12 | (_c & 63) << 6 | c3 & 63);
+              } else {
+                newStr += str.substr(i, 9);
+              }
+              i += 9;
+            } else {
+              newStr += str.substr(i, 3);
+              i += 3;
+            }
+          }
+          return newStr;
+        }
+        function _normalizeComponentEncoding(components, protocol) {
+          function decodeUnreserved2(str) {
+            var decStr = pctDecChars(str);
+            return !decStr.match(protocol.UNRESERVED) ? str : decStr;
+          }
+          if (components.scheme)
+            components.scheme = String(components.scheme).replace(protocol.PCT_ENCODED, decodeUnreserved2).toLowerCase().replace(protocol.NOT_SCHEME, "");
+          if (components.userinfo !== void 0)
+            components.userinfo = String(components.userinfo).replace(protocol.PCT_ENCODED, decodeUnreserved2).replace(protocol.NOT_USERINFO, pctEncChar).replace(protocol.PCT_ENCODED, toUpperCase);
+          if (components.host !== void 0)
+            components.host = String(components.host).replace(protocol.PCT_ENCODED, decodeUnreserved2).toLowerCase().replace(protocol.NOT_HOST, pctEncChar).replace(protocol.PCT_ENCODED, toUpperCase);
+          if (components.path !== void 0)
+            components.path = String(components.path).replace(protocol.PCT_ENCODED, decodeUnreserved2).replace(components.scheme ? protocol.NOT_PATH : protocol.NOT_PATH_NOSCHEME, pctEncChar).replace(protocol.PCT_ENCODED, toUpperCase);
+          if (components.query !== void 0)
+            components.query = String(components.query).replace(protocol.PCT_ENCODED, decodeUnreserved2).replace(protocol.NOT_QUERY, pctEncChar).replace(protocol.PCT_ENCODED, toUpperCase);
+          if (components.fragment !== void 0)
+            components.fragment = String(components.fragment).replace(protocol.PCT_ENCODED, decodeUnreserved2).replace(protocol.NOT_FRAGMENT, pctEncChar).replace(protocol.PCT_ENCODED, toUpperCase);
+          return components;
+        }
+        function _stripLeadingZeros(str) {
+          return str.replace(/^0*(.*)/, "$1") || "0";
+        }
+        function _normalizeIPv4(host, protocol) {
+          var matches = host.match(protocol.IPV4ADDRESS) || [];
+          var _matches = slicedToArray(matches, 2), address = _matches[1];
+          if (address) {
+            return address.split(".").map(_stripLeadingZeros).join(".");
+          } else {
+            return host;
+          }
+        }
+        function _normalizeIPv6(host, protocol) {
+          var matches = host.match(protocol.IPV6ADDRESS) || [];
+          var _matches2 = slicedToArray(matches, 3), address = _matches2[1], zone = _matches2[2];
+          if (address) {
+            var _address$toLowerCase$ = address.toLowerCase().split("::").reverse(), _address$toLowerCase$2 = slicedToArray(_address$toLowerCase$, 2), last = _address$toLowerCase$2[0], first = _address$toLowerCase$2[1];
+            var firstFields = first ? first.split(":").map(_stripLeadingZeros) : [];
+            var lastFields = last.split(":").map(_stripLeadingZeros);
+            var isLastFieldIPv4Address = protocol.IPV4ADDRESS.test(lastFields[lastFields.length - 1]);
+            var fieldCount = isLastFieldIPv4Address ? 7 : 8;
+            var lastFieldsStart = lastFields.length - fieldCount;
+            var fields = Array(fieldCount);
+            for (var x = 0; x < fieldCount; ++x) {
+              fields[x] = firstFields[x] || lastFields[lastFieldsStart + x] || "";
+            }
+            if (isLastFieldIPv4Address) {
+              fields[fieldCount - 1] = _normalizeIPv4(fields[fieldCount - 1], protocol);
+            }
+            var allZeroFields = fields.reduce(function(acc, field, index) {
+              if (!field || field === "0") {
+                var lastLongest = acc[acc.length - 1];
+                if (lastLongest && lastLongest.index + lastLongest.length === index) {
+                  lastLongest.length++;
+                } else {
+                  acc.push({ index, length: 1 });
+                }
+              }
+              return acc;
+            }, []);
+            var longestZeroFields = allZeroFields.sort(function(a, b) {
+              return b.length - a.length;
+            })[0];
+            var newHost = void 0;
+            if (longestZeroFields && longestZeroFields.length > 1) {
+              var newFirst = fields.slice(0, longestZeroFields.index);
+              var newLast = fields.slice(longestZeroFields.index + longestZeroFields.length);
+              newHost = newFirst.join(":") + "::" + newLast.join(":");
+            } else {
+              newHost = fields.join(":");
+            }
+            if (zone) {
+              newHost += "%" + zone;
+            }
+            return newHost;
+          } else {
+            return host;
+          }
+        }
+        var URI_PARSE = /^(?:([^:\/?#]+):)?(?:\/\/((?:([^\/?#@]*)@)?(\[[^\/?#\]]+\]|[^\/?#:]*)(?:\:(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#((?:.|\n|\r)*))?/i;
+        var NO_MATCH_IS_UNDEFINED = "".match(/(){0}/)[1] === void 0;
+        function parse(uriString) {
+          var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+          var components = {};
+          var protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
+          if (options.reference === "suffix")
+            uriString = (options.scheme ? options.scheme + ":" : "") + "//" + uriString;
+          var matches = uriString.match(URI_PARSE);
+          if (matches) {
+            if (NO_MATCH_IS_UNDEFINED) {
+              components.scheme = matches[1];
+              components.userinfo = matches[3];
+              components.host = matches[4];
+              components.port = parseInt(matches[5], 10);
+              components.path = matches[6] || "";
+              components.query = matches[7];
+              components.fragment = matches[8];
+              if (isNaN(components.port)) {
+                components.port = matches[5];
+              }
+            } else {
+              components.scheme = matches[1] || void 0;
+              components.userinfo = uriString.indexOf("@") !== -1 ? matches[3] : void 0;
+              components.host = uriString.indexOf("//") !== -1 ? matches[4] : void 0;
+              components.port = parseInt(matches[5], 10);
+              components.path = matches[6] || "";
+              components.query = uriString.indexOf("?") !== -1 ? matches[7] : void 0;
+              components.fragment = uriString.indexOf("#") !== -1 ? matches[8] : void 0;
+              if (isNaN(components.port)) {
+                components.port = uriString.match(/\/\/(?:.|\n)*\:(?:\/|\?|\#|$)/) ? matches[4] : void 0;
+              }
+            }
+            if (components.host) {
+              components.host = _normalizeIPv6(_normalizeIPv4(components.host, protocol), protocol);
+            }
+            if (components.scheme === void 0 && components.userinfo === void 0 && components.host === void 0 && components.port === void 0 && !components.path && components.query === void 0) {
+              components.reference = "same-document";
+            } else if (components.scheme === void 0) {
+              components.reference = "relative";
+            } else if (components.fragment === void 0) {
+              components.reference = "absolute";
+            } else {
+              components.reference = "uri";
+            }
+            if (options.reference && options.reference !== "suffix" && options.reference !== components.reference) {
+              components.error = components.error || "URI is not a " + options.reference + " reference.";
+            }
+            var schemeHandler = SCHEMES[(options.scheme || components.scheme || "").toLowerCase()];
+            if (!options.unicodeSupport && (!schemeHandler || !schemeHandler.unicodeSupport)) {
+              if (components.host && (options.domainHost || schemeHandler && schemeHandler.domainHost)) {
+                try {
+                  components.host = punycode.toASCII(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase());
+                } catch (e) {
+                  components.error = components.error || "Host's domain name can not be converted to ASCII via punycode: " + e;
+                }
+              }
+              _normalizeComponentEncoding(components, URI_PROTOCOL);
+            } else {
+              _normalizeComponentEncoding(components, protocol);
+            }
+            if (schemeHandler && schemeHandler.parse) {
+              schemeHandler.parse(components, options);
+            }
+          } else {
+            components.error = components.error || "URI can not be parsed.";
+          }
+          return components;
+        }
+        function _recomposeAuthority(components, options) {
+          var protocol = options.iri !== false ? IRI_PROTOCOL : URI_PROTOCOL;
+          var uriTokens = [];
+          if (components.userinfo !== void 0) {
+            uriTokens.push(components.userinfo);
+            uriTokens.push("@");
+          }
+          if (components.host !== void 0) {
+            uriTokens.push(_normalizeIPv6(_normalizeIPv4(String(components.host), protocol), protocol).replace(protocol.IPV6ADDRESS, function(_, $1, $2) {
+              return "[" + $1 + ($2 ? "%25" + $2 : "") + "]";
+            }));
+          }
+          if (typeof components.port === "number" || typeof components.port === "string") {
+            uriTokens.push(":");
+            uriTokens.push(String(components.port));
+          }
+          return uriTokens.length ? uriTokens.join("") : void 0;
+        }
+        var RDS1 = /^\.\.?\//;
+        var RDS2 = /^\/\.(\/|$)/;
+        var RDS3 = /^\/\.\.(\/|$)/;
+        var RDS5 = /^\/?(?:.|\n)*?(?=\/|$)/;
+        function removeDotSegments(input) {
+          var output = [];
+          while (input.length) {
+            if (input.match(RDS1)) {
+              input = input.replace(RDS1, "");
+            } else if (input.match(RDS2)) {
+              input = input.replace(RDS2, "/");
+            } else if (input.match(RDS3)) {
+              input = input.replace(RDS3, "/");
+              output.pop();
+            } else if (input === "." || input === "..") {
+              input = "";
+            } else {
+              var im = input.match(RDS5);
+              if (im) {
+                var s = im[0];
+                input = input.slice(s.length);
+                output.push(s);
+              } else {
+                throw new Error("Unexpected dot segment condition");
+              }
+            }
+          }
+          return output.join("");
+        }
+        function serialize(components) {
+          var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+          var protocol = options.iri ? IRI_PROTOCOL : URI_PROTOCOL;
+          var uriTokens = [];
+          var schemeHandler = SCHEMES[(options.scheme || components.scheme || "").toLowerCase()];
+          if (schemeHandler && schemeHandler.serialize)
+            schemeHandler.serialize(components, options);
+          if (components.host) {
+            if (protocol.IPV6ADDRESS.test(components.host)) {
+            } else if (options.domainHost || schemeHandler && schemeHandler.domainHost) {
+              try {
+                components.host = !options.iri ? punycode.toASCII(components.host.replace(protocol.PCT_ENCODED, pctDecChars).toLowerCase()) : punycode.toUnicode(components.host);
+              } catch (e) {
+                components.error = components.error || "Host's domain name can not be converted to " + (!options.iri ? "ASCII" : "Unicode") + " via punycode: " + e;
+              }
+            }
+          }
+          _normalizeComponentEncoding(components, protocol);
+          if (options.reference !== "suffix" && components.scheme) {
+            uriTokens.push(components.scheme);
+            uriTokens.push(":");
+          }
+          var authority = _recomposeAuthority(components, options);
+          if (authority !== void 0) {
+            if (options.reference !== "suffix") {
+              uriTokens.push("//");
+            }
+            uriTokens.push(authority);
+            if (components.path && components.path.charAt(0) !== "/") {
+              uriTokens.push("/");
+            }
+          }
+          if (components.path !== void 0) {
+            var s = components.path;
+            if (!options.absolutePath && (!schemeHandler || !schemeHandler.absolutePath)) {
+              s = removeDotSegments(s);
+            }
+            if (authority === void 0) {
+              s = s.replace(/^\/\//, "/%2F");
+            }
+            uriTokens.push(s);
+          }
+          if (components.query !== void 0) {
+            uriTokens.push("?");
+            uriTokens.push(components.query);
+          }
+          if (components.fragment !== void 0) {
+            uriTokens.push("#");
+            uriTokens.push(components.fragment);
+          }
+          return uriTokens.join("");
+        }
+        function resolveComponents(base2, relative) {
+          var options = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {};
+          var skipNormalization = arguments[3];
+          var target = {};
+          if (!skipNormalization) {
+            base2 = parse(serialize(base2, options), options);
+            relative = parse(serialize(relative, options), options);
+          }
+          options = options || {};
+          if (!options.tolerant && relative.scheme) {
+            target.scheme = relative.scheme;
+            target.userinfo = relative.userinfo;
+            target.host = relative.host;
+            target.port = relative.port;
+            target.path = removeDotSegments(relative.path || "");
+            target.query = relative.query;
+          } else {
+            if (relative.userinfo !== void 0 || relative.host !== void 0 || relative.port !== void 0) {
+              target.userinfo = relative.userinfo;
+              target.host = relative.host;
+              target.port = relative.port;
+              target.path = removeDotSegments(relative.path || "");
+              target.query = relative.query;
+            } else {
+              if (!relative.path) {
+                target.path = base2.path;
+                if (relative.query !== void 0) {
+                  target.query = relative.query;
+                } else {
+                  target.query = base2.query;
+                }
+              } else {
+                if (relative.path.charAt(0) === "/") {
+                  target.path = removeDotSegments(relative.path);
+                } else {
+                  if ((base2.userinfo !== void 0 || base2.host !== void 0 || base2.port !== void 0) && !base2.path) {
+                    target.path = "/" + relative.path;
+                  } else if (!base2.path) {
+                    target.path = relative.path;
+                  } else {
+                    target.path = base2.path.slice(0, base2.path.lastIndexOf("/") + 1) + relative.path;
+                  }
+                  target.path = removeDotSegments(target.path);
+                }
+                target.query = relative.query;
+              }
+              target.userinfo = base2.userinfo;
+              target.host = base2.host;
+              target.port = base2.port;
+            }
+            target.scheme = base2.scheme;
+          }
+          target.fragment = relative.fragment;
+          return target;
+        }
+        function resolve(baseURI, relativeURI, options) {
+          var schemelessOptions = assign({ scheme: "null" }, options);
+          return serialize(resolveComponents(parse(baseURI, schemelessOptions), parse(relativeURI, schemelessOptions), schemelessOptions, true), schemelessOptions);
+        }
+        function normalize(uri, options) {
+          if (typeof uri === "string") {
+            uri = serialize(parse(uri, options), options);
+          } else if (typeOf(uri) === "object") {
+            uri = parse(serialize(uri, options), options);
+          }
+          return uri;
+        }
+        function equal(uriA, uriB, options) {
+          if (typeof uriA === "string") {
+            uriA = serialize(parse(uriA, options), options);
+          } else if (typeOf(uriA) === "object") {
+            uriA = serialize(uriA, options);
+          }
+          if (typeof uriB === "string") {
+            uriB = serialize(parse(uriB, options), options);
+          } else if (typeOf(uriB) === "object") {
+            uriB = serialize(uriB, options);
+          }
+          return uriA === uriB;
+        }
+        function escapeComponent(str, options) {
+          return str && str.toString().replace(!options || !options.iri ? URI_PROTOCOL.ESCAPE : IRI_PROTOCOL.ESCAPE, pctEncChar);
+        }
+        function unescapeComponent(str, options) {
+          return str && str.toString().replace(!options || !options.iri ? URI_PROTOCOL.PCT_ENCODED : IRI_PROTOCOL.PCT_ENCODED, pctDecChars);
+        }
+        var handler = {
+          scheme: "http",
+          domainHost: true,
+          parse: function parse2(components, options) {
+            if (!components.host) {
+              components.error = components.error || "HTTP URIs must have a host.";
+            }
+            return components;
+          },
+          serialize: function serialize2(components, options) {
+            var secure = String(components.scheme).toLowerCase() === "https";
+            if (components.port === (secure ? 443 : 80) || components.port === "") {
+              components.port = void 0;
+            }
+            if (!components.path) {
+              components.path = "/";
+            }
+            return components;
+          }
+        };
+        var handler$1 = {
+          scheme: "https",
+          domainHost: handler.domainHost,
+          parse: handler.parse,
+          serialize: handler.serialize
+        };
+        function isSecure(wsComponents) {
+          return typeof wsComponents.secure === "boolean" ? wsComponents.secure : String(wsComponents.scheme).toLowerCase() === "wss";
+        }
+        var handler$2 = {
+          scheme: "ws",
+          domainHost: true,
+          parse: function parse2(components, options) {
+            var wsComponents = components;
+            wsComponents.secure = isSecure(wsComponents);
+            wsComponents.resourceName = (wsComponents.path || "/") + (wsComponents.query ? "?" + wsComponents.query : "");
+            wsComponents.path = void 0;
+            wsComponents.query = void 0;
+            return wsComponents;
+          },
+          serialize: function serialize2(wsComponents, options) {
+            if (wsComponents.port === (isSecure(wsComponents) ? 443 : 80) || wsComponents.port === "") {
+              wsComponents.port = void 0;
+            }
+            if (typeof wsComponents.secure === "boolean") {
+              wsComponents.scheme = wsComponents.secure ? "wss" : "ws";
+              wsComponents.secure = void 0;
+            }
+            if (wsComponents.resourceName) {
+              var _wsComponents$resourc = wsComponents.resourceName.split("?"), _wsComponents$resourc2 = slicedToArray(_wsComponents$resourc, 2), path = _wsComponents$resourc2[0], query = _wsComponents$resourc2[1];
+              wsComponents.path = path && path !== "/" ? path : void 0;
+              wsComponents.query = query;
+              wsComponents.resourceName = void 0;
+            }
+            wsComponents.fragment = void 0;
+            return wsComponents;
+          }
+        };
+        var handler$3 = {
+          scheme: "wss",
+          domainHost: handler$2.domainHost,
+          parse: handler$2.parse,
+          serialize: handler$2.serialize
+        };
+        var O = {};
+        var isIRI = true;
+        var UNRESERVED$$ = "[A-Za-z0-9\\-\\.\\_\\~" + (isIRI ? "\\xA0-\\u200D\\u2010-\\u2029\\u202F-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF" : "") + "]";
+        var HEXDIG$$ = "[0-9A-Fa-f]";
+        var PCT_ENCODED$ = subexp(subexp("%[EFef]" + HEXDIG$$ + "%" + HEXDIG$$ + HEXDIG$$ + "%" + HEXDIG$$ + HEXDIG$$) + "|" + subexp("%[89A-Fa-f]" + HEXDIG$$ + "%" + HEXDIG$$ + HEXDIG$$) + "|" + subexp("%" + HEXDIG$$ + HEXDIG$$));
+        var ATEXT$$ = "[A-Za-z0-9\\!\\$\\%\\'\\*\\+\\-\\^\\_\\`\\{\\|\\}\\~]";
+        var QTEXT$$ = "[\\!\\$\\%\\'\\(\\)\\*\\+\\,\\-\\.0-9\\<\\>A-Z\\x5E-\\x7E]";
+        var VCHAR$$ = merge(QTEXT$$, '[\\"\\\\]');
+        var SOME_DELIMS$$ = "[\\!\\$\\'\\(\\)\\*\\+\\,\\;\\:\\@]";
+        var UNRESERVED = new RegExp(UNRESERVED$$, "g");
+        var PCT_ENCODED = new RegExp(PCT_ENCODED$, "g");
+        var NOT_LOCAL_PART = new RegExp(merge("[^]", ATEXT$$, "[\\.]", '[\\"]', VCHAR$$), "g");
+        var NOT_HFNAME = new RegExp(merge("[^]", UNRESERVED$$, SOME_DELIMS$$), "g");
+        var NOT_HFVALUE = NOT_HFNAME;
+        function decodeUnreserved(str) {
+          var decStr = pctDecChars(str);
+          return !decStr.match(UNRESERVED) ? str : decStr;
+        }
+        var handler$4 = {
+          scheme: "mailto",
+          parse: function parse$$1(components, options) {
+            var mailtoComponents = components;
+            var to = mailtoComponents.to = mailtoComponents.path ? mailtoComponents.path.split(",") : [];
+            mailtoComponents.path = void 0;
+            if (mailtoComponents.query) {
+              var unknownHeaders = false;
+              var headers = {};
+              var hfields = mailtoComponents.query.split("&");
+              for (var x = 0, xl = hfields.length; x < xl; ++x) {
+                var hfield = hfields[x].split("=");
+                switch (hfield[0]) {
+                  case "to":
+                    var toAddrs = hfield[1].split(",");
+                    for (var _x = 0, _xl = toAddrs.length; _x < _xl; ++_x) {
+                      to.push(toAddrs[_x]);
+                    }
+                    break;
+                  case "subject":
+                    mailtoComponents.subject = unescapeComponent(hfield[1], options);
+                    break;
+                  case "body":
+                    mailtoComponents.body = unescapeComponent(hfield[1], options);
+                    break;
+                  default:
+                    unknownHeaders = true;
+                    headers[unescapeComponent(hfield[0], options)] = unescapeComponent(hfield[1], options);
+                    break;
+                }
+              }
+              if (unknownHeaders)
+                mailtoComponents.headers = headers;
+            }
+            mailtoComponents.query = void 0;
+            for (var _x2 = 0, _xl2 = to.length; _x2 < _xl2; ++_x2) {
+              var addr = to[_x2].split("@");
+              addr[0] = unescapeComponent(addr[0]);
+              if (!options.unicodeSupport) {
+                try {
+                  addr[1] = punycode.toASCII(unescapeComponent(addr[1], options).toLowerCase());
+                } catch (e) {
+                  mailtoComponents.error = mailtoComponents.error || "Email address's domain name can not be converted to ASCII via punycode: " + e;
+                }
+              } else {
+                addr[1] = unescapeComponent(addr[1], options).toLowerCase();
+              }
+              to[_x2] = addr.join("@");
+            }
+            return mailtoComponents;
+          },
+          serialize: function serialize$$1(mailtoComponents, options) {
+            var components = mailtoComponents;
+            var to = toArray(mailtoComponents.to);
+            if (to) {
+              for (var x = 0, xl = to.length; x < xl; ++x) {
+                var toAddr = String(to[x]);
+                var atIdx = toAddr.lastIndexOf("@");
+                var localPart = toAddr.slice(0, atIdx).replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_LOCAL_PART, pctEncChar);
+                var domain = toAddr.slice(atIdx + 1);
+                try {
+                  domain = !options.iri ? punycode.toASCII(unescapeComponent(domain, options).toLowerCase()) : punycode.toUnicode(domain);
+                } catch (e) {
+                  components.error = components.error || "Email address's domain name can not be converted to " + (!options.iri ? "ASCII" : "Unicode") + " via punycode: " + e;
+                }
+                to[x] = localPart + "@" + domain;
+              }
+              components.path = to.join(",");
+            }
+            var headers = mailtoComponents.headers = mailtoComponents.headers || {};
+            if (mailtoComponents.subject)
+              headers["subject"] = mailtoComponents.subject;
+            if (mailtoComponents.body)
+              headers["body"] = mailtoComponents.body;
+            var fields = [];
+            for (var name in headers) {
+              if (headers[name] !== O[name]) {
+                fields.push(name.replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFNAME, pctEncChar) + "=" + headers[name].replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFVALUE, pctEncChar));
+              }
+            }
+            if (fields.length) {
+              components.query = fields.join("&");
+            }
+            return components;
+          }
+        };
+        var URN_PARSE = /^([^\:]+)\:(.*)/;
+        var handler$5 = {
+          scheme: "urn",
+          parse: function parse$$1(components, options) {
+            var matches = components.path && components.path.match(URN_PARSE);
+            var urnComponents = components;
+            if (matches) {
+              var scheme = options.scheme || urnComponents.scheme || "urn";
+              var nid = matches[1].toLowerCase();
+              var nss = matches[2];
+              var urnScheme = scheme + ":" + (options.nid || nid);
+              var schemeHandler = SCHEMES[urnScheme];
+              urnComponents.nid = nid;
+              urnComponents.nss = nss;
+              urnComponents.path = void 0;
+              if (schemeHandler) {
+                urnComponents = schemeHandler.parse(urnComponents, options);
+              }
+            } else {
+              urnComponents.error = urnComponents.error || "URN can not be parsed.";
+            }
+            return urnComponents;
+          },
+          serialize: function serialize$$1(urnComponents, options) {
+            var scheme = options.scheme || urnComponents.scheme || "urn";
+            var nid = urnComponents.nid;
+            var urnScheme = scheme + ":" + (options.nid || nid);
+            var schemeHandler = SCHEMES[urnScheme];
+            if (schemeHandler) {
+              urnComponents = schemeHandler.serialize(urnComponents, options);
+            }
+            var uriComponents = urnComponents;
+            var nss = urnComponents.nss;
+            uriComponents.path = (nid || options.nid) + ":" + nss;
+            return uriComponents;
+          }
+        };
+        var UUID = /^[0-9A-Fa-f]{8}(?:\-[0-9A-Fa-f]{4}){3}\-[0-9A-Fa-f]{12}$/;
+        var handler$6 = {
+          scheme: "urn:uuid",
+          parse: function parse2(urnComponents, options) {
+            var uuidComponents = urnComponents;
+            uuidComponents.uuid = uuidComponents.nss;
+            uuidComponents.nss = void 0;
+            if (!options.tolerant && (!uuidComponents.uuid || !uuidComponents.uuid.match(UUID))) {
+              uuidComponents.error = uuidComponents.error || "UUID is not valid.";
+            }
+            return uuidComponents;
+          },
+          serialize: function serialize2(uuidComponents, options) {
+            var urnComponents = uuidComponents;
+            urnComponents.nss = (uuidComponents.uuid || "").toLowerCase();
+            return urnComponents;
+          }
+        };
+        SCHEMES[handler.scheme] = handler;
+        SCHEMES[handler$1.scheme] = handler$1;
+        SCHEMES[handler$2.scheme] = handler$2;
+        SCHEMES[handler$3.scheme] = handler$3;
+        SCHEMES[handler$4.scheme] = handler$4;
+        SCHEMES[handler$5.scheme] = handler$5;
+        SCHEMES[handler$6.scheme] = handler$6;
+        exports2.SCHEMES = SCHEMES;
+        exports2.pctEncChar = pctEncChar;
+        exports2.pctDecChars = pctDecChars;
+        exports2.parse = parse;
+        exports2.removeDotSegments = removeDotSegments;
+        exports2.serialize = serialize;
+        exports2.resolveComponents = resolveComponents;
+        exports2.resolve = resolve;
+        exports2.normalize = normalize;
+        exports2.equal = equal;
+        exports2.escapeComponent = escapeComponent;
+        exports2.unescapeComponent = unescapeComponent;
+        Object.defineProperty(exports2, "__esModule", { value: true });
+      });
+    }
+  });
+
+  // node_modules/ajv/dist/runtime/uri.js
+  var require_uri = __commonJS({
+    "node_modules/ajv/dist/runtime/uri.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var uri = require_uri_all();
+      uri.code = 'require("ajv/dist/runtime/uri").default';
+      exports.default = uri;
+    }
+  });
+
+  // node_modules/ajv/dist/core.js
+  var require_core = __commonJS({
+    "node_modules/ajv/dist/core.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
+      var validate_1 = require_validate();
+      Object.defineProperty(exports, "KeywordCxt", { enumerable: true, get: function() {
+        return validate_1.KeywordCxt;
+      } });
+      var codegen_1 = require_codegen();
+      Object.defineProperty(exports, "_", { enumerable: true, get: function() {
+        return codegen_1._;
+      } });
+      Object.defineProperty(exports, "str", { enumerable: true, get: function() {
+        return codegen_1.str;
+      } });
+      Object.defineProperty(exports, "stringify", { enumerable: true, get: function() {
+        return codegen_1.stringify;
+      } });
+      Object.defineProperty(exports, "nil", { enumerable: true, get: function() {
+        return codegen_1.nil;
+      } });
+      Object.defineProperty(exports, "Name", { enumerable: true, get: function() {
+        return codegen_1.Name;
+      } });
+      Object.defineProperty(exports, "CodeGen", { enumerable: true, get: function() {
+        return codegen_1.CodeGen;
+      } });
+      var validation_error_1 = require_validation_error();
+      var ref_error_1 = require_ref_error();
+      var rules_1 = require_rules();
+      var compile_1 = require_compile();
+      var codegen_2 = require_codegen();
+      var resolve_1 = require_resolve();
+      var dataType_1 = require_dataType();
+      var util_1 = require_util();
+      var $dataRefSchema = require_data();
+      var uri_1 = require_uri();
+      var defaultRegExp = (str, flags) => new RegExp(str, flags);
+      defaultRegExp.code = "new RegExp";
+      var META_IGNORE_OPTIONS = ["removeAdditional", "useDefaults", "coerceTypes"];
+      var EXT_SCOPE_NAMES = /* @__PURE__ */ new Set([
+        "validate",
+        "serialize",
+        "parse",
+        "wrapper",
+        "root",
+        "schema",
+        "keyword",
+        "pattern",
+        "formats",
+        "validate$data",
+        "func",
+        "obj",
+        "Error"
+      ]);
+      var removedOptions = {
+        errorDataPath: "",
+        format: "`validateFormats: false` can be used instead.",
+        nullable: '"nullable" keyword is supported by default.',
+        jsonPointers: "Deprecated jsPropertySyntax can be used instead.",
+        extendRefs: "Deprecated ignoreKeywordsWithRef can be used instead.",
+        missingRefs: "Pass empty schema with $id that should be ignored to ajv.addSchema.",
+        processCode: "Use option `code: {process: (code, schemaEnv: object) => string}`",
+        sourceCode: "Use option `code: {source: true}`",
+        strictDefaults: "It is default now, see option `strict`.",
+        strictKeywords: "It is default now, see option `strict`.",
+        uniqueItems: '"uniqueItems" keyword is always validated.',
+        unknownFormats: "Disable strict mode or pass `true` to `ajv.addFormat` (or `formats` option).",
+        cache: "Map is used as cache, schema object as key.",
+        serialize: "Map is used as cache, schema object as key.",
+        ajvErrors: "It is default now."
+      };
+      var deprecatedOptions = {
+        ignoreKeywordsWithRef: "",
+        jsPropertySyntax: "",
+        unicode: '"minLength"/"maxLength" account for unicode characters by default.'
+      };
+      var MAX_EXPRESSION = 200;
+      function requiredOptions(o) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
+        const s = o.strict;
+        const _optz = (_a = o.code) === null || _a === void 0 ? void 0 : _a.optimize;
+        const optimize = _optz === true || _optz === void 0 ? 1 : _optz || 0;
+        const regExp = (_c = (_b = o.code) === null || _b === void 0 ? void 0 : _b.regExp) !== null && _c !== void 0 ? _c : defaultRegExp;
+        const uriResolver = (_d = o.uriResolver) !== null && _d !== void 0 ? _d : uri_1.default;
+        return {
+          strictSchema: (_f = (_e = o.strictSchema) !== null && _e !== void 0 ? _e : s) !== null && _f !== void 0 ? _f : true,
+          strictNumbers: (_h = (_g = o.strictNumbers) !== null && _g !== void 0 ? _g : s) !== null && _h !== void 0 ? _h : true,
+          strictTypes: (_k = (_j = o.strictTypes) !== null && _j !== void 0 ? _j : s) !== null && _k !== void 0 ? _k : "log",
+          strictTuples: (_m = (_l = o.strictTuples) !== null && _l !== void 0 ? _l : s) !== null && _m !== void 0 ? _m : "log",
+          strictRequired: (_p = (_o = o.strictRequired) !== null && _o !== void 0 ? _o : s) !== null && _p !== void 0 ? _p : false,
+          code: o.code ? __spreadProps(__spreadValues({}, o.code), { optimize, regExp }) : { optimize, regExp },
+          loopRequired: (_q = o.loopRequired) !== null && _q !== void 0 ? _q : MAX_EXPRESSION,
+          loopEnum: (_r = o.loopEnum) !== null && _r !== void 0 ? _r : MAX_EXPRESSION,
+          meta: (_s = o.meta) !== null && _s !== void 0 ? _s : true,
+          messages: (_t = o.messages) !== null && _t !== void 0 ? _t : true,
+          inlineRefs: (_u = o.inlineRefs) !== null && _u !== void 0 ? _u : true,
+          schemaId: (_v = o.schemaId) !== null && _v !== void 0 ? _v : "$id",
+          addUsedSchema: (_w = o.addUsedSchema) !== null && _w !== void 0 ? _w : true,
+          validateSchema: (_x = o.validateSchema) !== null && _x !== void 0 ? _x : true,
+          validateFormats: (_y = o.validateFormats) !== null && _y !== void 0 ? _y : true,
+          unicodeRegExp: (_z = o.unicodeRegExp) !== null && _z !== void 0 ? _z : true,
+          int32range: (_0 = o.int32range) !== null && _0 !== void 0 ? _0 : true,
+          uriResolver
+        };
+      }
+      var Ajv2 = class {
+        constructor(opts = {}) {
+          this.schemas = {};
+          this.refs = {};
+          this.formats = {};
+          this._compilations = /* @__PURE__ */ new Set();
+          this._loading = {};
+          this._cache = /* @__PURE__ */ new Map();
+          opts = this.opts = __spreadValues(__spreadValues({}, opts), requiredOptions(opts));
+          const { es5, lines } = this.opts.code;
+          this.scope = new codegen_2.ValueScope({ scope: {}, prefixes: EXT_SCOPE_NAMES, es5, lines });
+          this.logger = getLogger(opts.logger);
+          const formatOpt = opts.validateFormats;
+          opts.validateFormats = false;
+          this.RULES = (0, rules_1.getRules)();
+          checkOptions.call(this, removedOptions, opts, "NOT SUPPORTED");
+          checkOptions.call(this, deprecatedOptions, opts, "DEPRECATED", "warn");
+          this._metaOpts = getMetaSchemaOptions.call(this);
+          if (opts.formats)
+            addInitialFormats.call(this);
+          this._addVocabularies();
+          this._addDefaultMetaSchema();
+          if (opts.keywords)
+            addInitialKeywords.call(this, opts.keywords);
+          if (typeof opts.meta == "object")
+            this.addMetaSchema(opts.meta);
+          addInitialSchemas.call(this);
+          opts.validateFormats = formatOpt;
+        }
+        _addVocabularies() {
+          this.addKeyword("$async");
+        }
+        _addDefaultMetaSchema() {
+          const { $data, meta, schemaId } = this.opts;
+          let _dataRefSchema = $dataRefSchema;
+          if (schemaId === "id") {
+            _dataRefSchema = __spreadValues({}, $dataRefSchema);
+            _dataRefSchema.id = _dataRefSchema.$id;
+            delete _dataRefSchema.$id;
+          }
+          if (meta && $data)
+            this.addMetaSchema(_dataRefSchema, _dataRefSchema[schemaId], false);
+        }
+        defaultMeta() {
+          const { meta, schemaId } = this.opts;
+          return this.opts.defaultMeta = typeof meta == "object" ? meta[schemaId] || meta : void 0;
+        }
+        validate(schemaKeyRef, data) {
+          let v;
+          if (typeof schemaKeyRef == "string") {
+            v = this.getSchema(schemaKeyRef);
+            if (!v)
+              throw new Error(`no schema with key or ref "${schemaKeyRef}"`);
+          } else {
+            v = this.compile(schemaKeyRef);
+          }
+          const valid = v(data);
+          if (!("$async" in v))
+            this.errors = v.errors;
+          return valid;
+        }
+        compile(schema, _meta) {
+          const sch = this._addSchema(schema, _meta);
+          return sch.validate || this._compileSchemaEnv(sch);
+        }
+        compileAsync(schema, meta) {
+          if (typeof this.opts.loadSchema != "function") {
+            throw new Error("options.loadSchema should be a function");
+          }
+          const { loadSchema } = this.opts;
+          return runCompileAsync.call(this, schema, meta);
+          async function runCompileAsync(_schema, _meta) {
+            await loadMetaSchema.call(this, _schema.$schema);
+            const sch = this._addSchema(_schema, _meta);
+            return sch.validate || _compileAsync.call(this, sch);
+          }
+          async function loadMetaSchema($ref) {
+            if ($ref && !this.getSchema($ref)) {
+              await runCompileAsync.call(this, { $ref }, true);
+            }
+          }
+          async function _compileAsync(sch) {
+            try {
+              return this._compileSchemaEnv(sch);
+            } catch (e) {
+              if (!(e instanceof ref_error_1.default))
+                throw e;
+              checkLoaded.call(this, e);
+              await loadMissingSchema.call(this, e.missingSchema);
+              return _compileAsync.call(this, sch);
+            }
+          }
+          function checkLoaded({ missingSchema: ref, missingRef }) {
+            if (this.refs[ref]) {
+              throw new Error(`AnySchema ${ref} is loaded but ${missingRef} cannot be resolved`);
+            }
+          }
+          async function loadMissingSchema(ref) {
+            const _schema = await _loadSchema.call(this, ref);
+            if (!this.refs[ref])
+              await loadMetaSchema.call(this, _schema.$schema);
+            if (!this.refs[ref])
+              this.addSchema(_schema, ref, meta);
+          }
+          async function _loadSchema(ref) {
+            const p = this._loading[ref];
+            if (p)
+              return p;
+            try {
+              return await (this._loading[ref] = loadSchema(ref));
+            } finally {
+              delete this._loading[ref];
+            }
+          }
+        }
+        addSchema(schema, key, _meta, _validateSchema = this.opts.validateSchema) {
+          if (Array.isArray(schema)) {
+            for (const sch of schema)
+              this.addSchema(sch, void 0, _meta, _validateSchema);
+            return this;
+          }
+          let id;
+          if (typeof schema === "object") {
+            const { schemaId } = this.opts;
+            id = schema[schemaId];
+            if (id !== void 0 && typeof id != "string") {
+              throw new Error(`schema ${schemaId} must be string`);
+            }
+          }
+          key = (0, resolve_1.normalizeId)(key || id);
+          this._checkUnique(key);
+          this.schemas[key] = this._addSchema(schema, _meta, key, _validateSchema, true);
+          return this;
+        }
+        addMetaSchema(schema, key, _validateSchema = this.opts.validateSchema) {
+          this.addSchema(schema, key, true, _validateSchema);
+          return this;
+        }
+        validateSchema(schema, throwOrLogError) {
+          if (typeof schema == "boolean")
+            return true;
+          let $schema;
+          $schema = schema.$schema;
+          if ($schema !== void 0 && typeof $schema != "string") {
+            throw new Error("$schema must be a string");
+          }
+          $schema = $schema || this.opts.defaultMeta || this.defaultMeta();
+          if (!$schema) {
+            this.logger.warn("meta-schema not available");
+            this.errors = null;
+            return true;
+          }
+          const valid = this.validate($schema, schema);
+          if (!valid && throwOrLogError) {
+            const message = "schema is invalid: " + this.errorsText();
+            if (this.opts.validateSchema === "log")
+              this.logger.error(message);
+            else
+              throw new Error(message);
+          }
+          return valid;
+        }
+        getSchema(keyRef) {
+          let sch;
+          while (typeof (sch = getSchEnv.call(this, keyRef)) == "string")
+            keyRef = sch;
+          if (sch === void 0) {
+            const { schemaId } = this.opts;
+            const root = new compile_1.SchemaEnv({ schema: {}, schemaId });
+            sch = compile_1.resolveSchema.call(this, root, keyRef);
+            if (!sch)
+              return;
+            this.refs[keyRef] = sch;
+          }
+          return sch.validate || this._compileSchemaEnv(sch);
+        }
+        removeSchema(schemaKeyRef) {
+          if (schemaKeyRef instanceof RegExp) {
+            this._removeAllSchemas(this.schemas, schemaKeyRef);
+            this._removeAllSchemas(this.refs, schemaKeyRef);
+            return this;
+          }
+          switch (typeof schemaKeyRef) {
+            case "undefined":
+              this._removeAllSchemas(this.schemas);
+              this._removeAllSchemas(this.refs);
+              this._cache.clear();
+              return this;
+            case "string": {
+              const sch = getSchEnv.call(this, schemaKeyRef);
+              if (typeof sch == "object")
+                this._cache.delete(sch.schema);
+              delete this.schemas[schemaKeyRef];
+              delete this.refs[schemaKeyRef];
+              return this;
+            }
+            case "object": {
+              const cacheKey = schemaKeyRef;
+              this._cache.delete(cacheKey);
+              let id = schemaKeyRef[this.opts.schemaId];
+              if (id) {
+                id = (0, resolve_1.normalizeId)(id);
+                delete this.schemas[id];
+                delete this.refs[id];
+              }
+              return this;
+            }
+            default:
+              throw new Error("ajv.removeSchema: invalid parameter");
+          }
+        }
+        addVocabulary(definitions) {
+          for (const def of definitions)
+            this.addKeyword(def);
+          return this;
+        }
+        addKeyword(kwdOrDef, def) {
+          let keyword;
+          if (typeof kwdOrDef == "string") {
+            keyword = kwdOrDef;
+            if (typeof def == "object") {
+              this.logger.warn("these parameters are deprecated, see docs for addKeyword");
+              def.keyword = keyword;
+            }
+          } else if (typeof kwdOrDef == "object" && def === void 0) {
+            def = kwdOrDef;
+            keyword = def.keyword;
+            if (Array.isArray(keyword) && !keyword.length) {
+              throw new Error("addKeywords: keyword must be string or non-empty array");
+            }
+          } else {
+            throw new Error("invalid addKeywords parameters");
+          }
+          checkKeyword.call(this, keyword, def);
+          if (!def) {
+            (0, util_1.eachItem)(keyword, (kwd) => addRule.call(this, kwd));
+            return this;
+          }
+          keywordMetaschema.call(this, def);
+          const definition = __spreadProps(__spreadValues({}, def), {
+            type: (0, dataType_1.getJSONTypes)(def.type),
+            schemaType: (0, dataType_1.getJSONTypes)(def.schemaType)
+          });
+          (0, util_1.eachItem)(keyword, definition.type.length === 0 ? (k) => addRule.call(this, k, definition) : (k) => definition.type.forEach((t) => addRule.call(this, k, definition, t)));
+          return this;
+        }
+        getKeyword(keyword) {
+          const rule = this.RULES.all[keyword];
+          return typeof rule == "object" ? rule.definition : !!rule;
+        }
+        removeKeyword(keyword) {
+          const { RULES } = this;
+          delete RULES.keywords[keyword];
+          delete RULES.all[keyword];
+          for (const group of RULES.rules) {
+            const i = group.rules.findIndex((rule) => rule.keyword === keyword);
+            if (i >= 0)
+              group.rules.splice(i, 1);
+          }
+          return this;
+        }
+        addFormat(name, format) {
+          if (typeof format == "string")
+            format = new RegExp(format);
+          this.formats[name] = format;
+          return this;
+        }
+        errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
+          if (!errors || errors.length === 0)
+            return "No errors";
+          return errors.map((e) => `${dataVar}${e.instancePath} ${e.message}`).reduce((text, msg) => text + separator + msg);
+        }
+        $dataMetaSchema(metaSchema, keywordsJsonPointers) {
+          const rules = this.RULES.all;
+          metaSchema = JSON.parse(JSON.stringify(metaSchema));
+          for (const jsonPointer of keywordsJsonPointers) {
+            const segments = jsonPointer.split("/").slice(1);
+            let keywords = metaSchema;
+            for (const seg of segments)
+              keywords = keywords[seg];
+            for (const key in rules) {
+              const rule = rules[key];
+              if (typeof rule != "object")
+                continue;
+              const { $data } = rule.definition;
+              const schema = keywords[key];
+              if ($data && schema)
+                keywords[key] = schemaOrData(schema);
+            }
+          }
+          return metaSchema;
+        }
+        _removeAllSchemas(schemas, regex) {
+          for (const keyRef in schemas) {
+            const sch = schemas[keyRef];
+            if (!regex || regex.test(keyRef)) {
+              if (typeof sch == "string") {
+                delete schemas[keyRef];
+              } else if (sch && !sch.meta) {
+                this._cache.delete(sch.schema);
+                delete schemas[keyRef];
+              }
+            }
+          }
+        }
+        _addSchema(schema, meta, baseId, validateSchema = this.opts.validateSchema, addSchema = this.opts.addUsedSchema) {
+          let id;
+          const { schemaId } = this.opts;
+          if (typeof schema == "object") {
+            id = schema[schemaId];
+          } else {
+            if (this.opts.jtd)
+              throw new Error("schema must be object");
+            else if (typeof schema != "boolean")
+              throw new Error("schema must be object or boolean");
+          }
+          let sch = this._cache.get(schema);
+          if (sch !== void 0)
+            return sch;
+          baseId = (0, resolve_1.normalizeId)(id || baseId);
+          const localRefs = resolve_1.getSchemaRefs.call(this, schema, baseId);
+          sch = new compile_1.SchemaEnv({ schema, schemaId, meta, baseId, localRefs });
+          this._cache.set(sch.schema, sch);
+          if (addSchema && !baseId.startsWith("#")) {
+            if (baseId)
+              this._checkUnique(baseId);
+            this.refs[baseId] = sch;
+          }
+          if (validateSchema)
+            this.validateSchema(schema, true);
+          return sch;
+        }
+        _checkUnique(id) {
+          if (this.schemas[id] || this.refs[id]) {
+            throw new Error(`schema with key or id "${id}" already exists`);
+          }
+        }
+        _compileSchemaEnv(sch) {
+          if (sch.meta)
+            this._compileMetaSchema(sch);
+          else
+            compile_1.compileSchema.call(this, sch);
+          if (!sch.validate)
+            throw new Error("ajv implementation error");
+          return sch.validate;
+        }
+        _compileMetaSchema(sch) {
+          const currentOpts = this.opts;
+          this.opts = this._metaOpts;
+          try {
+            compile_1.compileSchema.call(this, sch);
+          } finally {
+            this.opts = currentOpts;
+          }
+        }
+      };
+      exports.default = Ajv2;
+      Ajv2.ValidationError = validation_error_1.default;
+      Ajv2.MissingRefError = ref_error_1.default;
+      function checkOptions(checkOpts, options, msg, log = "error") {
+        for (const key in checkOpts) {
+          const opt = key;
+          if (opt in options)
+            this.logger[log](`${msg}: option ${key}. ${checkOpts[opt]}`);
+        }
+      }
+      function getSchEnv(keyRef) {
+        keyRef = (0, resolve_1.normalizeId)(keyRef);
+        return this.schemas[keyRef] || this.refs[keyRef];
+      }
+      function addInitialSchemas() {
+        const optsSchemas = this.opts.schemas;
+        if (!optsSchemas)
+          return;
+        if (Array.isArray(optsSchemas))
+          this.addSchema(optsSchemas);
+        else
+          for (const key in optsSchemas)
+            this.addSchema(optsSchemas[key], key);
+      }
+      function addInitialFormats() {
+        for (const name in this.opts.formats) {
+          const format = this.opts.formats[name];
+          if (format)
+            this.addFormat(name, format);
+        }
+      }
+      function addInitialKeywords(defs) {
+        if (Array.isArray(defs)) {
+          this.addVocabulary(defs);
+          return;
+        }
+        this.logger.warn("keywords option as map is deprecated, pass array");
+        for (const keyword in defs) {
+          const def = defs[keyword];
+          if (!def.keyword)
+            def.keyword = keyword;
+          this.addKeyword(def);
+        }
+      }
+      function getMetaSchemaOptions() {
+        const metaOpts = __spreadValues({}, this.opts);
+        for (const opt of META_IGNORE_OPTIONS)
+          delete metaOpts[opt];
+        return metaOpts;
+      }
+      var noLogs = { log() {
+      }, warn() {
+      }, error() {
+      } };
+      function getLogger(logger) {
+        if (logger === false)
+          return noLogs;
+        if (logger === void 0)
+          return console;
+        if (logger.log && logger.warn && logger.error)
+          return logger;
+        throw new Error("logger must implement log, warn and error methods");
+      }
+      var KEYWORD_NAME = /^[a-z_$][a-z0-9_$:-]*$/i;
+      function checkKeyword(keyword, def) {
+        const { RULES } = this;
+        (0, util_1.eachItem)(keyword, (kwd) => {
+          if (RULES.keywords[kwd])
+            throw new Error(`Keyword ${kwd} is already defined`);
+          if (!KEYWORD_NAME.test(kwd))
+            throw new Error(`Keyword ${kwd} has invalid name`);
+        });
+        if (!def)
+          return;
+        if (def.$data && !("code" in def || "validate" in def)) {
+          throw new Error('$data keyword must have "code" or "validate" function');
+        }
+      }
+      function addRule(keyword, definition, dataType) {
+        var _a;
+        const post = definition === null || definition === void 0 ? void 0 : definition.post;
+        if (dataType && post)
+          throw new Error('keyword with "post" flag cannot have "type"');
+        const { RULES } = this;
+        let ruleGroup = post ? RULES.post : RULES.rules.find(({ type: t }) => t === dataType);
+        if (!ruleGroup) {
+          ruleGroup = { type: dataType, rules: [] };
+          RULES.rules.push(ruleGroup);
+        }
+        RULES.keywords[keyword] = true;
+        if (!definition)
+          return;
+        const rule = {
+          keyword,
+          definition: __spreadProps(__spreadValues({}, definition), {
+            type: (0, dataType_1.getJSONTypes)(definition.type),
+            schemaType: (0, dataType_1.getJSONTypes)(definition.schemaType)
+          })
+        };
+        if (definition.before)
+          addBeforeRule.call(this, ruleGroup, rule, definition.before);
+        else
+          ruleGroup.rules.push(rule);
+        RULES.all[keyword] = rule;
+        (_a = definition.implements) === null || _a === void 0 ? void 0 : _a.forEach((kwd) => this.addKeyword(kwd));
+      }
+      function addBeforeRule(ruleGroup, rule, before) {
+        const i = ruleGroup.rules.findIndex((_rule) => _rule.keyword === before);
+        if (i >= 0) {
+          ruleGroup.rules.splice(i, 0, rule);
+        } else {
+          ruleGroup.rules.push(rule);
+          this.logger.warn(`rule ${before} is not defined`);
+        }
+      }
+      function keywordMetaschema(def) {
+        let { metaSchema } = def;
+        if (metaSchema === void 0)
+          return;
+        if (def.$data && this.opts.$data)
+          metaSchema = schemaOrData(metaSchema);
+        def.validateSchema = this.compile(metaSchema, true);
+      }
+      var $dataRef = {
+        $ref: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#"
+      };
+      function schemaOrData(schema) {
+        return { anyOf: [schema, $dataRef] };
+      }
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/core/id.js
+  var require_id = __commonJS({
+    "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var def = {
+        keyword: "id",
+        code() {
+          throw new Error('NOT SUPPORTED: keyword "id", use "$id" for schema ID');
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/core/ref.js
+  var require_ref = __commonJS({
+    "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.callRef = exports.getValidate = void 0;
+      var ref_error_1 = require_ref_error();
+      var code_1 = require_code2();
+      var codegen_1 = require_codegen();
+      var names_1 = require_names();
+      var compile_1 = require_compile();
+      var util_1 = require_util();
+      var def = {
+        keyword: "$ref",
+        schemaType: "string",
+        code(cxt) {
+          const { gen, schema: $ref, it } = cxt;
+          const { baseId, schemaEnv: env, validateName, opts, self: self2 } = it;
+          const { root } = env;
+          if (($ref === "#" || $ref === "#/") && baseId === root.baseId)
+            return callRootRef();
+          const schOrEnv = compile_1.resolveRef.call(self2, root, baseId, $ref);
+          if (schOrEnv === void 0)
+            throw new ref_error_1.default(it.opts.uriResolver, baseId, $ref);
+          if (schOrEnv instanceof compile_1.SchemaEnv)
+            return callValidate(schOrEnv);
+          return inlineRefSchema(schOrEnv);
+          function callRootRef() {
+            if (env === root)
+              return callRef(cxt, validateName, env, env.$async);
+            const rootName = gen.scopeValue("root", { ref: root });
+            return callRef(cxt, (0, codegen_1._)`${rootName}.validate`, root, root.$async);
+          }
+          function callValidate(sch) {
+            const v = getValidate(cxt, sch);
+            callRef(cxt, v, sch, sch.$async);
+          }
+          function inlineRefSchema(sch) {
+            const schName = gen.scopeValue("schema", opts.code.source === true ? { ref: sch, code: (0, codegen_1.stringify)(sch) } : { ref: sch });
+            const valid = gen.name("valid");
+            const schCxt = cxt.subschema({
+              schema: sch,
+              dataTypes: [],
+              schemaPath: codegen_1.nil,
+              topSchemaRef: schName,
+              errSchemaPath: $ref
+            }, valid);
+            cxt.mergeEvaluated(schCxt);
+            cxt.ok(valid);
+          }
+        }
+      };
+      function getValidate(cxt, sch) {
+        const { gen } = cxt;
+        return sch.validate ? gen.scopeValue("validate", { ref: sch.validate }) : (0, codegen_1._)`${gen.scopeValue("wrapper", { ref: sch })}.validate`;
+      }
+      exports.getValidate = getValidate;
+      function callRef(cxt, v, sch, $async) {
+        const { gen, it } = cxt;
+        const { allErrors, schemaEnv: env, opts } = it;
+        const passCxt = opts.passContext ? names_1.default.this : codegen_1.nil;
+        if ($async)
+          callAsyncRef();
+        else
+          callSyncRef();
+        function callAsyncRef() {
+          if (!env.$async)
+            throw new Error("async schema referenced by sync schema");
+          const valid = gen.let("valid");
+          gen.try(() => {
+            gen.code((0, codegen_1._)`await ${(0, code_1.callValidateCode)(cxt, v, passCxt)}`);
+            addEvaluatedFrom(v);
+            if (!allErrors)
+              gen.assign(valid, true);
+          }, (e) => {
+            gen.if((0, codegen_1._)`!(${e} instanceof ${it.ValidationError})`, () => gen.throw(e));
+            addErrorsFrom(e);
+            if (!allErrors)
+              gen.assign(valid, false);
+          });
+          cxt.ok(valid);
+        }
+        function callSyncRef() {
+          cxt.result((0, code_1.callValidateCode)(cxt, v, passCxt), () => addEvaluatedFrom(v), () => addErrorsFrom(v));
+        }
+        function addErrorsFrom(source) {
+          const errs = (0, codegen_1._)`${source}.errors`;
+          gen.assign(names_1.default.vErrors, (0, codegen_1._)`${names_1.default.vErrors} === null ? ${errs} : ${names_1.default.vErrors}.concat(${errs})`);
+          gen.assign(names_1.default.errors, (0, codegen_1._)`${names_1.default.vErrors}.length`);
+        }
+        function addEvaluatedFrom(source) {
+          var _a;
+          if (!it.opts.unevaluated)
+            return;
+          const schEvaluated = (_a = sch === null || sch === void 0 ? void 0 : sch.validate) === null || _a === void 0 ? void 0 : _a.evaluated;
+          if (it.props !== true) {
+            if (schEvaluated && !schEvaluated.dynamicProps) {
+              if (schEvaluated.props !== void 0) {
+                it.props = util_1.mergeEvaluated.props(gen, schEvaluated.props, it.props);
+              }
+            } else {
+              const props = gen.var("props", (0, codegen_1._)`${source}.evaluated.props`);
+              it.props = util_1.mergeEvaluated.props(gen, props, it.props, codegen_1.Name);
+            }
+          }
+          if (it.items !== true) {
+            if (schEvaluated && !schEvaluated.dynamicItems) {
+              if (schEvaluated.items !== void 0) {
+                it.items = util_1.mergeEvaluated.items(gen, schEvaluated.items, it.items);
+              }
+            } else {
+              const items = gen.var("items", (0, codegen_1._)`${source}.evaluated.items`);
+              it.items = util_1.mergeEvaluated.items(gen, items, it.items, codegen_1.Name);
+            }
+          }
+        }
+      }
+      exports.callRef = callRef;
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/core/index.js
+  var require_core2 = __commonJS({
+    "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var id_1 = require_id();
+      var ref_1 = require_ref();
+      var core = [
+        "$schema",
+        "$id",
+        "$defs",
+        "$vocabulary",
+        { keyword: "$comment" },
+        "definitions",
+        id_1.default,
+        ref_1.default
+      ];
+      exports.default = core;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+  var require_limitNumber = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var ops = codegen_1.operators;
+      var KWDs = {
+        maximum: { okStr: "<=", ok: ops.LTE, fail: ops.GT },
+        minimum: { okStr: ">=", ok: ops.GTE, fail: ops.LT },
+        exclusiveMaximum: { okStr: "<", ok: ops.LT, fail: ops.GTE },
+        exclusiveMinimum: { okStr: ">", ok: ops.GT, fail: ops.LTE }
+      };
+      var error = {
+        message: ({ keyword, schemaCode }) => (0, codegen_1.str)`must be ${KWDs[keyword].okStr} ${schemaCode}`,
+        params: ({ keyword, schemaCode }) => (0, codegen_1._)`{comparison: ${KWDs[keyword].okStr}, limit: ${schemaCode}}`
+      };
+      var def = {
+        keyword: Object.keys(KWDs),
+        type: "number",
+        schemaType: "number",
+        $data: true,
+        error,
+        code(cxt) {
+          const { keyword, data, schemaCode } = cxt;
+          cxt.fail$data((0, codegen_1._)`${data} ${KWDs[keyword].fail} ${schemaCode} || isNaN(${data})`);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+  var require_multipleOf = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var error = {
+        message: ({ schemaCode }) => (0, codegen_1.str)`must be multiple of ${schemaCode}`,
+        params: ({ schemaCode }) => (0, codegen_1._)`{multipleOf: ${schemaCode}}`
+      };
+      var def = {
+        keyword: "multipleOf",
+        type: "number",
+        schemaType: "number",
+        $data: true,
+        error,
+        code(cxt) {
+          const { gen, data, schemaCode, it } = cxt;
+          const prec = it.opts.multipleOfPrecision;
+          const res = gen.let("res");
+          const invalid = prec ? (0, codegen_1._)`Math.abs(Math.round(${res}) - ${res}) > 1e-${prec}` : (0, codegen_1._)`${res} !== parseInt(${res})`;
+          cxt.fail$data((0, codegen_1._)`(${schemaCode} === 0 || (${res} = ${data}/${schemaCode}, ${invalid}))`);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/runtime/ucs2length.js
+  var require_ucs2length = __commonJS({
+    "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      function ucs2length(str) {
+        const len = str.length;
+        let length = 0;
+        let pos = 0;
+        let value;
+        while (pos < len) {
+          length++;
+          value = str.charCodeAt(pos++);
+          if (value >= 55296 && value <= 56319 && pos < len) {
+            value = str.charCodeAt(pos);
+            if ((value & 64512) === 56320)
+              pos++;
+          }
+        }
+        return length;
+      }
+      exports.default = ucs2length;
+      ucs2length.code = 'require("ajv/dist/runtime/ucs2length").default';
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/limitLength.js
+  var require_limitLength = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var ucs2length_1 = require_ucs2length();
+      var error = {
+        message({ keyword, schemaCode }) {
+          const comp = keyword === "maxLength" ? "more" : "fewer";
+          return (0, codegen_1.str)`must NOT have ${comp} than ${schemaCode} characters`;
+        },
+        params: ({ schemaCode }) => (0, codegen_1._)`{limit: ${schemaCode}}`
+      };
+      var def = {
+        keyword: ["maxLength", "minLength"],
+        type: "string",
+        schemaType: "number",
+        $data: true,
+        error,
+        code(cxt) {
+          const { keyword, data, schemaCode, it } = cxt;
+          const op = keyword === "maxLength" ? codegen_1.operators.GT : codegen_1.operators.LT;
+          const len = it.opts.unicode === false ? (0, codegen_1._)`${data}.length` : (0, codegen_1._)`${(0, util_1.useFunc)(cxt.gen, ucs2length_1.default)}(${data})`;
+          cxt.fail$data((0, codegen_1._)`${len} ${op} ${schemaCode}`);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/pattern.js
+  var require_pattern = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var code_1 = require_code2();
+      var codegen_1 = require_codegen();
+      var error = {
+        message: ({ schemaCode }) => (0, codegen_1.str)`must match pattern "${schemaCode}"`,
+        params: ({ schemaCode }) => (0, codegen_1._)`{pattern: ${schemaCode}}`
+      };
+      var def = {
+        keyword: "pattern",
+        type: "string",
+        schemaType: "string",
+        $data: true,
+        error,
+        code(cxt) {
+          const { data, $data, schema, schemaCode, it } = cxt;
+          const u = it.opts.unicodeRegExp ? "u" : "";
+          const regExp = $data ? (0, codegen_1._)`(new RegExp(${schemaCode}, ${u}))` : (0, code_1.usePattern)(cxt, schema);
+          cxt.fail$data((0, codegen_1._)`!${regExp}.test(${data})`);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+  var require_limitProperties = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var error = {
+        message({ keyword, schemaCode }) {
+          const comp = keyword === "maxProperties" ? "more" : "fewer";
+          return (0, codegen_1.str)`must NOT have ${comp} than ${schemaCode} properties`;
+        },
+        params: ({ schemaCode }) => (0, codegen_1._)`{limit: ${schemaCode}}`
+      };
+      var def = {
+        keyword: ["maxProperties", "minProperties"],
+        type: "object",
+        schemaType: "number",
+        $data: true,
+        error,
+        code(cxt) {
+          const { keyword, data, schemaCode } = cxt;
+          const op = keyword === "maxProperties" ? codegen_1.operators.GT : codegen_1.operators.LT;
+          cxt.fail$data((0, codegen_1._)`Object.keys(${data}).length ${op} ${schemaCode}`);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/required.js
+  var require_required = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var code_1 = require_code2();
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var error = {
+        message: ({ params: { missingProperty } }) => (0, codegen_1.str)`must have required property '${missingProperty}'`,
+        params: ({ params: { missingProperty } }) => (0, codegen_1._)`{missingProperty: ${missingProperty}}`
+      };
+      var def = {
+        keyword: "required",
+        type: "object",
+        schemaType: "array",
+        $data: true,
+        error,
+        code(cxt) {
+          const { gen, schema, schemaCode, data, $data, it } = cxt;
+          const { opts } = it;
+          if (!$data && schema.length === 0)
+            return;
+          const useLoop = schema.length >= opts.loopRequired;
+          if (it.allErrors)
+            allErrorsMode();
+          else
+            exitOnErrorMode();
+          if (opts.strictRequired) {
+            const props = cxt.parentSchema.properties;
+            const { definedProperties } = cxt.it;
+            for (const requiredKey of schema) {
+              if ((props === null || props === void 0 ? void 0 : props[requiredKey]) === void 0 && !definedProperties.has(requiredKey)) {
+                const schemaPath = it.schemaEnv.baseId + it.errSchemaPath;
+                const msg = `required property "${requiredKey}" is not defined at "${schemaPath}" (strictRequired)`;
+                (0, util_1.checkStrictMode)(it, msg, it.opts.strictRequired);
+              }
+            }
+          }
+          function allErrorsMode() {
+            if (useLoop || $data) {
+              cxt.block$data(codegen_1.nil, loopAllRequired);
+            } else {
+              for (const prop of schema) {
+                (0, code_1.checkReportMissingProp)(cxt, prop);
+              }
+            }
+          }
+          function exitOnErrorMode() {
+            const missing = gen.let("missing");
+            if (useLoop || $data) {
+              const valid = gen.let("valid", true);
+              cxt.block$data(valid, () => loopUntilMissing(missing, valid));
+              cxt.ok(valid);
+            } else {
+              gen.if((0, code_1.checkMissingProp)(cxt, schema, missing));
+              (0, code_1.reportMissingProp)(cxt, missing);
+              gen.else();
+            }
+          }
+          function loopAllRequired() {
+            gen.forOf("prop", schemaCode, (prop) => {
+              cxt.setParams({ missingProperty: prop });
+              gen.if((0, code_1.noPropertyInData)(gen, data, prop, opts.ownProperties), () => cxt.error());
+            });
+          }
+          function loopUntilMissing(missing, valid) {
+            cxt.setParams({ missingProperty: missing });
+            gen.forOf(missing, schemaCode, () => {
+              gen.assign(valid, (0, code_1.propertyInData)(gen, data, missing, opts.ownProperties));
+              gen.if((0, codegen_1.not)(valid), () => {
+                cxt.error();
+                gen.break();
+              });
+            }, codegen_1.nil);
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/limitItems.js
+  var require_limitItems = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var error = {
+        message({ keyword, schemaCode }) {
+          const comp = keyword === "maxItems" ? "more" : "fewer";
+          return (0, codegen_1.str)`must NOT have ${comp} than ${schemaCode} items`;
+        },
+        params: ({ schemaCode }) => (0, codegen_1._)`{limit: ${schemaCode}}`
+      };
+      var def = {
+        keyword: ["maxItems", "minItems"],
+        type: "array",
+        schemaType: "number",
+        $data: true,
+        error,
+        code(cxt) {
+          const { keyword, data, schemaCode } = cxt;
+          const op = keyword === "maxItems" ? codegen_1.operators.GT : codegen_1.operators.LT;
+          cxt.fail$data((0, codegen_1._)`${data}.length ${op} ${schemaCode}`);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/runtime/equal.js
+  var require_equal = __commonJS({
+    "node_modules/ajv/dist/runtime/equal.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var equal = require_fast_deep_equal();
+      equal.code = 'require("ajv/dist/runtime/equal").default';
+      exports.default = equal;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+  var require_uniqueItems = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var dataType_1 = require_dataType();
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var equal_1 = require_equal();
+      var error = {
+        message: ({ params: { i, j } }) => (0, codegen_1.str)`must NOT have duplicate items (items ## ${j} and ${i} are identical)`,
+        params: ({ params: { i, j } }) => (0, codegen_1._)`{i: ${i}, j: ${j}}`
+      };
+      var def = {
+        keyword: "uniqueItems",
+        type: "array",
+        schemaType: "boolean",
+        $data: true,
+        error,
+        code(cxt) {
+          const { gen, data, $data, schema, parentSchema, schemaCode, it } = cxt;
+          if (!$data && !schema)
+            return;
+          const valid = gen.let("valid");
+          const itemTypes = parentSchema.items ? (0, dataType_1.getSchemaTypes)(parentSchema.items) : [];
+          cxt.block$data(valid, validateUniqueItems, (0, codegen_1._)`${schemaCode} === false`);
+          cxt.ok(valid);
+          function validateUniqueItems() {
+            const i = gen.let("i", (0, codegen_1._)`${data}.length`);
+            const j = gen.let("j");
+            cxt.setParams({ i, j });
+            gen.assign(valid, true);
+            gen.if((0, codegen_1._)`${i} > 1`, () => (canOptimize() ? loopN : loopN2)(i, j));
+          }
+          function canOptimize() {
+            return itemTypes.length > 0 && !itemTypes.some((t) => t === "object" || t === "array");
+          }
+          function loopN(i, j) {
+            const item = gen.name("item");
+            const wrongType = (0, dataType_1.checkDataTypes)(itemTypes, item, it.opts.strictNumbers, dataType_1.DataType.Wrong);
+            const indices = gen.const("indices", (0, codegen_1._)`{}`);
+            gen.for((0, codegen_1._)`;${i}--;`, () => {
+              gen.let(item, (0, codegen_1._)`${data}[${i}]`);
+              gen.if(wrongType, (0, codegen_1._)`continue`);
+              if (itemTypes.length > 1)
+                gen.if((0, codegen_1._)`typeof ${item} == "string"`, (0, codegen_1._)`${item} += "_"`);
+              gen.if((0, codegen_1._)`typeof ${indices}[${item}] == "number"`, () => {
+                gen.assign(j, (0, codegen_1._)`${indices}[${item}]`);
+                cxt.error();
+                gen.assign(valid, false).break();
+              }).code((0, codegen_1._)`${indices}[${item}] = ${i}`);
+            });
+          }
+          function loopN2(i, j) {
+            const eql = (0, util_1.useFunc)(gen, equal_1.default);
+            const outer = gen.name("outer");
+            gen.label(outer).for((0, codegen_1._)`;${i}--;`, () => gen.for((0, codegen_1._)`${j} = ${i}; ${j}--;`, () => gen.if((0, codegen_1._)`${eql}(${data}[${i}], ${data}[${j}])`, () => {
+              cxt.error();
+              gen.assign(valid, false).break(outer);
+            })));
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/const.js
+  var require_const = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var equal_1 = require_equal();
+      var error = {
+        message: "must be equal to constant",
+        params: ({ schemaCode }) => (0, codegen_1._)`{allowedValue: ${schemaCode}}`
+      };
+      var def = {
+        keyword: "const",
+        $data: true,
+        error,
+        code(cxt) {
+          const { gen, data, $data, schemaCode, schema } = cxt;
+          if ($data || schema && typeof schema == "object") {
+            cxt.fail$data((0, codegen_1._)`!${(0, util_1.useFunc)(gen, equal_1.default)}(${data}, ${schemaCode})`);
+          } else {
+            cxt.fail((0, codegen_1._)`${schema} !== ${data}`);
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/enum.js
+  var require_enum = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var equal_1 = require_equal();
+      var error = {
+        message: "must be equal to one of the allowed values",
+        params: ({ schemaCode }) => (0, codegen_1._)`{allowedValues: ${schemaCode}}`
+      };
+      var def = {
+        keyword: "enum",
+        schemaType: "array",
+        $data: true,
+        error,
+        code(cxt) {
+          const { gen, data, $data, schema, schemaCode, it } = cxt;
+          if (!$data && schema.length === 0)
+            throw new Error("enum must have non-empty array");
+          const useLoop = schema.length >= it.opts.loopEnum;
+          let eql;
+          const getEql = () => eql !== null && eql !== void 0 ? eql : eql = (0, util_1.useFunc)(gen, equal_1.default);
+          let valid;
+          if (useLoop || $data) {
+            valid = gen.let("valid");
+            cxt.block$data(valid, loopEnum);
+          } else {
+            if (!Array.isArray(schema))
+              throw new Error("ajv implementation error");
+            const vSchema = gen.const("vSchema", schemaCode);
+            valid = (0, codegen_1.or)(...schema.map((_x, i) => equalCode(vSchema, i)));
+          }
+          cxt.pass(valid);
+          function loopEnum() {
+            gen.assign(valid, false);
+            gen.forOf("v", schemaCode, (v) => gen.if((0, codegen_1._)`${getEql()}(${data}, ${v})`, () => gen.assign(valid, true).break()));
+          }
+          function equalCode(vSchema, i) {
+            const sch = schema[i];
+            return typeof sch === "object" && sch !== null ? (0, codegen_1._)`${getEql()}(${data}, ${vSchema}[${i}])` : (0, codegen_1._)`${data} === ${sch}`;
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/validation/index.js
+  var require_validation = __commonJS({
+    "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var limitNumber_1 = require_limitNumber();
+      var multipleOf_1 = require_multipleOf();
+      var limitLength_1 = require_limitLength();
+      var pattern_1 = require_pattern();
+      var limitProperties_1 = require_limitProperties();
+      var required_1 = require_required();
+      var limitItems_1 = require_limitItems();
+      var uniqueItems_1 = require_uniqueItems();
+      var const_1 = require_const();
+      var enum_1 = require_enum();
+      var validation = [
+        limitNumber_1.default,
+        multipleOf_1.default,
+        limitLength_1.default,
+        pattern_1.default,
+        limitProperties_1.default,
+        required_1.default,
+        limitItems_1.default,
+        uniqueItems_1.default,
+        { keyword: "type", schemaType: ["string", "array"] },
+        { keyword: "nullable", schemaType: "boolean" },
+        const_1.default,
+        enum_1.default
+      ];
+      exports.default = validation;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+  var require_additionalItems = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.validateAdditionalItems = void 0;
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var error = {
+        message: ({ params: { len } }) => (0, codegen_1.str)`must NOT have more than ${len} items`,
+        params: ({ params: { len } }) => (0, codegen_1._)`{limit: ${len}}`
+      };
+      var def = {
+        keyword: "additionalItems",
+        type: "array",
+        schemaType: ["boolean", "object"],
+        before: "uniqueItems",
+        error,
+        code(cxt) {
+          const { parentSchema, it } = cxt;
+          const { items } = parentSchema;
+          if (!Array.isArray(items)) {
+            (0, util_1.checkStrictMode)(it, '"additionalItems" is ignored when "items" is not an array of schemas');
+            return;
+          }
+          validateAdditionalItems(cxt, items);
+        }
+      };
+      function validateAdditionalItems(cxt, items) {
+        const { gen, schema, data, keyword, it } = cxt;
+        it.items = true;
+        const len = gen.const("len", (0, codegen_1._)`${data}.length`);
+        if (schema === false) {
+          cxt.setParams({ len: items.length });
+          cxt.pass((0, codegen_1._)`${len} <= ${items.length}`);
+        } else if (typeof schema == "object" && !(0, util_1.alwaysValidSchema)(it, schema)) {
+          const valid = gen.var("valid", (0, codegen_1._)`${len} <= ${items.length}`);
+          gen.if((0, codegen_1.not)(valid), () => validateItems(valid));
+          cxt.ok(valid);
+        }
+        function validateItems(valid) {
+          gen.forRange("i", items.length, len, (i) => {
+            cxt.subschema({ keyword, dataProp: i, dataPropType: util_1.Type.Num }, valid);
+            if (!it.allErrors)
+              gen.if((0, codegen_1.not)(valid), () => gen.break());
+          });
+        }
+      }
+      exports.validateAdditionalItems = validateAdditionalItems;
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/items.js
+  var require_items = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.validateTuple = void 0;
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var code_1 = require_code2();
+      var def = {
+        keyword: "items",
+        type: "array",
+        schemaType: ["object", "array", "boolean"],
+        before: "uniqueItems",
+        code(cxt) {
+          const { schema, it } = cxt;
+          if (Array.isArray(schema))
+            return validateTuple(cxt, "additionalItems", schema);
+          it.items = true;
+          if ((0, util_1.alwaysValidSchema)(it, schema))
+            return;
+          cxt.ok((0, code_1.validateArray)(cxt));
+        }
+      };
+      function validateTuple(cxt, extraItems, schArr = cxt.schema) {
+        const { gen, parentSchema, data, keyword, it } = cxt;
+        checkStrictTuple(parentSchema);
+        if (it.opts.unevaluated && schArr.length && it.items !== true) {
+          it.items = util_1.mergeEvaluated.items(gen, schArr.length, it.items);
+        }
+        const valid = gen.name("valid");
+        const len = gen.const("len", (0, codegen_1._)`${data}.length`);
+        schArr.forEach((sch, i) => {
+          if ((0, util_1.alwaysValidSchema)(it, sch))
+            return;
+          gen.if((0, codegen_1._)`${len} > ${i}`, () => cxt.subschema({
+            keyword,
+            schemaProp: i,
+            dataProp: i
+          }, valid));
+          cxt.ok(valid);
+        });
+        function checkStrictTuple(sch) {
+          const { opts, errSchemaPath } = it;
+          const l = schArr.length;
+          const fullTuple = l === sch.minItems && (l === sch.maxItems || sch[extraItems] === false);
+          if (opts.strictTuples && !fullTuple) {
+            const msg = `"${keyword}" is ${l}-tuple, but minItems or maxItems/${extraItems} are not specified or different at path "${errSchemaPath}"`;
+            (0, util_1.checkStrictMode)(it, msg, opts.strictTuples);
+          }
+        }
+      }
+      exports.validateTuple = validateTuple;
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+  var require_prefixItems = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var items_1 = require_items();
+      var def = {
+        keyword: "prefixItems",
+        type: "array",
+        schemaType: ["array"],
+        before: "uniqueItems",
+        code: (cxt) => (0, items_1.validateTuple)(cxt, "items")
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/items2020.js
+  var require_items2020 = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var code_1 = require_code2();
+      var additionalItems_1 = require_additionalItems();
+      var error = {
+        message: ({ params: { len } }) => (0, codegen_1.str)`must NOT have more than ${len} items`,
+        params: ({ params: { len } }) => (0, codegen_1._)`{limit: ${len}}`
+      };
+      var def = {
+        keyword: "items",
+        type: "array",
+        schemaType: ["object", "boolean"],
+        before: "uniqueItems",
+        error,
+        code(cxt) {
+          const { schema, parentSchema, it } = cxt;
+          const { prefixItems } = parentSchema;
+          it.items = true;
+          if ((0, util_1.alwaysValidSchema)(it, schema))
+            return;
+          if (prefixItems)
+            (0, additionalItems_1.validateAdditionalItems)(cxt, prefixItems);
+          else
+            cxt.ok((0, code_1.validateArray)(cxt));
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/contains.js
+  var require_contains = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var error = {
+        message: ({ params: { min, max } }) => max === void 0 ? (0, codegen_1.str)`must contain at least ${min} valid item(s)` : (0, codegen_1.str)`must contain at least ${min} and no more than ${max} valid item(s)`,
+        params: ({ params: { min, max } }) => max === void 0 ? (0, codegen_1._)`{minContains: ${min}}` : (0, codegen_1._)`{minContains: ${min}, maxContains: ${max}}`
+      };
+      var def = {
+        keyword: "contains",
+        type: "array",
+        schemaType: ["object", "boolean"],
+        before: "uniqueItems",
+        trackErrors: true,
+        error,
+        code(cxt) {
+          const { gen, schema, parentSchema, data, it } = cxt;
+          let min;
+          let max;
+          const { minContains, maxContains } = parentSchema;
+          if (it.opts.next) {
+            min = minContains === void 0 ? 1 : minContains;
+            max = maxContains;
+          } else {
+            min = 1;
+          }
+          const len = gen.const("len", (0, codegen_1._)`${data}.length`);
+          cxt.setParams({ min, max });
+          if (max === void 0 && min === 0) {
+            (0, util_1.checkStrictMode)(it, `"minContains" == 0 without "maxContains": "contains" keyword ignored`);
+            return;
+          }
+          if (max !== void 0 && min > max) {
+            (0, util_1.checkStrictMode)(it, `"minContains" > "maxContains" is always invalid`);
+            cxt.fail();
+            return;
+          }
+          if ((0, util_1.alwaysValidSchema)(it, schema)) {
+            let cond = (0, codegen_1._)`${len} >= ${min}`;
+            if (max !== void 0)
+              cond = (0, codegen_1._)`${cond} && ${len} <= ${max}`;
+            cxt.pass(cond);
+            return;
+          }
+          it.items = true;
+          const valid = gen.name("valid");
+          if (max === void 0 && min === 1) {
+            validateItems(valid, () => gen.if(valid, () => gen.break()));
+          } else if (min === 0) {
+            gen.let(valid, true);
+            if (max !== void 0)
+              gen.if((0, codegen_1._)`${data}.length > 0`, validateItemsWithCount);
+          } else {
+            gen.let(valid, false);
+            validateItemsWithCount();
+          }
+          cxt.result(valid, () => cxt.reset());
+          function validateItemsWithCount() {
+            const schValid = gen.name("_valid");
+            const count = gen.let("count", 0);
+            validateItems(schValid, () => gen.if(schValid, () => checkLimits(count)));
+          }
+          function validateItems(_valid, block) {
+            gen.forRange("i", 0, len, (i) => {
+              cxt.subschema({
+                keyword: "contains",
+                dataProp: i,
+                dataPropType: util_1.Type.Num,
+                compositeRule: true
+              }, _valid);
+              block();
+            });
+          }
+          function checkLimits(count) {
+            gen.code((0, codegen_1._)`${count}++`);
+            if (max === void 0) {
+              gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true).break());
+            } else {
+              gen.if((0, codegen_1._)`${count} > ${max}`, () => gen.assign(valid, false).break());
+              if (min === 1)
+                gen.assign(valid, true);
+              else
+                gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true));
+            }
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+  var require_dependencies = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var code_1 = require_code2();
+      exports.error = {
+        message: ({ params: { property, depsCount, deps } }) => {
+          const property_ies = depsCount === 1 ? "property" : "properties";
+          return (0, codegen_1.str)`must have ${property_ies} ${deps} when property ${property} is present`;
+        },
+        params: ({ params: { property, depsCount, deps, missingProperty } }) => (0, codegen_1._)`{property: ${property},
+    missingProperty: ${missingProperty},
+    depsCount: ${depsCount},
+    deps: ${deps}}`
+      };
+      var def = {
+        keyword: "dependencies",
+        type: "object",
+        schemaType: "object",
+        error: exports.error,
+        code(cxt) {
+          const [propDeps, schDeps] = splitDependencies(cxt);
+          validatePropertyDeps(cxt, propDeps);
+          validateSchemaDeps(cxt, schDeps);
+        }
+      };
+      function splitDependencies({ schema }) {
+        const propertyDeps = {};
+        const schemaDeps = {};
+        for (const key in schema) {
+          if (key === "__proto__")
+            continue;
+          const deps = Array.isArray(schema[key]) ? propertyDeps : schemaDeps;
+          deps[key] = schema[key];
+        }
+        return [propertyDeps, schemaDeps];
+      }
+      function validatePropertyDeps(cxt, propertyDeps = cxt.schema) {
+        const { gen, data, it } = cxt;
+        if (Object.keys(propertyDeps).length === 0)
+          return;
+        const missing = gen.let("missing");
+        for (const prop in propertyDeps) {
+          const deps = propertyDeps[prop];
+          if (deps.length === 0)
+            continue;
+          const hasProperty = (0, code_1.propertyInData)(gen, data, prop, it.opts.ownProperties);
+          cxt.setParams({
+            property: prop,
+            depsCount: deps.length,
+            deps: deps.join(", ")
+          });
+          if (it.allErrors) {
+            gen.if(hasProperty, () => {
+              for (const depProp of deps) {
+                (0, code_1.checkReportMissingProp)(cxt, depProp);
+              }
+            });
+          } else {
+            gen.if((0, codegen_1._)`${hasProperty} && (${(0, code_1.checkMissingProp)(cxt, deps, missing)})`);
+            (0, code_1.reportMissingProp)(cxt, missing);
+            gen.else();
+          }
+        }
+      }
+      exports.validatePropertyDeps = validatePropertyDeps;
+      function validateSchemaDeps(cxt, schemaDeps = cxt.schema) {
+        const { gen, data, keyword, it } = cxt;
+        const valid = gen.name("valid");
+        for (const prop in schemaDeps) {
+          if ((0, util_1.alwaysValidSchema)(it, schemaDeps[prop]))
+            continue;
+          gen.if(
+            (0, code_1.propertyInData)(gen, data, prop, it.opts.ownProperties),
+            () => {
+              const schCxt = cxt.subschema({ keyword, schemaProp: prop }, valid);
+              cxt.mergeValidEvaluated(schCxt, valid);
+            },
+            () => gen.var(valid, true)
+          );
+          cxt.ok(valid);
+        }
+      }
+      exports.validateSchemaDeps = validateSchemaDeps;
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+  var require_propertyNames = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var error = {
+        message: "property name must be valid",
+        params: ({ params }) => (0, codegen_1._)`{propertyName: ${params.propertyName}}`
+      };
+      var def = {
+        keyword: "propertyNames",
+        type: "object",
+        schemaType: ["object", "boolean"],
+        error,
+        code(cxt) {
+          const { gen, schema, data, it } = cxt;
+          if ((0, util_1.alwaysValidSchema)(it, schema))
+            return;
+          const valid = gen.name("valid");
+          gen.forIn("key", data, (key) => {
+            cxt.setParams({ propertyName: key });
+            cxt.subschema({
+              keyword: "propertyNames",
+              data: key,
+              dataTypes: ["string"],
+              propertyName: key,
+              compositeRule: true
+            }, valid);
+            gen.if((0, codegen_1.not)(valid), () => {
+              cxt.error(true);
+              if (!it.allErrors)
+                gen.break();
+            });
+          });
+          cxt.ok(valid);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+  var require_additionalProperties = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var code_1 = require_code2();
+      var codegen_1 = require_codegen();
+      var names_1 = require_names();
+      var util_1 = require_util();
+      var error = {
+        message: "must NOT have additional properties",
+        params: ({ params }) => (0, codegen_1._)`{additionalProperty: ${params.additionalProperty}}`
+      };
+      var def = {
+        keyword: "additionalProperties",
+        type: ["object"],
+        schemaType: ["boolean", "object"],
+        allowUndefined: true,
+        trackErrors: true,
+        error,
+        code(cxt) {
+          const { gen, schema, parentSchema, data, errsCount, it } = cxt;
+          if (!errsCount)
+            throw new Error("ajv implementation error");
+          const { allErrors, opts } = it;
+          it.props = true;
+          if (opts.removeAdditional !== "all" && (0, util_1.alwaysValidSchema)(it, schema))
+            return;
+          const props = (0, code_1.allSchemaProperties)(parentSchema.properties);
+          const patProps = (0, code_1.allSchemaProperties)(parentSchema.patternProperties);
+          checkAdditionalProperties();
+          cxt.ok((0, codegen_1._)`${errsCount} === ${names_1.default.errors}`);
+          function checkAdditionalProperties() {
+            gen.forIn("key", data, (key) => {
+              if (!props.length && !patProps.length)
+                additionalPropertyCode(key);
+              else
+                gen.if(isAdditional(key), () => additionalPropertyCode(key));
+            });
+          }
+          function isAdditional(key) {
+            let definedProp;
+            if (props.length > 8) {
+              const propsSchema = (0, util_1.schemaRefOrVal)(it, parentSchema.properties, "properties");
+              definedProp = (0, code_1.isOwnProperty)(gen, propsSchema, key);
+            } else if (props.length) {
+              definedProp = (0, codegen_1.or)(...props.map((p) => (0, codegen_1._)`${key} === ${p}`));
+            } else {
+              definedProp = codegen_1.nil;
+            }
+            if (patProps.length) {
+              definedProp = (0, codegen_1.or)(definedProp, ...patProps.map((p) => (0, codegen_1._)`${(0, code_1.usePattern)(cxt, p)}.test(${key})`));
+            }
+            return (0, codegen_1.not)(definedProp);
+          }
+          function deleteAdditional(key) {
+            gen.code((0, codegen_1._)`delete ${data}[${key}]`);
+          }
+          function additionalPropertyCode(key) {
+            if (opts.removeAdditional === "all" || opts.removeAdditional && schema === false) {
+              deleteAdditional(key);
+              return;
+            }
+            if (schema === false) {
+              cxt.setParams({ additionalProperty: key });
+              cxt.error();
+              if (!allErrors)
+                gen.break();
+              return;
+            }
+            if (typeof schema == "object" && !(0, util_1.alwaysValidSchema)(it, schema)) {
+              const valid = gen.name("valid");
+              if (opts.removeAdditional === "failing") {
+                applyAdditionalSchema(key, valid, false);
+                gen.if((0, codegen_1.not)(valid), () => {
+                  cxt.reset();
+                  deleteAdditional(key);
+                });
+              } else {
+                applyAdditionalSchema(key, valid);
+                if (!allErrors)
+                  gen.if((0, codegen_1.not)(valid), () => gen.break());
+              }
+            }
+          }
+          function applyAdditionalSchema(key, valid, errors) {
+            const subschema = {
+              keyword: "additionalProperties",
+              dataProp: key,
+              dataPropType: util_1.Type.Str
+            };
+            if (errors === false) {
+              Object.assign(subschema, {
+                compositeRule: true,
+                createErrors: false,
+                allErrors: false
+              });
+            }
+            cxt.subschema(subschema, valid);
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/properties.js
+  var require_properties = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var validate_1 = require_validate();
+      var code_1 = require_code2();
+      var util_1 = require_util();
+      var additionalProperties_1 = require_additionalProperties();
+      var def = {
+        keyword: "properties",
+        type: "object",
+        schemaType: "object",
+        code(cxt) {
+          const { gen, schema, parentSchema, data, it } = cxt;
+          if (it.opts.removeAdditional === "all" && parentSchema.additionalProperties === void 0) {
+            additionalProperties_1.default.code(new validate_1.KeywordCxt(it, additionalProperties_1.default, "additionalProperties"));
+          }
+          const allProps = (0, code_1.allSchemaProperties)(schema);
+          for (const prop of allProps) {
+            it.definedProperties.add(prop);
+          }
+          if (it.opts.unevaluated && allProps.length && it.props !== true) {
+            it.props = util_1.mergeEvaluated.props(gen, (0, util_1.toHash)(allProps), it.props);
+          }
+          const properties = allProps.filter((p) => !(0, util_1.alwaysValidSchema)(it, schema[p]));
+          if (properties.length === 0)
+            return;
+          const valid = gen.name("valid");
+          for (const prop of properties) {
+            if (hasDefault(prop)) {
+              applyPropertySchema(prop);
+            } else {
+              gen.if((0, code_1.propertyInData)(gen, data, prop, it.opts.ownProperties));
+              applyPropertySchema(prop);
+              if (!it.allErrors)
+                gen.else().var(valid, true);
+              gen.endIf();
+            }
+            cxt.it.definedProperties.add(prop);
+            cxt.ok(valid);
+          }
+          function hasDefault(prop) {
+            return it.opts.useDefaults && !it.compositeRule && schema[prop].default !== void 0;
+          }
+          function applyPropertySchema(prop) {
+            cxt.subschema({
+              keyword: "properties",
+              schemaProp: prop,
+              dataProp: prop
+            }, valid);
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+  var require_patternProperties = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var code_1 = require_code2();
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var util_2 = require_util();
+      var def = {
+        keyword: "patternProperties",
+        type: "object",
+        schemaType: "object",
+        code(cxt) {
+          const { gen, schema, data, parentSchema, it } = cxt;
+          const { opts } = it;
+          const patterns = (0, code_1.allSchemaProperties)(schema);
+          const alwaysValidPatterns = patterns.filter((p) => (0, util_1.alwaysValidSchema)(it, schema[p]));
+          if (patterns.length === 0 || alwaysValidPatterns.length === patterns.length && (!it.opts.unevaluated || it.props === true)) {
+            return;
+          }
+          const checkProperties = opts.strictSchema && !opts.allowMatchingProperties && parentSchema.properties;
+          const valid = gen.name("valid");
+          if (it.props !== true && !(it.props instanceof codegen_1.Name)) {
+            it.props = (0, util_2.evaluatedPropsToName)(gen, it.props);
+          }
+          const { props } = it;
+          validatePatternProperties();
+          function validatePatternProperties() {
+            for (const pat of patterns) {
+              if (checkProperties)
+                checkMatchingProperties(pat);
+              if (it.allErrors) {
+                validateProperties(pat);
+              } else {
+                gen.var(valid, true);
+                validateProperties(pat);
+                gen.if(valid);
+              }
+            }
+          }
+          function checkMatchingProperties(pat) {
+            for (const prop in checkProperties) {
+              if (new RegExp(pat).test(prop)) {
+                (0, util_1.checkStrictMode)(it, `property ${prop} matches pattern ${pat} (use allowMatchingProperties)`);
+              }
+            }
+          }
+          function validateProperties(pat) {
+            gen.forIn("key", data, (key) => {
+              gen.if((0, codegen_1._)`${(0, code_1.usePattern)(cxt, pat)}.test(${key})`, () => {
+                const alwaysValid = alwaysValidPatterns.includes(pat);
+                if (!alwaysValid) {
+                  cxt.subschema({
+                    keyword: "patternProperties",
+                    schemaProp: pat,
+                    dataProp: key,
+                    dataPropType: util_2.Type.Str
+                  }, valid);
+                }
+                if (it.opts.unevaluated && props !== true) {
+                  gen.assign((0, codegen_1._)`${props}[${key}]`, true);
+                } else if (!alwaysValid && !it.allErrors) {
+                  gen.if((0, codegen_1.not)(valid), () => gen.break());
+                }
+              });
+            });
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/not.js
+  var require_not = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var util_1 = require_util();
+      var def = {
+        keyword: "not",
+        schemaType: ["object", "boolean"],
+        trackErrors: true,
+        code(cxt) {
+          const { gen, schema, it } = cxt;
+          if ((0, util_1.alwaysValidSchema)(it, schema)) {
+            cxt.fail();
+            return;
+          }
+          const valid = gen.name("valid");
+          cxt.subschema({
+            keyword: "not",
+            compositeRule: true,
+            createErrors: false,
+            allErrors: false
+          }, valid);
+          cxt.failResult(valid, () => cxt.reset(), () => cxt.error());
+        },
+        error: { message: "must NOT be valid" }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+  var require_anyOf = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var code_1 = require_code2();
+      var def = {
+        keyword: "anyOf",
+        schemaType: "array",
+        trackErrors: true,
+        code: code_1.validateUnion,
+        error: { message: "must match a schema in anyOf" }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+  var require_oneOf = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var error = {
+        message: "must match exactly one schema in oneOf",
+        params: ({ params }) => (0, codegen_1._)`{passingSchemas: ${params.passing}}`
+      };
+      var def = {
+        keyword: "oneOf",
+        schemaType: "array",
+        trackErrors: true,
+        error,
+        code(cxt) {
+          const { gen, schema, parentSchema, it } = cxt;
+          if (!Array.isArray(schema))
+            throw new Error("ajv implementation error");
+          if (it.opts.discriminator && parentSchema.discriminator)
+            return;
+          const schArr = schema;
+          const valid = gen.let("valid", false);
+          const passing = gen.let("passing", null);
+          const schValid = gen.name("_valid");
+          cxt.setParams({ passing });
+          gen.block(validateOneOf);
+          cxt.result(valid, () => cxt.reset(), () => cxt.error(true));
+          function validateOneOf() {
+            schArr.forEach((sch, i) => {
+              let schCxt;
+              if ((0, util_1.alwaysValidSchema)(it, sch)) {
+                gen.var(schValid, true);
+              } else {
+                schCxt = cxt.subschema({
+                  keyword: "oneOf",
+                  schemaProp: i,
+                  compositeRule: true
+                }, schValid);
+              }
+              if (i > 0) {
+                gen.if((0, codegen_1._)`${schValid} && ${valid}`).assign(valid, false).assign(passing, (0, codegen_1._)`[${passing}, ${i}]`).else();
+              }
+              gen.if(schValid, () => {
+                gen.assign(valid, true);
+                gen.assign(passing, i);
+                if (schCxt)
+                  cxt.mergeEvaluated(schCxt, codegen_1.Name);
+              });
+            });
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/allOf.js
+  var require_allOf = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var util_1 = require_util();
+      var def = {
+        keyword: "allOf",
+        schemaType: "array",
+        code(cxt) {
+          const { gen, schema, it } = cxt;
+          if (!Array.isArray(schema))
+            throw new Error("ajv implementation error");
+          const valid = gen.name("valid");
+          schema.forEach((sch, i) => {
+            if ((0, util_1.alwaysValidSchema)(it, sch))
+              return;
+            const schCxt = cxt.subschema({ keyword: "allOf", schemaProp: i }, valid);
+            cxt.ok(valid);
+            cxt.mergeEvaluated(schCxt);
+          });
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/if.js
+  var require_if = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var util_1 = require_util();
+      var error = {
+        message: ({ params }) => (0, codegen_1.str)`must match "${params.ifClause}" schema`,
+        params: ({ params }) => (0, codegen_1._)`{failingKeyword: ${params.ifClause}}`
+      };
+      var def = {
+        keyword: "if",
+        schemaType: ["object", "boolean"],
+        trackErrors: true,
+        error,
+        code(cxt) {
+          const { gen, parentSchema, it } = cxt;
+          if (parentSchema.then === void 0 && parentSchema.else === void 0) {
+            (0, util_1.checkStrictMode)(it, '"if" without "then" and "else" is ignored');
+          }
+          const hasThen = hasSchema(it, "then");
+          const hasElse = hasSchema(it, "else");
+          if (!hasThen && !hasElse)
+            return;
+          const valid = gen.let("valid", true);
+          const schValid = gen.name("_valid");
+          validateIf();
+          cxt.reset();
+          if (hasThen && hasElse) {
+            const ifClause = gen.let("ifClause");
+            cxt.setParams({ ifClause });
+            gen.if(schValid, validateClause("then", ifClause), validateClause("else", ifClause));
+          } else if (hasThen) {
+            gen.if(schValid, validateClause("then"));
+          } else {
+            gen.if((0, codegen_1.not)(schValid), validateClause("else"));
+          }
+          cxt.pass(valid, () => cxt.error(true));
+          function validateIf() {
+            const schCxt = cxt.subschema({
+              keyword: "if",
+              compositeRule: true,
+              createErrors: false,
+              allErrors: false
+            }, schValid);
+            cxt.mergeEvaluated(schCxt);
+          }
+          function validateClause(keyword, ifClause) {
+            return () => {
+              const schCxt = cxt.subschema({ keyword }, schValid);
+              gen.assign(valid, schValid);
+              cxt.mergeValidEvaluated(schCxt, valid);
+              if (ifClause)
+                gen.assign(ifClause, (0, codegen_1._)`${keyword}`);
+              else
+                cxt.setParams({ ifClause: keyword });
+            };
+          }
+        }
+      };
+      function hasSchema(it, keyword) {
+        const schema = it.schema[keyword];
+        return schema !== void 0 && !(0, util_1.alwaysValidSchema)(it, schema);
+      }
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+  var require_thenElse = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var util_1 = require_util();
+      var def = {
+        keyword: ["then", "else"],
+        schemaType: ["object", "boolean"],
+        code({ keyword, parentSchema, it }) {
+          if (parentSchema.if === void 0)
+            (0, util_1.checkStrictMode)(it, `"${keyword}" without "if" is ignored`);
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/applicator/index.js
+  var require_applicator = __commonJS({
+    "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var additionalItems_1 = require_additionalItems();
+      var prefixItems_1 = require_prefixItems();
+      var items_1 = require_items();
+      var items2020_1 = require_items2020();
+      var contains_1 = require_contains();
+      var dependencies_1 = require_dependencies();
+      var propertyNames_1 = require_propertyNames();
+      var additionalProperties_1 = require_additionalProperties();
+      var properties_1 = require_properties();
+      var patternProperties_1 = require_patternProperties();
+      var not_1 = require_not();
+      var anyOf_1 = require_anyOf();
+      var oneOf_1 = require_oneOf();
+      var allOf_1 = require_allOf();
+      var if_1 = require_if();
+      var thenElse_1 = require_thenElse();
+      function getApplicator(draft2020 = false) {
+        const applicator = [
+          not_1.default,
+          anyOf_1.default,
+          oneOf_1.default,
+          allOf_1.default,
+          if_1.default,
+          thenElse_1.default,
+          propertyNames_1.default,
+          additionalProperties_1.default,
+          dependencies_1.default,
+          properties_1.default,
+          patternProperties_1.default
+        ];
+        if (draft2020)
+          applicator.push(prefixItems_1.default, items2020_1.default);
+        else
+          applicator.push(additionalItems_1.default, items_1.default);
+        applicator.push(contains_1.default);
+        return applicator;
+      }
+      exports.default = getApplicator;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/format/format.js
+  var require_format = __commonJS({
+    "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var error = {
+        message: ({ schemaCode }) => (0, codegen_1.str)`must match format "${schemaCode}"`,
+        params: ({ schemaCode }) => (0, codegen_1._)`{format: ${schemaCode}}`
+      };
+      var def = {
+        keyword: "format",
+        type: ["number", "string"],
+        schemaType: "string",
+        $data: true,
+        error,
+        code(cxt, ruleType) {
+          const { gen, data, $data, schema, schemaCode, it } = cxt;
+          const { opts, errSchemaPath, schemaEnv, self: self2 } = it;
+          if (!opts.validateFormats)
+            return;
+          if ($data)
+            validate$DataFormat();
+          else
+            validateFormat();
+          function validate$DataFormat() {
+            const fmts = gen.scopeValue("formats", {
+              ref: self2.formats,
+              code: opts.code.formats
+            });
+            const fDef = gen.const("fDef", (0, codegen_1._)`${fmts}[${schemaCode}]`);
+            const fType = gen.let("fType");
+            const format = gen.let("format");
+            gen.if((0, codegen_1._)`typeof ${fDef} == "object" && !(${fDef} instanceof RegExp)`, () => gen.assign(fType, (0, codegen_1._)`${fDef}.type || "string"`).assign(format, (0, codegen_1._)`${fDef}.validate`), () => gen.assign(fType, (0, codegen_1._)`"string"`).assign(format, fDef));
+            cxt.fail$data((0, codegen_1.or)(unknownFmt(), invalidFmt()));
+            function unknownFmt() {
+              if (opts.strictSchema === false)
+                return codegen_1.nil;
+              return (0, codegen_1._)`${schemaCode} && !${format}`;
+            }
+            function invalidFmt() {
+              const callFormat = schemaEnv.$async ? (0, codegen_1._)`(${fDef}.async ? await ${format}(${data}) : ${format}(${data}))` : (0, codegen_1._)`${format}(${data})`;
+              const validData = (0, codegen_1._)`(typeof ${format} == "function" ? ${callFormat} : ${format}.test(${data}))`;
+              return (0, codegen_1._)`${format} && ${format} !== true && ${fType} === ${ruleType} && !${validData}`;
+            }
+          }
+          function validateFormat() {
+            const formatDef = self2.formats[schema];
+            if (!formatDef) {
+              unknownFormat();
+              return;
+            }
+            if (formatDef === true)
+              return;
+            const [fmtType, format, fmtRef] = getFormat(formatDef);
+            if (fmtType === ruleType)
+              cxt.pass(validCondition());
+            function unknownFormat() {
+              if (opts.strictSchema === false) {
+                self2.logger.warn(unknownMsg());
+                return;
+              }
+              throw new Error(unknownMsg());
+              function unknownMsg() {
+                return `unknown format "${schema}" ignored in schema at path "${errSchemaPath}"`;
+              }
+            }
+            function getFormat(fmtDef) {
+              const code = fmtDef instanceof RegExp ? (0, codegen_1.regexpCode)(fmtDef) : opts.code.formats ? (0, codegen_1._)`${opts.code.formats}${(0, codegen_1.getProperty)(schema)}` : void 0;
+              const fmt = gen.scopeValue("formats", { key: schema, ref: fmtDef, code });
+              if (typeof fmtDef == "object" && !(fmtDef instanceof RegExp)) {
+                return [fmtDef.type || "string", fmtDef.validate, (0, codegen_1._)`${fmt}.validate`];
+              }
+              return ["string", fmtDef, fmt];
+            }
+            function validCondition() {
+              if (typeof formatDef == "object" && !(formatDef instanceof RegExp) && formatDef.async) {
+                if (!schemaEnv.$async)
+                  throw new Error("async format in sync schema");
+                return (0, codegen_1._)`await ${fmtRef}(${data})`;
+              }
+              return typeof format == "function" ? (0, codegen_1._)`${fmtRef}(${data})` : (0, codegen_1._)`${fmtRef}.test(${data})`;
+            }
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/format/index.js
+  var require_format2 = __commonJS({
+    "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var format_1 = require_format();
+      var format = [format_1.default];
+      exports.default = format;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/metadata.js
+  var require_metadata = __commonJS({
+    "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.contentVocabulary = exports.metadataVocabulary = void 0;
+      exports.metadataVocabulary = [
+        "title",
+        "description",
+        "default",
+        "deprecated",
+        "readOnly",
+        "writeOnly",
+        "examples"
+      ];
+      exports.contentVocabulary = [
+        "contentMediaType",
+        "contentEncoding",
+        "contentSchema"
+      ];
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/draft7.js
+  var require_draft7 = __commonJS({
+    "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var core_1 = require_core2();
+      var validation_1 = require_validation();
+      var applicator_1 = require_applicator();
+      var format_1 = require_format2();
+      var metadata_1 = require_metadata();
+      var draft7Vocabularies = [
+        core_1.default,
+        validation_1.default,
+        (0, applicator_1.default)(),
+        format_1.default,
+        metadata_1.metadataVocabulary,
+        metadata_1.contentVocabulary
+      ];
+      exports.default = draft7Vocabularies;
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/discriminator/types.js
+  var require_types = __commonJS({
+    "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.DiscrError = void 0;
+      var DiscrError;
+      (function(DiscrError2) {
+        DiscrError2["Tag"] = "tag";
+        DiscrError2["Mapping"] = "mapping";
+      })(DiscrError = exports.DiscrError || (exports.DiscrError = {}));
+    }
+  });
+
+  // node_modules/ajv/dist/vocabularies/discriminator/index.js
+  var require_discriminator = __commonJS({
+    "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var codegen_1 = require_codegen();
+      var types_1 = require_types();
+      var compile_1 = require_compile();
+      var util_1 = require_util();
+      var error = {
+        message: ({ params: { discrError, tagName } }) => discrError === types_1.DiscrError.Tag ? `tag "${tagName}" must be string` : `value of tag "${tagName}" must be in oneOf`,
+        params: ({ params: { discrError, tag, tagName } }) => (0, codegen_1._)`{error: ${discrError}, tag: ${tagName}, tagValue: ${tag}}`
+      };
+      var def = {
+        keyword: "discriminator",
+        type: "object",
+        schemaType: "object",
+        error,
+        code(cxt) {
+          const { gen, data, schema, parentSchema, it } = cxt;
+          const { oneOf } = parentSchema;
+          if (!it.opts.discriminator) {
+            throw new Error("discriminator: requires discriminator option");
+          }
+          const tagName = schema.propertyName;
+          if (typeof tagName != "string")
+            throw new Error("discriminator: requires propertyName");
+          if (schema.mapping)
+            throw new Error("discriminator: mapping is not supported");
+          if (!oneOf)
+            throw new Error("discriminator: requires oneOf keyword");
+          const valid = gen.let("valid", false);
+          const tag = gen.const("tag", (0, codegen_1._)`${data}${(0, codegen_1.getProperty)(tagName)}`);
+          gen.if((0, codegen_1._)`typeof ${tag} == "string"`, () => validateMapping(), () => cxt.error(false, { discrError: types_1.DiscrError.Tag, tag, tagName }));
+          cxt.ok(valid);
+          function validateMapping() {
+            const mapping = getMapping();
+            gen.if(false);
+            for (const tagValue in mapping) {
+              gen.elseIf((0, codegen_1._)`${tag} === ${tagValue}`);
+              gen.assign(valid, applyTagSchema(mapping[tagValue]));
+            }
+            gen.else();
+            cxt.error(false, { discrError: types_1.DiscrError.Mapping, tag, tagName });
+            gen.endIf();
+          }
+          function applyTagSchema(schemaProp) {
+            const _valid = gen.name("valid");
+            const schCxt = cxt.subschema({ keyword: "oneOf", schemaProp }, _valid);
+            cxt.mergeEvaluated(schCxt, codegen_1.Name);
+            return _valid;
+          }
+          function getMapping() {
+            var _a;
+            const oneOfMapping = {};
+            const topRequired = hasRequired(parentSchema);
+            let tagRequired = true;
+            for (let i = 0; i < oneOf.length; i++) {
+              let sch = oneOf[i];
+              if ((sch === null || sch === void 0 ? void 0 : sch.$ref) && !(0, util_1.schemaHasRulesButRef)(sch, it.self.RULES)) {
+                sch = compile_1.resolveRef.call(it.self, it.schemaEnv.root, it.baseId, sch === null || sch === void 0 ? void 0 : sch.$ref);
+                if (sch instanceof compile_1.SchemaEnv)
+                  sch = sch.schema;
+              }
+              const propSch = (_a = sch === null || sch === void 0 ? void 0 : sch.properties) === null || _a === void 0 ? void 0 : _a[tagName];
+              if (typeof propSch != "object") {
+                throw new Error(`discriminator: oneOf subschemas (or referenced schemas) must have "properties/${tagName}"`);
+              }
+              tagRequired = tagRequired && (topRequired || hasRequired(sch));
+              addMappings(propSch, i);
+            }
+            if (!tagRequired)
+              throw new Error(`discriminator: "${tagName}" must be required`);
+            return oneOfMapping;
+            function hasRequired({ required }) {
+              return Array.isArray(required) && required.includes(tagName);
+            }
+            function addMappings(sch, i) {
+              if (sch.const) {
+                addMapping(sch.const, i);
+              } else if (sch.enum) {
+                for (const tagValue of sch.enum) {
+                  addMapping(tagValue, i);
+                }
+              } else {
+                throw new Error(`discriminator: "properties/${tagName}" must have "const" or "enum"`);
+              }
+            }
+            function addMapping(tagValue, i) {
+              if (typeof tagValue != "string" || tagValue in oneOfMapping) {
+                throw new Error(`discriminator: "${tagName}" values must be unique strings`);
+              }
+              oneOfMapping[tagValue] = i;
+            }
+          }
+        }
+      };
+      exports.default = def;
+    }
+  });
+
+  // node_modules/ajv/dist/refs/json-schema-draft-07.json
+  var require_json_schema_draft_07 = __commonJS({
+    "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+      module.exports = {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        $id: "http://json-schema.org/draft-07/schema#",
+        title: "Core schema meta-schema",
+        definitions: {
+          schemaArray: {
+            type: "array",
+            minItems: 1,
+            items: { $ref: "#" }
+          },
+          nonNegativeInteger: {
+            type: "integer",
+            minimum: 0
+          },
+          nonNegativeIntegerDefault0: {
+            allOf: [{ $ref: "#/definitions/nonNegativeInteger" }, { default: 0 }]
+          },
+          simpleTypes: {
+            enum: ["array", "boolean", "integer", "null", "number", "object", "string"]
+          },
+          stringArray: {
+            type: "array",
+            items: { type: "string" },
+            uniqueItems: true,
+            default: []
+          }
+        },
+        type: ["object", "boolean"],
+        properties: {
+          $id: {
+            type: "string",
+            format: "uri-reference"
+          },
+          $schema: {
+            type: "string",
+            format: "uri"
+          },
+          $ref: {
+            type: "string",
+            format: "uri-reference"
+          },
+          $comment: {
+            type: "string"
+          },
+          title: {
+            type: "string"
+          },
+          description: {
+            type: "string"
+          },
+          default: true,
+          readOnly: {
+            type: "boolean",
+            default: false
+          },
+          examples: {
+            type: "array",
+            items: true
+          },
+          multipleOf: {
+            type: "number",
+            exclusiveMinimum: 0
+          },
+          maximum: {
+            type: "number"
+          },
+          exclusiveMaximum: {
+            type: "number"
+          },
+          minimum: {
+            type: "number"
+          },
+          exclusiveMinimum: {
+            type: "number"
+          },
+          maxLength: { $ref: "#/definitions/nonNegativeInteger" },
+          minLength: { $ref: "#/definitions/nonNegativeIntegerDefault0" },
+          pattern: {
+            type: "string",
+            format: "regex"
+          },
+          additionalItems: { $ref: "#" },
+          items: {
+            anyOf: [{ $ref: "#" }, { $ref: "#/definitions/schemaArray" }],
+            default: true
+          },
+          maxItems: { $ref: "#/definitions/nonNegativeInteger" },
+          minItems: { $ref: "#/definitions/nonNegativeIntegerDefault0" },
+          uniqueItems: {
+            type: "boolean",
+            default: false
+          },
+          contains: { $ref: "#" },
+          maxProperties: { $ref: "#/definitions/nonNegativeInteger" },
+          minProperties: { $ref: "#/definitions/nonNegativeIntegerDefault0" },
+          required: { $ref: "#/definitions/stringArray" },
+          additionalProperties: { $ref: "#" },
+          definitions: {
+            type: "object",
+            additionalProperties: { $ref: "#" },
+            default: {}
+          },
+          properties: {
+            type: "object",
+            additionalProperties: { $ref: "#" },
+            default: {}
+          },
+          patternProperties: {
+            type: "object",
+            additionalProperties: { $ref: "#" },
+            propertyNames: { format: "regex" },
+            default: {}
+          },
+          dependencies: {
+            type: "object",
+            additionalProperties: {
+              anyOf: [{ $ref: "#" }, { $ref: "#/definitions/stringArray" }]
+            }
+          },
+          propertyNames: { $ref: "#" },
+          const: true,
+          enum: {
+            type: "array",
+            items: true,
+            minItems: 1,
+            uniqueItems: true
+          },
+          type: {
+            anyOf: [
+              { $ref: "#/definitions/simpleTypes" },
+              {
+                type: "array",
+                items: { $ref: "#/definitions/simpleTypes" },
+                minItems: 1,
+                uniqueItems: true
+              }
+            ]
+          },
+          format: { type: "string" },
+          contentMediaType: { type: "string" },
+          contentEncoding: { type: "string" },
+          if: { $ref: "#" },
+          then: { $ref: "#" },
+          else: { $ref: "#" },
+          allOf: { $ref: "#/definitions/schemaArray" },
+          anyOf: { $ref: "#/definitions/schemaArray" },
+          oneOf: { $ref: "#/definitions/schemaArray" },
+          not: { $ref: "#" }
+        },
+        default: true
+      };
+    }
+  });
+
+  // node_modules/ajv/dist/ajv.js
+  var require_ajv = __commonJS({
+    "node_modules/ajv/dist/ajv.js"(exports, module) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
+      var core_1 = require_core();
+      var draft7_1 = require_draft7();
+      var discriminator_1 = require_discriminator();
+      var draft7MetaSchema = require_json_schema_draft_07();
+      var META_SUPPORT_DATA = ["/properties"];
+      var META_SCHEMA_ID = "http://json-schema.org/draft-07/schema";
+      var Ajv2 = class extends core_1.default {
+        _addVocabularies() {
+          super._addVocabularies();
+          draft7_1.default.forEach((v) => this.addVocabulary(v));
+          if (this.opts.discriminator)
+            this.addKeyword(discriminator_1.default);
+        }
+        _addDefaultMetaSchema() {
+          super._addDefaultMetaSchema();
+          if (!this.opts.meta)
+            return;
+          const metaSchema = this.opts.$data ? this.$dataMetaSchema(draft7MetaSchema, META_SUPPORT_DATA) : draft7MetaSchema;
+          this.addMetaSchema(metaSchema, META_SCHEMA_ID, false);
+          this.refs["http://json-schema.org/schema"] = META_SCHEMA_ID;
+        }
+        defaultMeta() {
+          return this.opts.defaultMeta = super.defaultMeta() || (this.getSchema(META_SCHEMA_ID) ? META_SCHEMA_ID : void 0);
+        }
+      };
+      module.exports = exports = Ajv2;
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.default = Ajv2;
+      var validate_1 = require_validate();
+      Object.defineProperty(exports, "KeywordCxt", { enumerable: true, get: function() {
+        return validate_1.KeywordCxt;
+      } });
+      var codegen_1 = require_codegen();
+      Object.defineProperty(exports, "_", { enumerable: true, get: function() {
+        return codegen_1._;
+      } });
+      Object.defineProperty(exports, "str", { enumerable: true, get: function() {
+        return codegen_1.str;
+      } });
+      Object.defineProperty(exports, "stringify", { enumerable: true, get: function() {
+        return codegen_1.stringify;
+      } });
+      Object.defineProperty(exports, "nil", { enumerable: true, get: function() {
+        return codegen_1.nil;
+      } });
+      Object.defineProperty(exports, "Name", { enumerable: true, get: function() {
+        return codegen_1.Name;
+      } });
+      Object.defineProperty(exports, "CodeGen", { enumerable: true, get: function() {
+        return codegen_1.CodeGen;
+      } });
+      var validation_error_1 = require_validation_error();
+      Object.defineProperty(exports, "ValidationError", { enumerable: true, get: function() {
+        return validation_error_1.default;
+      } });
+      var ref_error_1 = require_ref_error();
+      Object.defineProperty(exports, "MissingRefError", { enumerable: true, get: function() {
+        return ref_error_1.default;
+      } });
+    }
+  });
+
+  // node_modules/localforage/dist/localforage.js
+  var require_localforage = __commonJS({
+    "node_modules/localforage/dist/localforage.js"(exports, module) {
+      (function(f) {
+        if (typeof exports === "object" && typeof module !== "undefined") {
+          module.exports = f();
+        } else if (typeof define === "function" && define.amd) {
+          define([], f);
+        } else {
+          var g;
+          if (typeof window !== "undefined") {
+            g = window;
+          } else if (typeof global !== "undefined") {
+            g = global;
+          } else if (typeof self !== "undefined") {
+            g = self;
+          } else {
+            g = this;
+          }
+          g.localforage = f();
+        }
+      })(function() {
+        var define2, module2, exports2;
+        return function e(t, n, r) {
+          function s(o2, u) {
+            if (!n[o2]) {
+              if (!t[o2]) {
+                var a = typeof __require == "function" && __require;
+                if (!u && a)
+                  return a(o2, true);
+                if (i)
+                  return i(o2, true);
+                var f = new Error("Cannot find module '" + o2 + "'");
+                throw f.code = "MODULE_NOT_FOUND", f;
+              }
+              var l = n[o2] = { exports: {} };
+              t[o2][0].call(l.exports, function(e2) {
+                var n2 = t[o2][1][e2];
+                return s(n2 ? n2 : e2);
+              }, l, l.exports, e, t, n, r);
+            }
+            return n[o2].exports;
+          }
+          var i = typeof __require == "function" && __require;
+          for (var o = 0; o < r.length; o++)
+            s(r[o]);
+          return s;
+        }({ 1: [function(_dereq_, module3, exports3) {
+          (function(global2) {
+            "use strict";
+            var Mutation = global2.MutationObserver || global2.WebKitMutationObserver;
+            var scheduleDrain;
+            {
+              if (Mutation) {
+                var called = 0;
+                var observer = new Mutation(nextTick);
+                var element = global2.document.createTextNode("");
+                observer.observe(element, {
+                  characterData: true
+                });
+                scheduleDrain = function() {
+                  element.data = called = ++called % 2;
+                };
+              } else if (!global2.setImmediate && typeof global2.MessageChannel !== "undefined") {
+                var channel = new global2.MessageChannel();
+                channel.port1.onmessage = nextTick;
+                scheduleDrain = function() {
+                  channel.port2.postMessage(0);
+                };
+              } else if ("document" in global2 && "onreadystatechange" in global2.document.createElement("script")) {
+                scheduleDrain = function() {
+                  var scriptEl = global2.document.createElement("script");
+                  scriptEl.onreadystatechange = function() {
+                    nextTick();
+                    scriptEl.onreadystatechange = null;
+                    scriptEl.parentNode.removeChild(scriptEl);
+                    scriptEl = null;
+                  };
+                  global2.document.documentElement.appendChild(scriptEl);
+                };
+              } else {
+                scheduleDrain = function() {
+                  setTimeout(nextTick, 0);
+                };
+              }
+            }
+            var draining;
+            var queue = [];
+            function nextTick() {
+              draining = true;
+              var i, oldQueue;
+              var len = queue.length;
+              while (len) {
+                oldQueue = queue;
+                queue = [];
+                i = -1;
+                while (++i < len) {
+                  oldQueue[i]();
+                }
+                len = queue.length;
+              }
+              draining = false;
+            }
+            module3.exports = immediate;
+            function immediate(task) {
+              if (queue.push(task) === 1 && !draining) {
+                scheduleDrain();
+              }
+            }
+          }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+        }, {}], 2: [function(_dereq_, module3, exports3) {
+          "use strict";
+          var immediate = _dereq_(1);
+          function INTERNAL() {
+          }
+          var handlers = {};
+          var REJECTED = ["REJECTED"];
+          var FULFILLED = ["FULFILLED"];
+          var PENDING = ["PENDING"];
+          module3.exports = Promise2;
+          function Promise2(resolver) {
+            if (typeof resolver !== "function") {
+              throw new TypeError("resolver must be a function");
+            }
+            this.state = PENDING;
+            this.queue = [];
+            this.outcome = void 0;
+            if (resolver !== INTERNAL) {
+              safelyResolveThenable(this, resolver);
+            }
+          }
+          Promise2.prototype["catch"] = function(onRejected) {
+            return this.then(null, onRejected);
+          };
+          Promise2.prototype.then = function(onFulfilled, onRejected) {
+            if (typeof onFulfilled !== "function" && this.state === FULFILLED || typeof onRejected !== "function" && this.state === REJECTED) {
+              return this;
+            }
+            var promise = new this.constructor(INTERNAL);
+            if (this.state !== PENDING) {
+              var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
+              unwrap(promise, resolver, this.outcome);
+            } else {
+              this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
+            }
+            return promise;
+          };
+          function QueueItem(promise, onFulfilled, onRejected) {
+            this.promise = promise;
+            if (typeof onFulfilled === "function") {
+              this.onFulfilled = onFulfilled;
+              this.callFulfilled = this.otherCallFulfilled;
+            }
+            if (typeof onRejected === "function") {
+              this.onRejected = onRejected;
+              this.callRejected = this.otherCallRejected;
+            }
+          }
+          QueueItem.prototype.callFulfilled = function(value) {
+            handlers.resolve(this.promise, value);
+          };
+          QueueItem.prototype.otherCallFulfilled = function(value) {
+            unwrap(this.promise, this.onFulfilled, value);
+          };
+          QueueItem.prototype.callRejected = function(value) {
+            handlers.reject(this.promise, value);
+          };
+          QueueItem.prototype.otherCallRejected = function(value) {
+            unwrap(this.promise, this.onRejected, value);
+          };
+          function unwrap(promise, func, value) {
+            immediate(function() {
+              var returnValue;
+              try {
+                returnValue = func(value);
+              } catch (e) {
+                return handlers.reject(promise, e);
+              }
+              if (returnValue === promise) {
+                handlers.reject(promise, new TypeError("Cannot resolve promise with itself"));
+              } else {
+                handlers.resolve(promise, returnValue);
+              }
+            });
+          }
+          handlers.resolve = function(self2, value) {
+            var result = tryCatch(getThen, value);
+            if (result.status === "error") {
+              return handlers.reject(self2, result.value);
+            }
+            var thenable = result.value;
+            if (thenable) {
+              safelyResolveThenable(self2, thenable);
+            } else {
+              self2.state = FULFILLED;
+              self2.outcome = value;
+              var i = -1;
+              var len = self2.queue.length;
+              while (++i < len) {
+                self2.queue[i].callFulfilled(value);
+              }
+            }
+            return self2;
+          };
+          handlers.reject = function(self2, error) {
+            self2.state = REJECTED;
+            self2.outcome = error;
+            var i = -1;
+            var len = self2.queue.length;
+            while (++i < len) {
+              self2.queue[i].callRejected(error);
+            }
+            return self2;
+          };
+          function getThen(obj) {
+            var then = obj && obj.then;
+            if (obj && (typeof obj === "object" || typeof obj === "function") && typeof then === "function") {
+              return function appyThen() {
+                then.apply(obj, arguments);
+              };
+            }
+          }
+          function safelyResolveThenable(self2, thenable) {
+            var called = false;
+            function onError(value) {
+              if (called) {
+                return;
+              }
+              called = true;
+              handlers.reject(self2, value);
+            }
+            function onSuccess(value) {
+              if (called) {
+                return;
+              }
+              called = true;
+              handlers.resolve(self2, value);
+            }
+            function tryToUnwrap() {
+              thenable(onSuccess, onError);
+            }
+            var result = tryCatch(tryToUnwrap);
+            if (result.status === "error") {
+              onError(result.value);
+            }
+          }
+          function tryCatch(func, value) {
+            var out = {};
+            try {
+              out.value = func(value);
+              out.status = "success";
+            } catch (e) {
+              out.status = "error";
+              out.value = e;
+            }
+            return out;
+          }
+          Promise2.resolve = resolve;
+          function resolve(value) {
+            if (value instanceof this) {
+              return value;
+            }
+            return handlers.resolve(new this(INTERNAL), value);
+          }
+          Promise2.reject = reject;
+          function reject(reason) {
+            var promise = new this(INTERNAL);
+            return handlers.reject(promise, reason);
+          }
+          Promise2.all = all;
+          function all(iterable) {
+            var self2 = this;
+            if (Object.prototype.toString.call(iterable) !== "[object Array]") {
+              return this.reject(new TypeError("must be an array"));
+            }
+            var len = iterable.length;
+            var called = false;
+            if (!len) {
+              return this.resolve([]);
+            }
+            var values = new Array(len);
+            var resolved = 0;
+            var i = -1;
+            var promise = new this(INTERNAL);
+            while (++i < len) {
+              allResolver(iterable[i], i);
+            }
+            return promise;
+            function allResolver(value, i2) {
+              self2.resolve(value).then(resolveFromAll, function(error) {
+                if (!called) {
+                  called = true;
+                  handlers.reject(promise, error);
+                }
+              });
+              function resolveFromAll(outValue) {
+                values[i2] = outValue;
+                if (++resolved === len && !called) {
+                  called = true;
+                  handlers.resolve(promise, values);
+                }
+              }
+            }
+          }
+          Promise2.race = race;
+          function race(iterable) {
+            var self2 = this;
+            if (Object.prototype.toString.call(iterable) !== "[object Array]") {
+              return this.reject(new TypeError("must be an array"));
+            }
+            var len = iterable.length;
+            var called = false;
+            if (!len) {
+              return this.resolve([]);
+            }
+            var i = -1;
+            var promise = new this(INTERNAL);
+            while (++i < len) {
+              resolver(iterable[i]);
+            }
+            return promise;
+            function resolver(value) {
+              self2.resolve(value).then(function(response) {
+                if (!called) {
+                  called = true;
+                  handlers.resolve(promise, response);
+                }
+              }, function(error) {
+                if (!called) {
+                  called = true;
+                  handlers.reject(promise, error);
+                }
+              });
+            }
+          }
+        }, { "1": 1 }], 3: [function(_dereq_, module3, exports3) {
+          (function(global2) {
+            "use strict";
+            if (typeof global2.Promise !== "function") {
+              global2.Promise = _dereq_(2);
+            }
+          }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+        }, { "2": 2 }], 4: [function(_dereq_, module3, exports3) {
+          "use strict";
+          var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(obj) {
+            return typeof obj;
+          } : function(obj) {
+            return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+          };
+          function _classCallCheck(instance, Constructor) {
+            if (!(instance instanceof Constructor)) {
+              throw new TypeError("Cannot call a class as a function");
+            }
+          }
+          function getIDB() {
+            try {
+              if (typeof indexedDB !== "undefined") {
+                return indexedDB;
+              }
+              if (typeof webkitIndexedDB !== "undefined") {
+                return webkitIndexedDB;
+              }
+              if (typeof mozIndexedDB !== "undefined") {
+                return mozIndexedDB;
+              }
+              if (typeof OIndexedDB !== "undefined") {
+                return OIndexedDB;
+              }
+              if (typeof msIndexedDB !== "undefined") {
+                return msIndexedDB;
+              }
+            } catch (e) {
+              return;
+            }
+          }
+          var idb = getIDB();
+          function isIndexedDBValid() {
+            try {
+              if (!idb || !idb.open) {
+                return false;
+              }
+              var isSafari = typeof openDatabase !== "undefined" && /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) && !/BlackBerry/.test(navigator.platform);
+              var hasFetch = typeof fetch === "function" && fetch.toString().indexOf("[native code") !== -1;
+              return (!isSafari || hasFetch) && typeof indexedDB !== "undefined" && typeof IDBKeyRange !== "undefined";
+            } catch (e) {
+              return false;
+            }
+          }
+          function createBlob(parts, properties) {
+            parts = parts || [];
+            properties = properties || {};
+            try {
+              return new Blob(parts, properties);
+            } catch (e) {
+              if (e.name !== "TypeError") {
+                throw e;
+              }
+              var Builder = typeof BlobBuilder !== "undefined" ? BlobBuilder : typeof MSBlobBuilder !== "undefined" ? MSBlobBuilder : typeof MozBlobBuilder !== "undefined" ? MozBlobBuilder : WebKitBlobBuilder;
+              var builder = new Builder();
+              for (var i = 0; i < parts.length; i += 1) {
+                builder.append(parts[i]);
+              }
+              return builder.getBlob(properties.type);
+            }
+          }
+          if (typeof Promise === "undefined") {
+            _dereq_(3);
+          }
+          var Promise$1 = Promise;
+          function executeCallback(promise, callback) {
+            if (callback) {
+              promise.then(function(result) {
+                callback(null, result);
+              }, function(error) {
+                callback(error);
+              });
+            }
+          }
+          function executeTwoCallbacks(promise, callback, errorCallback) {
+            if (typeof callback === "function") {
+              promise.then(callback);
+            }
+            if (typeof errorCallback === "function") {
+              promise["catch"](errorCallback);
+            }
+          }
+          function normalizeKey(key2) {
+            if (typeof key2 !== "string") {
+              console.warn(key2 + " used as a key, but it is not a string.");
+              key2 = String(key2);
+            }
+            return key2;
+          }
+          function getCallback() {
+            if (arguments.length && typeof arguments[arguments.length - 1] === "function") {
+              return arguments[arguments.length - 1];
+            }
+          }
+          var DETECT_BLOB_SUPPORT_STORE = "local-forage-detect-blob-support";
+          var supportsBlobs = void 0;
+          var dbContexts = {};
+          var toString = Object.prototype.toString;
+          var READ_ONLY = "readonly";
+          var READ_WRITE = "readwrite";
+          function _binStringToArrayBuffer(bin) {
+            var length2 = bin.length;
+            var buf = new ArrayBuffer(length2);
+            var arr = new Uint8Array(buf);
+            for (var i = 0; i < length2; i++) {
+              arr[i] = bin.charCodeAt(i);
+            }
+            return buf;
+          }
+          function _checkBlobSupportWithoutCaching(idb2) {
+            return new Promise$1(function(resolve) {
+              var txn = idb2.transaction(DETECT_BLOB_SUPPORT_STORE, READ_WRITE);
+              var blob = createBlob([""]);
+              txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(blob, "key");
+              txn.onabort = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                resolve(false);
+              };
+              txn.oncomplete = function() {
+                var matchedChrome = navigator.userAgent.match(/Chrome\/(\d+)/);
+                var matchedEdge = navigator.userAgent.match(/Edge\//);
+                resolve(matchedEdge || !matchedChrome || parseInt(matchedChrome[1], 10) >= 43);
+              };
+            })["catch"](function() {
+              return false;
+            });
+          }
+          function _checkBlobSupport(idb2) {
+            if (typeof supportsBlobs === "boolean") {
+              return Promise$1.resolve(supportsBlobs);
+            }
+            return _checkBlobSupportWithoutCaching(idb2).then(function(value) {
+              supportsBlobs = value;
+              return supportsBlobs;
+            });
+          }
+          function _deferReadiness(dbInfo) {
+            var dbContext = dbContexts[dbInfo.name];
+            var deferredOperation = {};
+            deferredOperation.promise = new Promise$1(function(resolve, reject) {
+              deferredOperation.resolve = resolve;
+              deferredOperation.reject = reject;
+            });
+            dbContext.deferredOperations.push(deferredOperation);
+            if (!dbContext.dbReady) {
+              dbContext.dbReady = deferredOperation.promise;
+            } else {
+              dbContext.dbReady = dbContext.dbReady.then(function() {
+                return deferredOperation.promise;
+              });
+            }
+          }
+          function _advanceReadiness(dbInfo) {
+            var dbContext = dbContexts[dbInfo.name];
+            var deferredOperation = dbContext.deferredOperations.pop();
+            if (deferredOperation) {
+              deferredOperation.resolve();
+              return deferredOperation.promise;
+            }
+          }
+          function _rejectReadiness(dbInfo, err) {
+            var dbContext = dbContexts[dbInfo.name];
+            var deferredOperation = dbContext.deferredOperations.pop();
+            if (deferredOperation) {
+              deferredOperation.reject(err);
+              return deferredOperation.promise;
+            }
+          }
+          function _getConnection(dbInfo, upgradeNeeded) {
+            return new Promise$1(function(resolve, reject) {
+              dbContexts[dbInfo.name] = dbContexts[dbInfo.name] || createDbContext();
+              if (dbInfo.db) {
+                if (upgradeNeeded) {
+                  _deferReadiness(dbInfo);
+                  dbInfo.db.close();
+                } else {
+                  return resolve(dbInfo.db);
+                }
+              }
+              var dbArgs = [dbInfo.name];
+              if (upgradeNeeded) {
+                dbArgs.push(dbInfo.version);
+              }
+              var openreq = idb.open.apply(idb, dbArgs);
+              if (upgradeNeeded) {
+                openreq.onupgradeneeded = function(e) {
+                  var db = openreq.result;
+                  try {
+                    db.createObjectStore(dbInfo.storeName);
+                    if (e.oldVersion <= 1) {
+                      db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
+                    }
+                  } catch (ex) {
+                    if (ex.name === "ConstraintError") {
+                      console.warn('The database "' + dbInfo.name + '" has been upgraded from version ' + e.oldVersion + " to version " + e.newVersion + ', but the storage "' + dbInfo.storeName + '" already exists.');
+                    } else {
+                      throw ex;
+                    }
+                  }
+                };
+              }
+              openreq.onerror = function(e) {
+                e.preventDefault();
+                reject(openreq.error);
+              };
+              openreq.onsuccess = function() {
+                var db = openreq.result;
+                db.onversionchange = function(e) {
+                  e.target.close();
+                };
+                resolve(db);
+                _advanceReadiness(dbInfo);
+              };
+            });
+          }
+          function _getOriginalConnection(dbInfo) {
+            return _getConnection(dbInfo, false);
+          }
+          function _getUpgradedConnection(dbInfo) {
+            return _getConnection(dbInfo, true);
+          }
+          function _isUpgradeNeeded(dbInfo, defaultVersion) {
+            if (!dbInfo.db) {
+              return true;
+            }
+            var isNewStore = !dbInfo.db.objectStoreNames.contains(dbInfo.storeName);
+            var isDowngrade = dbInfo.version < dbInfo.db.version;
+            var isUpgrade = dbInfo.version > dbInfo.db.version;
+            if (isDowngrade) {
+              if (dbInfo.version !== defaultVersion) {
+                console.warn('The database "' + dbInfo.name + `" can't be downgraded from version ` + dbInfo.db.version + " to version " + dbInfo.version + ".");
+              }
+              dbInfo.version = dbInfo.db.version;
+            }
+            if (isUpgrade || isNewStore) {
+              if (isNewStore) {
+                var incVersion = dbInfo.db.version + 1;
+                if (incVersion > dbInfo.version) {
+                  dbInfo.version = incVersion;
+                }
+              }
+              return true;
+            }
+            return false;
+          }
+          function _encodeBlob(blob) {
+            return new Promise$1(function(resolve, reject) {
+              var reader = new FileReader();
+              reader.onerror = reject;
+              reader.onloadend = function(e) {
+                var base64 = btoa(e.target.result || "");
+                resolve({
+                  __local_forage_encoded_blob: true,
+                  data: base64,
+                  type: blob.type
+                });
+              };
+              reader.readAsBinaryString(blob);
+            });
+          }
+          function _decodeBlob(encodedBlob) {
+            var arrayBuff = _binStringToArrayBuffer(atob(encodedBlob.data));
+            return createBlob([arrayBuff], { type: encodedBlob.type });
+          }
+          function _isEncodedBlob(value) {
+            return value && value.__local_forage_encoded_blob;
+          }
+          function _fullyReady(callback) {
+            var self2 = this;
+            var promise = self2._initReady().then(function() {
+              var dbContext = dbContexts[self2._dbInfo.name];
+              if (dbContext && dbContext.dbReady) {
+                return dbContext.dbReady;
+              }
+            });
+            executeTwoCallbacks(promise, callback, callback);
+            return promise;
+          }
+          function _tryReconnect(dbInfo) {
+            _deferReadiness(dbInfo);
+            var dbContext = dbContexts[dbInfo.name];
+            var forages = dbContext.forages;
+            for (var i = 0; i < forages.length; i++) {
+              var forage = forages[i];
+              if (forage._dbInfo.db) {
+                forage._dbInfo.db.close();
+                forage._dbInfo.db = null;
+              }
+            }
+            dbInfo.db = null;
+            return _getOriginalConnection(dbInfo).then(function(db) {
+              dbInfo.db = db;
+              if (_isUpgradeNeeded(dbInfo)) {
+                return _getUpgradedConnection(dbInfo);
+              }
+              return db;
+            }).then(function(db) {
+              dbInfo.db = dbContext.db = db;
+              for (var i2 = 0; i2 < forages.length; i2++) {
+                forages[i2]._dbInfo.db = db;
+              }
+            })["catch"](function(err) {
+              _rejectReadiness(dbInfo, err);
+              throw err;
+            });
+          }
+          function createTransaction(dbInfo, mode, callback, retries) {
+            if (retries === void 0) {
+              retries = 1;
+            }
+            try {
+              var tx = dbInfo.db.transaction(dbInfo.storeName, mode);
+              callback(null, tx);
+            } catch (err) {
+              if (retries > 0 && (!dbInfo.db || err.name === "InvalidStateError" || err.name === "NotFoundError")) {
+                return Promise$1.resolve().then(function() {
+                  if (!dbInfo.db || err.name === "NotFoundError" && !dbInfo.db.objectStoreNames.contains(dbInfo.storeName) && dbInfo.version <= dbInfo.db.version) {
+                    if (dbInfo.db) {
+                      dbInfo.version = dbInfo.db.version + 1;
+                    }
+                    return _getUpgradedConnection(dbInfo);
+                  }
+                }).then(function() {
+                  return _tryReconnect(dbInfo).then(function() {
+                    createTransaction(dbInfo, mode, callback, retries - 1);
+                  });
+                })["catch"](callback);
+              }
+              callback(err);
+            }
+          }
+          function createDbContext() {
+            return {
+              forages: [],
+              db: null,
+              dbReady: null,
+              deferredOperations: []
+            };
+          }
+          function _initStorage(options) {
+            var self2 = this;
+            var dbInfo = {
+              db: null
+            };
+            if (options) {
+              for (var i in options) {
+                dbInfo[i] = options[i];
+              }
+            }
+            var dbContext = dbContexts[dbInfo.name];
+            if (!dbContext) {
+              dbContext = createDbContext();
+              dbContexts[dbInfo.name] = dbContext;
+            }
+            dbContext.forages.push(self2);
+            if (!self2._initReady) {
+              self2._initReady = self2.ready;
+              self2.ready = _fullyReady;
+            }
+            var initPromises = [];
+            function ignoreErrors() {
+              return Promise$1.resolve();
+            }
+            for (var j = 0; j < dbContext.forages.length; j++) {
+              var forage = dbContext.forages[j];
+              if (forage !== self2) {
+                initPromises.push(forage._initReady()["catch"](ignoreErrors));
+              }
+            }
+            var forages = dbContext.forages.slice(0);
+            return Promise$1.all(initPromises).then(function() {
+              dbInfo.db = dbContext.db;
+              return _getOriginalConnection(dbInfo);
+            }).then(function(db) {
+              dbInfo.db = db;
+              if (_isUpgradeNeeded(dbInfo, self2._defaultConfig.version)) {
+                return _getUpgradedConnection(dbInfo);
+              }
+              return db;
+            }).then(function(db) {
+              dbInfo.db = dbContext.db = db;
+              self2._dbInfo = dbInfo;
+              for (var k = 0; k < forages.length; k++) {
+                var forage2 = forages[k];
+                if (forage2 !== self2) {
+                  forage2._dbInfo.db = dbInfo.db;
+                  forage2._dbInfo.version = dbInfo.version;
+                }
+              }
+            });
+          }
+          function getItem(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.get(key2);
+                    req.onsuccess = function() {
+                      var value = req.result;
+                      if (value === void 0) {
+                        value = null;
+                      }
+                      if (_isEncodedBlob(value)) {
+                        value = _decodeBlob(value);
+                      }
+                      resolve(value);
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function iterate(iterator, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.openCursor();
+                    var iterationNumber = 1;
+                    req.onsuccess = function() {
+                      var cursor = req.result;
+                      if (cursor) {
+                        var value = cursor.value;
+                        if (_isEncodedBlob(value)) {
+                          value = _decodeBlob(value);
+                        }
+                        var result = iterator(value, cursor.key, iterationNumber++);
+                        if (result !== void 0) {
+                          resolve(result);
+                        } else {
+                          cursor["continue"]();
+                        }
+                      } else {
+                        resolve();
+                      }
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function setItem(key2, value, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              var dbInfo;
+              self2.ready().then(function() {
+                dbInfo = self2._dbInfo;
+                if (toString.call(value) === "[object Blob]") {
+                  return _checkBlobSupport(dbInfo.db).then(function(blobSupport) {
+                    if (blobSupport) {
+                      return value;
+                    }
+                    return _encodeBlob(value);
+                  });
+                }
+                return value;
+              }).then(function(value2) {
+                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    if (value2 === null) {
+                      value2 = void 0;
+                    }
+                    var req = store.put(value2, key2);
+                    transaction.oncomplete = function() {
+                      if (value2 === void 0) {
+                        value2 = null;
+                      }
+                      resolve(value2);
+                    };
+                    transaction.onabort = transaction.onerror = function() {
+                      var err2 = req.error ? req.error : req.transaction.error;
+                      reject(err2);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function removeItem(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store["delete"](key2);
+                    transaction.oncomplete = function() {
+                      resolve();
+                    };
+                    transaction.onerror = function() {
+                      reject(req.error);
+                    };
+                    transaction.onabort = function() {
+                      var err2 = req.error ? req.error : req.transaction.error;
+                      reject(err2);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function clear(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.clear();
+                    transaction.oncomplete = function() {
+                      resolve();
+                    };
+                    transaction.onabort = transaction.onerror = function() {
+                      var err2 = req.error ? req.error : req.transaction.error;
+                      reject(err2);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function length(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.count();
+                    req.onsuccess = function() {
+                      resolve(req.result);
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function key(n, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              if (n < 0) {
+                resolve(null);
+                return;
+              }
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var advanced = false;
+                    var req = store.openKeyCursor();
+                    req.onsuccess = function() {
+                      var cursor = req.result;
+                      if (!cursor) {
+                        resolve(null);
+                        return;
+                      }
+                      if (n === 0) {
+                        resolve(cursor.key);
+                      } else {
+                        if (!advanced) {
+                          advanced = true;
+                          cursor.advance(n);
+                        } else {
+                          resolve(cursor.key);
+                        }
+                      }
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function keys(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.openKeyCursor();
+                    var keys2 = [];
+                    req.onsuccess = function() {
+                      var cursor = req.result;
+                      if (!cursor) {
+                        resolve(keys2);
+                        return;
+                      }
+                      keys2.push(cursor.key);
+                      cursor["continue"]();
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function dropInstance(options, callback) {
+            callback = getCallback.apply(this, arguments);
+            var currentConfig = this.config();
+            options = typeof options !== "function" && options || {};
+            if (!options.name) {
+              options.name = options.name || currentConfig.name;
+              options.storeName = options.storeName || currentConfig.storeName;
+            }
+            var self2 = this;
+            var promise;
+            if (!options.name) {
+              promise = Promise$1.reject("Invalid arguments");
+            } else {
+              var isCurrentDb = options.name === currentConfig.name && self2._dbInfo.db;
+              var dbPromise = isCurrentDb ? Promise$1.resolve(self2._dbInfo.db) : _getOriginalConnection(options).then(function(db) {
+                var dbContext = dbContexts[options.name];
+                var forages = dbContext.forages;
+                dbContext.db = db;
+                for (var i = 0; i < forages.length; i++) {
+                  forages[i]._dbInfo.db = db;
+                }
+                return db;
+              });
+              if (!options.storeName) {
+                promise = dbPromise.then(function(db) {
+                  _deferReadiness(options);
+                  var dbContext = dbContexts[options.name];
+                  var forages = dbContext.forages;
+                  db.close();
+                  for (var i = 0; i < forages.length; i++) {
+                    var forage = forages[i];
+                    forage._dbInfo.db = null;
+                  }
+                  var dropDBPromise = new Promise$1(function(resolve, reject) {
+                    var req = idb.deleteDatabase(options.name);
+                    req.onerror = function() {
+                      var db2 = req.result;
+                      if (db2) {
+                        db2.close();
+                      }
+                      reject(req.error);
+                    };
+                    req.onblocked = function() {
+                      console.warn('dropInstance blocked for database "' + options.name + '" until all open connections are closed');
+                    };
+                    req.onsuccess = function() {
+                      var db2 = req.result;
+                      if (db2) {
+                        db2.close();
+                      }
+                      resolve(db2);
+                    };
+                  });
+                  return dropDBPromise.then(function(db2) {
+                    dbContext.db = db2;
+                    for (var i2 = 0; i2 < forages.length; i2++) {
+                      var _forage = forages[i2];
+                      _advanceReadiness(_forage._dbInfo);
+                    }
+                  })["catch"](function(err) {
+                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function() {
+                    });
+                    throw err;
+                  });
+                });
+              } else {
+                promise = dbPromise.then(function(db) {
+                  if (!db.objectStoreNames.contains(options.storeName)) {
+                    return;
+                  }
+                  var newVersion = db.version + 1;
+                  _deferReadiness(options);
+                  var dbContext = dbContexts[options.name];
+                  var forages = dbContext.forages;
+                  db.close();
+                  for (var i = 0; i < forages.length; i++) {
+                    var forage = forages[i];
+                    forage._dbInfo.db = null;
+                    forage._dbInfo.version = newVersion;
+                  }
+                  var dropObjectPromise = new Promise$1(function(resolve, reject) {
+                    var req = idb.open(options.name, newVersion);
+                    req.onerror = function(err) {
+                      var db2 = req.result;
+                      db2.close();
+                      reject(err);
+                    };
+                    req.onupgradeneeded = function() {
+                      var db2 = req.result;
+                      db2.deleteObjectStore(options.storeName);
+                    };
+                    req.onsuccess = function() {
+                      var db2 = req.result;
+                      db2.close();
+                      resolve(db2);
+                    };
+                  });
+                  return dropObjectPromise.then(function(db2) {
+                    dbContext.db = db2;
+                    for (var j = 0; j < forages.length; j++) {
+                      var _forage2 = forages[j];
+                      _forage2._dbInfo.db = db2;
+                      _advanceReadiness(_forage2._dbInfo);
+                    }
+                  })["catch"](function(err) {
+                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function() {
+                    });
+                    throw err;
+                  });
+                });
+              }
+            }
+            executeCallback(promise, callback);
+            return promise;
+          }
+          var asyncStorage = {
+            _driver: "asyncStorage",
+            _initStorage,
+            _support: isIndexedDBValid(),
+            iterate,
+            getItem,
+            setItem,
+            removeItem,
+            clear,
+            length,
+            key,
+            keys,
+            dropInstance
+          };
+          function isWebSQLValid() {
+            return typeof openDatabase === "function";
+          }
+          var BASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+          var BLOB_TYPE_PREFIX = "~~local_forage_type~";
+          var BLOB_TYPE_PREFIX_REGEX = /^~~local_forage_type~([^~]+)~/;
+          var SERIALIZED_MARKER = "__lfsc__:";
+          var SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER.length;
+          var TYPE_ARRAYBUFFER = "arbf";
+          var TYPE_BLOB = "blob";
+          var TYPE_INT8ARRAY = "si08";
+          var TYPE_UINT8ARRAY = "ui08";
+          var TYPE_UINT8CLAMPEDARRAY = "uic8";
+          var TYPE_INT16ARRAY = "si16";
+          var TYPE_INT32ARRAY = "si32";
+          var TYPE_UINT16ARRAY = "ur16";
+          var TYPE_UINT32ARRAY = "ui32";
+          var TYPE_FLOAT32ARRAY = "fl32";
+          var TYPE_FLOAT64ARRAY = "fl64";
+          var TYPE_SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER_LENGTH + TYPE_ARRAYBUFFER.length;
+          var toString$1 = Object.prototype.toString;
+          function stringToBuffer(serializedString) {
+            var bufferLength = serializedString.length * 0.75;
+            var len = serializedString.length;
+            var i;
+            var p = 0;
+            var encoded1, encoded2, encoded3, encoded4;
+            if (serializedString[serializedString.length - 1] === "=") {
+              bufferLength--;
+              if (serializedString[serializedString.length - 2] === "=") {
+                bufferLength--;
+              }
+            }
+            var buffer = new ArrayBuffer(bufferLength);
+            var bytes = new Uint8Array(buffer);
+            for (i = 0; i < len; i += 4) {
+              encoded1 = BASE_CHARS.indexOf(serializedString[i]);
+              encoded2 = BASE_CHARS.indexOf(serializedString[i + 1]);
+              encoded3 = BASE_CHARS.indexOf(serializedString[i + 2]);
+              encoded4 = BASE_CHARS.indexOf(serializedString[i + 3]);
+              bytes[p++] = encoded1 << 2 | encoded2 >> 4;
+              bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
+              bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
+            }
+            return buffer;
+          }
+          function bufferToString(buffer) {
+            var bytes = new Uint8Array(buffer);
+            var base64String = "";
+            var i;
+            for (i = 0; i < bytes.length; i += 3) {
+              base64String += BASE_CHARS[bytes[i] >> 2];
+              base64String += BASE_CHARS[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
+              base64String += BASE_CHARS[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
+              base64String += BASE_CHARS[bytes[i + 2] & 63];
+            }
+            if (bytes.length % 3 === 2) {
+              base64String = base64String.substring(0, base64String.length - 1) + "=";
+            } else if (bytes.length % 3 === 1) {
+              base64String = base64String.substring(0, base64String.length - 2) + "==";
+            }
+            return base64String;
+          }
+          function serialize(value, callback) {
+            var valueType = "";
+            if (value) {
+              valueType = toString$1.call(value);
+            }
+            if (value && (valueType === "[object ArrayBuffer]" || value.buffer && toString$1.call(value.buffer) === "[object ArrayBuffer]")) {
+              var buffer;
+              var marker = SERIALIZED_MARKER;
+              if (value instanceof ArrayBuffer) {
+                buffer = value;
+                marker += TYPE_ARRAYBUFFER;
+              } else {
+                buffer = value.buffer;
+                if (valueType === "[object Int8Array]") {
+                  marker += TYPE_INT8ARRAY;
+                } else if (valueType === "[object Uint8Array]") {
+                  marker += TYPE_UINT8ARRAY;
+                } else if (valueType === "[object Uint8ClampedArray]") {
+                  marker += TYPE_UINT8CLAMPEDARRAY;
+                } else if (valueType === "[object Int16Array]") {
+                  marker += TYPE_INT16ARRAY;
+                } else if (valueType === "[object Uint16Array]") {
+                  marker += TYPE_UINT16ARRAY;
+                } else if (valueType === "[object Int32Array]") {
+                  marker += TYPE_INT32ARRAY;
+                } else if (valueType === "[object Uint32Array]") {
+                  marker += TYPE_UINT32ARRAY;
+                } else if (valueType === "[object Float32Array]") {
+                  marker += TYPE_FLOAT32ARRAY;
+                } else if (valueType === "[object Float64Array]") {
+                  marker += TYPE_FLOAT64ARRAY;
+                } else {
+                  callback(new Error("Failed to get type for BinaryArray"));
+                }
+              }
+              callback(marker + bufferToString(buffer));
+            } else if (valueType === "[object Blob]") {
+              var fileReader = new FileReader();
+              fileReader.onload = function() {
+                var str = BLOB_TYPE_PREFIX + value.type + "~" + bufferToString(this.result);
+                callback(SERIALIZED_MARKER + TYPE_BLOB + str);
+              };
+              fileReader.readAsArrayBuffer(value);
+            } else {
+              try {
+                callback(JSON.stringify(value));
+              } catch (e) {
+                console.error("Couldn't convert value into a JSON string: ", value);
+                callback(null, e);
+              }
+            }
+          }
+          function deserialize(value) {
+            if (value.substring(0, SERIALIZED_MARKER_LENGTH) !== SERIALIZED_MARKER) {
+              return JSON.parse(value);
+            }
+            var serializedString = value.substring(TYPE_SERIALIZED_MARKER_LENGTH);
+            var type = value.substring(SERIALIZED_MARKER_LENGTH, TYPE_SERIALIZED_MARKER_LENGTH);
+            var blobType;
+            if (type === TYPE_BLOB && BLOB_TYPE_PREFIX_REGEX.test(serializedString)) {
+              var matcher = serializedString.match(BLOB_TYPE_PREFIX_REGEX);
+              blobType = matcher[1];
+              serializedString = serializedString.substring(matcher[0].length);
+            }
+            var buffer = stringToBuffer(serializedString);
+            switch (type) {
+              case TYPE_ARRAYBUFFER:
+                return buffer;
+              case TYPE_BLOB:
+                return createBlob([buffer], { type: blobType });
+              case TYPE_INT8ARRAY:
+                return new Int8Array(buffer);
+              case TYPE_UINT8ARRAY:
+                return new Uint8Array(buffer);
+              case TYPE_UINT8CLAMPEDARRAY:
+                return new Uint8ClampedArray(buffer);
+              case TYPE_INT16ARRAY:
+                return new Int16Array(buffer);
+              case TYPE_UINT16ARRAY:
+                return new Uint16Array(buffer);
+              case TYPE_INT32ARRAY:
+                return new Int32Array(buffer);
+              case TYPE_UINT32ARRAY:
+                return new Uint32Array(buffer);
+              case TYPE_FLOAT32ARRAY:
+                return new Float32Array(buffer);
+              case TYPE_FLOAT64ARRAY:
+                return new Float64Array(buffer);
+              default:
+                throw new Error("Unkown type: " + type);
+            }
+          }
+          var localforageSerializer = {
+            serialize,
+            deserialize,
+            stringToBuffer,
+            bufferToString
+          };
+          function createDbTable(t, dbInfo, callback, errorCallback) {
+            t.executeSql("CREATE TABLE IF NOT EXISTS " + dbInfo.storeName + " (id INTEGER PRIMARY KEY, key unique, value)", [], callback, errorCallback);
+          }
+          function _initStorage$1(options) {
+            var self2 = this;
+            var dbInfo = {
+              db: null
+            };
+            if (options) {
+              for (var i in options) {
+                dbInfo[i] = typeof options[i] !== "string" ? options[i].toString() : options[i];
+              }
+            }
+            var dbInfoPromise = new Promise$1(function(resolve, reject) {
+              try {
+                dbInfo.db = openDatabase(dbInfo.name, String(dbInfo.version), dbInfo.description, dbInfo.size);
+              } catch (e) {
+                return reject(e);
+              }
+              dbInfo.db.transaction(function(t) {
+                createDbTable(t, dbInfo, function() {
+                  self2._dbInfo = dbInfo;
+                  resolve();
+                }, function(t2, error) {
+                  reject(error);
+                });
+              }, reject);
+            });
+            dbInfo.serializer = localforageSerializer;
+            return dbInfoPromise;
+          }
+          function tryExecuteSql(t, dbInfo, sqlStatement, args, callback, errorCallback) {
+            t.executeSql(sqlStatement, args, callback, function(t2, error) {
+              if (error.code === error.SYNTAX_ERR) {
+                t2.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [dbInfo.storeName], function(t3, results) {
+                  if (!results.rows.length) {
+                    createDbTable(t3, dbInfo, function() {
+                      t3.executeSql(sqlStatement, args, callback, errorCallback);
+                    }, errorCallback);
+                  } else {
+                    errorCallback(t3, error);
+                  }
+                }, errorCallback);
+              } else {
+                errorCallback(t2, error);
+              }
+            }, errorCallback);
+          }
+          function getItem$1(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT * FROM " + dbInfo.storeName + " WHERE key = ? LIMIT 1", [key2], function(t2, results) {
+                    var result = results.rows.length ? results.rows.item(0).value : null;
+                    if (result) {
+                      result = dbInfo.serializer.deserialize(result);
+                    }
+                    resolve(result);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function iterate$1(iterator, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT * FROM " + dbInfo.storeName, [], function(t2, results) {
+                    var rows = results.rows;
+                    var length2 = rows.length;
+                    for (var i = 0; i < length2; i++) {
+                      var item = rows.item(i);
+                      var result = item.value;
+                      if (result) {
+                        result = dbInfo.serializer.deserialize(result);
+                      }
+                      result = iterator(result, item.key, i + 1);
+                      if (result !== void 0) {
+                        resolve(result);
+                        return;
+                      }
+                    }
+                    resolve();
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function _setItem(key2, value, callback, retriesLeft) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                if (value === void 0) {
+                  value = null;
+                }
+                var originalValue = value;
+                var dbInfo = self2._dbInfo;
+                dbInfo.serializer.serialize(value, function(value2, error) {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    dbInfo.db.transaction(function(t) {
+                      tryExecuteSql(t, dbInfo, "INSERT OR REPLACE INTO " + dbInfo.storeName + " (key, value) VALUES (?, ?)", [key2, value2], function() {
+                        resolve(originalValue);
+                      }, function(t2, error2) {
+                        reject(error2);
+                      });
+                    }, function(sqlError) {
+                      if (sqlError.code === sqlError.QUOTA_ERR) {
+                        if (retriesLeft > 0) {
+                          resolve(_setItem.apply(self2, [key2, originalValue, callback, retriesLeft - 1]));
+                          return;
+                        }
+                        reject(sqlError);
+                      }
+                    });
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function setItem$1(key2, value, callback) {
+            return _setItem.apply(this, [key2, value, callback, 1]);
+          }
+          function removeItem$1(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "DELETE FROM " + dbInfo.storeName + " WHERE key = ?", [key2], function() {
+                    resolve();
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function clear$1(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "DELETE FROM " + dbInfo.storeName, [], function() {
+                    resolve();
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function length$1(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT COUNT(key) as c FROM " + dbInfo.storeName, [], function(t2, results) {
+                    var result = results.rows.item(0).c;
+                    resolve(result);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function key$1(n, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT key FROM " + dbInfo.storeName + " WHERE id = ? LIMIT 1", [n + 1], function(t2, results) {
+                    var result = results.rows.length ? results.rows.item(0).key : null;
+                    resolve(result);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function keys$1(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT key FROM " + dbInfo.storeName, [], function(t2, results) {
+                    var keys2 = [];
+                    for (var i = 0; i < results.rows.length; i++) {
+                      keys2.push(results.rows.item(i).key);
+                    }
+                    resolve(keys2);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function getAllStoreNames(db) {
+            return new Promise$1(function(resolve, reject) {
+              db.transaction(function(t) {
+                t.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'", [], function(t2, results) {
+                  var storeNames = [];
+                  for (var i = 0; i < results.rows.length; i++) {
+                    storeNames.push(results.rows.item(i).name);
+                  }
+                  resolve({
+                    db,
+                    storeNames
+                  });
+                }, function(t2, error) {
+                  reject(error);
+                });
+              }, function(sqlError) {
+                reject(sqlError);
+              });
+            });
+          }
+          function dropInstance$1(options, callback) {
+            callback = getCallback.apply(this, arguments);
+            var currentConfig = this.config();
+            options = typeof options !== "function" && options || {};
+            if (!options.name) {
+              options.name = options.name || currentConfig.name;
+              options.storeName = options.storeName || currentConfig.storeName;
+            }
+            var self2 = this;
+            var promise;
+            if (!options.name) {
+              promise = Promise$1.reject("Invalid arguments");
+            } else {
+              promise = new Promise$1(function(resolve) {
+                var db;
+                if (options.name === currentConfig.name) {
+                  db = self2._dbInfo.db;
+                } else {
+                  db = openDatabase(options.name, "", "", 0);
+                }
+                if (!options.storeName) {
+                  resolve(getAllStoreNames(db));
+                } else {
+                  resolve({
+                    db,
+                    storeNames: [options.storeName]
+                  });
+                }
+              }).then(function(operationInfo) {
+                return new Promise$1(function(resolve, reject) {
+                  operationInfo.db.transaction(function(t) {
+                    function dropTable(storeName) {
+                      return new Promise$1(function(resolve2, reject2) {
+                        t.executeSql("DROP TABLE IF EXISTS " + storeName, [], function() {
+                          resolve2();
+                        }, function(t2, error) {
+                          reject2(error);
+                        });
+                      });
+                    }
+                    var operations = [];
+                    for (var i = 0, len = operationInfo.storeNames.length; i < len; i++) {
+                      operations.push(dropTable(operationInfo.storeNames[i]));
+                    }
+                    Promise$1.all(operations).then(function() {
+                      resolve();
+                    })["catch"](function(e) {
+                      reject(e);
+                    });
+                  }, function(sqlError) {
+                    reject(sqlError);
+                  });
+                });
+              });
+            }
+            executeCallback(promise, callback);
+            return promise;
+          }
+          var webSQLStorage = {
+            _driver: "webSQLStorage",
+            _initStorage: _initStorage$1,
+            _support: isWebSQLValid(),
+            iterate: iterate$1,
+            getItem: getItem$1,
+            setItem: setItem$1,
+            removeItem: removeItem$1,
+            clear: clear$1,
+            length: length$1,
+            key: key$1,
+            keys: keys$1,
+            dropInstance: dropInstance$1
+          };
+          function isLocalStorageValid() {
+            try {
+              return typeof localStorage !== "undefined" && "setItem" in localStorage && !!localStorage.setItem;
+            } catch (e) {
+              return false;
+            }
+          }
+          function _getKeyPrefix(options, defaultConfig) {
+            var keyPrefix = options.name + "/";
+            if (options.storeName !== defaultConfig.storeName) {
+              keyPrefix += options.storeName + "/";
+            }
+            return keyPrefix;
+          }
+          function checkIfLocalStorageThrows() {
+            var localStorageTestKey = "_localforage_support_test";
+            try {
+              localStorage.setItem(localStorageTestKey, true);
+              localStorage.removeItem(localStorageTestKey);
+              return false;
+            } catch (e) {
+              return true;
+            }
+          }
+          function _isLocalStorageUsable() {
+            return !checkIfLocalStorageThrows() || localStorage.length > 0;
+          }
+          function _initStorage$2(options) {
+            var self2 = this;
+            var dbInfo = {};
+            if (options) {
+              for (var i in options) {
+                dbInfo[i] = options[i];
+              }
+            }
+            dbInfo.keyPrefix = _getKeyPrefix(options, self2._defaultConfig);
+            if (!_isLocalStorageUsable()) {
+              return Promise$1.reject();
+            }
+            self2._dbInfo = dbInfo;
+            dbInfo.serializer = localforageSerializer;
+            return Promise$1.resolve();
+          }
+          function clear$2(callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var keyPrefix = self2._dbInfo.keyPrefix;
+              for (var i = localStorage.length - 1; i >= 0; i--) {
+                var key2 = localStorage.key(i);
+                if (key2.indexOf(keyPrefix) === 0) {
+                  localStorage.removeItem(key2);
+                }
+              }
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function getItem$2(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var result = localStorage.getItem(dbInfo.keyPrefix + key2);
+              if (result) {
+                result = dbInfo.serializer.deserialize(result);
+              }
+              return result;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function iterate$2(iterator, callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var keyPrefix = dbInfo.keyPrefix;
+              var keyPrefixLength = keyPrefix.length;
+              var length2 = localStorage.length;
+              var iterationNumber = 1;
+              for (var i = 0; i < length2; i++) {
+                var key2 = localStorage.key(i);
+                if (key2.indexOf(keyPrefix) !== 0) {
+                  continue;
+                }
+                var value = localStorage.getItem(key2);
+                if (value) {
+                  value = dbInfo.serializer.deserialize(value);
+                }
+                value = iterator(value, key2.substring(keyPrefixLength), iterationNumber++);
+                if (value !== void 0) {
+                  return value;
+                }
+              }
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function key$2(n, callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var result;
+              try {
+                result = localStorage.key(n);
+              } catch (error) {
+                result = null;
+              }
+              if (result) {
+                result = result.substring(dbInfo.keyPrefix.length);
+              }
+              return result;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function keys$2(callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var length2 = localStorage.length;
+              var keys2 = [];
+              for (var i = 0; i < length2; i++) {
+                var itemKey = localStorage.key(i);
+                if (itemKey.indexOf(dbInfo.keyPrefix) === 0) {
+                  keys2.push(itemKey.substring(dbInfo.keyPrefix.length));
+                }
+              }
+              return keys2;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function length$2(callback) {
+            var self2 = this;
+            var promise = self2.keys().then(function(keys2) {
+              return keys2.length;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function removeItem$2(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              localStorage.removeItem(dbInfo.keyPrefix + key2);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function setItem$2(key2, value, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = self2.ready().then(function() {
+              if (value === void 0) {
+                value = null;
+              }
+              var originalValue = value;
+              return new Promise$1(function(resolve, reject) {
+                var dbInfo = self2._dbInfo;
+                dbInfo.serializer.serialize(value, function(value2, error) {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    try {
+                      localStorage.setItem(dbInfo.keyPrefix + key2, value2);
+                      resolve(originalValue);
+                    } catch (e) {
+                      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
+                        reject(e);
+                      }
+                      reject(e);
+                    }
+                  }
+                });
+              });
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function dropInstance$2(options, callback) {
+            callback = getCallback.apply(this, arguments);
+            options = typeof options !== "function" && options || {};
+            if (!options.name) {
+              var currentConfig = this.config();
+              options.name = options.name || currentConfig.name;
+              options.storeName = options.storeName || currentConfig.storeName;
+            }
+            var self2 = this;
+            var promise;
+            if (!options.name) {
+              promise = Promise$1.reject("Invalid arguments");
+            } else {
+              promise = new Promise$1(function(resolve) {
+                if (!options.storeName) {
+                  resolve(options.name + "/");
+                } else {
+                  resolve(_getKeyPrefix(options, self2._defaultConfig));
+                }
+              }).then(function(keyPrefix) {
+                for (var i = localStorage.length - 1; i >= 0; i--) {
+                  var key2 = localStorage.key(i);
+                  if (key2.indexOf(keyPrefix) === 0) {
+                    localStorage.removeItem(key2);
+                  }
+                }
+              });
+            }
+            executeCallback(promise, callback);
+            return promise;
+          }
+          var localStorageWrapper = {
+            _driver: "localStorageWrapper",
+            _initStorage: _initStorage$2,
+            _support: isLocalStorageValid(),
+            iterate: iterate$2,
+            getItem: getItem$2,
+            setItem: setItem$2,
+            removeItem: removeItem$2,
+            clear: clear$2,
+            length: length$2,
+            key: key$2,
+            keys: keys$2,
+            dropInstance: dropInstance$2
+          };
+          var sameValue = function sameValue2(x, y) {
+            return x === y || typeof x === "number" && typeof y === "number" && isNaN(x) && isNaN(y);
+          };
+          var includes = function includes2(array, searchElement) {
+            var len = array.length;
+            var i = 0;
+            while (i < len) {
+              if (sameValue(array[i], searchElement)) {
+                return true;
+              }
+              i++;
+            }
+            return false;
+          };
+          var isArray = Array.isArray || function(arg) {
+            return Object.prototype.toString.call(arg) === "[object Array]";
+          };
+          var DefinedDrivers = {};
+          var DriverSupport = {};
+          var DefaultDrivers = {
+            INDEXEDDB: asyncStorage,
+            WEBSQL: webSQLStorage,
+            LOCALSTORAGE: localStorageWrapper
+          };
+          var DefaultDriverOrder = [DefaultDrivers.INDEXEDDB._driver, DefaultDrivers.WEBSQL._driver, DefaultDrivers.LOCALSTORAGE._driver];
+          var OptionalDriverMethods = ["dropInstance"];
+          var LibraryMethods = ["clear", "getItem", "iterate", "key", "keys", "length", "removeItem", "setItem"].concat(OptionalDriverMethods);
+          var DefaultConfig = {
+            description: "",
+            driver: DefaultDriverOrder.slice(),
+            name: "localforage",
+            size: 4980736,
+            storeName: "keyvaluepairs",
+            version: 1
+          };
+          function callWhenReady(localForageInstance, libraryMethod) {
+            localForageInstance[libraryMethod] = function() {
+              var _args = arguments;
+              return localForageInstance.ready().then(function() {
+                return localForageInstance[libraryMethod].apply(localForageInstance, _args);
+              });
+            };
+          }
+          function extend() {
+            for (var i = 1; i < arguments.length; i++) {
+              var arg = arguments[i];
+              if (arg) {
+                for (var _key in arg) {
+                  if (arg.hasOwnProperty(_key)) {
+                    if (isArray(arg[_key])) {
+                      arguments[0][_key] = arg[_key].slice();
+                    } else {
+                      arguments[0][_key] = arg[_key];
+                    }
+                  }
+                }
+              }
+            }
+            return arguments[0];
+          }
+          var LocalForage = function() {
+            function LocalForage2(options) {
+              _classCallCheck(this, LocalForage2);
+              for (var driverTypeKey in DefaultDrivers) {
+                if (DefaultDrivers.hasOwnProperty(driverTypeKey)) {
+                  var driver = DefaultDrivers[driverTypeKey];
+                  var driverName = driver._driver;
+                  this[driverTypeKey] = driverName;
+                  if (!DefinedDrivers[driverName]) {
+                    this.defineDriver(driver);
+                  }
+                }
+              }
+              this._defaultConfig = extend({}, DefaultConfig);
+              this._config = extend({}, this._defaultConfig, options);
+              this._driverSet = null;
+              this._initDriver = null;
+              this._ready = false;
+              this._dbInfo = null;
+              this._wrapLibraryMethodsWithReady();
+              this.setDriver(this._config.driver)["catch"](function() {
+              });
+            }
+            LocalForage2.prototype.config = function config(options) {
+              if ((typeof options === "undefined" ? "undefined" : _typeof(options)) === "object") {
+                if (this._ready) {
+                  return new Error("Can't call config() after localforage has been used.");
+                }
+                for (var i in options) {
+                  if (i === "storeName") {
+                    options[i] = options[i].replace(/\W/g, "_");
+                  }
+                  if (i === "version" && typeof options[i] !== "number") {
+                    return new Error("Database version must be a number.");
+                  }
+                  this._config[i] = options[i];
+                }
+                if ("driver" in options && options.driver) {
+                  return this.setDriver(this._config.driver);
+                }
+                return true;
+              } else if (typeof options === "string") {
+                return this._config[options];
+              } else {
+                return this._config;
+              }
+            };
+            LocalForage2.prototype.defineDriver = function defineDriver(driverObject, callback, errorCallback) {
+              var promise = new Promise$1(function(resolve, reject) {
+                try {
+                  var driverName = driverObject._driver;
+                  var complianceError = new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");
+                  if (!driverObject._driver) {
+                    reject(complianceError);
+                    return;
+                  }
+                  var driverMethods = LibraryMethods.concat("_initStorage");
+                  for (var i = 0, len = driverMethods.length; i < len; i++) {
+                    var driverMethodName = driverMethods[i];
+                    var isRequired = !includes(OptionalDriverMethods, driverMethodName);
+                    if ((isRequired || driverObject[driverMethodName]) && typeof driverObject[driverMethodName] !== "function") {
+                      reject(complianceError);
+                      return;
+                    }
+                  }
+                  var configureMissingMethods = function configureMissingMethods2() {
+                    var methodNotImplementedFactory = function methodNotImplementedFactory2(methodName) {
+                      return function() {
+                        var error = new Error("Method " + methodName + " is not implemented by the current driver");
+                        var promise2 = Promise$1.reject(error);
+                        executeCallback(promise2, arguments[arguments.length - 1]);
+                        return promise2;
+                      };
+                    };
+                    for (var _i = 0, _len = OptionalDriverMethods.length; _i < _len; _i++) {
+                      var optionalDriverMethod = OptionalDriverMethods[_i];
+                      if (!driverObject[optionalDriverMethod]) {
+                        driverObject[optionalDriverMethod] = methodNotImplementedFactory(optionalDriverMethod);
+                      }
+                    }
+                  };
+                  configureMissingMethods();
+                  var setDriverSupport = function setDriverSupport2(support) {
+                    if (DefinedDrivers[driverName]) {
+                      console.info("Redefining LocalForage driver: " + driverName);
+                    }
+                    DefinedDrivers[driverName] = driverObject;
+                    DriverSupport[driverName] = support;
+                    resolve();
+                  };
+                  if ("_support" in driverObject) {
+                    if (driverObject._support && typeof driverObject._support === "function") {
+                      driverObject._support().then(setDriverSupport, reject);
+                    } else {
+                      setDriverSupport(!!driverObject._support);
+                    }
+                  } else {
+                    setDriverSupport(true);
+                  }
+                } catch (e) {
+                  reject(e);
+                }
+              });
+              executeTwoCallbacks(promise, callback, errorCallback);
+              return promise;
+            };
+            LocalForage2.prototype.driver = function driver() {
+              return this._driver || null;
+            };
+            LocalForage2.prototype.getDriver = function getDriver(driverName, callback, errorCallback) {
+              var getDriverPromise = DefinedDrivers[driverName] ? Promise$1.resolve(DefinedDrivers[driverName]) : Promise$1.reject(new Error("Driver not found."));
+              executeTwoCallbacks(getDriverPromise, callback, errorCallback);
+              return getDriverPromise;
+            };
+            LocalForage2.prototype.getSerializer = function getSerializer(callback) {
+              var serializerPromise = Promise$1.resolve(localforageSerializer);
+              executeTwoCallbacks(serializerPromise, callback);
+              return serializerPromise;
+            };
+            LocalForage2.prototype.ready = function ready(callback) {
+              var self2 = this;
+              var promise = self2._driverSet.then(function() {
+                if (self2._ready === null) {
+                  self2._ready = self2._initDriver();
+                }
+                return self2._ready;
+              });
+              executeTwoCallbacks(promise, callback, callback);
+              return promise;
+            };
+            LocalForage2.prototype.setDriver = function setDriver(drivers, callback, errorCallback) {
+              var self2 = this;
+              if (!isArray(drivers)) {
+                drivers = [drivers];
+              }
+              var supportedDrivers = this._getSupportedDrivers(drivers);
+              function setDriverToConfig() {
+                self2._config.driver = self2.driver();
+              }
+              function extendSelfWithDriver(driver) {
+                self2._extend(driver);
+                setDriverToConfig();
+                self2._ready = self2._initStorage(self2._config);
+                return self2._ready;
+              }
+              function initDriver(supportedDrivers2) {
+                return function() {
+                  var currentDriverIndex = 0;
+                  function driverPromiseLoop() {
+                    while (currentDriverIndex < supportedDrivers2.length) {
+                      var driverName = supportedDrivers2[currentDriverIndex];
+                      currentDriverIndex++;
+                      self2._dbInfo = null;
+                      self2._ready = null;
+                      return self2.getDriver(driverName).then(extendSelfWithDriver)["catch"](driverPromiseLoop);
+                    }
+                    setDriverToConfig();
+                    var error = new Error("No available storage method found.");
+                    self2._driverSet = Promise$1.reject(error);
+                    return self2._driverSet;
+                  }
+                  return driverPromiseLoop();
+                };
+              }
+              var oldDriverSetDone = this._driverSet !== null ? this._driverSet["catch"](function() {
+                return Promise$1.resolve();
+              }) : Promise$1.resolve();
+              this._driverSet = oldDriverSetDone.then(function() {
+                var driverName = supportedDrivers[0];
+                self2._dbInfo = null;
+                self2._ready = null;
+                return self2.getDriver(driverName).then(function(driver) {
+                  self2._driver = driver._driver;
+                  setDriverToConfig();
+                  self2._wrapLibraryMethodsWithReady();
+                  self2._initDriver = initDriver(supportedDrivers);
+                });
+              })["catch"](function() {
+                setDriverToConfig();
+                var error = new Error("No available storage method found.");
+                self2._driverSet = Promise$1.reject(error);
+                return self2._driverSet;
+              });
+              executeTwoCallbacks(this._driverSet, callback, errorCallback);
+              return this._driverSet;
+            };
+            LocalForage2.prototype.supports = function supports(driverName) {
+              return !!DriverSupport[driverName];
+            };
+            LocalForage2.prototype._extend = function _extend(libraryMethodsAndProperties) {
+              extend(this, libraryMethodsAndProperties);
+            };
+            LocalForage2.prototype._getSupportedDrivers = function _getSupportedDrivers(drivers) {
+              var supportedDrivers = [];
+              for (var i = 0, len = drivers.length; i < len; i++) {
+                var driverName = drivers[i];
+                if (this.supports(driverName)) {
+                  supportedDrivers.push(driverName);
+                }
+              }
+              return supportedDrivers;
+            };
+            LocalForage2.prototype._wrapLibraryMethodsWithReady = function _wrapLibraryMethodsWithReady() {
+              for (var i = 0, len = LibraryMethods.length; i < len; i++) {
+                callWhenReady(this, LibraryMethods[i]);
+              }
+            };
+            LocalForage2.prototype.createInstance = function createInstance(options) {
+              return new LocalForage2(options);
+            };
+            return LocalForage2;
+          }();
+          var localforage_js = new LocalForage();
+          module3.exports = localforage_js;
+        }, { "3": 3 }] }, {}, [4])(4);
+      });
+    }
+  });
+
+  // src/webComponents/html/game.html
+  var game_default = '<main class="p-game hidden" data-tab-content="game">\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <li class="g-list-item hidden" data-tab-target="passives">Passives</li>\n        <li class="g-list-item hidden" data-tab-target="items">Items</li>\n        <li class="g-list-item hidden" data-tab-target="missions">Missions</li>\n        <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n        <li class="g-list-item" data-tab-target="settings">Settings</li>\n    </menu>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <div class="s-enemy">\n                <div class="s-health-bar-background g-progress-bar-background">\n                    <div class="health-bar g-progress-bar" data-health-bar></div>\n                </div>\n            </div>\n            <div class="s-player">\n                <div class="s-mana-bar-background g-progress-bar-background">\n                    <div class="mana-bar g-progress-bar" data-mana-bar></div>\n                </div>\n            </div>\n            <div class="g-modal s-skill-modal hidden" data-skill-modal data-modal-type="relative">\n                <div class="wrapper">\n                    <section>\n                        <ul class="g-list-v" data-skill-list></ul>\n                        <div class="s-skill-info" data-skill-info>\n                            <div data-title>Example Name</div>\n                            <div class="g-field">\n                                <div>Mana Cost</div>\n                                <i data-stat="manaCost"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Attack Speed</div>\n                                <i data-stat="attackSpeed"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Damage Multiplier</div>\n                                <i data-stat="baseDamageMultiplier"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Duration</div>\n                                <i data-stat="baseDuration"></i>\n                            </div>\n                            <ul data-mod-list></ul>\n                        </div>\n                    </section>\n                    <footer>\n                        <button class="g-button" data-apply>Apply</button>\n                        <button class="g-button" data-remove>Remove</button>\n                        <button class="g-button" data-cancel>Cancel</button>\n                    </footer>\n                </div>\n            </div>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n        <div class="p-settings hidden" data-tab-content="settings">\n            <button class="g-button" data-role="cancel" data-delete-save>Delete Save</button>\n        </div>\n    </div>\n    <aside class="s-stats">\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n\n\n</main>';
+
+  // src/webComponents/html/skills.html
+  var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <h3 class="title"></h3>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-remove>Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-skill-list></ul>\n\n    </div>\n\n</div>';
+
+  // src/webComponents/html/passives.html
+  var passives_default = '<div class="p-passives hidden" data-tab-content="passives">\n    <header>\n        <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>\n        <button class="g-button" data-clear>Clear</button>\n    </header>\n    <div class="s-passive-list">\n        <table>\n\n        </table>\n    </div>\n</div>';
+
+  // src/webComponents/html/items.html
+  var items_default = '<div class="p-items hidden" data-tab-content="items">\n    <menu class="g-list-v" data-item-list></menu>\n    <ul data-mod-list></ul>\n    <div class="s-preset-container">\n        <menu class="g-list-h">\n            <button class="g-button" data-new>New</button>\n            <button class="g-button" data-edit>Edit</button>\n        </menu>\n        <menu class="g-list-v" data-preset-list></menu>\n    </div>\n    <div class="s-craft-container">\n        <div data-craft-list>\n            <table></table>\n        </div>\n        <button class="g-button" data-craft-button data-role="confirm">Craft</button>\n        <div data-craft-message></div>\n    </div>\n    <dialog data-modal data-preset-modal>\n        <form method="dialog">\n            <h2>Craft Preset</h2>\n            <input type="text" data-name>\n            <div class="g-list-v" data-craft-list>\n                <table>\n                    <thead>\n                        <tr>\n                            <td></td>\n                            <td>Level</td>\n                            <td>Cost</td>\n                        </tr>\n                    </thead>\n                    <tbody></tbody>\n                </table>\n            </div>\n            <footer>\n                <input class="g-button" type="submit" value="Apply" data-apply>\n                <input class="g-button" type="submit" value="Cancel" data-cancel>\n                <input class="g-button" type="submit" value="Delete" data-cancel data-delete>\n            </footer>\n        </form>\n    </dialog>\n</div>';
+
+  // src/webComponents/html/missions.html
+  var missions_default = '<div class="p-missions hidden" data-tab-content="missions">\n    <ul data-mission-list></ul>\n</div>';
+
+  // src/webComponents/html/achievements.html
+  var achievements_default = '<div class="p-achievements hidden" data-tab-content="achievements">\n    <ul></ul>\n</div>';
+
+  // src/webComponents/html/prestige.html
+  var prestige_default = "<div></div>";
+
+  // src/utils/helpers.ts
+  var avg = (a, b) => (a + b) / 2;
+  var randomRange = (min, max) => Math.random() * (max - min) + min;
+  var clamp = (value, min, max) => Math.max(min, Math.min(value, max));
+  var lerp = (a, b, t) => a + (b - a) * t;
+  var invLerp = (a, b, v) => (v - a) / (b - a);
+  var remap = (iMin, iMax, oMin, oMax, v) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
+  var isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.port.length !== 0 || location.protocol !== "http:";
+  function queryHTML(selectors, parent) {
+    const element = (parent || document).querySelector(selectors);
+    if (!element) {
+      throw Error(`HTMLElement with selectors ${selectors} could not be found!`);
+    }
+    return element;
+  }
+  function registerTabs(btnsParent, contentsParent, callback, queryString = "[data-tab-target]") {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        const target = mutation.target;
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLElement) {
+            addBtn(node);
+          }
+        }
+        if (mutation.attributeName === "class") {
+          if (target.classList.contains("selected")) {
+            const btns = Array.from(btnsParent.querySelectorAll(queryString));
+            btns.forEach((x) => x.classList.toggle("selected", x === target));
+            if (contentsParent) {
+              const contents = Array.from(contentsParent.querySelectorAll("[data-tab-content]") || []);
+              const targetAttr = target.getAttribute("data-tab-target");
+              contents.forEach((x) => x.classList.toggle("hidden", x.getAttribute("data-tab-content") !== targetAttr));
+            }
+            callback == null ? void 0 : callback(target);
+          }
+        }
+      }
+    });
+    const addBtn = (btn) => {
+      btn.addEventListener("click", () => {
+        btn.classList.add("selected");
+      });
+    };
+    Array.from(btnsParent.querySelectorAll(queryString)).forEach((x) => addBtn(x));
+    observer.observe(btnsParent, { attributes: true, subtree: true, childList: true });
+    return observer;
+  }
+  function generateTime(startTime = 0) {
+    const ms = Date.now() - startTime;
+    const days = Math.floor(ms / 864e5);
+    const hours = Math.floor(ms / 36e5) % 24;
+    const mins = (Math.floor(ms / 6e4) % 60).toFixed();
+    return {
+      days,
+      hours,
+      mins,
+      ms
+    };
+  }
+
+  // src/webComponents/GameElement.ts
+  var componentDataList = {
+    skills: {
+      html: skills_default,
+      name: "Skills",
+      targetName: "skills"
+    },
+    passives: {
+      html: passives_default,
+      name: "Passives",
+      targetName: "passives"
+    },
+    items: {
+      html: items_default,
+      name: "Items",
+      targetName: "items"
+    },
+    missions: {
+      html: missions_default,
+      name: "Missions",
+      targetName: "missions"
+    },
+    achievements: {
+      html: achievements_default,
+      name: "Achievements",
+      targetName: "achievements"
+    },
+    prestige: {
+      html: prestige_default,
+      name: "Prestige",
+      targetName: "prestige"
+    }
+  };
+  var GameElement = class extends HTMLElement {
+    constructor() {
+      super();
+      __publicField(this, "componentPages", []);
+    }
+    connectedCallback() {
+      this.innerHTML = game_default;
+    }
+    init(names) {
+      const container = queryHTML("[data-main-view]", this);
+      const menu = queryHTML(".p-game > menu");
+      menu.replaceChildren();
+      this.componentPages.forEach((x) => x.remove());
+      menu.appendChild(this.createMenuItem("Combat", "combat"));
+      for (const name of names) {
+        const componentData = componentDataList[name];
+        const element = new DOMParser().parseFromString(componentData.html, "text/html").body.firstElementChild;
+        if (!element) {
+          throw Error("invalid component html");
+        }
+        this.componentPages.push(element);
+        container.appendChild(element);
+        menu.appendChild(this.createMenuItem(componentData.name, componentData.targetName));
+      }
+      menu.appendChild(this.createMenuItem("Statistics", "statistics"));
+      menu.appendChild(this.createMenuItem("Settings", "settings"));
+      registerTabs(menu, queryHTML(".p-game", this));
+    }
+    createMenuItem(label, targetName) {
+      const li = document.createElement("li");
+      li.classList.add("g-list-item");
+      li.setAttribute("data-tab-target", targetName);
+      li.textContent = label;
+      return li;
+    }
+  };
+  customElements.define("game-element", GameElement);
+
+  // src/webComponents/GenericModal.ts
+  var GenericModal = class extends HTMLElement {
+    constructor() {
+      super();
+      __publicField(this, "modal");
+      this.innerHTML = `
+        <dialog>
+            <form method="dialog">
+                <header>
+                    <h3>Title</h3>
+                </header>
+                <div data-body></div>
+                <footer></footer>
+            </form>
+            <div class="backdrop"></div>
+        </dialog>`;
+      this.modal = queryHTML("dialog", this);
+      queryHTML(".backdrop").addEventListener("mousedown", () => this.closeModal());
+      this.classList.add("hidden");
+    }
+    connectedCallback() {
+      if (this.hasAttribute("data-open")) {
+        this.openModal();
+      }
+    }
+    init(args) {
+      queryHTML("header h3", this.modal).textContent = args.title || "";
+      if (typeof args.body === "string") {
+        queryHTML("[data-body]", this.modal).innerHTML = args.body;
+      } else {
+        queryHTML("[data-body]", this.modal).replaceChildren(args.body);
+      }
+      const buttons = [];
+      for (const buttonData of args.buttons) {
+        const button = document.createElement("button");
+        button.classList.add("g-button");
+        button.setAttribute("type", "submit");
+        const role = buttonData.type;
+        button.setAttribute("data-role", role);
+        button.textContent = buttonData.label;
+        button.addEventListener("click", () => {
+          var _a;
+          (_a = args.callback) == null ? void 0 : _a.call(args, role === "confirm", buttonData.userData);
+        });
+        buttons.push(button);
+      }
+      queryHTML("footer", this).replaceChildren(...buttons);
+      if (args.footerText) {
+        queryHTML("footer", this).insertAdjacentHTML("beforeend", `<small>${args.footerText}</small>`);
+      }
+    }
+    openModal() {
+      this.modal.show();
+      this.classList.remove("hidden");
+    }
+    closeModal() {
+      this.modal.close();
+      this.classList.add("hidden");
+    }
+  };
+  customElements.define("generic-modal", GenericModal);
+
+  // src/utils/validateConfig.ts
+  var import_ajv = __toESM(require_ajv(), 1);
+
+  // public/gconfig/configSchema.json
+  var configSchema_default = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    required: ["enemies"],
+    properties: {
+      enemies: {
+        type: "object",
+        required: ["enemyList"],
+        properties: {
+          enemyList: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "integer",
+              minimum: 1
+            }
+          }
+        }
+      },
+      player: {
+        type: "object",
+        properties: {
+          modList: {
+            type: "array",
+            items: { $ref: "#/definitions/mod" }
+          }
+        }
+      },
+      components: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          skills: {
+            type: "object",
+            required: ["attackSkills"],
+            properties: {
+              attackSkills: {
+                type: "object",
+                required: ["skillList"],
+                properties: {
+                  skillList: {
+                    type: "array",
+                    minItems: 1,
+                    items: {
+                      type: "object",
+                      required: ["name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq"],
+                      properties: {
+                        name: { type: "string" },
+                        levelReq: { type: "integer", minimum: 1, default: 1, description: "Required player level\nNote - At least one skill must have a value of 1" },
+                        attackSpeed: { type: "number", minimum: 1e-3, maximum: 10, default: 1, description: "Number of attacks per second" },
+                        manaCost: { type: "integer", minimum: 0 },
+                        baseDamageMultiplier: { type: "integer", minimum: 1, default: 100, description: "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
+                        mods: {
+                          type: "array",
+                          items: { $ref: "#/definitions/mod" }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              buffSkills: {
+                type: "object",
+                required: ["skillList", "skillSlots"],
+                properties: {
+                  skillSlots: {
+                    type: "array",
+                    minItems: 1,
+                    items: {
+                      type: "object",
+                      required: ["levelReq"],
+                      properties: {
+                        levelReq: {
+                          type: "integer",
+                          minimum: 1
+                        }
+                      }
+                    }
+                  },
+                  skillList: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      required: ["name", "baseDuration", "manaCost", "levelReq"],
+                      properties: {
+                        name: { type: "string" },
+                        levelReq: { type: "number" },
+                        baseDuration: { type: "integer" },
+                        manaCost: { type: "integer" },
+                        mods: {
+                          type: "array",
+                          items: { $ref: "#/definitions/mod" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          passives: {
+            type: "object",
+            required: ["pointsPerLevel", "passiveLists"],
+            properties: {
+              pointsPerLevel: {
+                type: "number",
+                minimum: 1e-3,
+                default: 1
+              },
+              passiveLists: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "array",
+                  minItems: 1,
+                  items: {
+                    type: "object",
+                    required: ["levelReq", "mod", "points"],
+                    properties: {
+                      levelReq: { $ref: "#/definitions/levelReq" },
+                      mod: { $ref: "#/definitions/mod" },
+                      points: { type: "integer", minimum: 1 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          items: {
+            type: "object",
+            required: ["levelReq", "itemList", "craftList", "modLists"],
+            properties: {
+              levelReq: { $ref: "#/definitions/levelReq" },
+              itemList: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    levelReq: { type: "integer", minimum: 0 }
+                  }
+                }
+              },
+              craftList: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "object",
+                  required: ["id", "levelReq", "cost"],
+                  properties: {
+                    id: {
+                      enum: [
+                        "reforge",
+                        "reforgeIncludePhysical",
+                        "reforgeIncludeCritical",
+                        "reforgeIncludeMana",
+                        "reforgeHigherChanceSameMods",
+                        "reforgeLowerChanceSameMods",
+                        "addRandom",
+                        "addPhysical",
+                        "addCritical",
+                        "addMana",
+                        "removeRandom",
+                        "removePhysical",
+                        "removeCritical",
+                        "removeMana",
+                        "removeRandomAddPhysical",
+                        "removeRandomAddCritical",
+                        "removeRandomAddMana"
+                      ]
+                    },
+                    levelReq: { type: "integer", minimum: 0 },
+                    cost: { type: "integer", minimum: 0 }
+                  }
+                }
+              },
+              modLists: {
+                type: "array",
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    required: ["weight", "levelReq", "mod"],
+                    properties: {
+                      weight: { type: "integer", minimum: 0 },
+                      levelReq: { type: "integer", minimum: 0 },
+                      mod: { $ref: "#/definitions/mod" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          missions: {
+            type: "object",
+            required: ["levelReq", "slots", "missionLists"],
+            properties: {
+              levelReq: { $ref: "#/definitions/levelReq" },
+              cost: { $ref: "#/definitions/cost" },
+              slots: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    levelReq: { $ref: "#/definitions/levelReq" },
+                    cost: { $ref: "#/definitions/cost" }
+                  }
+                }
+              },
+              missionLists: {
+                type: "array",
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    required: ["levelReq", "goldAmount", "description"],
+                    properties: {
+                      levelReq: { $ref: "#/definitions/levelReq" },
+                      goldAmount: { type: "integer" },
+                      description: {
+                        type: "string",
+                        anyOf: [
+                          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}"] },
+                          { pattern: "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                          { enum: ["Generate Gold {#}"] },
+                          { pattern: "^Generate Gold \\{\\d+\\}$" },
+                          { enum: ["Regenerate Mana {#}"] },
+                          { pattern: "^Regenerate Mana \\{\\d+\\}$" },
+                          { enum: ["Perform Hits {#}"] },
+                          { pattern: "^Perform Hits \\{\\d+\\}$" },
+                          { enum: ["Perform Critical Hits {#}"] },
+                          { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
+                        ],
+                        pattern: "^[^#]*$"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          achievements: {
+            type: "object",
+            required: ["list"],
+            properties: {
+              list: {
+                type: "array",
+                items: {
+                  type: "object",
+                  required: ["description"],
+                  properties: {
+                    description: {
+                      type: "string",
+                      anyOf: [
+                        { enum: ["Reach Level {#}"] },
+                        { pattern: "^Reach Level \\{\\d+\\}$" },
+                        { enum: ["Prestige {#}"] },
+                        { pattern: "^Prestige \\{\\d+?\\}$" },
+                        { enum: ["Deal Damage {#}", "Deal Physical Damage {#}"] },
+                        { pattern: "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                        { enum: ["Generate Gold {#}"] },
+                        { pattern: "^Generate Gold \\{\\d+\\}$" },
+                        { enum: ["Regenerate Mana {#}"] },
+                        { pattern: "^Regenerate Mana \\{\\d+\\}$" },
+                        { enum: ["Perform Hits {#}"] },
+                        { pattern: "^Perform Hits \\{\\d+\\}$" },
+                        { enum: ["Perform Critical Hits {#}"] },
+                        { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
+                      ],
+                      pattern: "^[^#]*$"
+                    },
+                    modList: {
+                      type: "array",
+                      minItems: 1,
+                      description: "Each mod will be applied upon completing the achievement",
+                      items: {
+                        $ref: "#/definitions/mod"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          prestige: {
+            type: "object",
+            required: ["goldMultiplier"],
+            properties: {
+              goldMultiplier: { type: "integer", default: 20, description: "Each prestige will apply this multiplier to gold per second" }
+            }
+          }
+        }
+      }
+    },
+    definitions: {
+      mod: {
+        type: "string",
+        oneOf: [
+          { enum: ["Adds {#} To {#} Physical Damage"] },
+          { pattern: "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Physical Damage$" },
+          { enum: ["{#}% Increased Physical Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Physical Damage$" },
+          { enum: ["{#}% More Physical Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Physical Damage$" },
+          { enum: ["{#}% More Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
+          { enum: ["+{#}% Hit Chance"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$" },
+          { enum: ["{#}% Increased Attack Speed"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$" },
+          { enum: ["{#}% More Attack Speed"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Attack Speed$" },
+          { enum: ["+{#}% Critical Hit Chance"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$" },
+          { enum: ["+{#}% Critical Hit Multiplier"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$" },
+          { enum: ["+{#} Maximum Mana"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
+          { enum: ["{#}% Increased Maximum Mana"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
+          { enum: ["+{#} Mana Regeneration"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
+          { enum: ["+{#} Gold Per Second"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
+          { enum: ["{#}% Increased Gold Per Second"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
+        ],
+        pattern: "^[^#]*$"
+      },
+      name: {
+        type: "string",
+        pattern: "^[A-Za-z 0-9]{3,16}$"
+      },
+      levelReq: {
+        type: "integer",
+        default: 1,
+        minimum: 1
+      },
+      cost: {
+        type: "integer",
+        default: 0,
+        minimum: 0
+      }
+    }
+  };
+
+  // src/utils/validateConfig.ts
+  var validateConfig = new import_ajv.default().compile(configSchema_default);
+
+  // src/utils/EventEmitter.ts
+  var EventEmitter = class {
+    constructor() {
+      __publicField(this, "listeners", /* @__PURE__ */ new Map());
+    }
+    listen(callback, opts) {
+      const instance = { callback, opts };
+      this.listeners.set(callback, instance);
+    }
+    removeListener(callback) {
+      this.listeners.delete(callback);
+    }
+    removeAllListeners() {
+      this.listeners.clear();
+    }
+    invoke(args) {
+      var _a;
+      this.listeners.forEach((x) => {
+        x.callback(args);
+      });
+      for (const [key, value] of this.listeners.entries()) {
+        if ((_a = value.opts) == null ? void 0 : _a.once) {
+          this.listeners.delete(key);
+        }
+      }
+    }
+  };
+
+  // src/utils/Value.ts
+  var Value = class {
+    constructor(defaultValue) {
+      this.defaultValue = defaultValue;
+      __publicField(this, "value");
+      __publicField(this, "listeners", /* @__PURE__ */ new Map([
+        ["change", new EventEmitter()],
+        ["set", new EventEmitter()],
+        ["add", new EventEmitter()],
+        ["subtract", new EventEmitter()]
+      ]));
+      this.value = defaultValue;
+    }
+    set(v) {
+      var _a, _b;
+      this.value = v;
+      (_a = this.listeners.get("set")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    get() {
+      return this.value;
+    }
+    add(v) {
+      var _a, _b;
+      this.value += v;
+      (_a = this.listeners.get("add")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    subtract(v) {
+      var _a, _b;
+      this.value -= v;
+      (_a = this.listeners.get("subtract")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    reset() {
+      this.value = this.defaultValue;
+      this.listeners.forEach((x) => x.removeAllListeners());
+    }
+    addListener(type, callback) {
+      var _a;
+      (_a = this.listeners.get(type)) == null ? void 0 : _a.listen(callback);
+    }
+    removeListener(type, callback) {
+      var _a;
+      (_a = this.listeners.get(type)) == null ? void 0 : _a.removeListener(callback);
+    }
+    registerCallback(targetValue, callback) {
+      if (targetValue <= this.value) {
+        callback(this.value);
+        return;
+      }
+      const listener = () => {
+        if (this.value >= targetValue) {
+          callback(this.value);
+          this.removeListener("change", listener);
+        }
+      };
+      this.addListener("change", listener);
+    }
+  };
+
+  // src/game/mods.ts
+  var StatModifierFlags = {
+    None: 1 << 0,
+    Attack: 1 << 1,
+    Physical: 1 << 2,
+    Elemental: 1 << 3,
+    Chaos: 1 << 4,
+    Skill: 1 << 5
+  };
+  var modTemplates = [
+    {
+      desc: "#% Increased Physical Damage",
+      tags: ["Physical"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Physical }]
+    },
+    {
+      desc: "#% More Physical Damage",
+      tags: ["Physical"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Physical }]
+    },
+    {
+      desc: "#% More Damage",
+      tags: [],
+      stats: [{ name: "Damage", valueType: "More" }]
+    },
+    {
+      desc: "Adds # To # Physical Damage",
+      tags: ["Physical"],
+      stats: [
+        { name: "MinDamage", valueType: "Base", flags: StatModifierFlags.Physical },
+        { name: "MaxDamage", valueType: "Base", flags: StatModifierFlags.Physical }
+      ]
+    },
+    {
+      desc: "+#% Hit Chance",
+      tags: [],
+      stats: [{ name: "HitChance", valueType: "Base" }]
+    },
+    {
+      desc: "#% Increased Attack Speed",
+      tags: ["Speed"],
+      stats: [{ name: "AttackSpeed", valueType: "Inc" }]
+    },
+    {
+      desc: "#% More Attack Speed",
+      tags: ["Speed"],
+      stats: [{ name: "AttackSpeed", valueType: "More" }]
+    },
+    {
+      desc: "#% Increased Maximum Mana",
+      tags: ["Mana"],
+      stats: [{ name: "MaxMana", valueType: "Inc" }]
+    },
+    {
+      desc: "+# Maximum Mana",
+      tags: ["Mana"],
+      stats: [{ name: "MaxMana", valueType: "Base" }]
+    },
+    {
+      desc: "+# Mana Regeneration",
+      tags: ["Mana"],
+      stats: [{ name: "ManaRegen", valueType: "Base" }]
+    },
+    {
+      desc: "+#% Critical Hit Chance",
+      tags: ["Critical"],
+      stats: [{ name: "CritChance", valueType: "Base" }]
+    },
+    {
+      desc: "+#% Critical Hit Multiplier",
+      tags: ["Critical"],
+      stats: [{ name: "CritMulti", valueType: "Base" }]
+    },
+    {
+      desc: "+# Gold Per Second",
+      tags: ["Gold"],
+      stats: [{ name: "GoldPerSecond", valueType: "Base" }]
+    },
+    {
+      desc: "#% Increased Gold Per Second",
+      tags: ["Gold"],
+      stats: [{ name: "GoldPerSecond", valueType: "Inc" }]
+    },
+    {
+      desc: "#% Increased Skill Duration",
+      tags: ["Gold"],
+      stats: [{ name: "Duration", valueType: "Inc", flags: StatModifierFlags.Skill }]
+    }
+  ];
+  var Modifier = class {
+    constructor(text) {
+      __publicField(this, "text");
+      __publicField(this, "template");
+      __publicField(this, "stats", []);
+      this.text = text;
+      const parsedData = Modifier.parseText(text);
+      this.template = parsedData.template;
+      this.stats = parsedData.stats;
+    }
+    get tags() {
+      return this.template.tags;
+    }
+    get templateDesc() {
+      return this.template.desc;
+    }
+    get desc() {
+      return Modifier.parseDescription(this.template.desc, this.stats);
+    }
+    static compare(a, b) {
+      return a.compare(b);
+    }
+    static sort(a, b) {
+      return a.sort(b);
+    }
+    static parseText(text) {
+      const match = [...text.matchAll(new RegExp("{(?<v1>\\d+(\\.\\d+)?)(-(?<v2>\\d+(\\.\\d+)?))?\\}", "g"))];
+      const desc = text.replace(/{[^}]+}/g, "#");
+      const template = modTemplates.find((x) => x.desc === desc);
+      if (!template) {
+        throw Error("Failed to find mod template. Invalid mod description");
+      }
+      const stats = [];
+      for (const statTemplate of template.stats) {
+        const groups = match[template.stats.indexOf(statTemplate)].groups;
+        if (!groups) {
+          throw Error();
+        }
+        const { v1, v2 } = groups;
+        const min = parseFloat(v1);
+        const max = parseFloat(v2) || min;
+        const value = min;
+        stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
+      }
+      return { template, stats };
+    }
+    static parseDescription(desc, stats) {
+      let i = 0;
+      return desc.replace(/#+/g, (x) => {
+        var _a;
+        const stat = stats[i++];
+        const value = ((_a = stat.value) == null ? void 0 : _a.toFixed(x.length - 1)) || "#";
+        return value;
+      });
+    }
+    sort(other) {
+      return modTemplates.findIndex((x) => x.desc === this.templateDesc) - modTemplates.findIndex((x) => x.desc === other.templateDesc);
+    }
+    compare(other) {
+      return this.templateDesc === other.templateDesc;
+    }
+    copy() {
+      return new Modifier(this.text);
+    }
+    setStatValues(values) {
+      if (this.stats.length !== values.length) {
+        return;
+      }
+      this.stats.forEach((x, i) => x.value = values[i]);
+      return true;
+    }
+  };
+  var StatModifier = class {
+    constructor(data) {
+      __publicField(this, "name");
+      __publicField(this, "valueType");
+      __publicField(this, "value");
+      __publicField(this, "flags");
+      __publicField(this, "min");
+      __publicField(this, "max");
+      __publicField(this, "source");
+      this.name = data.name;
+      this.valueType = data.valueType;
+      this.value = data.value;
+      this.flags = data.flags || 0;
+      this.min = data.min || this.value;
+      this.max = data.max || this.value || this.min;
+      this.source = data.source;
+    }
+    randomizeValue() {
+      this.value = Math.random() * (this.max - this.min) + this.min;
+    }
+  };
+  var ModDB = class {
+    constructor() {
+      __publicField(this, "_modList");
+      __publicField(this, "onChange");
+      this._modList = [];
+      this.onChange = new EventEmitter();
+    }
+    get modList() {
+      return this._modList;
+    }
+    add(statMods, source) {
+      statMods.forEach((x) => x.source = source);
+      this.modList.push(...statMods);
+      this.onChange.invoke([...this.modList]);
+    }
+    removeBySource(source) {
+      this._modList = this.modList.filter((x) => x.source !== source);
+      this.onChange.invoke([...this.modList]);
+    }
+    clear() {
+      this._modList = [];
+      this.onChange.invoke([...this.modList]);
+    }
+  };
+
+  // src/game/calc/calcDamage.ts
+  var DamageTypeFlags = {
+    Physical: 1 << 0,
+    Elemental: 1 << 1,
+    Chaos: 1 << 2
+  };
+  var damageNamesMetaTable = (() => {
+    const names = [];
+    const length = Object.values(DamageTypeFlags).reduce((a, v) => a + v);
+    for (let i = 0; i <= length; i++) {
+      const flagList = ["Damage"];
+      Object.entries(DamageTypeFlags).forEach(([key, value]) => {
+        if (value & i) {
+          const s = `${key}Damage`;
+          flagList.push(s);
+        }
+      });
+      names.push(flagList);
+    }
+    return names;
+  })();
+  function calcAttack(statModList) {
+    const config = {
+      statModList,
+      flags: StatModifierFlags.Attack,
+      calcMinMax: randomRange
+    };
+    const hitChance = calcModTotal("HitChance", config) / 100;
+    const hitFac = randomRange(0, 1);
+    const hit = hitChance >= hitFac;
+    if (!hit) {
+      return false;
+    }
+    config.flags = StatModifierFlags.Attack;
+    const baseDamage = calcBaseDamage(config);
+    const critChance = Math.min(calcModTotal("CritChance", config), 100) / 100;
+    const critFac = randomRange(0, 1);
+    const crit = critChance >= critFac;
+    let critMultiplier = 1;
+    if (crit) {
+      critMultiplier = calcModTotal("CritMulti", config) / 100;
+    }
+    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config);
+    const finalMultiplier = baseDamageMultiplier / 100 * critMultiplier;
+    const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
+    const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
+    return {
+      hit,
+      crit,
+      totalDamage,
+      totalPhysicalDamage
+    };
+  }
+  function calcBaseDamage(config) {
+    const conversionTable = generateConversionTable(config);
+    const output = {
+      totalBaseDamage: 0,
+      minPhysicalDamage: 0,
+      maxPhysicalDamage: 0,
+      physicalDamage: 0,
+      minElementalDamage: 0,
+      maxElementalDamage: 0,
+      elementalDamage: 0,
+      minChaosDamage: 0,
+      maxChaosDamage: 0,
+      chaosDamage: 0
+    };
+    let totalBaseDamage = 0;
+    {
+      config.flags |= StatModifierFlags.Physical;
+      const { min, max } = calcDamage("Physical", config, conversionTable);
+      output.minPhysicalDamage = min;
+      output.maxPhysicalDamage = max;
+      const baseDamage = config.calcMinMax(min, max);
+      output.physicalDamage = baseDamage;
+      totalBaseDamage += baseDamage;
+    }
+    output.totalBaseDamage = totalBaseDamage;
+    return output;
+  }
+  function calcDamage(damageType, config, conversionTable, damageFlag = 0) {
+    damageFlag |= DamageTypeFlags[damageType];
+    let addMin = 0;
+    let addMax = 0;
+    const damageTypes = ["Physical", "Elemental", "Chaos"];
+    for (const type of damageTypes) {
+      if (type === damageType) {
+        break;
+      }
+      const convMulti = conversionTable[type][damageType];
+      if (convMulti > 0) {
+        const { min: min2, max: max2 } = calcDamage(type, config, conversionTable, damageFlag);
+        addMin += Math.ceil(min2 * convMulti);
+        addMax += Math.ceil(max2 * convMulti);
+      }
+    }
+    const baseMin = calcModBase(`MinDamage`, config);
+    const baseMax = calcModBase(`MaxDamage`, config);
+    const modNames = damageNamesMetaTable[damageFlag];
+    const min = Math.round(calcModIncMore(modNames, baseMin, config) + addMin);
+    const max = Math.round(calcModIncMore(modNames, baseMax, config) + addMax);
+    return { min, max };
+  }
+  function generateConversionTable(config) {
+    const conversionTable = {};
+    const damageTypeFlagKeys = Object.keys(DamageTypeFlags);
+    for (let i = 0; i < damageTypeFlagKeys.length; i++) {
+      const damageType = damageTypeFlagKeys[i];
+      const globalConv = {};
+      const skillConv = {};
+      const add = {};
+      let globalTotal = 0;
+      let skillTotal = 0;
+      for (let j = i + 1; j < damageTypeFlagKeys.length; j++) {
+        const otherDamageType = damageTypeFlagKeys[i];
+        const convertedToName = `${damageType}ConvertedTo${otherDamageType}`;
+        globalConv[otherDamageType] = calcModBase(convertedToName, config);
+        globalTotal += globalConv[otherDamageType];
+        skillConv[otherDamageType] = calcModBase(convertedToName, config);
+        skillTotal += skillConv[otherDamageType];
+        add[otherDamageType] = calcModBase(`${damageType}GainAs${otherDamageType}`, config);
+      }
+      const fac = skillTotal > 100 ? 100 / skillTotal : (100 - skillTotal) / globalTotal;
+      for (const key of Object.keys(skillConv)) {
+        skillConv[key] *= fac;
+      }
+      const conversionValues = { multi: 1 };
+      for (const [key, value] of Object.entries(globalConv)) {
+        const skillConvValue = skillConv[key] || 0;
+        const addValue = add[key] || 0;
+        conversionValues[key] = (value + skillConvValue + addValue) / 100;
+      }
+      conversionValues.multi = 1 - Math.min((globalTotal + skillTotal) / 100, 1);
+      conversionTable[damageType] = conversionValues;
+    }
+    conversionTable["Chaos"] = { multi: 1 };
+    return conversionTable;
+  }
+
+  // src/game/calc/calcMod.ts
+  function calcPlayerStats(statModList) {
+    const config = {
+      statModList,
+      flags: StatModifierFlags.Attack,
+      calcMinMax: avg
+    };
+    const hitChance = calcModTotal("HitChance", config) / 100;
+    const clampedHitChance = clamp(hitChance, 0, 1);
+    const attackSpeed = calcModTotal("AttackSpeed", config);
+    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
+    const maxMana = calcModTotal("MaxMana", config);
+    const manaRegen = calcModTotal("ManaRegen", config);
+    const attackManaCost = calcModTotal("AttackManaCost", config);
+    const critChance = calcModTotal("CritChance", config) / 100;
+    const clampedCritChance = clamp(critChance, 0, 1);
+    const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
+    const critDamageMultiplier = 1 + clampedCritChance * critMulti;
+    const baseDamageResult = calcBaseDamage(config);
+    const multiplier = baseDamageMultiplier * critDamageMultiplier;
+    const dps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * multiplier;
+    return {
+      hitChance: hitChance * 100,
+      clampedHitChance: clampedHitChance * 100,
+      attackSpeed,
+      critChance: critChance * 100,
+      clampedCritChance: clampedCritChance * 100,
+      critMulti: critMulti * 100,
+      maxMana,
+      manaRegen,
+      attackManaCost,
+      dps,
+      minPhysicalDamage: baseDamageResult.minPhysicalDamage,
+      maxPhysicalDamage: baseDamageResult.maxPhysicalDamage,
+      goldPerSecond: calcModTotal("GoldPerSecond", config),
+      skillDurationMultiplier: calcModIncMore("Duration", 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }))
+    };
+  }
+  function calcModBase(modName, config) {
+    return calcModSum("Base", modName, config);
+  }
+  function calcModInc(modName, config) {
+    return Math.max(0, 1 + calcModSum("Inc", modName, config) / 100);
+  }
+  function calcModMore(modName, config) {
+    return Math.max(0, calcModSum("More", modName, config));
+  }
+  function calcModIncMore(modName, base, config) {
+    if (base <= 0)
+      return 0;
+    const inc = calcModInc(modName, config);
+    const more = calcModMore(modName, config);
+    return base * inc * more;
+  }
+  function calcModTotal(modName, config) {
+    const base = calcModBase(modName, config);
+    if (base === 0) {
+      return 0;
+    }
+    const inc = calcModInc(modName, config);
+    const more = calcModMore(modName, config);
+    return base * inc * more;
+  }
+  function calcModSum(valueType, name, config) {
+    name = Array.isArray(name) ? name : [name];
+    let result = valueType === "More" ? 1 : 0;
+    const hasFlag = (a, b) => {
+      return (a & b) === b;
+    };
+    const filteredModList = config.statModList.filter((x) => {
+      if (!name.includes(x.name)) {
+        return false;
+      }
+      if (x.valueType !== valueType)
+        return false;
+      if (!hasFlag(config.flags, x.flags || 0))
+        return false;
+      return true;
+    });
+    for (const mod of filteredModList) {
+      let value = mod.value;
+      if (valueType === "More") {
+        result *= 1 + value / 100;
+      } else {
+        result += value;
+      }
+    }
+    return Math.max(0, result);
+  }
+
+  // src/game/Player.ts
+  var Player = class {
+    constructor(game) {
+      this.game = game;
+      __publicField(this, "playerStatsContainer", queryHTML(".p-game > .s-stats"));
+      __publicField(this, "combatPage", queryHTML(".p-combat"));
+      __publicField(this, "manaBar", queryHTML("[data-mana-bar]", this.combatPage));
+      __publicField(this, "statsUpdateId", -1);
+      __publicField(this, "modDB", new ModDB());
+      __publicField(this, "stats", {
+        level: new Value(1),
+        gold: new Value(0),
+        goldPerSecond: new Value(0),
+        attackSpeed: new Value(Number.MAX_VALUE),
+        attackManaCost: new Value(0),
+        maxMana: new Value(0),
+        curMana: new Value(0),
+        manaRegen: new Value(0),
+        skillDurationMultiplier: new Value(1)
+      });
+      __publicField(this, "_attackProgressPct", 0);
+    }
+    get attackProgressPct() {
+      return this._attackProgressPct;
+    }
+    init() {
+      var _a, _b;
+      this.modDB.clear();
+      this.modDB.onChange.listen(() => this.updateStats());
+      Object.values(this.stats).forEach((x) => x.reset());
+      this.stats.level.addListener("change", (x) => queryHTML('[data-stat="level"]', this.playerStatsContainer).textContent = x.toFixed());
+      this.stats.gold.addListener("change", (x) => queryHTML('[data-stat="gold"]', this.playerStatsContainer).textContent = x.toFixed());
+      this.stats.level.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.level) || 1);
+      this.stats.gold.set(((_b = this.game.saveObj.player) == null ? void 0 : _b.gold) || 0);
+      if (this.game.config.player) {
+        this.game.config.player.modList.forEach((x) => {
+          this.modDB.add(new Modifier(x).stats, "Player");
+        });
+      }
+      this.game.enemy.onDeath.listen(() => {
+        if (this.stats.level.get() < this.game.enemy.maxIndex) {
+          this.stats.level.add(1);
+        }
+      });
+      this.stats.curMana.addListener("change", (curMana) => {
+        const maxMana = this.stats.maxMana.get();
+        if (curMana > maxMana) {
+          this.stats.curMana.set(maxMana);
+        }
+      });
+      this.game.gameLoop.subscribe(() => {
+        const amount = this.stats.goldPerSecond.get();
+        this.stats.gold.add(amount);
+        this.game.statistics.statistics["Gold Generated"].add(amount);
+      }, { intervalMilliseconds: 1e3 });
+      this.game.gameLoop.subscribe((dt) => {
+        const manaRegen = this.stats.manaRegen.get() * dt;
+        this.stats.curMana.add(manaRegen);
+        this.game.statistics.statistics["Mana Generated"].add(manaRegen);
+      });
+      this.game.gameLoop.subscribeAnim(() => {
+        if (this.combatPage.classList.contains("hidden")) {
+          return;
+        }
+        this.updateManaBar();
+      });
+      this.game.onSave.listen(this.save.bind(this));
+      this.startAutoAttack();
+    }
+    async setup() {
+      var _a;
+      await this.updateStats();
+      this.stats.curMana.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.curMana) || this.stats.maxMana.get());
+    }
+    updateStats() {
+      return new Promise((resolve) => {
+        clearTimeout(this.statsUpdateId);
+        this.statsUpdateId = window.setTimeout(async () => {
+          const statsResult = calcPlayerStats(this.modDB.modList);
+          this.stats.attackSpeed.set(statsResult.attackSpeed);
+          this.stats.goldPerSecond.set(statsResult.goldPerSecond);
+          this.stats.maxMana.set(statsResult.maxMana);
+          this.stats.manaRegen.set(statsResult.manaRegen);
+          this.stats.attackManaCost.set(statsResult.attackManaCost);
+          this.stats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
+          this.playerStatsContainer.querySelectorAll("[data-stat]").forEach((x) => {
+            const attr = x.getAttribute("data-stat");
+            const stat = statsResult[attr];
+            if (typeof stat === "number") {
+              const numDecimals = Number(x.getAttribute("data-digits") || 0);
+              x.textContent = stat.toFixed(numDecimals);
+            }
+          });
+          resolve(null);
+        }, 1);
+      });
+    }
+    updateManaBar() {
+      const pct = this.stats.curMana.get() / this.stats.maxMana.get() * 100;
+      this.manaBar.style.width = pct + "%";
+    }
+    startAutoAttack() {
+      const calcWaitTime = () => 1 / this.stats.attackSpeed.get();
+      this.stats.attackSpeed.addListener("change", () => {
+        waitTimeSeconds = calcWaitTime();
+        time = waitTimeSeconds * this._attackProgressPct;
+      });
+      let waitTimeSeconds = calcWaitTime();
+      let time = 0;
+      this.game.gameLoop.subscribe((dt) => {
+        this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
+        time += dt;
+        if (time > waitTimeSeconds) {
+          const curMana = this.stats.curMana.get();
+          const manaCost = this.stats.attackManaCost.get();
+          if (curMana > manaCost) {
+            this.stats.curMana.subtract(manaCost);
+            this.performAttack();
+            waitTimeSeconds = calcWaitTime();
+            time = 0;
+          }
+        }
+      });
+    }
+    performAttack() {
+      const result = calcAttack(this.modDB.modList);
+      if (!result) {
+        return;
+      }
+      this.game.statistics.statistics.Hits.add(1);
+      this.game.statistics.statistics["Total Damage"].add(result.totalDamage);
+      this.game.statistics.statistics["Total Physical Damage"].add(result.totalPhysicalDamage);
+      if (result.crit) {
+        this.game.statistics.statistics["Critical Hits"].add(1);
+      }
+      this.game.enemy.dealDamage(result.totalDamage);
+    }
+    save(saveObj) {
+      saveObj.player = {
+        level: this.stats.level.get(),
+        gold: this.stats.gold.get(),
+        curMana: this.stats.curMana.get()
+      };
+    }
+  };
+
+  // src/game/Enemy.ts
+  var Enemy = class {
+    constructor(game) {
+      this.game = game;
+      __publicField(this, "onDeath", new EventEmitter());
+      __publicField(this, "_index");
+      __publicField(this, "healthList", []);
+      __publicField(this, "_health", 0);
+      __publicField(this, "healthBar", queryHTML(".p-game .s-enemy [data-health-bar]"));
+      this._index = 0;
+    }
+    get index() {
+      return this._index;
+    }
+    get maxIndex() {
+      return this.healthList.length - 1;
+    }
+    get maxHealth() {
+      return this.healthList[this.index] || 1;
+    }
+    get health() {
+      return this._health;
+    }
+    set health(v) {
+      this._health = clamp(v, 0, this.maxHealth);
+    }
+    init() {
+      var _a, _b;
+      this.game.onSave.listen(this.save.bind(this));
+      this.onDeath.listen(() => {
+        this._index++;
+      });
+      this.healthList = this.game.config.enemies.enemyList;
+      this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
+      this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
+      this.spawn();
+    }
+    spawn() {
+      this.health = this.maxHealth;
+      if (this.index === this.maxIndex + 1) {
+        this.healthBar.textContent = "Dummy (Cannot die)";
+      }
+      this.updateHealthBar();
+    }
+    dealDamage(amount) {
+      if (this.index === this.maxIndex + 1) {
+        return;
+      }
+      this.health -= amount;
+      if (this.health === 0) {
+        this.onDeath.invoke(this);
+        this.spawn();
+      }
+      this.updateHealthBar();
+    }
+    save(saveObj) {
+      saveObj.enemy = {
+        index: this.index,
+        health: this.health,
+        dummyDamage: 0
+      };
+    }
+    updateHealthBar() {
+      const pct = this.health / this.maxHealth * 100;
+      this.healthBar.style.width = `${pct}%`;
+    }
+  };
+
+  // src/utils/Loop.ts
+  var TARGET_FRAME_TIME = 1e3 / 30;
+  var DELTA_TIME_SECONDS = TARGET_FRAME_TIME / 1e3;
+  var Loop = class {
+    constructor() {
+      __publicField(this, "running", false);
+      __publicField(this, "instances", /* @__PURE__ */ new Map());
+      __publicField(this, "animInstances", /* @__PURE__ */ new Map());
+      __publicField(this, "loopId", 0);
+      __publicField(this, "animLoopId", 0);
+    }
+    subscribe(callback, options) {
+      const id = crypto.randomUUID();
+      const instance = { callback, time: 0, id, options };
+      this.instances.set(id, instance);
+      return id;
+    }
+    subscribeAnim(callback, options) {
+      const id = crypto.randomUUID();
+      const instance = { callback, time: 0, id, options };
+      this.animInstances.set(id, instance);
+      return id;
+    }
+    unsubscribe(id) {
+      if (!id) {
+        return;
+      }
+      this.instances.delete(id);
+    }
+    unsubscribeAnim(id) {
+      this.animInstances.delete(id);
+    }
+    reset() {
+      this.instances.clear();
+      this.animInstances.clear();
+      this.running = false;
+    }
+    start() {
+      if (this.running) {
+        return;
+      }
+      this.running = true;
+      this.beginLoop();
+      this.beginLoopAnim();
+    }
+    stop() {
+      this.running = false;
+      clearTimeout(this.loopId);
+      cancelAnimationFrame(this.animLoopId || 0);
+    }
+    beginLoop() {
+      let remainder = 0;
+      let now = performance.now();
+      clearTimeout(this.loopId);
+      const loop = () => {
+        this.loopId = window.setTimeout(() => {
+          let diff = performance.now() - now + remainder;
+          now = performance.now();
+          while (diff >= TARGET_FRAME_TIME) {
+            diff -= TARGET_FRAME_TIME;
+            this.instances.forEach((instance) => {
+              var _a;
+              instance.time += TARGET_FRAME_TIME;
+              let ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
+              if (instance.time > ms) {
+                instance.callback(DELTA_TIME_SECONDS);
+                instance.time -= ms || instance.time;
+              }
+            });
+          }
+          remainder = diff;
+          loop();
+        }, TARGET_FRAME_TIME);
+      };
+      loop();
+    }
+    beginLoopAnim() {
+      cancelAnimationFrame(this.animLoopId);
+      const loop = () => {
+        this.animLoopId = requestAnimationFrame(() => {
+          this.animInstances.forEach((instance) => {
+            var _a;
+            instance.time += TARGET_FRAME_TIME;
+            let ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
+            if (instance.time > ms) {
+              instance.callback(DELTA_TIME_SECONDS);
+              instance.time -= ms || instance.time;
+            }
+          });
+          loop();
+        });
+      };
+      loop();
+    }
+  };
+
+  // src/utils/Observers.ts
+  var visibilityObserver = (element, callback) => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((x) => callback(x.isIntersecting, observer));
+    });
+    observer.observe(element);
+    return observer;
+  };
+
+  // src/game/Statistics.ts
+  var Statistic = class extends Value {
+    constructor(defaultValue, hidden) {
+      super(defaultValue);
+      __publicField(this, "hidden");
+      this.hidden = hidden || false;
+    }
+  };
+  var Statistics = class {
+    constructor(game) {
+      this.game = game;
+      __publicField(this, "statistics", {
+        "Time Played": new Statistic(0),
+        "Gold Generated": new Statistic(0),
+        "Mana Generated": new Statistic(0),
+        "Hits": new Statistic(0),
+        "Critical Hits": new Statistic(0),
+        "Total Damage": new Statistic(0),
+        "Total Physical Damage": new Statistic(0),
+        "Prestige Count": new Statistic(0)
+      });
+      __publicField(this, "page", queryHTML(".p-game .p-statistics"));
+      let loopId;
+      visibilityObserver(this.page, (visible) => {
+        if (visible) {
+          this.updateStatisticsUI();
+          loopId = this.game.gameLoop.subscribe(() => this.updateStatisticsUI(), { intervalMilliseconds: 1e3 });
+        } else {
+          this.game.gameLoop.unsubscribe(loopId);
+        }
+      });
+    }
+    init() {
+      this.game.onSave.listen(this.save.bind(this));
+      Object.values(this.statistics).forEach((x) => x.reset());
+      if (this.game.saveObj.statistics) {
+        this.game.saveObj.statistics.forEach(({ name, value }) => {
+          this.statistics[name].set(value);
+        });
+      }
+      this.createStatisticsElements();
+      this.updateStatisticsUI();
+    }
+    createStatisticsElements() {
+      const elements = [];
+      const createField = (key) => {
+        const element = document.createElement("li");
+        element.classList.add("g-field", "hidden");
+        const label = document.createElement("div");
+        element.appendChild(label);
+        const value = document.createElement("var");
+        element.appendChild(value);
+        label.textContent = key;
+        value.setAttribute("data-stat", key);
+        value.setAttribute("data-format-type", this.getFormatType(key));
+        return element;
+      };
+      for (const key of Object.keys(this.statistics)) {
+        const element = createField(key);
+        elements.push(element);
+      }
+      queryHTML(".p-statistics ul").replaceChildren(...elements);
+    }
+    getFormatType(key) {
+      switch (key) {
+        case "Time Played":
+          return "time";
+      }
+      return "";
+    }
+    updateStatisticsUI() {
+      var _a;
+      for (const [key, value] of Object.entries(this.statistics)) {
+        const element = queryHTML(`.p-statistics [data-stat="${key}"]`);
+        if (!element) {
+          continue;
+        }
+        const valueZero = value.get() === 0;
+        (_a = element.parentElement) == null ? void 0 : _a.classList.toggle("hidden", valueZero);
+        if (valueZero) {
+          continue;
+        }
+        const type = element.getAttribute("data-format-type");
+        switch (type) {
+          case "time":
+            const date = new Date(0);
+            date.setSeconds(value.get());
+            const str = date.toISOString().substring(11, 19);
+            element.textContent = str;
+            break;
+          default:
+            element.textContent = value.get().toFixed(0);
+        }
+      }
+    }
+    save(saveObj) {
+      saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
+        return {
+          name: key,
+          value: value.get()
+        };
+      });
+    }
+  };
+
+  // src/game/components/Component.ts
+  var Component = class {
+    constructor(game, name) {
+      this.game = game;
+      this.name = name;
+      __publicField(this, "_page");
+      __publicField(this, "_menuItem");
+      __publicField(this, "updateUITime", 0);
+      this._page = queryHTML(`.p-game .p-${name}`);
+      this._menuItem = queryHTML(`.p-game > menu [data-tab-target="${name}"]`);
+    }
+    get page() {
+      return this._page;
+    }
+    get menuItem() {
+      return this._menuItem;
+    }
+    dispose() {
+      this.page.remove();
+      this.page.replaceChildren();
+      this.menuItem.remove();
+    }
+    updateUI(time) {
+    }
+  };
+
+  // src/game/components/items/crafting.ts
+  var MAX_ITEM_MODS = 6;
+  var REFORGE_HIGHER_CHANCE_SAME_MODS = 20;
+  var REFORGE_LOWER_CHANCE_SAME_MODS = 0.02;
+  var craftTemplates = {
+    reforge: {
+      desc: "Reforge the item with new random modifiers",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList),
+      getItemMods: (data) => new Crafter().addMultiple(data.modList, generateReforgeModCount(0)).modList
+    },
+    reforgeIncludePhysical: {
+      desc: "Reforge the item with new random modifiers, including a [physical] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Physical"),
+      getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Physical").addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
+    reforgeIncludeMana: {
+      desc: "Reforge the item with new random modifiers, including a [mana] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Mana"),
+      getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Mana").addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
+    reforgeIncludeCritical: {
+      desc: "Reforge the item with new random modifiers, including a [critical] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Critical"),
+      getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Critical").addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
+    reforgeHigherChanceSameMods: {
+      desc: "Reforge the item with a higher chance of receiving the same modifiers",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modList),
+      getItemMods: (data) => {
+        const mods = [...data.modList].map((x) => x.copy()).reduce((a, c) => {
+          if (data.itemModList.some((x) => x === c)) {
+            c.weight *= REFORGE_HIGHER_CHANCE_SAME_MODS;
+          }
+          a.push(c);
+          return a;
+        }, []);
+        return new Crafter().addMultiple(mods, generateReforgeModCount(0)).modList;
+      }
+    },
+    reforgeLowerChanceSameMods: {
+      desc: "Reforge the item with a lower chance of receiving the same modifiers",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modList),
+      getItemMods: (data) => {
+        const mods = [...data.modList].map((x) => x.copy()).reduce((a, c) => {
+          if (data.itemModList.some((x) => x === c)) {
+            c.weight *= REFORGE_LOWER_CHANCE_SAME_MODS;
+          }
+          a.push(c);
+          return a;
+        }, []);
+        return new Crafter().addMultiple(mods, generateReforgeModCount(0)).modList;
+      }
+    },
+    addRandom: {
+      desc: "Add a random modifier",
+      validate: (data) => new CraftValidator().itemHasSpaceForMods(data.itemModList).modsIsNotEmpty(data.modList),
+      getItemMods: (data) => new Crafter(data.itemModList).addOne(data.modList).modList
+    },
+    addPhysical: {
+      desc: "Add a [physical] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Physical"),
+      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Physical").modList
+    },
+    addMana: {
+      desc: "Add a [mana] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Mana"),
+      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Mana").modList
+    },
+    addCritical: {
+      desc: "Add a [critical] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Critical"),
+      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Critical").modList
+    },
+    removeRandom: {
+      desc: "Remove a random modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().modList
+    },
+    removeRandomAddRandom: {
+      desc: "Remove a random modifier and add a new random modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modList),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOne(data.modList).modList
+    },
+    removeRandomAddPhysical: {
+      desc: "Remove a random modifier and add a new [physical] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Physical").itemCanCraftModWithTag(data.itemModList, data.modList, "Physical"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Physical").modList
+    },
+    removeRandomAddMana: {
+      desc: "Remove a random modifier and add a new [mana] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Mana").itemCanCraftModWithTag(data.itemModList, data.modList, "Mana"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Mana").modList
+    },
+    removeRandomAddCritical: {
+      desc: "Remove a random modifier and add a new [critical] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Critical").itemCanCraftModWithTag(data.itemModList, data.modList, "Critical"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Critical").modList
+    }
+  };
+  var CraftValidator = class {
+    constructor() {
+      __publicField(this, "errors", []);
+      this.errors = [];
+    }
+    itemHasSpaceForMods(itemModList) {
+      if (itemModList.length >= MAX_ITEM_MODS) {
+        this.errors.push("Item cannot have any more modifiers");
+      }
+      return this;
+    }
+    itemHasModifiers(itemModList) {
+      if (itemModList.length === 0) {
+        this.errors.push("Item has no modifiers");
+      }
+      return this;
+    }
+    itemCanCraftModWithTag(itemModList, itemMods, tag) {
+      const filteredMods = itemMods.filter((x) => x.template.tags.includes(tag) && !itemModList.some((y) => y.compare(x)));
+      if (filteredMods.length === 0) {
+        this.errors.push(`There are no ${tag} modifiers available`);
+      }
+      return this;
+    }
+    modsIsNotEmpty(itemModList) {
+      if (itemModList.length === 0) {
+        this.errors.push("No modifiers available");
+      }
+      return this;
+    }
+    modsContainsTag(itemModList, tag) {
+      if (!itemModList.some((x) => x.tags.includes(tag))) {
+        this.errors.push(`No modifier was available with the tag: ${tag}`);
+      }
+      return this;
+    }
+  };
+  var Crafter = class {
+    constructor(itemMods = []) {
+      __publicField(this, "modList");
+      this.modList = [...itemMods];
+    }
+    addOne(itemModList) {
+      this.modList.push(...this.generateMods(itemModList, this.modList, 1));
+      return this;
+    }
+    addOneByTag(itemModList, tag) {
+      itemModList = itemModList.filter((x) => x.tags.includes(tag));
+      this.modList.push(...this.generateMods(itemModList, this.modList, 1));
+      return this;
+    }
+    addMultiple(itemModList, count) {
+      this.modList.push(...this.generateMods(itemModList, this.modList, count));
+      return this;
+    }
+    removeRandom() {
+      const randomIndex = this.randomRangeInt(0, this.modList.length);
+      this.modList.splice(randomIndex, 1);
+      return this;
+    }
+    generateMods(itemModList, filterMods = [], count) {
+      const newItemMods = [];
+      for (let i = 0; i < count; i++) {
+        const tempArr = [...newItemMods, ...filterMods];
+        itemModList = itemModList.filter((x) => !tempArr.some((y) => x.templateDesc === y.templateDesc));
+        let weightSum = itemModList.reduce((a, c) => a += c.weight, 0);
+        const random = Math.random() * weightSum;
+        for (const mod of itemModList) {
+          weightSum -= mod.weight;
+          if (weightSum <= random) {
+            const copy = mod.copy();
+            copy.stats.forEach((x) => x.randomizeValue());
+            newItemMods.push(copy);
+            break;
+          }
+        }
+      }
+      return newItemMods;
+    }
+    randomRangeInt(min, max) {
+      return Math.floor(Math.random() * (max - min) + min);
+    }
+  };
+  var generateReforgeModCount = (offset = 0) => {
+    const REFORGE_WEIGHTS = [0, 0, 40, 50, 30, 20].slice(offset, 6);
+    let sum = REFORGE_WEIGHTS.reduce((a, c) => a + c);
+    const random = Math.random() * sum;
+    for (let i = 0; i < REFORGE_WEIGHTS.length; i++) {
+      sum -= REFORGE_WEIGHTS[i];
+      if (sum <= random) {
+        return i + 1;
+      }
+    }
+    throw Error();
+  };
+
+  // src/game/components/items/CraftPresets.ts
+  var CraftPresets = class {
+    constructor(items) {
+      this.items = items;
+      __publicField(this, "presets");
+      __publicField(this, "activePreset");
+      __publicField(this, "modal");
+      __publicField(this, "newPresetButton");
+      __publicField(this, "editPresetButton");
+      __publicField(this, "applyPresetButton");
+      __publicField(this, "deletePresetButton");
+      __publicField(this, "newPresetCallback");
+      __publicField(this, "editPresetCallback");
+      __publicField(this, "applyPresetCallback");
+      __publicField(this, "deletePresetCallback");
+      var _a, _b;
+      this.presets = [];
+      this.newPresetCallback = () => {
+        const preset = this.newPreset();
+        this.editActivePreset();
+        preset.element.click();
+      };
+      this.editPresetCallback = () => {
+        this.editActivePreset();
+      };
+      this.applyPresetCallback = () => {
+        if (!this.activePreset) {
+          return;
+        }
+        const newIds = [...this.modal.querySelectorAll("[data-craft-list] table [data-id]")].filter((x) => x.classList.contains("selected")).map((x) => x.getAttribute("data-id"));
+        this.activePreset.ids = newIds;
+        const name = queryHTML("input[data-name]", this.modal).value;
+        if (name !== this.activePreset.name) {
+          this.activePreset.name = name;
+        }
+        this.selectPreset(this.activePreset);
+      };
+      this.deletePresetCallback = () => {
+        this.deleteActivePreset();
+      };
+      this.modal = queryHTML(".p-game .p-items [data-preset-modal]");
+      this.newPresetButton = queryHTML(".s-preset-container [data-new]");
+      this.editPresetButton = queryHTML(".s-preset-container [data-edit]");
+      this.applyPresetButton = queryHTML("[data-apply]", this.modal);
+      this.deletePresetButton = queryHTML("[data-delete]", this.modal);
+      this.newPresetButton.addEventListener("click", this.newPresetCallback);
+      this.editPresetButton.addEventListener("click", this.editPresetCallback);
+      this.applyPresetButton.addEventListener("click", this.applyPresetCallback);
+      this.deletePresetButton.addEventListener("click", this.deletePresetCallback);
+      if ((_a = items.game.saveObj.items) == null ? void 0 : _a.craftPresets) {
+        for (const savedPreset of (_b = items.game.saveObj.items) == null ? void 0 : _b.craftPresets) {
+          this.newPreset(savedPreset.name, savedPreset.ids);
+        }
+      } else {
+        this.newPreset("Default", items.data.craftList.map((x) => x.id));
+      }
+    }
+    dispose() {
+      this.newPresetButton.removeEventListener("click", this.newPresetCallback);
+      this.editPresetButton.removeEventListener("click", this.editPresetCallback);
+      this.deletePresetButton.removeEventListener("click", this.deletePresetCallback);
+      this.applyPresetButton.removeEventListener("click", this.applyPresetCallback);
+      queryHTML(".s-preset-container [data-preset-list]").replaceChildren();
+      queryHTML("[data-craft-list] table tbody", this.modal).replaceChildren();
+    }
+    newPreset(name = "New", ids = this.items.data.craftList.map((x) => x.id)) {
+      const preset = new CraftPreset(name, ids);
+      preset.element.addEventListener("click", () => {
+        this.presets.forEach((x) => x.element.classList.toggle("selected", x === preset));
+        this.selectPreset(preset);
+      });
+      queryHTML(".s-preset-container [data-preset-list]").appendChild(preset.element);
+      this.presets.push(preset);
+      preset.element.click();
+      return preset;
+    }
+    selectPreset(preset) {
+      var _a;
+      this.activePreset = preset;
+      this.items.populateCraftList((_a = this.activePreset) == null ? void 0 : _a.ids);
+      this.editPresetButton.disabled = typeof this.activePreset === "undefined";
+    }
+    editActivePreset() {
+      var _a;
+      if (!this.activePreset) {
+        return;
+      }
+      const modal = queryHTML(".p-game .p-items [data-preset-modal]");
+      queryHTML("input[data-name]", modal).value = (_a = this.activePreset) == null ? void 0 : _a.name;
+      const filteredCraftList = this.items.data.craftList.filter((x) => x.levelReq <= this.items.game.player.stats.level.get());
+      const rows = [];
+      for (const craftData of filteredCraftList) {
+        const label = craftTemplates[craftData.id].desc;
+        const row = document.createElement("tr");
+        row.classList.add("g-list-item");
+        row.classList.toggle("selected", this.activePreset.ids.includes(craftData.id));
+        row.setAttribute("data-id", craftData.id);
+        row.insertAdjacentHTML("beforeend", `
+                <td>${label}</td>
+                <td>${craftData.levelReq}</td>
+                <td class="g-gold">${craftData.cost}</td>`);
+        row.addEventListener("click", () => {
+          row.classList.toggle("selected", !row.classList.contains("selected"));
+        });
+        rows.push(row);
+      }
+      queryHTML("[data-craft-list] table tbody", modal).replaceChildren(...rows);
+      modal.showModal();
+    }
+    deleteActivePreset() {
+      var _a;
+      if (!this.activePreset) {
+        return;
+      }
+      this.activePreset.element.remove();
+      this.presets.splice(this.presets.indexOf(this.activePreset), 1);
+      (_a = this.presets[0]) == null ? void 0 : _a.element.click();
+    }
+  };
+  var CraftPreset = class {
+    constructor(_name, ids) {
+      this._name = _name;
+      this.ids = ids;
+      __publicField(this, "element");
+      this.element = this.createElement();
+    }
+    get name() {
+      return this._name;
+    }
+    set name(v) {
+      this.element.textContent = v;
+    }
+    createElement() {
+      const li = document.createElement("li");
+      li.classList.add("g-list-item");
+      li.setAttribute("data-name", this.name);
+      li.textContent = this.name;
+      return li;
+    }
+  };
+
+  // src/game/components/items/Items.ts
+  var mainMenuContainer = queryHTML(".p-game > menu");
+  var Items = class extends Component {
+    constructor(game, data) {
+      super(game, "items");
+      this.game = game;
+      this.data = data;
+      __publicField(this, "itemsPage", queryHTML(".p-game .p-items"));
+      __publicField(this, "itemListContainer", queryHTML("[data-item-list]", this.itemsPage));
+      __publicField(this, "itemModListContainer", queryHTML("[data-mod-list]", this.itemsPage));
+      __publicField(this, "itemCraftTableContainer", queryHTML(".s-craft-container [data-craft-list] table", this.itemsPage));
+      __publicField(this, "craftButton", queryHTML(".s-craft-container [data-craft-button]", this.itemsPage));
+      __publicField(this, "craftMessageElement", queryHTML("[data-craft-message]", this.itemsPage));
+      __publicField(this, "items", []);
+      __publicField(this, "activeItem");
+      __publicField(this, "activeCraftId");
+      __publicField(this, "modLists");
+      __publicField(this, "presets");
+      this.modLists = data.modLists.flatMap((group) => group.map((mod) => new ItemModifier(mod, group)));
+      if (data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
+        throw Error("No items available! There must be at least 1 item available");
+      }
+      this.createItems();
+      this.activeItem = this.items[0];
+      this.activeItem.element.click();
+      if ([...data.craftList].sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
+        throw Error("No crafts available! There must be at least 1 craft available");
+      }
+      queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove("hidden");
+      game.player.stats.level.addListener("change", () => {
+        this.updateCraftList();
+      });
+      this.craftButton.addEventListener("click", () => this.performCraft());
+      this.presets = new CraftPresets(this);
+      this.game.player.stats.gold.addListener("change", () => {
+        if (this.page.classList.contains("hidden")) {
+          return;
+        }
+        if (this.activeCraftId) {
+          this.updateCraftButton();
+        }
+      });
+    }
+    dispose() {
+      queryHTML('.p-game > menu [data-tab-target="items"]').classList.add("hidden");
+      this.presets.dispose();
+      this.itemListContainer.replaceChildren();
+      this.itemModListContainer.replaceChildren();
+      this.itemCraftTableContainer.replaceChildren();
+    }
+    save(saveObj) {
+      saveObj.items = {
+        items: this.items.map((item) => ({
+          name: item.name,
+          modList: item.mods.map((mod) => ({
+            desc: mod.template.desc,
+            values: mod.stats.map((x) => x.value)
+          }))
+        })),
+        craftPresets: this.presets.presets.map((preset) => ({
+          name: preset.name,
+          ids: preset.ids
+        }))
+      };
+    }
+    selectItem(item) {
+      this.activeItem = item;
+      this.updateItemModList();
+      this.updateCraftButton();
+    }
+    updateItemModList() {
+      const elements = [];
+      for (const itemMod of this.activeItem.mods.sort(Modifier.sort)) {
+        const desc = itemMod.desc;
+        const element = document.createElement("li");
+        element.classList.add("g-mod-desc");
+        element.textContent = desc;
+        elements.push(element);
+      }
+      this.itemModListContainer.replaceChildren(...elements);
+    }
+    createItems() {
+      for (const itemData of this.data.itemList) {
+        this.game.player.stats.level.registerCallback(itemData.levelReq, () => {
+          const item = new Item(this, itemData.name);
+          this.items.push(item);
+          this.itemListContainer.appendChild(item.element);
+        });
+      }
+    }
+    populateCraftList(ids = []) {
+      var _a;
+      const rows = [];
+      for (const craftData of this.data.craftList.filter((x) => ids.includes(x.id))) {
+        const tr = document.createElement("tr");
+        tr.classList.add("g-list-item");
+        tr.setAttribute("data-id", craftData.id);
+        tr.setAttribute("data-cost", craftData.cost.toFixed());
+        const label = craftTemplates[craftData.id].desc;
+        tr.insertAdjacentHTML("beforeend", `<tr><td>${label}</td><td class="g-gold" data-cost>${craftData.cost}</td></tr>`);
+        tr.addEventListener("click", () => {
+          rows.forEach((x) => x.classList.toggle("selected", x === tr));
+          this.activeCraftId = craftData.id;
+          this.updateCraftButton();
+        });
+        rows.push(tr);
+      }
+      this.itemCraftTableContainer.replaceChildren(...rows);
+      this.updateCraftList();
+      (_a = rows.filter((x) => !x.classList.contains("hidden"))[0]) == null ? void 0 : _a.click();
+    }
+    updateCraftList() {
+      this.itemCraftTableContainer.querySelectorAll("[data-id]").forEach((x) => {
+        const id = x.getAttribute("data-id");
+        const craftData = this.data.craftList.find((x2) => x2.id === id);
+        if (!craftData) {
+          return;
+        }
+        x.classList.toggle("hidden", (craftData == null ? void 0 : craftData.levelReq) > this.game.player.stats.level.get());
+      });
+    }
+    generateCraftData() {
+      return {
+        itemModList: this.activeItem.mods,
+        modList: this.modLists.filter((x) => x.levelReq <= this.game.player.stats.level.get())
+      };
+    }
+    updateCraftButton() {
+      const validate = () => {
+        if (!this.activeCraftId) {
+          return "No Craft Selected";
+        }
+        const costAttr = queryHTML(`[data-id="${this.activeCraftId}"]`).getAttribute("data-cost");
+        const cost = Number(costAttr);
+        if (cost > this.game.player.stats.gold.get()) {
+          return "Not Enough Gold";
+        }
+        const template = craftTemplates[this.activeCraftId];
+        const craftData = this.generateCraftData();
+        const validator = template.validate(craftData);
+        if (validator.errors.length > 0) {
+          return validator.errors[0];
+        }
+        return true;
+      };
+      const msg = validate();
+      this.craftMessageElement.textContent = typeof msg === "string" ? msg : "";
+      this.craftButton.disabled = typeof msg !== "boolean";
+    }
+    performCraft() {
+      var _a;
+      if (!this.activeCraftId) {
+        return;
+      }
+      const cost = (_a = this.data.craftList.find((x) => x.id === this.activeCraftId)) == null ? void 0 : _a.cost;
+      if (!cost) {
+        console.error("something went wrong");
+        return;
+      }
+      const template = craftTemplates[this.activeCraftId];
+      const craftData = this.generateCraftData();
+      const validator = template.validate(craftData);
+      if (validator.errors.length > 0) {
+        console.error("something went wrong");
+        return;
+      }
+      this.activeItem.mods = template.getItemMods(craftData);
+      this.game.player.stats.gold.subtract(cost);
+      this.updateItemModList();
+    }
+  };
+  var Item = class {
+    constructor(items, name) {
+      this.items = items;
+      this.name = name;
+      __publicField(this, "element");
+      __publicField(this, "_mods", []);
+      var _a, _b;
+      this.element = this.createElement();
+      const savedItem = (_b = (_a = items.game.saveObj.items) == null ? void 0 : _a.items) == null ? void 0 : _b.find((x) => x.name === name);
+      if (savedItem) {
+        const mods = savedItem.modList.map((savedMod) => {
+          var _a2;
+          const mod = (_a2 = items.modLists.find((x) => x.template.desc === savedMod.desc)) == null ? void 0 : _a2.copy();
+          if (!mod) {
+            return;
+          }
+          savedMod.values.forEach((v, i) => {
+            mod.stats[i].value = v;
+          });
+          return mod;
+        }).filter((x) => !!x);
+        this.mods = mods;
+      }
+    }
+    get mods() {
+      return this._mods;
+    }
+    set mods(v) {
+      this.items.game.player.modDB.removeBySource(this.name);
+      this._mods = v;
+      this.items.game.player.modDB.add(this._mods.flatMap((x) => x.copy().stats), this.name);
+    }
+    createElement() {
+      const li = document.createElement("li");
+      li.textContent = this.name;
+      li.classList.add("g-list-item");
+      li.setAttribute("data-name", this.name);
+      li.addEventListener("click", () => {
+        this.items.selectItem(this);
+        this.items.items.forEach((x) => x.element.classList.toggle("selected", x === this));
+      });
+      return li;
+    }
+  };
+  var ItemModifier = class extends Modifier {
+    constructor(itemModData, modGroup) {
+      super(itemModData.mod);
+      __publicField(this, "itemModData");
+      __publicField(this, "levelReq");
+      __publicField(this, "weight");
+      __publicField(this, "groupIndex");
+      __publicField(this, "modGroup");
+      this.itemModData = itemModData;
+      this.levelReq = itemModData.levelReq;
+      this.weight = itemModData.weight;
+      this.groupIndex = modGroup.findIndex((x) => x === itemModData);
+      this.modGroup = modGroup;
+    }
+    copy() {
+      return new ItemModifier(this.itemModData, this.modGroup);
+    }
+  };
+
+  // src/game/components/Passives.ts
+  var Passives = class extends Component {
+    constructor(game, data) {
+      super(game, "passives");
+      this.game = game;
+      this.data = data;
+      __publicField(this, "passives", []);
+      {
+        for (const passiveListData of data.passiveLists) {
+          passiveListData.sort((a, b) => a.levelReq - b.levelReq);
+          for (const passiveData of passiveListData) {
+            const passive = new Passive(this, passiveData, this.passives.length);
+            passive.element.addEventListener("click", () => {
+              passive.assigned = !passive.assigned;
+              this.updatePoints();
+              this.updatePassiveList();
+            });
+            this.passives.push(passive);
+          }
+          queryHTML(".s-passive-list table", this.page).append(...this.passives.map((x) => x.element));
+        }
+      }
+      this.game.player.stats.level.addListener("change", () => {
+        this.updatePoints();
+        this.updatePassiveList();
+      });
+      this.updatePoints();
+      this.updatePassiveList();
+    }
+    get maxPoints() {
+      return this.data.pointsPerLevel * this.game.player.stats.level.get() - 1;
+    }
+    get curPoints() {
+      return this.maxPoints - this.passives.filter((x) => x.assigned).reduce((a, c) => a += c.data.points, 0);
+    }
+    dispose() {
+    }
+    save(saveObj) {
+      saveObj.passives = {
+        list: this.passives.filter((x) => x.assigned).map((x) => ({
+          index: this.passives.indexOf(x),
+          desc: x.data.mod
+        }))
+      };
+    }
+    updatePoints() {
+      queryHTML(".p-game .p-passives [data-cur-points]").textContent = this.curPoints.toFixed();
+      queryHTML(".p-game .p-passives [data-max-points]").textContent = this.maxPoints.toFixed();
+    }
+    updatePassiveList() {
+      for (const passive of this.passives) {
+        const { element, assigned } = passive;
+        element.classList.toggle("hidden", passive.data.levelReq > this.game.player.stats.level.get());
+        element.toggleAttribute("disabled", !passive.assigned && this.curPoints < passive.data.points);
+        element.classList.toggle("selected", assigned);
+      }
+    }
+  };
+  var Passive = class {
+    constructor(passives, data, index) {
+      this.passives = passives;
+      this.data = data;
+      this.index = index;
+      __publicField(this, "_assigned", false);
+      __publicField(this, "element");
+      __publicField(this, "mod");
+      var _a, _b;
+      this.mod = new Modifier(data.mod);
+      this.element = this.createElement();
+      passives.game.player.stats.level.registerCallback(data.levelReq, () => {
+        this.element.classList.remove("hidden");
+      });
+      const savedList = (_a = passives.game.saveObj.passives) == null ? void 0 : _a.list;
+      if (savedList) {
+        const desc = (_b = savedList.find((x) => x.index === index)) == null ? void 0 : _b.desc;
+        if (desc === data.mod && passives.curPoints >= data.points) {
+          this.assigned = true;
+        }
+      }
+    }
+    get assigned() {
+      return this._assigned;
+    }
+    set assigned(v) {
+      const modDB = this.passives.game.player.modDB;
+      const source = "Passives".concat("/", this.index.toFixed());
+      if (v) {
+        this._assigned = true;
+        const mods = this.mod.copy().stats;
+        modDB.add(mods, source);
+      } else {
+        this._assigned = false;
+        modDB.removeBySource(source);
+      }
+    }
+    createElement() {
+      const row = document.createElement("tr");
+      row.classList.add("g-list-item");
+      row.insertAdjacentHTML("beforeend", `<td>${this.mod.desc}</td>`);
+      row.insertAdjacentHTML("beforeend", `<td>${this.data.points}</td>`);
+      return row;
+    }
+  };
+
+  // src/game/Task.ts
+  var Task = class {
+    constructor(game, text) {
+      this.game = game;
+      __publicField(this, "text");
+      __publicField(this, "description");
+      __publicField(this, "textData");
+      __publicField(this, "startValue");
+      __publicField(this, "_targetValue");
+      __publicField(this, "validator");
+      __publicField(this, "taskValidators", []);
+      this.taskValidators = [
+        [/^Reach Level {(\d+)}$/, this.game.player.stats.level],
+        [/^Prestige {\d+}?$/, this.game.statistics.statistics["Prestige Count"]],
+        [/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]],
+        [/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]],
+        [/^Perform Hits {(\d+)}$/, this.game.statistics.statistics.Hits],
+        [/^Perform Critical Hits {(\d+)}$/, this.game.statistics.statistics["Critical Hits"]],
+        [/^Generate Gold {(\d+)}$/, this.game.statistics.statistics["Gold Generated"]],
+        [/^Regenerate Mana {(\d+)}$/, this.game.statistics.statistics["Mana Generated"]]
+      ];
+      this.text = text;
+      this.description = text.replace(/[{}]*/g, "");
+      this.validator = this.taskValidators.find((x) => x[0].exec(text));
+      if (!this.validator) {
+        throw Error(`Task.ts: ${text} is an invalid task string`);
+      }
+      const match = this.validator[0].exec(text);
+      this.startValue = parseFloat(this.validator[1].get().toFixed());
+      this._targetValue = parseFloat(match[1]);
+      const valueIndex = text.indexOf(`{${match[1]}}`);
+      this.textData = {
+        labelText: this.description.substring(0, valueIndex - 1),
+        valueText: match[1]
+      };
+    }
+    get targetValue() {
+      return this._targetValue;
+    }
+    get value() {
+      const endValue = this.startValue + this._targetValue;
+      const value = parseFloat(this.validator[1].get().toFixed());
+      return remap(this.startValue, endValue, 0, this._targetValue, value);
+    }
+    get completed() {
+      return this.value >= this._targetValue;
+    }
+  };
+
+  // src/game/components/Achievements.ts
+  var Achievements = class extends Component {
+    constructor(game, data) {
+      super(game, "achievements");
+      this.game = game;
+      this.data = data;
+      __publicField(this, "achievements", []);
+      __publicField(this, "observers", []);
+      for (const achievementData of data.list) {
+        const achievement = new Achievement(this, achievementData);
+        this.achievements.push(achievement);
+        achievement.updateLabel();
+      }
+      this.game.gameLoop.subscribe(() => {
+        this.achievements.forEach((x) => {
+          x.tryCompletion();
+        });
+      });
+      queryHTML(".p-game .p-achievements ul").append(...this.achievements.map((x) => x.element));
+      queryHTML('.p-game > menu [data-tab-target="achievements"]').classList.remove("hidden");
+    }
+    dispose() {
+      this.observers.forEach((x) => x.disconnect());
+      queryHTML(".p-game .p-achievements ul").replaceChildren();
+    }
+    updateUI(time) {
+      if (time - this.updateUITime > 1) {
+        this.achievements.forEach((x) => x.updateLabel());
+        this.updateUITime = 0;
+      }
+    }
+    save(saveObj) {
+    }
+  };
+  var Achievement = class {
+    constructor(achievements, data) {
+      this.achievements = achievements;
+      this.data = data;
+      __publicField(this, "task");
+      __publicField(this, "element");
+      __publicField(this, "completed", false);
+      this.element = this.createElement();
+      this.task = new Task(achievements.game, data.description);
+      this.task.startValue = this.task.validator[1].defaultValue;
+    }
+    get taskCompleted() {
+      return this.task.completed;
+    }
+    tryCompletion() {
+      if (!this.taskCompleted || this.completed || !this.data.modList) {
+        return;
+      }
+      this.completed = true;
+      const modifiers = this.data.modList.flatMap((x) => new Modifier(x).stats);
+      const source = `Achievement/${this.data.description}`;
+      this.achievements.game.player.modDB.add(modifiers, source);
+    }
+    updateLabel() {
+      const label = queryHTML("[data-label]", this.element);
+      const descElement = document.createElement("span");
+      descElement.textContent = this.task.textData.labelText + " ";
+      descElement.setAttribute("data-desc", "");
+      const varElement = document.createElement("var");
+      if (!this.task.completed) {
+        varElement.insertAdjacentHTML("beforeend", `<span data-cur-value>${this.task.value.toFixed()}</span>`);
+        varElement.insertAdjacentHTML("beforeend", `<span>/</span>`);
+      } else {
+        varElement.setAttribute("data-valid", "");
+      }
+      varElement.insertAdjacentHTML("beforeend", `<span data-target-value>${this.task.textData.valueText}</span></var>`);
+      label.replaceChildren(descElement, varElement);
+    }
+    createElement() {
+      const accordion = document.createElement("li");
+      accordion.classList.add("g-accordion");
+      const header = document.createElement("div");
+      accordion.appendChild(header);
+      header.classList.add("header");
+      header.insertAdjacentHTML("beforeend", `<div data-label></div>`);
+      if (this.data.modList) {
+        const content = document.createElement("div");
+        accordion.appendChild(content);
+        content.classList.add("content");
+        for (const mod of this.data.modList) {
+          content.insertAdjacentHTML("beforeend", `<div class="g-mod-desc">${mod.replace(/[{}]/g, "")}</div>`);
+        }
+        header.insertAdjacentHTML("beforeend", `<i></i>`);
+        header.addEventListener("click", () => {
+          header.toggleAttribute("data-open");
+        });
+      }
+      return accordion;
+    }
+  };
+
+  // src/game/components/Missions.ts
+  var Missions = class extends Component {
+    constructor(game, data) {
+      super(game, "missions");
+      this.game = game;
+      this.data = data;
+      __publicField(this, "slots", []);
+      __publicField(this, "missionsListContainer", queryHTML("ul[data-mission-list]", this.page));
+      for (const slotData of data.slots) {
+        game.player.stats.level.registerCallback(slotData.levelReq, () => {
+          const slot = new MissionSlot(this, slotData.cost);
+          this.slots.push(slot);
+          this.missionsListContainer.appendChild(slot.element);
+        });
+      }
+      game.gameLoop.subscribe(() => {
+        this.slots.forEach((x) => x.tryCompletion());
+      }, { intervalMilliseconds: 1e3 });
+      queryHTML('.p-game > menu [data-tab-target="missions"]').classList.remove("hidden");
+    }
+    dispose() {
+      this.missionsListContainer.replaceChildren();
+      queryHTML('.p-game > menu [data-tab-target="missions"]').classList.add("hidden");
+    }
+    updateUI(time) {
+      if (time - this.updateUITime > 1) {
+        this.slots.forEach((x) => x.updateLabel());
+        this.updateUITime = time;
+      }
+    }
+    save(saveObj) {
+      saveObj.missions = (() => {
+        const list = [];
+        this.slots.forEach((slot, i) => {
+          if (!slot.task) {
+            return;
+          }
+          list.push({
+            desc: slot.task.text,
+            index: i,
+            startValue: slot.task.startValue
+          });
+        });
+        return { missions: list };
+      })();
+    }
+  };
+  var MissionSlot = class {
+    constructor(missions, unlockCost) {
+      this.missions = missions;
+      this.unlockCost = unlockCost;
+      __publicField(this, "_task");
+      __publicField(this, "_missionData");
+      __publicField(this, "_element");
+      __publicField(this, "completed", false);
+      var _a;
+      this._element = this.createElement();
+      missions.game.player.stats.gold.addListener("change", () => {
+        this.setNewButton();
+      });
+      const savedSlot = (_a = missions.game.saveObj.missions) == null ? void 0 : _a.missions.find((x) => x.index === missions.slots.length);
+      if (savedSlot) {
+        this.unlock();
+        this._task = new Task(missions.game, savedSlot.desc);
+        this._task.startValue = savedSlot.startValue;
+      }
+    }
+    get element() {
+      return this._element;
+    }
+    get missionData() {
+      return this._missionData;
+    }
+    get newMissionCost() {
+      var _a;
+      return Math.ceil((((_a = this._missionData) == null ? void 0 : _a.goldAmount) || 0) * 0.1);
+    }
+    get task() {
+      return this._task;
+    }
+    get taskCompleted() {
+      var _a;
+      return (_a = this._task) == null ? void 0 : _a.completed;
+    }
+    tryCompletion() {
+      if (!this.taskCompleted || this.completed) {
+        return;
+      }
+      this.completed = true;
+      this.setNewButton();
+      this.setClaimButton(true);
+    }
+    unlock() {
+      if (this._task) {
+        return;
+      }
+      queryHTML('[data-trigger="buy"]', this._element).remove();
+      const buttonClaim = document.createElement("button");
+      buttonClaim.classList.add("g-button");
+      buttonClaim.setAttribute("data-trigger", "claim");
+      buttonClaim.insertAdjacentHTML("beforeend", "<span>Claim</span>");
+      buttonClaim.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost></span>`);
+      buttonClaim.addEventListener("click", () => this.claim());
+      const buttonNew = document.createElement("button");
+      buttonNew.classList.add("g-button");
+      buttonNew.setAttribute("data-trigger", "new");
+      buttonNew.insertAdjacentHTML("beforeend", "<span>New</span>");
+      buttonNew.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost></span>`);
+      buttonNew.addEventListener("click", () => {
+        this.missions.game.player.stats.gold.subtract(this.newMissionCost);
+        this.generateRandomMission();
+      });
+      this._element.appendChild(buttonClaim);
+      this._element.appendChild(buttonNew);
+      this.generateRandomMission();
+    }
+    load({ task, missionData }) {
+      this._task = task;
+      this._missionData = missionData;
+      this.tryCompletion();
+    }
+    claim() {
+      if (!this._missionData) {
+        return;
+      }
+      this.missions.game.player.stats.gold.add(this._missionData.goldAmount);
+      this.generateRandomMission();
+      this.setClaimButton(false);
+      this.completed = false;
+    }
+    generateRandomMission() {
+      const missionDataArr = this.missions.data.missionLists.reduce((a, c) => {
+        const missionData = c.filter((x) => x.levelReq <= this.missions.game.player.stats.level.get()).sort((a2, b) => b.levelReq - a2.levelReq)[0];
+        if (missionData) {
+          a.push(missionData);
+        }
+        return a;
+      }, []);
+      if (missionDataArr.length === 0) {
+        throw Error("No missions available");
+      }
+      const index = Math.floor(Math.random() * missionDataArr.length);
+      this._missionData = missionDataArr[index];
+      const description = this._missionData.description;
+      this._task = new Task(this.missions.game, description);
+      const id = this.missions.game.gameLoop.subscribe(() => {
+        var _a;
+        if ((_a = this._task) == null ? void 0 : _a.completed) {
+          this.missions.game.gameLoop.unsubscribe(id);
+          this.setClaimButton(true);
+        }
+      }, { intervalMilliseconds: 1e3 });
+      this.updateLabel();
+      this.setClaimButton(false);
+      this.setNewButton();
+    }
+    updateLabel() {
+      if (!this._task) {
+        return;
+      }
+      const label = queryHTML("[data-label]", this._element);
+      const descElement = document.createElement("span");
+      descElement.textContent = this._task.textData.labelText + " ";
+      descElement.setAttribute("data-desc", "");
+      const varElement = document.createElement("var");
+      if (!this._task.completed) {
+        varElement.insertAdjacentHTML("beforeend", `<span data-cur-value>${this._task.value.toFixed()}</span>`);
+        varElement.insertAdjacentHTML("beforeend", `<span>/</span>`);
+      } else {
+        varElement.setAttribute("data-valid", "");
+      }
+      varElement.insertAdjacentHTML("beforeend", `<span data-target-value>${this._task.textData.valueText}</span></var>`);
+      label.replaceChildren(descElement, varElement);
+    }
+    setClaimButton(enabled) {
+      if (!this._missionData) {
+        return;
+      }
+      const element = queryHTML('[data-trigger="claim"]', this._element);
+      queryHTML("[data-cost]", element).textContent = this._missionData.goldAmount.toFixed();
+      element.disabled = !enabled;
+    }
+    setNewButton() {
+      if (!this._missionData || !this._task) {
+        return;
+      }
+      const element = queryHTML('[data-trigger="new"]', this._element);
+      queryHTML("[data-cost]", element).textContent = this.newMissionCost.toFixed();
+      element.disabled = this._task.completed || this.missions.game.player.stats.gold.get() < this.newMissionCost;
+    }
+    createElement() {
+      const li = document.createElement("li");
+      const label = document.createElement("div");
+      label.textContent = "[Locked]";
+      label.setAttribute("data-label", "");
+      const button = document.createElement("button");
+      button.classList.add("g-button");
+      button.insertAdjacentHTML("beforeend", `<span>Buy</span>`);
+      button.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost>${this.unlockCost}</span>`);
+      button.setAttribute("data-trigger", "buy");
+      button.addEventListener("click", () => {
+        this.unlock();
+      });
+      this.missions.game.player.stats.gold.registerCallback(this.unlockCost, () => {
+        button.disabled = false;
+      });
+      li.appendChild(label);
+      li.appendChild(button);
+      return li;
+    }
+  };
+
+  // src/utils/saveManager.ts
+  var import_localforage = __toESM(require_localforage(), 1);
+  var saveManager_default = { save, load };
+  async function save(type, object) {
+    try {
+      switch (type) {
+        case "Game":
+          return await saveBlob("ts-game", object);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  async function load(type) {
+    try {
+      switch (type) {
+        case "Game":
+          const blob = await loadBlob("ts-game");
+          if (blob) {
+            return new Map(Object.entries(blob));
+          }
+          return null;
+        default:
+          return null;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  async function saveBlob(key, object) {
+    const str = window.btoa(JSON.stringify(object));
+    const blob = new Blob([str], { type: "text/plain" });
+    return await import_localforage.default.setItem(key, blob);
+  }
+  async function loadBlob(key) {
+    const blob = await import_localforage.default.getItem(key);
+    if (!blob) {
+      return blob;
+    }
+    const str = await blob.text();
+    return JSON.parse(window.atob(str));
+  }
+
+  // src/game/Settings.ts
+  var Settings = class {
+    constructor(game) {
+      this.game = game;
+      __publicField(this, "deleteSaveButton", queryHTML(".p-settings [data-delete-save]"));
+      this.deleteSaveButton.addEventListener("click", this.openDeleteSaveModal.bind(this));
+    }
+    openDeleteSaveModal() {
+      const modal = queryHTML("generic-modal");
+      modal.init({
+        title: "Delete Save",
+        body: "Are you sure?",
+        buttons: [{ label: "Yes", type: "confirm" }, { label: "No", type: "cancel" }],
+        footerText: "This will delete your save file permanently",
+        callback: async (confirm) => {
+          if (confirm) {
+            await this.game.deleteSave();
+            this.game.home.init();
+          }
+        }
+      });
+      modal.openModal();
+    }
+  };
+
+  // src/game/components/Skills.ts
+  var Skills = class extends Component {
+    constructor(game, data) {
+      super(game, "skills");
+      this.game = game;
+      this.data = data;
+      __publicField(this, "activeSkillSlot");
+      __publicField(this, "activeSkill");
+      __publicField(this, "attackSkills", []);
+      __publicField(this, "attackSkillSlot");
+      __publicField(this, "buffSkillSlots", []);
+      __publicField(this, "buffSkills", []);
+      {
+        this.attackSkills = [...data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new AttackSkill(this, x));
+        this.attackSkillSlot = new AttackSkillSlot(this);
+        this.activeSkillSlot = this.attackSkillSlot;
+        this.attackSkillSlot.slotLabelElement.addEventListener("click", () => {
+          this.selectSkillSlot(this.attackSkillSlot, this.attackSkills);
+        });
+        game.gameLoop.subscribeAnim(() => {
+          if (this.page.classList.contains("hidden")) {
+            return;
+          }
+          this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+        });
+        queryHTML("[data-attack-skill-slot]", this.page).replaceChildren(this.attackSkillSlot.element);
+        queryHTML("[data-skill-name]", this.attackSkillSlot.element).click();
+      }
+      {
+        const buffSkillSlotContainer = queryHTML(".s-skill-slots [data-buff-skill-slots]", this.page);
+        buffSkillSlotContainer.replaceChildren();
+        if (data.buffSkills) {
+          this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new BuffSkill(this, x));
+          for (const buffSkillData of data.buffSkills.skillSlots || []) {
+            game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
+              const slot = new BuffSkillSlot(this);
+              slot.slotLabelElement.addEventListener("click", () => {
+                this.selectSkillSlot(slot, this.buffSkills);
+              });
+              buffSkillSlotContainer.appendChild(slot.element);
+              this.buffSkillSlots.push(slot);
+            });
+          }
+        }
+      }
+      {
+        const skillInfoContainer = queryHTML("[data-skill-info]", this.page);
+        queryHTML("[data-enable]", skillInfoContainer).addEventListener("click", () => {
+          if (this.activeSkill) {
+            this.enableSkill(this.activeSkillSlot, this.activeSkill);
+          }
+        });
+        const triggerButton = queryHTML("[data-trigger]", skillInfoContainer);
+        const removeButton = queryHTML("[data-remove]", skillInfoContainer);
+        removeButton.addEventListener("click", () => this.removeSkillFromSlot(this.activeSkillSlot));
+        triggerButton.addEventListener("click", () => this.triggerSkill(this.activeSkillSlot));
+        queryHTML("[data-automate]", skillInfoContainer).addEventListener("click", () => this.toggleAutoMode(this.activeSkillSlot));
+        game.gameLoop.subscribeAnim(() => {
+          if (this.page.classList.contains("hidden")) {
+            return;
+          }
+          triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+          removeButton.disabled = !this.activeSkillSlot.canRemove;
+        }, { intervalMilliseconds: 100 });
+      }
+    }
+    updateUI() {
+      this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+      this.buffSkillSlots.forEach((x) => x.updateProgressBar());
+    }
+    selectSkillSlot(skillSlot, skillList) {
+      this.activeSkillSlot = skillSlot;
+      [this.attackSkillSlot, ...this.buffSkillSlots].forEach((slot) => slot.slotLabelElement.classList.toggle("selected", slot === skillSlot));
+      this.populateSkillList(skillSlot, skillList);
+    }
+    populateSkillList(skillSlot, skillList) {
+      var _a, _b;
+      const skillListContainer = queryHTML(".p-game .p-skills .s-skill-list ul", this.page);
+      const elements = [];
+      for (const skill of skillList) {
+        const li = document.createElement("li");
+        li.classList.add("g-list-item");
+        li.classList.toggle("selected", skill.data.name === ((_a = skillSlot.skill) == null ? void 0 : _a.data.name));
+        li.setAttribute("data-name", skill.data.name);
+        li.textContent = skill.data.name;
+        li.addEventListener("click", () => {
+          this.activeSkill = skill;
+          this.showSkill(skill);
+          elements.forEach((x) => x.classList.toggle("selected", x === li));
+        });
+        elements.push(li);
+      }
+      skillListContainer.replaceChildren(...elements);
+      if (elements.length === 0) {
+        skillListContainer.textContent = "No skills available";
+        return;
+      }
+      if (skillSlot.skill) {
+        (_b = elements.find((x) => {
+          var _a2;
+          return x.getAttribute("data-name") === ((_a2 = skillSlot.skill) == null ? void 0 : _a2.data.name);
+        })) == null ? void 0 : _b.click();
+      } else {
+        elements[0].click();
+      }
+    }
+    showSkill(skill) {
+      const skillInfoContainer = queryHTML("[data-skill-info]", this.page);
+      const createTableRow = (label, value) => {
+        const row = document.createElement("tr");
+        row.insertAdjacentHTML("beforeend", `<td>${label}</td>`);
+        row.insertAdjacentHTML("beforeend", `<td>${value}</td>`);
+        return row;
+      };
+      queryHTML("header .title", skillInfoContainer).textContent = skill.data.name;
+      const table = queryHTML("table", skillInfoContainer);
+      table.replaceChildren();
+      table.appendChild(createTableRow("Mana Cost", skill.data.manaCost.toFixed()));
+      if (skill instanceof AttackSkill) {
+        table.appendChild(createTableRow("Attack Speed", skill.data.attackSpeed.toFixed(2)));
+        table.appendChild(createTableRow("Base Damage", skill.data.baseDamageMultiplier.toFixed() + "%"));
+      } else if (skill instanceof BuffSkill) {
+        table.appendChild(createTableRow("Duration", skill.data.baseDuration.toFixed() + "s"));
+      }
+      if (skill.data.mods) {
+        const modElements = [];
+        for (const mod of skill.mods) {
+          const modElement = document.createElement("div");
+          modElement.classList.add("g-mod-desc");
+          modElement.textContent = mod.desc;
+          modElements.push(modElement);
+        }
+        queryHTML(".s-mods", skillInfoContainer).replaceChildren(...modElements);
+      }
+      const enableButton = queryHTML("[data-skill-info] [data-enable]", this.page);
+      const removeButton = queryHTML("[data-skill-info] [data-remove]", this.page);
+      const triggerButton = queryHTML("[data-skill-info] [data-trigger]", this.page);
+      const automateButton = queryHTML("[data-skill-info] [data-automate]", this.page);
+      removeButton.classList.toggle("hidden", skill instanceof AttackSkill);
+      triggerButton.classList.toggle("hidden", skill instanceof AttackSkill);
+      automateButton.classList.toggle("hidden", skill instanceof AttackSkill);
+      enableButton.disabled = !this.activeSkillSlot.canEnable || [this.attackSkillSlot, ...this.buffSkillSlots].some((x) => x.skill === skill);
+      if (skill instanceof BuffSkill && this.activeSkillSlot instanceof BuffSkillSlot && this.activeSkillSlot.skill === skill) {
+        removeButton.disabled = !this.activeSkillSlot.canRemove;
+        triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+        automateButton.disabled = !this.activeSkillSlot.canAutomate;
+        const automate = this.activeSkillSlot.automate;
+        automateButton.setAttribute("data-role", automate ? "confirm" : "cancel");
+      } else {
+        removeButton.disabled = true;
+        triggerButton.disabled = true;
+        automateButton.disabled = true;
+      }
+    }
+    enableSkill(skillSlot, skill) {
+      skillSlot.setSkill(skill);
+      this.showSkill(skill);
+    }
+    triggerSkill(skillSlot) {
+      skillSlot.start();
+      if (skillSlot.skill) {
+        this.showSkill(skillSlot.skill);
+      }
+    }
+    removeSkillFromSlot(skillSlot) {
+      skillSlot.setSkill(void 0);
+      if (this.activeSkill) {
+        this.showSkill(this.activeSkill);
+      }
+    }
+    toggleAutoMode(skillSlot) {
+      skillSlot.toggleAutomate();
+      if (skillSlot.skill) {
+        this.showSkill(skillSlot.skill);
+      }
+    }
+    save(saveObj) {
+      var _a;
+      saveObj.skills = {
+        attackSkillName: ((_a = this.attackSkillSlot.skill) == null ? void 0 : _a.data.name) || "",
+        buffSkills: this.buffSkillSlots.filter((x) => x.skill).map((x, index) => {
+          var _a2;
+          return {
+            index,
+            name: ((_a2 = x.skill) == null ? void 0 : _a2.data.name) || "",
+            active: x.running,
+            automate: x.automate,
+            time: x.time
+          };
+        })
+      };
+    }
+  };
+  var BaseSkillSlot = class {
+    constructor() {
+      __publicField(this, "element");
+      __publicField(this, "skill");
+      __publicField(this, "progressBar");
+      this.element = this.createElement();
+      this.progressBar = queryHTML("progress", this.element);
+    }
+    setSkill(skill) {
+      this.skill = skill;
+      this.slotLabelElement.textContent = (skill == null ? void 0 : skill.data.name) || "[Empty Slot]";
+    }
+    get hasSkill() {
+      return typeof this.skill !== "undefined";
+    }
+    get canRemove() {
+      return this.hasSkill;
+    }
+    get slotLabelElement() {
+      return queryHTML("[data-skill-name]", this.element);
+    }
+    get canTrigger() {
+      return false;
+    }
+    get canEnable() {
+      return false;
+    }
+    createElement() {
+      const li = document.createElement("li");
+      li.classList.add("s-skill-slot");
+      li.insertAdjacentHTML("beforeend", '<div class="g-list-item" data-skill-name></div>');
+      {
+        const progressBar = document.createElement("progress");
+        progressBar.max = 1;
+        progressBar.value = 0;
+        li.appendChild(progressBar);
+      }
+      return li;
+    }
+  };
+  var AttackSkillSlot = class extends BaseSkillSlot {
+    constructor(skills) {
+      super();
+      this.skills = skills;
+      this.tryLoad();
+    }
+    get canEnable() {
+      return true;
+    }
+    setSkill(skill) {
+      var _a;
+      (_a = this.skill) == null ? void 0 : _a.removeModifiers();
+      super.setSkill(skill);
+      skill.applyModifiers();
+    }
+    updateProgressBar(attackProgressPct) {
+      this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
+    }
+    tryLoad() {
+      if (this.skills.game.saveObj.skills) {
+        const name = this.skills.game.saveObj.skills.attackSkillName;
+        const savedSkill = this.skills.attackSkills.find((x) => x.data.name === name);
+        if (savedSkill) {
+          this.setSkill(savedSkill);
+          return;
+        }
+      }
+      this.setSkill(this.skills.attackSkills[0]);
+    }
+  };
+  var BuffSkillSlot = class extends BaseSkillSlot {
+    constructor(skills) {
+      super();
+      this.skills = skills;
+      __publicField(this, "_running", false);
+      __publicField(this, "_time", 0);
+      __publicField(this, "_duration", 0);
+      __publicField(this, "_automate", false);
+      __publicField(this, "player");
+      this.setSkill(void 0);
+      this.player = skills.game.player;
+      this.tryLoad();
+    }
+    get canEnable() {
+      return !this.running;
+    }
+    get canRemove() {
+      return this.hasSkill && !this._running;
+    }
+    get canTrigger() {
+      return typeof this.skill !== "undefined" && !this.automate && !this._running && this.skills.game.player.stats.curMana.get() > this.skill.data.manaCost;
+    }
+    get canAutomate() {
+      return this.hasSkill;
+    }
+    get automate() {
+      return this._automate;
+    }
+    set automate(v) {
+      this._automate = v;
+      if (this._automate && !this._running) {
+      }
+    }
+    get running() {
+      return this._running;
+    }
+    get time() {
+      return this._time;
+    }
+    toggleAutomate() {
+      this._automate = !this._automate;
+    }
+    setSkill(skill) {
+      var _a;
+      this.skill = skill;
+      queryHTML("[data-skill-name]", this.element).textContent = ((_a = this.skill) == null ? void 0 : _a.data.name) || "[Empty Slot]";
+    }
+    updateProgressBar() {
+      if (!this._running) {
+        return;
+      }
+      this.progressBar.value = this._time / this._duration || 0;
+    }
+    start() {
+      if (!this.skill) {
+        return;
+      }
+      const sufficientMana = this.player.stats.curMana.get() >= this.skill.data.manaCost;
+      if (!sufficientMana) {
+        return;
+      }
+      this.player.stats.curMana.subtract(this.skill.data.manaCost);
+      this.loop();
+    }
+    loop() {
+      if (!this.skill) {
+        return;
+      }
+      const calcDuration = (multiplier) => {
+        const baseDuration = this.skill.data.baseDuration;
+        return baseDuration * multiplier;
+      };
+      this._duration = calcDuration(this.skills.game.player.stats.skillDurationMultiplier.get());
+      this._time = this._time > 0 ? this._time : this._duration;
+      this._running = true;
+      this.skills.game.player.stats.skillDurationMultiplier.addListener("change", calcDuration);
+      this.skill.applyModifiers();
+      const loopId = this.skills.game.gameLoop.subscribe((dt) => {
+        if (!this.skill) {
+          return;
+        }
+        this._time = this._duration * (this._time / this._duration);
+        if (this._time <= 0) {
+          this._time = 0;
+          this.skills.game.gameLoop.unsubscribe(loopId);
+          this.skills.game.player.stats.skillDurationMultiplier.removeListener("change", calcDuration);
+          this.stop();
+          return;
+        }
+        this._time -= dt;
+      });
+    }
+    stop() {
+      if (!this.skill) {
+        return;
+      }
+      this._running = false;
+      this.player.modDB.removeBySource(this.skill.sourceName);
+      this.progressBar.value = 0;
+      if (this === this.skills.activeSkillSlot) {
+        this.skills.showSkill(this.skill);
+      }
+      if (this._automate) {
+        const autoLoopManaEval = (mana) => {
+          if (!this.skill || !this._automate) {
+            this.skills.game.player.stats.curMana.removeListener("change", autoLoopManaEval);
+            return;
+          }
+          if (mana < this.skill.data.manaCost) {
+            return;
+          }
+          this.skills.game.player.stats.curMana.removeListener("change", autoLoopManaEval);
+          this.start();
+        };
+        this.skills.game.player.stats.curMana.addListener("change", autoLoopManaEval);
+        return;
+      }
+    }
+    tryLoad() {
+      var _a;
+      const savedSkillSlotData = (_a = this.skills.game.saveObj.skills) == null ? void 0 : _a.buffSkills.find((x) => x.index === this.skills.buffSkillSlots.length);
+      if (savedSkillSlotData) {
+        const skill = this.skills.buffSkills.find((x) => x.data.name === savedSkillSlotData.name);
+        if (skill) {
+          this.setSkill(skill);
+          this._time = savedSkillSlotData.time;
+          this._automate = savedSkillSlotData.automate;
+          if (savedSkillSlotData.active) {
+            this.loop();
+          }
+        }
+      }
+    }
+  };
+  var BaseSkill = class {
+    constructor(skills, data) {
+      this.skills = skills;
+      this.data = data;
+      __publicField(this, "_mods");
+      var _a;
+      this._mods = ((_a = data.mods) == null ? void 0 : _a.map((x) => new Modifier(x))) || [];
+    }
+    get sourceName() {
+      return `Skill/${this.data.name || "[error]"}`;
+    }
+    get mods() {
+      return this._mods;
+    }
+    removeModifiers() {
+      this.skills.game.player.modDB.removeBySource(this.sourceName);
+    }
+    applyModifiers() {
+      this.skills.game.player.modDB.add(this.mods.flatMap((x) => x.copy().stats), this.sourceName);
+    }
+  };
+  var AttackSkill = class extends BaseSkill {
+    constructor(skills, data) {
+      super(skills, data);
+      this.skills = skills;
+      this.data = data;
+    }
+    applyModifiers() {
+      const source = `Skill/${this.data.name}`;
+      this.skills.game.player.modDB.removeBySource(source);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "BaseDamageMultiplier", valueType: "Base", value: this.data.baseDamageMultiplier })], this.sourceName);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackSpeed", valueType: "Base", value: this.data.attackSpeed })], this.sourceName);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackManaCost", valueType: "Base", value: this.data.manaCost })], this.sourceName);
+      this.mods.forEach((x) => this.skills.game.player.modDB.add(x.stats, this.sourceName));
+    }
+  };
+  var BuffSkill = class extends BaseSkill {
+    constructor(skills, data) {
+      super(skills, data);
+      this.skills = skills;
+      this.data = data;
+    }
+  };
+
+  // src/game/Game.ts
+  var Game = class {
+    constructor(home) {
+      this.home = home;
+      __publicField(this, "gamePage", queryHTML(".p-game"));
+      __publicField(this, "gameLoop", new Loop());
+      __publicField(this, "enemy");
+      __publicField(this, "player");
+      __publicField(this, "statistics");
+      __publicField(this, "settings");
+      __publicField(this, "componentsList", []);
+      __publicField(this, "onSave", new EventEmitter());
+      __publicField(this, "_config");
+      __publicField(this, "_saveObj");
+      __publicField(this, "time", 0);
+      this.enemy = new Enemy(this);
+      this.player = new Player(this);
+      this.statistics = new Statistics(this);
+      this.settings = new Settings(this);
+      if (isLocalHost) {
+        this.setupDevHelpers();
+      }
+      registerTabs(queryHTML(":scope > menu", this.gamePage), queryHTML("[data-main-view]", this.gamePage));
+    }
+    get config() {
+      return this._config;
+    }
+    get saveObj() {
+      return this._saveObj;
+    }
+    async init(config, saveObj) {
+      this._config = config;
+      this._saveObj = saveObj;
+      this.dispose();
+      this.enemy.init();
+      this.player.init();
+      this.statistics.init();
+      this.createComponents();
+      this.gameLoop.subscribe(() => {
+        this.statistics.statistics["Time Played"].add(1);
+      }, { intervalMilliseconds: 1e3 });
+      this.gameLoop.subscribe((dt) => {
+        this.time += dt;
+        this.updateComponentsUI();
+      });
+      await this.setup();
+      await this.save();
+    }
+    async setup() {
+      this.player.setup();
+      if (!isLocalHost) {
+        this.gameLoop.start();
+      }
+      queryHTML('[data-tab-target="combat"]', this.gamePage).click();
+      document.querySelectorAll("[data-highlight-notification]").forEach((x) => x.removeAttribute("data-highlight-notification"));
+    }
+    async dispose() {
+      this.onSave.removeAllListeners();
+      this.gameLoop.reset();
+      this.disposeComponents();
+    }
+    createComponents() {
+      if (!this.config.components) {
+        return;
+      }
+      const keys = Object.keys(this.config.components);
+      const gameElement = queryHTML("game-element");
+      gameElement.init(keys);
+      const entries = Object.entries(this.config.components);
+      const initComponent = (entry) => {
+        const name = entry[0];
+        queryHTML(`.p-game > menu [data-tab-target="${name}"]`).classList.remove("hidden");
+        let component = void 0;
+        switch (name) {
+          case "skills":
+            component = new Skills(this, entry[1]);
+            break;
+          case "passives":
+            component = new Passives(this, entry[1]);
+            break;
+          case "items":
+            component = new Items(this, entry[1]);
+            break;
+          case "missions":
+            component = new Missions(this, entry[1]);
+            break;
+          case "achievements":
+            component = new Achievements(this, entry[1]);
+            break;
+        }
+        if (!component) {
+          throw Error("invalid component type");
+        }
+        this.componentsList.push(component);
+      };
+      for (const entry of entries) {
+        const data = entry[1];
+        this.player.stats.level.registerCallback("levelReq" in data ? data.levelReq : 1, () => {
+          initComponent(entry);
+        });
+      }
+    }
+    disposeComponents() {
+      for (const componentData of this.componentsList) {
+        componentData.dispose();
+      }
+      this.componentsList.splice(0);
+    }
+    updateComponentsUI() {
+      const visibleComponent = this.componentsList.find((x) => !x.page.classList.contains("hidden"));
+      visibleComponent == null ? void 0 : visibleComponent.updateUI(this.time);
+    }
+    setupDevHelpers() {
+      if ("TS" in window) {
+        return;
+      }
+      Object.defineProperty(window, "TS", {
+        value: {
+          setLevel: (v) => this.player.stats.level.set(v),
+          setGold: (v) => this.player.stats.gold.set(v),
+          save: () => {
+            this.save();
+          },
+          load: async () => {
+            this.load(this.config);
+          }
+        }
+      });
+      console.log("Press Space to toggle GameLoop");
+      document.addEventListener("keydown", (x) => {
+        if (x.code === "Space") {
+          if (this.gameLoop.running) {
+            document.title = `Tinkerers Subject (Stopped)`;
+            this.gameLoop.stop();
+          } else {
+            this.gameLoop.start();
+            document.title = "Tinkerers Subject (Running)";
+          }
+        }
+      });
+    }
+    async save() {
+      const map = await saveManager_default.load("Game") || /* @__PURE__ */ new Map();
+      const saveObj = map.get(this.config.meta.id) || { meta: __spreadValues({}, this.config.meta) };
+      saveObj.meta.lastSavedAt = Date.now();
+      this.player.save(saveObj);
+      this.enemy.save(saveObj);
+      this.statistics.save(saveObj);
+      for (const componentData of this.componentsList) {
+        componentData.save(saveObj);
+      }
+      map.set(this.config.meta.id, saveObj);
+      await saveManager_default.save("Game", Object.fromEntries(map));
+    }
+    async load(config) {
+      const map = await saveManager_default.load("Game");
+      if (!map) {
+        return false;
+      }
+      const saveObj = map.get(config.meta.id);
+      if (!saveObj) {
+        console.log("could not load", config.meta.id);
+        return false;
+      }
+      this.init(config, saveObj);
+    }
+    async loadMostRecentSave() {
+      try {
+        const map = await saveManager_default.load("Game");
+        if (!map) {
+          return;
+        }
+        return [...map].map((x) => x[1]).sort((a, b) => b.meta.lastSavedAt - a.meta.lastSavedAt)[0];
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    async deleteSave() {
+      const map = await saveManager_default.load("Game");
+      if (!map) {
+        return;
+      }
+      if (map == null ? void 0 : map.delete(this.config.meta.id)) {
+        return await saveManager_default.save("Game", Object.fromEntries(map));
+      }
+    }
+    async hasSave(id) {
+      const map = await saveManager_default.load("Game");
+      if (!map) {
+        return false;
+      }
+      return map.has(id);
+    }
+  };
+
+  // public/gconfig/configList.json
+  var configList_default = {
+    $schema: "./configListSchema.json",
+    list: [
+      {
+        name: "Demo",
+        rawUrl: "public/gconfig/demo.json",
+        description: "This is a short configuration for demonstration purposes"
+      },
+      {
+        name: "Demo 2",
+        rawUrl: "public/gconfig/demo2.json",
+        description: "Test"
+      },
+      {
+        name: "Skills Test",
+        rawUrl: "public/gconfig/skills-test.json",
+        description: "Test"
+      }
+    ]
+  };
+
+  // src/Home.ts
+  var entryTypes = ["new", "saved"];
+  var Home = class {
+    constructor() {
+      __publicField(this, "game");
+      __publicField(this, "activeEntry");
+      this.game = new Game(this);
+      registerTabs(queryHTML(".p-home > menu"), queryHTML(".p-home .s-main"), (target) => {
+        const type = target.getAttribute("data-tab-target");
+        if (!entryTypes.includes(type)) {
+          throw Error("wrong type");
+        }
+        this.populateEntryList(type);
+      });
+      queryHTML(".p-home .p-new [data-entry-info] [data-start]").addEventListener("click", () => {
+        if (!this.activeEntry) {
+          return;
+        }
+        this.tryStartGame(this.activeEntry);
+      });
+      queryHTML(".p-home .p-saved [data-entry-info] [data-start]").addEventListener("click", async () => {
+        if (!this.activeEntry) {
+          return;
+        }
+        const map = await saveManager_default.load("Game");
+        if (!map) {
+          return;
+        }
+        const saveObj = map.get(this.activeEntry.id);
+        if (!saveObj) {
+          return;
+        }
+        this.tryStartGame(this.activeEntry, saveObj);
+      });
+    }
+    async init() {
+      const navBtn = queryHTML("header [data-target]");
+      navBtn.setAttribute("data-target", "home");
+      navBtn.click();
+      navBtn.classList.add("hidden");
+      queryHTML('.p-home > menu [data-type="new"]').click();
+    }
+    async tryLoadRecentSave() {
+      const save2 = await this.game.loadMostRecentSave();
+      if (!save2) {
+        return false;
+      }
+      return await this.tryStartGame(save2.meta, save2);
+    }
+    async populateEntryList(type) {
+      var _a;
+      const entries = await this.getEntries(type);
+      const elements = this.createEntryListElements(entries, type);
+      const container = queryHTML(`.p-home [data-tab-content=${type}]`);
+      const entryListContainer = queryHTML("[data-entry-list]", container);
+      queryHTML("[data-entry-list]", container).replaceChildren(...elements);
+      if (elements.length === 0) {
+        let msg = "";
+        switch (type) {
+          case "new":
+            msg = "Configuration list is empty";
+            break;
+          case "saved":
+            msg = "There are no saved games";
+            break;
+        }
+        entryListContainer.textContent = msg;
+      }
+      queryHTML(".p-home [data-entry-info]").classList.toggle("hidden", elements.length === 0);
+      (_a = elements[0]) == null ? void 0 : _a.click();
+    }
+    createEntryListElements(entries, type) {
+      const elements = [];
+      for (const entry of entries) {
+        const li = document.createElement("li");
+        li.classList.add("g-list-item");
+        if (type === "new") {
+          const suffix = entry.rawUrl.startsWith("https") ? "" : "(Local) ";
+          const label = suffix.concat(entry.name);
+          li.insertAdjacentHTML("beforeend", `<span>${label}</span>`);
+        } else if (type === "saved") {
+          const timeData = generateTime(entry.lastSavedAt);
+          const timeSinceLastSaveText = `Last played: ${timeData.hours > 0 ? timeData.hours + "h " : ""}${timeData.mins}min`;
+          li.insertAdjacentHTML("beforeend", `
+                <span>${entry.name}</span>
+                <span data-type="date">${timeSinceLastSaveText}</span>`);
+        }
+        li.addEventListener("click", () => {
+          this.activeEntry = entry;
+          elements.forEach((x) => x.classList.toggle("selected", x === li));
+          this.showEntry(entry, type);
+        });
+        elements.push(li);
+      }
+      return elements;
+    }
+    showEntry(entry, type) {
+      const infoContainer = queryHTML(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
+      queryHTML("[data-title]", infoContainer).textContent = entry.name;
+      queryHTML("[data-desc]", infoContainer).textContent = entry.description || "";
+    }
+    async tryStartGame(entry, saveObj) {
+      const config = await (await fetch(entry.rawUrl)).json();
+      if (!validateConfig(config)) {
+        console.error(`${entry.name} is not valid`);
+        return false;
+      }
+      if (!saveObj) {
+        saveObj = {
+          meta: __spreadProps(__spreadValues({}, entry), { createdAt: Date.now() })
+        };
+      }
+      config.meta = saveObj.meta;
+      this.game.init(config, saveObj);
+      const navBtn = queryHTML("header [data-target]");
+      navBtn.classList.remove("hidden");
+      navBtn.click();
+      return true;
+    }
+    async getEntries(type) {
+      switch (type) {
+        case "new":
+          return configList_default.list.map((x) => __spreadProps(__spreadValues({}, x), { id: crypto.randomUUID(), createdAt: 0, lastSavedAt: 0 }));
+        case "saved":
+          const map = await saveManager_default.load("Game");
+          if (!map) {
+            return [];
+          }
+          try {
+            return Array.from(map.values()).map((x) => x.meta).sort((a, b) => b.lastSavedAt - a.lastSavedAt);
+          } catch (element) {
+            throw Error("failed to load save");
+          }
+      }
+    }
+  };
+
+  // src/main.ts
+  queryHTML('header [data-target="game"]').addEventListener("click", (e) => {
+    if (e.target instanceof Element) {
+      const target = e.target;
+      const attr = e.target.getAttribute("data-target");
+      switch (attr) {
+        case "home":
+          target.textContent = "Back";
+          target.setAttribute("data-target", "game");
+          queryHTML(".p-home").classList.remove("hidden");
+          queryHTML(".p-game").classList.add("hidden");
+          break;
+        case "game":
+          target.textContent = "Home";
+          target.setAttribute("data-target", "home");
+          queryHTML(".p-home").classList.add("hidden");
+          queryHTML(".p-game").classList.remove("hidden");
+          break;
+      }
+    }
+  });
+  window.addEventListener("DOMContentLoaded", () => {
+    init();
+  });
+  async function init() {
+    const home = new Home();
+    await home.init();
+    await home.tryLoadRecentSave();
+    document.body.classList.remove("hidden");
+  }
+})();
 /*!
     localForage -- Offline Storage, Improved
     Version 1.10.0
