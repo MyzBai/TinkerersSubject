@@ -330,6 +330,9 @@ dialog[data-modal] > form input[type=submit][data-apply] {
 dialog[data-modal] > form input[type=submit][data-cancel] {
   background-color: #8f0d0d;
 }
+dialog[data-modal] > form footer {
+  padding-top: 0.3em;
+}
 dialog[data-modal]::backdrop {
   backdrop-filter: blur(1px);
 }
@@ -384,6 +387,22 @@ progress[value]::-webkit-progress-value {
 }
 
 /*#endregion Scroll Bar*/
+[data-mod-tag=physical] {
+  color: #a8a8a8;
+}
+
+[data-mod-tag=critical] {
+  color: #509abd;
+}
+
+[data-mod-tag=mana] {
+  color: #3364ad;
+}
+
+[data-mod-tag=speed] {
+  color: #a5c748;
+}
+
 .p-home {
   display: grid;
   grid-template-rows: auto 1fr;
@@ -698,6 +717,12 @@ game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-cr
 }
 game-element .p-game [data-main-view] .p-items [data-preset-modal] form [data-craft-list] table tr td {
   padding: 0.3em;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form footer {
+  display: flex;
+}
+game-element .p-game [data-main-view] .p-items [data-preset-modal] form footer [data-delete] {
+  margin-left: auto;
 }
 game-element .p-game [data-main-view] .p-missions ul {
   display: flex;

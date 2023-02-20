@@ -10045,14 +10045,13 @@
       this.game.gameLoop.subscribe((dt) => {
         this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
         time += dt;
-        if (time > waitTimeSeconds) {
+        if (time >= waitTimeSeconds) {
           const curMana = this.stats.curMana.get();
           const manaCost = this.stats.attackManaCost.get();
           if (curMana > manaCost) {
             this.stats.curMana.subtract(manaCost);
             this.performAttack();
             waitTimeSeconds = calcWaitTime();
-            time = 0;
           }
         }
       });
@@ -10582,28 +10581,18 @@
   var CraftPresets = class {
     constructor(items) {
       this.items = items;
-      __publicField(this, "presets");
+      __publicField(this, "presets", []);
       __publicField(this, "activePreset");
       __publicField(this, "modal");
-      __publicField(this, "newPresetButton");
-      __publicField(this, "editPresetButton");
-      __publicField(this, "applyPresetButton");
-      __publicField(this, "deletePresetButton");
-      __publicField(this, "newPresetCallback");
-      __publicField(this, "editPresetCallback");
-      __publicField(this, "applyPresetCallback");
-      __publicField(this, "deletePresetCallback");
       var _a, _b;
-      this.presets = [];
-      this.newPresetCallback = () => {
+      this.modal = queryHTML(".p-game .p-items [data-preset-modal]", this.items.page);
+      queryHTML(".s-preset-container [data-new]", this.items.page).addEventListener("click", () => {
         const preset = this.newPreset();
         this.editActivePreset();
         preset.element.click();
-      };
-      this.editPresetCallback = () => {
-        this.editActivePreset();
-      };
-      this.applyPresetCallback = () => {
+      });
+      queryHTML(".s-preset-container [data-edit]", this.items.page).addEventListener("click", () => this.editActivePreset());
+      queryHTML("[data-apply]", this.modal).addEventListener("click", () => {
         if (!this.activePreset) {
           return;
         }
@@ -10614,19 +10603,8 @@
           this.activePreset.name = name;
         }
         this.selectPreset(this.activePreset);
-      };
-      this.deletePresetCallback = () => {
-        this.deleteActivePreset();
-      };
-      this.modal = queryHTML(".p-game .p-items [data-preset-modal]");
-      this.newPresetButton = queryHTML(".s-preset-container [data-new]");
-      this.editPresetButton = queryHTML(".s-preset-container [data-edit]");
-      this.applyPresetButton = queryHTML("[data-apply]", this.modal);
-      this.deletePresetButton = queryHTML("[data-delete]", this.modal);
-      this.newPresetButton.addEventListener("click", this.newPresetCallback);
-      this.editPresetButton.addEventListener("click", this.editPresetCallback);
-      this.applyPresetButton.addEventListener("click", this.applyPresetCallback);
-      this.deletePresetButton.addEventListener("click", this.deletePresetCallback);
+      });
+      queryHTML("[data-delete]", this.modal).addEventListener("click", () => this.deleteActivePreset());
       if ((_a = items.game.saveObj.items) == null ? void 0 : _a.craftPresets) {
         for (const savedPreset of (_b = items.game.saveObj.items) == null ? void 0 : _b.craftPresets) {
           this.newPreset(savedPreset.name, savedPreset.ids);
@@ -10634,14 +10612,6 @@
       } else {
         this.newPreset("Default", items.data.craftList.map((x) => x.id));
       }
-    }
-    dispose() {
-      this.newPresetButton.removeEventListener("click", this.newPresetCallback);
-      this.editPresetButton.removeEventListener("click", this.editPresetCallback);
-      this.deletePresetButton.removeEventListener("click", this.deletePresetCallback);
-      this.applyPresetButton.removeEventListener("click", this.applyPresetCallback);
-      queryHTML(".s-preset-container [data-preset-list]").replaceChildren();
-      queryHTML("[data-craft-list] table tbody", this.modal).replaceChildren();
     }
     newPreset(name = "New", ids = this.items.data.craftList.map((x) => x.id)) {
       const preset = new CraftPreset(name, ids);
@@ -10658,7 +10628,7 @@
       var _a;
       this.activePreset = preset;
       this.items.populateCraftList((_a = this.activePreset) == null ? void 0 : _a.ids);
-      this.editPresetButton.disabled = typeof this.activePreset === "undefined";
+      queryHTML(".s-preset-container [data-edit]", this.items.page).disabled = typeof this.activePreset === "undefined";
     }
     editActivePreset() {
       var _a;
@@ -10670,7 +10640,7 @@
       const filteredCraftList = this.items.data.craftList.filter((x) => x.levelReq <= this.items.game.player.stats.level.get());
       const rows = [];
       for (const craftData of filteredCraftList) {
-        const label = craftTemplates[craftData.id].desc;
+        const label = this.items.craftDescToHtml(craftData.id);
         const row = document.createElement("tr");
         row.classList.add("g-list-item");
         row.classList.toggle("selected", this.activePreset.ids.includes(craftData.id));
@@ -10694,7 +10664,12 @@
       }
       this.activePreset.element.remove();
       this.presets.splice(this.presets.indexOf(this.activePreset), 1);
-      (_a = this.presets[0]) == null ? void 0 : _a.element.click();
+      if (this.presets.length === 0) {
+        this.items.populateCraftList([]);
+        this.selectPreset(void 0);
+      } else {
+        (_a = this.presets[0]) == null ? void 0 : _a.element.click();
+      }
     }
   };
   var CraftPreset = class {
@@ -10748,9 +10723,7 @@
         throw Error("No crafts available! There must be at least 1 craft available");
       }
       queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove("hidden");
-      game.player.stats.level.addListener("change", () => {
-        this.updateCraftList();
-      });
+      game.player.stats.level.addListener("change", () => this.updateCraftList());
       this.craftButton.addEventListener("click", () => this.performCraft());
       this.presets = new CraftPresets(this);
       this.game.player.stats.gold.addListener("change", () => {
@@ -10761,13 +10734,6 @@
           this.updateCraftButton();
         }
       });
-    }
-    dispose() {
-      queryHTML('.p-game > menu [data-tab-target="items"]').classList.add("hidden");
-      this.presets.dispose();
-      this.itemListContainer.replaceChildren();
-      this.itemModListContainer.replaceChildren();
-      this.itemCraftTableContainer.replaceChildren();
     }
     save(saveObj) {
       saveObj.items = {
@@ -10817,7 +10783,7 @@
         tr.classList.add("g-list-item");
         tr.setAttribute("data-id", craftData.id);
         tr.setAttribute("data-cost", craftData.cost.toFixed());
-        const label = craftTemplates[craftData.id].desc;
+        const label = this.craftDescToHtml(craftData.id);
         tr.insertAdjacentHTML("beforeend", `<tr><td>${label}</td><td class="g-gold" data-cost>${craftData.cost}</td></tr>`);
         tr.addEventListener("click", () => {
           rows.forEach((x) => x.classList.toggle("selected", x === tr));
@@ -10888,6 +10854,12 @@
       this.activeItem.mods = template.getItemMods(craftData);
       this.game.player.stats.gold.subtract(cost);
       this.updateItemModList();
+    }
+    craftDescToHtml(id) {
+      return craftTemplates[id].desc.replace(/\[\w+\]/g, (x) => {
+        const tag = x.substring(1, x.length - 1);
+        return `<span data-mod-tag="${tag}">${tag}</span>`;
+      });
     }
   };
   var Item = class {
@@ -10987,8 +10959,6 @@
     }
     get curPoints() {
       return this.maxPoints - this.passives.filter((x) => x.assigned).reduce((a, c) => a += c.data.points, 0);
-    }
-    dispose() {
     }
     save(saveObj) {
       saveObj.passives = {
@@ -11113,7 +11083,6 @@
       this.game = game;
       this.data = data;
       __publicField(this, "achievements", []);
-      __publicField(this, "observers", []);
       for (const achievementData of data.list) {
         const achievement = new Achievement(this, achievementData);
         this.achievements.push(achievement);
@@ -11126,10 +11095,6 @@
       });
       queryHTML(".p-game .p-achievements ul").append(...this.achievements.map((x) => x.element));
       queryHTML('.p-game > menu [data-tab-target="achievements"]').classList.remove("hidden");
-    }
-    dispose() {
-      this.observers.forEach((x) => x.disconnect());
-      queryHTML(".p-game .p-achievements ul").replaceChildren();
     }
     updateUI(time) {
       if (time - this.updateUITime > 1) {
@@ -11219,10 +11184,6 @@
         this.slots.forEach((x) => x.tryCompletion());
       }, { intervalMilliseconds: 1e3 });
       queryHTML('.p-game > menu [data-tab-target="missions"]').classList.remove("hidden");
-    }
-    dispose() {
-      this.missionsListContainer.replaceChildren();
-      queryHTML('.p-game > menu [data-tab-target="missions"]').classList.add("hidden");
     }
     updateUI(time) {
       if (time - this.updateUITime > 1) {
@@ -11464,7 +11425,7 @@
       this.deleteSaveButton.addEventListener("click", this.openDeleteSaveModal.bind(this));
     }
     openDeleteSaveModal() {
-      const modal = queryHTML("generic-modal");
+      const modal = queryHTML("body > generic-modal");
       modal.init({
         title: "Delete Save",
         body: "Are you sure?",
