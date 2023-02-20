@@ -4,6 +4,7 @@ import { clamp, queryHTML } from "@src/utils/helpers";
 import type Game from "./Game";
 
 export default class Enemy {
+    private readonly combatPage = queryHTML('.p-game .p-combat');
     readonly onDeath = new EventEmitter<Enemy>();
     private _index: number;
     private healthList: number[] = [];
@@ -16,7 +17,7 @@ export default class Enemy {
         return this._index;
     }
     get maxIndex() {
-        return this.healthList.length-1;
+        return this.healthList.length - 1;
     }
     get maxHealth() {
         return this.healthList[this.index] || 1;
@@ -37,20 +38,20 @@ export default class Enemy {
         this.spawn();
     }
 
-    setIndex(index: number){
+    setIndex(index: number) {
         this._index = index;
     }
 
-    spawn(){
+    spawn() {
         this.health = this.maxHealth;
-        if(this.index === this.maxIndex+1){
+        if (this.index === this.maxIndex + 1) {
             this.healthBar.textContent = 'Dummy (Cannot die)';
         }
         this.updateHealthBar();
     }
 
     dealDamage(amount: number) {
-        if(this.index === this.maxIndex+1){
+        if (this.index === this.maxIndex + 1) {
             return;
         }
         this.health -= amount;
@@ -73,6 +74,9 @@ export default class Enemy {
     }
 
     private updateHealthBar() {
+        if (this.combatPage.classList.contains('hidden')) {
+            return;
+        }
         const pct = this.health / this.maxHealth;
         this.healthBar.value = pct;
     }

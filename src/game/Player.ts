@@ -75,13 +75,6 @@ export default class Player {
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
 
-        this.game.gameLoop.subscribeAnim(() => {
-            if (this.combatPage.classList.contains('hidden')) {
-                return;
-            }
-            this.updateManaBar();
-        });
-
         this.game.onSave.listen(this.save.bind(this));
 
         this.startAutoAttack();
@@ -90,6 +83,13 @@ export default class Player {
     async setup() {
         await this.updateStats();
         this.stats.curMana.set(this.game.saveObj.player?.curMana || this.stats.maxMana.get());
+        this.updateManaBar();
+    }
+
+    updateUI() {
+        if (this.combatPage.classList.contains('hidden')) {
+            return;
+        }
         this.updateManaBar();
     }
 

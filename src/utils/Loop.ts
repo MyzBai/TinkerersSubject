@@ -102,41 +102,25 @@ export default class Loop {
     }
 
     private beginLoopAnim() {
+        let now = performance.now();
+        let lastTime = now;
         cancelAnimationFrame(this.animLoopId);
         const loop = () => {
-
-            this.animLoopId = requestAnimationFrame(() => {
-                this.animInstances.forEach(instance => {
-                    instance.time += TARGET_FRAME_TIME;
-                    let ms = instance.options?.intervalMilliseconds || 0;
-                    if (instance.time > ms) {
-                        instance.callback(DELTA_TIME_SECONDS);
-                        instance.time -= ms || instance.time;
-                    }
-                });
-                loop();
+            now = performance.now();
+            const dt = (now - lastTime) / 1000;
+            console.log(dt);
+            this.animInstances.forEach(instance => {
+                instance.time += dt;
+                let ms = instance.options?.intervalMilliseconds || 0;
+                if (instance.time > ms) {
+                    instance.callback(dt);
+                    instance.time -= dt || instance.time;
+                }
             });
-
-            // this.animLoopId = requestAnimationFrame(() => {
-            //     let diff = performance.now() - now + remainder;
-            //     now = performance.now();
-            //     while (diff >= TARGET_FRAME_TIME) {
-            //         diff -= TARGET_FRAME_TIME;
-
-            //         this.animInstances.forEach(instance => {
-            //             instance.time += TARGET_FRAME_TIME;
-            //             let ms = instance.options?.intervalMilliseconds || 0;
-            //             if (instance.time > ms) {
-            //                 instance.callback(DELTA_TIME_SECONDS);
-            //                 instance.time -= ms || instance.time;
-            //             }
-            //         });
-            //     }
-            //     remainder = diff;
-            //     loop();
-            // });
+            lastTime = now;
+            this.animLoopId = requestAnimationFrame(loop);
         }
-        loop();
+        this.animLoopId = requestAnimationFrame(loop);
     }
 
     // private beginAnimationLoop() {

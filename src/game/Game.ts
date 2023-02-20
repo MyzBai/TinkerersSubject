@@ -72,7 +72,7 @@ export default class Game {
             this.statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
 
-        this.gameLoop.subscribe(dt => {
+        this.gameLoop.subscribeAnim(dt => {
             this.time += dt;
             this.updateComponentsUI();
         });
@@ -158,6 +158,9 @@ export default class Game {
 
         const visibleComponent = this.componentsList.find(x => !x.page.classList.contains('hidden'));
         visibleComponent?.updateUI(this.time);
+
+        this.player.updateUI();
+        this.statistics.updateUI(this.time);
     }
 
     private setupDevHelpers() {

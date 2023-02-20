@@ -1,6 +1,5 @@
 import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
-import { visibilityObserver } from "@src/utils/Observers";
 import Value from "@utils/Value";
 import type Game from "./Game";
 
@@ -24,17 +23,19 @@ export default class Statistics {
         'Prestige Count': new Statistic(0),
     } as const;
     private readonly page = queryHTML('.p-game .p-statistics');
+    private updateUITime = 0;
     constructor(readonly game: Game) {
 
-        let loopId: string | undefined;
-        visibilityObserver(this.page, visible => {
-            if (visible) {
-                this.updateStatisticsUI();
-                loopId = this.game.gameLoop.subscribe(() => this.updateStatisticsUI(), { intervalMilliseconds: 1000 });
-            } else {
-                this.game.gameLoop.unsubscribe(loopId);
-            }
-        });
+    }
+
+    updateUI(time: number) {
+        if(this.page.classList.contains('hidden')){
+            return;
+        }
+        if (time - this.updateUITime > 1) {
+            this.updateStatisticsUI();
+            this.updateUITime = time;
+        }
     }
 
     init() {
