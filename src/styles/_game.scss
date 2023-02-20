@@ -285,6 +285,13 @@ game-element {
                                 }
                             }
                         }
+
+                        footer{
+                            display: flex;
+                            [data-delete]{
+                                margin-left: auto;
+                            }
+                        }
                     }
                 }
             }

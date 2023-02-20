@@ -157,6 +157,9 @@ dialog[data-modal] {
                 background-color: $color-modal-cancel-bg;
             }
         }
+        footer{
+            padding-top: $padding-container;
+        }
     }
     &::backdrop {
         backdrop-filter: blur(1px);
