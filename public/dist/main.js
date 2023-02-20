@@ -9973,7 +9973,7 @@
         });
       }
       this.game.enemy.onDeath.listen(() => {
-        if (this.stats.level.get() < this.game.enemy.maxIndex) {
+        if (this.stats.level.get() <= this.game.enemy.maxIndex) {
           this.stats.level.add(1);
         }
       });
@@ -10108,9 +10108,6 @@
     init() {
       var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
-      this.onDeath.listen(() => {
-        this._index++;
-      });
       this.healthList = this.game.config.enemies.enemyList;
       this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
       this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
@@ -10130,6 +10127,7 @@
       this.health -= amount;
       if (this.health <= 0) {
         this.health = 0;
+        this._index++;
         this.onDeath.invoke(this);
         this.spawn();
       }
