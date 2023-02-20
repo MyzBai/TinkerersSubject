@@ -9,7 +9,7 @@ import type { Save } from '@src/types/save';
 export default class Player {
     private readonly playerStatsContainer = queryHTML('.p-game > .s-stats');
     private readonly combatPage = queryHTML('.p-combat');
-    private readonly manaBar = queryHTML('[data-mana-bar]', this.combatPage);
+    private readonly manaBar = queryHTML<HTMLProgressElement>('[data-mana-bar]', this.combatPage);
     private statsUpdateId = -1;
     readonly modDB = new ModDB();
     readonly stats = {
@@ -90,6 +90,7 @@ export default class Player {
     async setup() {
         await this.updateStats();
         this.stats.curMana.set(this.game.saveObj.player?.curMana || this.stats.maxMana.get());
+        this.updateManaBar();
     }
 
     updateStats() {
@@ -118,8 +119,8 @@ export default class Player {
     }
 
     private updateManaBar() {
-        const pct = this.stats.curMana.get() / this.stats.maxMana.get() * 100;
-        this.manaBar.style.width = pct + '%';
+        const pct = this.stats.curMana.get() / this.stats.maxMana.get();
+        this.manaBar.value = pct;
     }
 
     private startAutoAttack() {

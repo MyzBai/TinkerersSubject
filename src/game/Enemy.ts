@@ -8,7 +8,7 @@ export default class Enemy {
     private _index: number;
     private healthList: number[] = [];
     private _health = 0;
-    private healthBar = queryHTML('.p-game .s-enemy [data-health-bar]');
+    private healthBar = queryHTML<HTMLProgressElement>('.p-game .s-enemy [data-health-bar]');
     constructor(readonly game: Game) {
         this._index = 0;
     }
@@ -73,7 +73,7 @@ export default class Enemy {
     }
 
     private updateHealthBar() {
-        const pct = this.health / this.maxHealth * 100;
-        this.healthBar.style.width = `${pct}%`;
+        const pct = this.health / this.maxHealth;
+        this.healthBar.value = pct;
     }
 }

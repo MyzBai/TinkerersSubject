@@ -20,7 +20,7 @@
     }
     .s-main {
         display: flex;
-
+        min-height: 0;
         .p-new,
         .p-saved {
             display: grid;

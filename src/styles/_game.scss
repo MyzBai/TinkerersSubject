@@ -32,29 +32,35 @@ game-element {
                 grid-template-rows: 1fr 1fr;
 
                 .s-enemy {
-                    .s-health-bar-background {
-                        background-color: $color-health-bar-bg;
-                        .health-bar {
-                            display: flex;
-                            background-color: $color-health-bar-fg;
-                            width: 100%;
-                            align-items: center;
-                            justify-content: center;
+                    progress {
+                        width: 100%;
+                        &::-webkit-progress-bar {
+                            background-color: $color-health-bar-background-bg;
+                            background: none;
+                            border-radius: 2px;
+                            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
                         }
-
-                        .health-bar[data-damage]::after {
-                            content: attr(data-damage);
-                            margin: auto;
+                        &::-webkit-progress-value {
+                            background-color: $color-health-bar-foreground-bg;
+                            border-radius: 2px;
+                            transition: width 70ms linear;
                         }
                     }
                 }
 
                 .s-player {
-                    .s-mana-bar-background {
-                        background-color: $color-mana-bar-bg;
-                        .mana-bar {
-                            background-color: $color-mana-bar-fg;
-                            width: 100%;
+                    progress {
+                        width: 100%;
+                        &::-webkit-progress-bar {
+                            background-color: $color-mana-bar-background-bg;
+                            background: none;
+                            border-radius: 2px;
+                            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+                        }
+                        &::-webkit-progress-value {
+                            background-color: $color-mana-bar-foreground-bg;
+                            border-radius: 2px;
+                            transition: width 70ms linear;
                         }
                     }
                 }
@@ -73,10 +79,10 @@ game-element {
                         padding-bottom: $padding-container;
                         .s-skill-slot {
                             display: block;
-                            [data-skill-slot]{
+                            [data-skill-slot] {
                                 width: 100%;
                             }
-                            progress{
+                            progress {
                                 display: block;
                                 width: 100%;
                                 height: 5px;
@@ -88,14 +94,14 @@ game-element {
                         margin-top: $padding-container;
                         min-height: 0;
 
-                        li.s-skill-slot{
+                        li.s-skill-slot {
                             display: grid;
                             grid-template-columns: 1fr auto;
-                            button{
+                            button {
                                 margin-left: $padding-container;
                             }
-               
-                            progress{
+
+                            progress {
                                 display: block;
                                 width: 100%;
                                 height: 5px;
@@ -119,7 +125,7 @@ game-element {
                         border-top: 1px solid $color-border-highlight;
                         border-bottom: 1px solid $color-border-highlight;
                         border-spacing: $padding-container;
-                        td:last-child{
+                        td:last-child {
                             text-align: end;
                         }
                     }
@@ -135,7 +141,7 @@ game-element {
                         padding-top: 1em;
                         margin: auto;
                         width: 100%;
-                        & > *{
+                        & > * {
                             display: block;
                             width: 100%;
                         }
@@ -163,7 +169,7 @@ game-element {
                     margin-top: $padding-container;
                     tr.selected {
                         pointer-events: all;
-                        &:hover{
+                        &:hover {
                             background-color: $color-action-list-item-default-selected-bg;
                         }
                     }
@@ -286,9 +292,9 @@ game-element {
                             }
                         }
 
-                        footer{
+                        footer {
                             display: flex;
-                            [data-delete]{
+                            [data-delete] {
                                 margin-left: auto;
                             }
                         }

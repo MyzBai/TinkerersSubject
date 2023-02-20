@@ -11,14 +11,16 @@
     <div data-main-view>
         <div class="p-combat" data-tab-content="combat">
             <div class="s-enemy">
-                <div class="s-health-bar-background g-progress-bar-background">
+                <progress data-health-bar value="0.5" max="1"></progress>
+                <!-- <div class="s-health-bar-background g-progress-bar-background">
                     <div class="health-bar g-progress-bar" data-health-bar></div>
-                </div>
+                </div> -->
             </div>
             <div class="s-player">
-                <div class="s-mana-bar-background g-progress-bar-background">
+                <progress data-mana-bar value="0.5" max="1"></progress>
+                <!-- <div class="s-mana-bar-background g-progress-bar-background">
                     <div class="mana-bar g-progress-bar" data-mana-bar></div>
-                </div>
+                </div> -->
             </div>
             <div class="g-modal s-skill-modal hidden" data-skill-modal data-modal-type="relative">
                 <div class="wrapper">
