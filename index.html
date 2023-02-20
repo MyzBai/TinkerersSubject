@@ -16,69 +16,208 @@
 <body class="dark hidden">
     <header>
         <div>
-            <button class="g-button hidden" data-target="game">Back</button>
+            <button class="g-button hidden" data-tab-target="game">Back</button>
         </div>
         <p class="title">Tinkerers Subject</p>
         <div></div>
     </header>
     <main class="p-home" data-tab-content="home">
         <menu class="g-list-h">
-            <li class="g-list-item" data-type="new" data-tab-target="new">New</li>
-            <li class="g-list-item" data-type="saved" data-tab-target="saved">Load</li>
+            <li class="g-list-item" data-type="new">New</li>
+            <li class="g-list-item" data-type="save">Load</li>
         </menu>
-        <div class="s-main">
-            <div class="p-new" data-tab-content="new">
-                <ul class="g-list-v" data-entry-list></ul>
-                <div class="s-info" data-entry-info>
-                    <h3 data-title></h3>
-                    <div data-desc></div>
-                    <button class="g-button" data-start>Start</button>
+        <ul class="g-list-v" data-config-list></ul>
+        <div class="s-info" data-config-info>
+            <h3 data-title></h3>
+            <div data-desc></div>
+            <button class="g-button hidden" data-role="delete">Delete</button>
+            <button class="g-button" data-start>Start</button>
+        </div>
+
+    </main>
+    <main class="p-game hidden" data-tab-content="game">
+        <menu class="s-menu g-list-v">
+            <li class="g-list-item" data-tab-target="combat">Combat</li>
+            <li class="g-list-item hidden" data-tab-target="passives">Passives</li>
+            <li class="g-list-item hidden" data-tab-target="items">Items</li>
+            <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>
+            <li class="g-list-item" data-tab-target="statistics">Statistics</li>
+        </menu>
+        <div class="s-middle">
+            <div class="p-combat" data-tab-content="combat">
+                <div class="s-enemy">
+                    <div class="s-health-bar-background g-progress-bar-background">
+                        <div class="health-bar g-progress-bar" data-health-bar></div>
+                    </div>
+                </div>
+                <div class="s-player">
+                    <div class="s-mana-bar-background g-progress-bar-background">
+                        <div class="mana-bar g-progress-bar" data-mana-bar></div>
+                    </div>
+                    <div class="s-skills">
+                        <div data-attack-skill></div>
+                        <ul data-buff-skill-list></ul>
+                    </div>
+                </div>
+                <div class="g-modal s-skill-modal hidden" data-skill-modal data-modal-type="relative">
+                    <div class="wrapper">
+                        <section>
+                            <ul class="g-list-v" data-skill-list></ul>
+                            <div class="s-skill-info" data-skill-info>
+                                <div data-title>Example Name</div>
+                                <div class="g-field">
+                                    <div>Mana Cost</div>
+                                    <i data-stat="manaCost"></i>
+                                </div>
+                                <div class="g-field">
+                                    <div>Attack Speed</div>
+                                    <i data-stat="attackSpeed"></i>
+                                </div>
+                                <div class="g-field">
+                                    <div>Base Damage Multiplier</div>
+                                    <i data-stat="baseDamageMultiplier"></i>
+                                </div>
+                                <div class="g-field">
+                                    <div>Base Duration</div>
+                                    <i data-stat="baseDuration"></i>
+                                </div>
+                                <ul data-mod-list></ul>
+                            </div>
+                        </section>
+                        <footer>
+                            <button class="g-button" data-value="apply">Apply</button>
+                            <button class="g-button" data-value="remove">Remove</button>
+                            <button class="g-button" data-value="cancel">Cancel</button>
+                        </footer>
+                    </div>
                 </div>
             </div>
-            <div class="p-saved" data-tab-content="saved">
-                <ul class="g-list-v" data-entry-list></ul>
-                <div class="s-info" data-entry-info>
-                    <h3 data-title></h3>
-                    <div data-desc></div>
-                    <button class="g-button" data-start>Start</button>
+            <div class="p-passives hidden" data-tab-content="passives">
+                <header>
+                    <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>
+                    <button class="g-button" data-clear>Clear</button>
+                </header>
+                <ul data-passives-list>
+
+                </ul>
+            </div>
+            <div class="p-items hidden" data-tab-content="items">
+                <menu class="g-list-v" data-item-list></menu>
+                <ul data-mod-list></ul>
+                <div class="s-preset-container">
+                    <menu class="g-toolbar s-preset-toolbar g-list-h">
+                        <div class="g-list-item" data-new>New</div>
+                        <div class="g-list-item" data-edit>Edit</div>
+                    </menu>
+                    <menu class="g-list-v" data-preset-list></menu>
                 </div>
+                <div class="s-craft-container">
+                    <ul class="g-list-v" data-craft-list></ul>
+                    <button class="g-button" data-craft-button>Craft</button>
+                    <div data-craft-message></div>
+                </div>
+                <dialog data-modal data-preset-modal>
+                    <form method="dialog">
+                        <h2>Craft Preset</h2>
+                        <input type="text" data-name>
+                        <div class="g-list-v" data-craft-list></div>
+                        <footer>
+                            <input class="g-button" type="submit" value="Apply">
+                            <input class="g-button" type="submit" value="Cancel" data-cancel>
+                        </footer>
+                    </form>
+                </dialog>
+                <div class="g-modal hidden" data-craft-preset-modal data-modal-type="relative">
+                    <div class="wrapper">
+                        <section>
+                            <h2>Craft Preset</h2>
+                            <input type="text" data-name>
+                            <div class="g-list-v" data-craft-list></div>
+                        </section>
+                        <footer>
+                            <button class="g-button" data-value="apply">Apply</button>
+                            <button class="g-button" data-value="delete">Delete</button>
+                            <button class="g-button" data-value="cancel">Cancel</button>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+            <div class="p-achievements hidden" data-tab-content="achievements">
+                <ul></ul>
+            </div>
+            <div class="p-statistics hidden" data-tab-content="statistics">
+                <ul> </ul>
             </div>
         </div>
+        <aside class="s-stats">
+            <ul>
+                <li class="g-field">
+                    <div>Level</div>
+                    <var data-stat="level">1</var>
+                </li>
+                <li class="g-field">
+                    <div>Gold</div>
+                    <var data-stat="gold">0</var>
+                </li>
+                <li class="g-field">
+                    <div>Gold Per Second</div>
+                    <var data-stat="goldPerSecond">0</var>
+                </li>
+                <li class="g-field">
+                    <div>Dps</div>
+                    <var data-stat="dps">0</var>
+                </li>
+                <li class="g-field">
+                    <div>Hit Chance</div>
+                    <div><var data-stat="hitChance"></var><span>%</span></div>
+                </li>
+                <li class="g-field">
+                    <div>Attack Speed</div>
+                    <var data-stat="attackSpeed" data-digits="2"></var>
+                </li>
+                <li class="g-field">
+                    <div>Critical Hit Chance</div>
+                    <div><var data-stat="critChance" data-pct></var><span>%</span></div>
+                </li>
+                <li class="g-field">
+                    <div>Critical Hit Multiplier</div>
+                    <div><var data-stat="critMulti" data-pct></var><span>%</span></div>
+                </li>
+                <li class="g-field">
+                    <div>Mana</div>
+                    <var data-stat="maxMana"></var>
+                </li>
+                <li class="g-field">
+                    <div>Mana Regeneration</div>
+                    <var data-stat="manaRegen"></var>
+                </li>
+            </ul>
+        </aside>
+
     </main>
 
-    <game-element></game-element>
-
-    <footer>
-        <a href="https://github.com/MyzBai/TinkerersSubject">Github</a>
-        <span>|</span>
-        <a href="https://discord.gg/TF7aXyrffh">Discord</a>
-
-        <span class="copyright">© 2023 Tinkerers Subject</span>
-    </footer>
-
-    <generic-modal></generic-modal>
     <script>
-        // {
-        //     document.querySelectorAll('dialog[data-modal]').forEach(x => x.addEventListener('mousedown', x => {
-        //         if (x.target === x.currentTarget) {
-        //             x.target.close();
-        //         }
-        //     }));
-        // }
-        // {
-        //     document.querySelectorAll('.g-modal').forEach(x => x.addEventListener('mousedown', x => {
-        //         if (x.target === x.currentTarget) {
-        //             x.target.classList.add('hidden');
-        //         }
-        //     }));
+        {
+            document.querySelectorAll('dialog[data-modal]').forEach(x => x.addEventListener('mousedown', x => {
+                if (x.target === x.currentTarget) {
+                    x.target.close();
+                }
+            }));
+        }
+        {
+            document.querySelectorAll('.g-modal').forEach(x => x.addEventListener('mousedown', x => {
+                if (x.target === x.currentTarget) {
+                    x.target.classList.add('hidden');
+                }
+            }));
 
-        // }
+        }
 
-        // document.querySelectorAll('.g-accordion').forEach(accordion => {
-        //     accordion.querySelector('.header').addEventListener('click', x => {
-        //         x.target.toggleAttribute('data-open');
-        //     });
-        // });
+        document.querySelectorAll('.g-accordion').forEach(accordion => {
+            accordion.querySelector('.header').addEventListener('click', x => {
+                x.target.toggleAttribute('data-open');
+            });
+        });
 
     </script>
 
