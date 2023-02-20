@@ -9061,8 +9061,8 @@
   // src/utils/validateConfig.ts
   var import_ajv = __toESM(require_ajv(), 1);
 
-  // public/gconfig/configSchema.json
-  var configSchema_default = {
+  // public/gconfig/config.schema.json
+  var config_schema_default = {
     $schema: "http://json-schema.org/draft-07/schema#",
     type: "object",
     required: ["enemies"],
@@ -9409,7 +9409,7 @@
   };
 
   // src/utils/validateConfig.ts
-  var validateConfig = new import_ajv.default().compile(configSchema_default);
+  var validateConfig = new import_ajv.default().compile(config_schema_default);
 
   // src/utils/EventEmitter.ts
   var EventEmitter = class {
@@ -10116,6 +10116,9 @@
       this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
       this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
       this.spawn();
+    }
+    setIndex(index) {
+      this._index = index;
     }
     spawn() {
       this.health = this.maxHealth;
@@ -11059,7 +11062,7 @@
         throw Error(`Task.ts: ${text} is an invalid task string`);
       }
       const match = this.validator[0].exec(text);
-      this.startValue = parseFloat((this.validator[1].get(), this.validator[1].defaultValue).toFixed());
+      this.startValue = parseFloat((this.validator[1].get() - this.validator[1].defaultValue).toFixed());
       this._targetValue = parseFloat(match[1]);
       const valueIndex = text.indexOf(`{${match[1]}}`);
       this.textData = {
@@ -11103,7 +11106,7 @@
     updateUI(time) {
       if (time - this.updateUITime > 1) {
         this.achievements.forEach((x) => x.updateLabel());
-        this.updateUITime = 0;
+        this.updateUITime = time;
       }
     }
     save(saveObj) {
@@ -11367,10 +11370,12 @@
       button.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost>${this.unlockCost}</span>`);
       button.setAttribute("data-trigger", "buy");
       button.addEventListener("click", () => {
+        this.missions.game.player.stats.gold.subtract(this.unlockCost);
         this.unlock();
       });
-      this.missions.game.player.stats.gold.registerCallback(this.unlockCost, () => {
-        button.disabled = false;
+      button.disabled = true;
+      this.missions.game.player.stats.gold.addListener("change", (amount) => {
+        button.disabled = amount < this.unlockCost;
       });
       li.appendChild(label);
       li.appendChild(button);
@@ -12005,7 +12010,11 @@
       }
       Object.defineProperty(window, "TS", {
         value: {
-          setLevel: (v) => this.player.stats.level.set(v),
+          setLevel: (v) => {
+            this.player.stats.level.set(v);
+            this.enemy.setIndex(v - 1);
+            this.enemy.spawn();
+          },
           setGold: (v) => this.player.stats.gold.set(v),
           save: () => {
             this.save();
@@ -12084,22 +12093,12 @@
 
   // public/gconfig/configList.json
   var configList_default = {
-    $schema: "./configListSchema.json",
+    $schema: "./configList.schema.json",
     list: [
       {
         name: "Demo",
         rawUrl: "public/gconfig/demo.json",
-        description: "This is a short configuration for demonstration purposes"
-      },
-      {
-        name: "Demo 2",
-        rawUrl: "public/gconfig/demo2.json",
-        description: "Test"
-      },
-      {
-        name: "Skills Test",
-        rawUrl: "public/gconfig/skills-test.json",
-        description: "Test"
+        description: "This is a short configuration for demonstration purposes."
       }
     ]
   };
@@ -12206,22 +12205,26 @@
       queryHTML("[data-desc]", infoContainer).textContent = entry.description || "";
     }
     async tryStartGame(entry, saveObj) {
-      const config = await (await fetch(entry.rawUrl)).json();
-      if (!validateConfig(config)) {
-        console.error(`${entry.name} is not valid`);
-        return false;
+      try {
+        const config = await (await fetch(entry.rawUrl)).json();
+        if (!validateConfig(config)) {
+          console.error(`${entry.name} is not valid`);
+          return false;
+        }
+        if (!saveObj) {
+          saveObj = {
+            meta: __spreadProps(__spreadValues({}, entry), { createdAt: Date.now() })
+          };
+        }
+        config.meta = saveObj.meta;
+        this.game.init(config, saveObj);
+        const navBtn = queryHTML("header [data-target]");
+        navBtn.classList.remove("hidden");
+        navBtn.click();
+        return true;
+      } catch (e) {
+        console.error(e);
       }
-      if (!saveObj) {
-        saveObj = {
-          meta: __spreadProps(__spreadValues({}, entry), { createdAt: Date.now() })
-        };
-      }
-      config.meta = saveObj.meta;
-      this.game.init(config, saveObj);
-      const navBtn = queryHTML("header [data-target]");
-      navBtn.classList.remove("hidden");
-      navBtn.click();
-      return true;
     }
     async getEntries(type) {
       switch (type) {
