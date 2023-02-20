@@ -314,20 +314,20 @@
             ]
         },
         "missions": {
-            "levelReq": 1,
+            "levelReq": 3,
             "cost": 10,
             "slots": [
                 {
-                    "levelReq": 1,
-                    "cost": 0
-                },
-                {
                     "levelReq": 3,
-                    "cost": 100
+                    "cost": 50
                 },
                 {
                     "levelReq": 5,
-                    "cost": 300
+                    "cost": 100
+                },
+                {
+                    "levelReq": 7,
+                    "cost": 500
                 }
             ],
             "missionLists": [
@@ -374,14 +374,14 @@
                 ],
                 [
                     {
-                        "levelReq": 5,
+                        "levelReq": 1,
                         "goldAmount": 500,
                         "description": "Perform Critical Hits {100}"
                     }
                 ],
                 [
                     {
-                        "levelReq": 5,
+                        "levelReq": 7,
                         "goldAmount": 500,
                         "description": "Regenerate Mana {500}"
                     }

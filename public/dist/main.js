@@ -8975,9 +8975,12 @@
         if (!element) {
           throw Error("invalid component html");
         }
+        element.classList.add("hidden");
         this.componentPages.push(element);
         container.appendChild(element);
-        menu.appendChild(this.createMenuItem(componentData.name, componentData.targetName));
+        const menuItem = this.createMenuItem(componentData.name, componentData.targetName);
+        menuItem.classList.add("hidden");
+        menu.appendChild(menuItem);
       }
       menu.appendChild(this.createMenuItem("Statistics", "statistics"));
       menu.appendChild(this.createMenuItem("Settings", "settings"));
@@ -10108,6 +10111,7 @@
     init() {
       var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
+      this.onDeath.removeAllListeners();
       this.healthList = this.game.config.enemies.enemyList;
       this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
       this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
@@ -11766,24 +11770,19 @@
       if (!this.skill) {
         return;
       }
-      const manaEval = (mana) => {
+      const loopEval = (mana) => {
         if (!this.skill) {
           return;
         }
         if (mana < this.skill.data.manaCost) {
           return;
         }
-        this.skills.game.player.stats.curMana.removeListener("change", manaEval);
+        this.skills.game.player.stats.curMana.removeListener("change", loopEval);
+        this.player.stats.curMana.subtract(this.skill.data.manaCost);
         this.loop();
       };
-      this.skills.game.player.stats.curMana.addListener("change", manaEval);
-      manaEval(this.skills.game.player.stats.curMana.get());
-      const sufficientMana = this.player.stats.curMana.get() >= this.skill.data.manaCost;
-      if (!sufficientMana) {
-        return;
-      }
-      this.player.stats.curMana.subtract(this.skill.data.manaCost);
-      this.loop();
+      this.skills.game.player.stats.curMana.addListener("change", loopEval);
+      loopEval(this.skills.game.player.stats.curMana.get());
     }
     loop() {
       if (!this.skill) {
@@ -11798,11 +11797,11 @@
       this._running = true;
       this.skills.game.player.stats.skillDurationMultiplier.addListener("change", calcDuration);
       this.skill.applyModifiers();
+      console.log(this._duration);
       const loopId = this.skills.game.gameLoop.subscribe((dt) => {
         if (!this.skill) {
           return;
         }
-        this._time = this._duration * (this._time / this._duration);
         if (this._time <= 0) {
           this._time = 0;
           this.skills.game.gameLoop.unsubscribe(loopId);
