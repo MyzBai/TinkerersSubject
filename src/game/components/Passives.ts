@@ -47,10 +47,6 @@ export default class Passives extends Component {
         return this.maxPoints - this.passives.filter(x => x.assigned).reduce((a, c) => a += c.data.points, 0);
     }
 
-    dispose(): void {
-        
-    }
-
     save(saveObj: Save): void {
         saveObj.passives = {
             list: this.passives.filter(x => x.assigned).map((x) => ({

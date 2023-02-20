@@ -10,7 +10,6 @@ type AchievementData = Required<Required<GConfig>['components']>['achievements']
 
 export default class Achievements extends Component {
     readonly achievements: Achievement[] = [];
-    readonly observers: IntersectionObserver[] = [];
     constructor(readonly game: Game, readonly data: AchievementData) {
         super(game, 'achievements');
 
@@ -28,11 +27,6 @@ export default class Achievements extends Component {
 
         queryHTML('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
         queryHTML('.p-game > menu [data-tab-target="achievements"]').classList.remove('hidden');
-    }
-
-    dispose(): void {
-        this.observers.forEach(x => x.disconnect());
-        queryHTML('.p-game .p-achievements ul').replaceChildren();
     }
 
     updateUI(time: number): void {

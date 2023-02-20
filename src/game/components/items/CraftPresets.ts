@@ -3,56 +3,37 @@ import { CraftId, craftTemplates } from "./crafting";
 import type Items from "./Items";
 
 export default class CraftPresets {
-    presets: CraftPreset[];
+    presets: CraftPreset[] = [];
     activePreset?: CraftPreset;
-    private modal: HTMLDialogElement;
-    private newPresetButton: HTMLButtonElement;
-    private editPresetButton: HTMLButtonElement;
-    private applyPresetButton: HTMLButtonElement;
-    private deletePresetButton: HTMLButtonElement;
-    private newPresetCallback: () => void;
-    private editPresetCallback: () => void;
-    private applyPresetCallback: () => void;
-    private deletePresetCallback: () => void;
+    private readonly modal: HTMLDialogElement;
     constructor(readonly items: Items) {
-        this.presets = [];
 
-        this.newPresetCallback = () => {
+        this.modal = queryHTML<HTMLDialogElement>('.p-game .p-items [data-preset-modal]', this.items.page);
+
+        //new preset button
+        queryHTML('.s-preset-container [data-new]', this.items.page).addEventListener('click', () => {
             const preset = this.newPreset();
             this.editActivePreset();
             preset.element.click();
-        };
-        this.editPresetCallback = () => {
-            this.editActivePreset();
-        };
-        this.applyPresetCallback = () => {
+        });
+        //edit preset button
+        queryHTML('.s-preset-container [data-edit]', this.items.page).addEventListener('click', () => this.editActivePreset());
+
+        //preset modal apply button
+        queryHTML('[data-apply]', this.modal).addEventListener('click', () => {
             if (!this.activePreset) {
                 return;
             }
             const newIds = [...this.modal.querySelectorAll<HTMLTableRowElement>('[data-craft-list] table [data-id]')].filter(x => x.classList.contains('selected')).map(x => x.getAttribute('data-id'));
             this.activePreset!.ids = newIds as CraftId[];
-
             const name = queryHTML<HTMLInputElement>('input[data-name]', this.modal).value;
             if (name !== this.activePreset.name) {
                 this.activePreset.name = name;
             }
-
             this.selectPreset(this.activePreset);
-        };
-        this.deletePresetCallback = () => {
-            this.deleteActivePreset();
-        };
-
-        this.modal = queryHTML('.p-game .p-items [data-preset-modal]');
-        this.newPresetButton = queryHTML('.s-preset-container [data-new]');
-        this.editPresetButton = queryHTML('.s-preset-container [data-edit]');
-        this.applyPresetButton = queryHTML('[data-apply]', this.modal);
-        this.deletePresetButton = queryHTML('[data-delete]', this.modal);
-
-        this.newPresetButton.addEventListener('click', this.newPresetCallback);
-        this.editPresetButton.addEventListener('click', this.editPresetCallback);
-        this.applyPresetButton.addEventListener('click', this.applyPresetCallback);
-        this.deletePresetButton.addEventListener('click', this.deletePresetCallback);
+        });
+        //preset modal delete button
+        queryHTML('[data-delete]', this.modal).addEventListener('click', () => this.deleteActivePreset());
 
         if (items.game.saveObj.items?.craftPresets) {
             for (const savedPreset of items.game.saveObj.items?.craftPresets) {
@@ -61,16 +42,6 @@ export default class CraftPresets {
         } else {
             this.newPreset('Default', items.data.craftList.map(x => x.id));
         }
-
-    }
-
-    dispose() {
-        this.newPresetButton.removeEventListener('click', this.newPresetCallback);
-        this.editPresetButton.removeEventListener('click', this.editPresetCallback);
-        this.deletePresetButton.removeEventListener('click', this.deletePresetCallback);
-        this.applyPresetButton.removeEventListener('click', this.applyPresetCallback);
-        queryHTML('.s-preset-container [data-preset-list]').replaceChildren();
-        queryHTML('[data-craft-list] table tbody', this.modal).replaceChildren();
     }
 
     newPreset(name = 'New', ids: CraftId[] = this.items.data.craftList.map(x => x.id)) {
@@ -88,7 +59,7 @@ export default class CraftPresets {
     selectPreset(preset?: CraftPreset) {
         this.activePreset = preset;
         this.items.populateCraftList(this.activePreset?.ids);
-        this.editPresetButton.disabled = typeof this.activePreset === 'undefined';
+        queryHTML<HTMLButtonElement>('.s-preset-container [data-new]', this.items.page).disabled = typeof this.activePreset === 'undefined';
     }
 
     editActivePreset() {

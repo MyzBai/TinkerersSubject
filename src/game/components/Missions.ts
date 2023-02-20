@@ -27,11 +27,6 @@ export default class Missions extends Component {
         queryHTML('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
     }
 
-    dispose(): void {
-        this.missionsListContainer.replaceChildren();
-        queryHTML('.p-game > menu [data-tab-target="missions"]').classList.add('hidden');
-    }
-
     updateUI(time: number): void {
         if (time - this.updateUITime > 1) {
             this.slots.forEach(x => x.updateLabel());

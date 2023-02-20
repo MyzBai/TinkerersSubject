@@ -60,15 +60,6 @@ export default class Items extends Component {
         });
     }
 
-    dispose(): void {
-        queryHTML('.p-game > menu [data-tab-target="items"]').classList.add('hidden');
-        this.presets.dispose();
-
-        this.itemListContainer.replaceChildren();
-        this.itemModListContainer.replaceChildren();
-        this.itemCraftTableContainer.replaceChildren();
-    }
-
     save(saveObj: Save) {
         saveObj.items = {
             items: this.items.map<Required<Save>['items']['items'][number]>(item => ({
