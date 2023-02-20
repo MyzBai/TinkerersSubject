@@ -54,7 +54,6 @@ class Achievement {
     constructor(readonly achievements: Achievements, readonly data: AchievementData['list'][number]) {
         this.element = this.createElement();
         this.task = new Task(achievements.game, data.description);
-        this.task.startValue = this.task.validator[1].defaultValue;
     }
     get taskCompleted() { return this.task.completed; }
     tryCompletion() {
