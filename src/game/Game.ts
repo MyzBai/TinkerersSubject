@@ -166,7 +166,11 @@ export default class Game {
         }
         Object.defineProperty(window, 'TS', {
             value: {
-                setLevel: (v: number) => this.player.stats.level.set(v),
+                setLevel: (v: number) => {
+                    this.player.stats.level.set(v);
+                    this.enemy.setIndex(v - 1);
+                    this.enemy.spawn();
+                },
                 setGold: (v: number) => this.player.stats.gold.set(v),
                 save: () => {
                     this.save();

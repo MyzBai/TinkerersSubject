@@ -37,7 +37,11 @@ export default class Enemy {
         this.spawn();
     }
 
-    private spawn(){
+    setIndex(index: number){
+        this._index = index;
+    }
+
+    spawn(){
         this.health = this.maxHealth;
         if(this.index === this.maxIndex+1){
             this.healthBar.textContent = 'Dummy (Cannot die)';
