@@ -30,7 +30,7 @@ export default class Enemy {
 
     init() {
         this.game.onSave.listen(this.save.bind(this));
-
+        this.onDeath.removeAllListeners();
         this.healthList = this.game.config.enemies.enemyList;
         this._index = this.game.saveObj.enemy?.index || 0;
         this.health = this.game.saveObj.enemy?.health || this.maxHealth;
