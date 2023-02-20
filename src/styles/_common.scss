@@ -210,3 +210,17 @@ progress[value] {
     background: rgb(153, 153, 153);
 }
 /*#endregion Scroll Bar*/
+
+
+[data-mod-tag=physical]{
+    color: $color-mod-tag-physical;
+}
+[data-mod-tag=critical]{
+    color: $color-mod-tag-critical;
+}
+[data-mod-tag=mana]{
+    color: $color-mod-tag-mana;
+}
+[data-mod-tag=speed]{
+    color: $color-mod-tag-speed;
+}

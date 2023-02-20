@@ -42,9 +42,7 @@ export default class Items extends Component {
         }
         queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove('hidden');
 
-        game.player.stats.level.addListener('change', () => {
-            this.updateCraftList();
-        });
+        game.player.stats.level.addListener('change', () => this.updateCraftList());
 
         this.craftButton.addEventListener('click', () => this.performCraft());
 
@@ -112,7 +110,7 @@ export default class Items extends Component {
             tr.classList.add('g-list-item');
             tr.setAttribute('data-id', craftData.id);
             tr.setAttribute('data-cost', craftData.cost.toFixed());
-            const label = craftTemplates[craftData.id].desc;
+            const label = this.craftDescToHtml(craftData.id);
             tr.insertAdjacentHTML('beforeend', `<tr><td>${label}</td><td class="g-gold" data-cost>${craftData.cost}</td></tr>`);
             tr.addEventListener('click', () => {
                 rows.forEach(x => x.classList.toggle('selected', x === tr));
@@ -190,6 +188,13 @@ export default class Items extends Component {
         this.game.player.stats.gold.subtract(cost);
 
         this.updateItemModList();
+    }
+
+    craftDescToHtml(id: CraftId) {
+        return craftTemplates[id].desc.replace(/\[\w+\]/g, (x) => {
+            const tag = x.substring(1, x.length - 1);
+            return `<span data-mod-tag="${tag}">${tag}</span>`;
+        });
     }
 }
 

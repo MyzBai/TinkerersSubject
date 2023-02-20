@@ -72,7 +72,7 @@ export default class CraftPresets {
         const filteredCraftList = this.items.data.craftList.filter(x => x.levelReq <= this.items.game.player.stats.level.get());
         const rows = [] as HTMLTableRowElement[];
         for (const craftData of filteredCraftList) {
-            const label = craftTemplates[craftData.id].desc;
+            const label = this.items.craftDescToHtml(craftData.id);
             const row = document.createElement('tr');
             row.classList.add('g-list-item');
             row.classList.toggle('selected', this.activePreset.ids.includes(craftData.id));
