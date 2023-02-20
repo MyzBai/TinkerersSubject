@@ -10052,6 +10052,7 @@
             this.stats.curMana.subtract(manaCost);
             this.performAttack();
             waitTimeSeconds = calcWaitTime();
+            time = 0;
           }
         }
       });
