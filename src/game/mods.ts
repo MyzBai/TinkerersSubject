@@ -228,11 +228,11 @@ export class Modifier {
                 throw Error('invalid modifier');
             }
             const { v1, v2 } = matchValue.groups;
-            if (!v1 || !v2) {
+            if (!v1) {
                 throw Error('invalid modifier');
             }
             const min = parseFloat(v1);
-            const max = parseFloat(v2) || min;
+            const max = v2 ? parseFloat(v2) : min;
             const value = min;
             stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
         }
