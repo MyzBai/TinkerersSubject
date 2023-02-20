@@ -3,8 +3,7 @@ import EventEmitter from "./EventEmitter";
 type EventType = 'change' | 'set' | 'add' | 'subtract';
 type Callback = (v: number) => void;
 
-export default class Value{
-    private readonly defaultValue: number;
+export default class Value {
     private value: number;
     private readonly listeners = new Map<EventType, EventEmitter<number>>([
         ['change', new EventEmitter<number>()],
@@ -12,8 +11,7 @@ export default class Value{
         ['add', new EventEmitter<number>()],
         ['subtract', new EventEmitter<number>()],
     ]);
-    constructor(defaultValue: number) {
-        this.defaultValue = defaultValue;
+    constructor(public readonly defaultValue: number) {
         this.value = defaultValue;
     }
 
@@ -47,5 +45,19 @@ export default class Value{
 
     removeListener(type: EventType, callback: Callback) {
         this.listeners.get(type)?.removeListener(callback);
+    }
+
+    registerCallback(targetValue: number, callback: (v: number) => void) {
+        if (targetValue <= this.value) {
+            callback(this.value);
+            return;
+        }
+        const listener = () => {
+            if (this.value >= targetValue) {
+                callback(this.value);
+                this.removeListener('change', listener);
+            }
+        }
+        this.addListener('change', listener);
     }
 }

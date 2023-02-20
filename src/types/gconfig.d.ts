@@ -5,20 +5,17 @@ export interface GConfig {
     options?: Options;
     player?: Player;
     enemies: Enemies;
-    skills: Skills;
-    passives?: Passives;
-    items?: Items;
-    achievements: Achievements;
-    prestige?: Prestige;
+
+    components?: Components;
 }
 
-export interface Meta{
+export interface Meta {
     name: string;
     description?: string;
     rawUrl: string;
     id: string;
     createdAt: number;
-    lastSavedAt?: number;
+    lastSavedAt: number;
 }
 
 export interface Options {
@@ -41,26 +38,36 @@ export interface Skills {
             mods?: Mod[];
         }[]
     };
-    buffSkills: {
+    buffSkills?: {
         skillSlots: {
             levelReq: number;
-        }[]
+        }[];
         skillList: {
             name: string;
             baseDuration: number;
             manaCost: number;
             levelReq: number;
             mods?: Mod[];
-        }[]
+        }[];
     }
 }
-export interface Passives{
-    levelReq: number;
-    passiveList: {
+
+export interface Components {
+    skills?: Skills;
+    passives?: Passives;
+    items?: Items;
+    missions?: Missions;
+    achievements?: Achievements;
+    prestige?: Prestige;
+}
+
+export interface Passives {
+    pointsPerLevel: number;
+    passiveLists: {
         levelReq: number;
         points: number;
         mod: Mod;
-    }[];
+    }[][];
 }
 export interface ItemMod {
     levelReq: number;
@@ -73,18 +80,26 @@ export interface Items {
         name: string;
         levelReq: number;
     }[];
-    modTables: {
-        general: ItemMod[][],
-        special?: ItemMod[][]
-    };
+    modLists: ItemMod[][];
     craftList: {
         id: CraftId;
         levelReq: number;
         cost: number;
     }[];
 }
-export interface Achievements {
+export interface Missions {
     levelReq: number;
+    slots: {
+        levelReq: number;
+        cost: number;
+    }[];
+    missionLists: {
+        description: string;
+        levelReq: number;
+        goldAmount: number;
+    }[][];
+}
+export interface Achievements {
     list: {
         description: string;
         modList?: Mod[];
@@ -102,3 +117,6 @@ export type CraftId =
     'addRandom' | 'addPhysical' | 'addMana' | 'addCritical' |
     'removeRandom' | 'removeRandomAddRandom' | 'removeRandomAddPhysical' | 'removeRandomAddMana' | 'removeRandomAddCritical';
 
+
+export type Components = GConfig['components'];
+export type ComponentName = { [K in keyof Required<Required<GConfig>['components']>]: K }[keyof Required<GConfig>['components']];
