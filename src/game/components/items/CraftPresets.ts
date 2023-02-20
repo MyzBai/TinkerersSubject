@@ -59,7 +59,7 @@ export default class CraftPresets {
     selectPreset(preset?: CraftPreset) {
         this.activePreset = preset;
         this.items.populateCraftList(this.activePreset?.ids);
-        queryHTML<HTMLButtonElement>('.s-preset-container [data-new]', this.items.page).disabled = typeof this.activePreset === 'undefined';
+        queryHTML<HTMLButtonElement>('.s-preset-container [data-edit]', this.items.page).disabled = typeof this.activePreset === 'undefined';
     }
 
     editActivePreset() {
