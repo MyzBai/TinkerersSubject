@@ -11085,7 +11085,7 @@
         throw Error(`Task.ts: ${text} is an invalid task string`);
       }
       const match = this.validator[0].exec(text);
-      this.startValue = parseFloat(this.validator[1].get().toFixed());
+      this.startValue = parseFloat((this.validator[1].get(), this.validator[1].defaultValue).toFixed());
       this._targetValue = parseFloat(match[1]);
       const valueIndex = text.indexOf(`{${match[1]}}`);
       this.textData = {
@@ -11149,7 +11149,6 @@
       __publicField(this, "completed", false);
       this.element = this.createElement();
       this.task = new Task(achievements.game, data.description);
-      this.task.startValue = this.task.validator[1].defaultValue;
     }
     get taskCompleted() {
       return this.task.completed;
