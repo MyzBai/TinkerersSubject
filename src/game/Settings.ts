@@ -12,7 +12,7 @@ export default class Settings {
 
 
     private openDeleteSaveModal() {
-        const modal = queryHTML<GenericModal>('generic-modal');
+        const modal = queryHTML<GenericModal>('body > generic-modal');
         modal.init({
             title: 'Delete Save',
             body: 'Are you sure?',
