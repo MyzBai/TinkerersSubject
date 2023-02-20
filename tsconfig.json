@@ -4,9 +4,9 @@
         "target": "ESNext",
         "lib": [ "DOM", "ESNext", "dom.iterable" ],
         "resolveJsonModule": true,
-        // "importsNotUsedAsValues": "error",
+        "importsNotUsedAsValues": "error",
         "skipLibCheck": true,
-        "moduleResolution": "node",
+        "moduleResolution": "Node",
         "baseUrl": ".",
         "removeComments": true,
         "noEmit": true,
@@ -28,10 +28,10 @@
             "@utils/*": [ "./src/utils/*" ],
             "@game/*": [ "./src/game/*" ],
             "@public/*": [ "./public/*" ],
-            "@types/*": [ "./src/types/*.d.ts" ],
+            "@types/*": [ "./src/types/*.d.ts" ]
         },
     },
-    "include": [ "**/*.ts", "**/globals.d.ts" ],
+    "include": [ "**/*.ts" ],
     "exclude": [ "node_modules", "dist" ],
 
 }

@@ -168,42 +168,40 @@ export const modTemplates: ModTemplate[] = [
 export class Modifier {
     readonly text: Mod;
     readonly template: ModTemplate;
+    readonly tags: ModifierTag[] = [];
     readonly stats: StatModifier[] = [];
     constructor(text: Mod) {
-
         this.text = text;
+        const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
+        const desc = text.replace(/{[^}]+}/g, '#') as ModDescription;
+        if(!modTemplates.some(x => x.desc === desc)){
+            throw Error('Failed to find mod template. Invalid mod description');
+        }
+        this.template = modTemplates.find(x => x.desc === desc)!;
+        this.tags = this.template.tags;
 
-        const parsedData = Modifier.parseText(text);
-        this.template = parsedData.template;
-        this.stats = parsedData.stats;
-
-        // const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
-        // const desc = text.replace(/{[^}]+}/g, '#') as ModDescription;
-        // if (!modTemplates.some(x => x.desc === desc)) {
-        //     throw Error('Failed to find mod template. Invalid mod description');
-        // }
-        // this.template = modTemplates.find(x => x.desc === desc)!;
-        // this.tags = this.template.tags;
-
-        // for (const statTemplate of this.template.stats) {
-        //     const groups = match[this.template.stats.indexOf(statTemplate)].groups;
-        //     if (!groups) {
-        //         throw Error();
-        //     }
-        //     const { v1, v2 } = groups;
-        //     const min = parseFloat(v1);
-        //     const max = parseFloat(v2) || min;
-        //     const value = min;
-        //     this.stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
-        // }
+        for (const statTemplate of this.template.stats) {
+            const groups = match[this.template.stats.indexOf(statTemplate)].groups;
+            if (!groups) {
+                throw Error();
+            }
+            const { v1, v2 } = groups;
+            const min = parseFloat(v1);
+            const max = parseFloat(v2) || min;
+            const value = min;
+            this.stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
+        }
     }
-
-    get tags() { return this.template.tags }
 
     get templateDesc() { return this.template.desc; }
 
     get desc() {
-        return Modifier.parseDescription(this.template.desc, this.stats);
+        let i = 0;
+        return this.templateDesc.replace(/#+/g, (x) => {
+            const stat = this.stats[i++];
+            const value = stat.value?.toFixed(x.length - 1) || '#';
+            return value;
+        });
     }
 
     static compare(a: Modifier, b: Modifier) {
@@ -212,39 +210,7 @@ export class Modifier {
     static sort(a: Modifier, b: Modifier) {
         return a.sort(b);
     }
-
-    static parseText(text: string) {
-        const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
-        const desc = text.replace(/{[^}]+}/g, '#') as ModDescription;
-        const template = modTemplates.find(x => x.desc === desc);
-        if (!template) {
-            throw Error('Failed to find mod template. Invalid mod description');
-        }
-        const stats: StatModifier[] = [];
-        for (const statTemplate of template.stats) {
-            const groups = match[template.stats.indexOf(statTemplate)].groups;
-            if (!groups) {
-                throw Error();
-            }
-            const { v1, v2 } = groups;
-            const min = parseFloat(v1);
-            const max = parseFloat(v2) || min;
-            const value = min;
-            stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
-        }
-        return { template, stats };
-    }
-
-    static parseDescription(desc: ModTemplate['desc'], stats: StatModifier[]) {
-        let i = 0;
-        return desc.replace(/#+/g, (x) => {
-            const stat = stats[i++];
-            const value = stat.value?.toFixed(x.length - 1) || '#';
-            return value;
-        });
-    }
-
-    sort(other: Modifier) {
+    sort(other: Modifier){
         return modTemplates.findIndex(x => x.desc === this.templateDesc) - modTemplates.findIndex(x => x.desc === other.templateDesc);
     }
 
@@ -256,11 +222,11 @@ export class Modifier {
         return new Modifier(this.text);
     }
 
-    setStatValues(values: number[]) {
-        if (this.stats.length !== values.length) {
+    setStatValues(values: number[]){
+        if(this.stats.length !== values.length){
             return;
         }
-        this.stats.forEach((x, i) => x.value = values[i]);
+        this.stats.forEach((x,i) => x.value = values[i]);
         return true;
     }
 }

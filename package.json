@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "run-p \"build:sass -- --watch\" \"build:esbuild -- --watch\"",
     "build": "sass src/styles/style.scss public/dist/style.css && npm run build:esbuild",
-    "build:esbuild": "esbuild src/main.ts --bundle --sourcemap  --loader:.html=text --target=\"chrome58,firefox57,safari11,edge29\" --outfile=\"./public/dist/main.js\"",
+    "build:esbuild": "esbuild src/main.ts --bundle --minify --sourcemap --target=\"chrome58,firefox57,safari11,edge29\" --outfile=\"./public/dist/main.js\"",
     "build:sass": "sass src/styles/style.scss public/dist/style.css"
   },
   "type": "module",

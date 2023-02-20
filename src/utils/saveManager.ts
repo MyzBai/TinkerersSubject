@@ -1,4 +1,3 @@
-import type { Save } from '@src/types/save';
 import localforage from 'localforage';
 
 type SaveType = 'Game';
@@ -15,13 +14,13 @@ export async function save(type: SaveType, object: Object) {
     }
 }
 
-export async function load(type: SaveType) {
+export async function load<T>(type: SaveType) {
     try {
         switch (type) {
             case 'Game':
-                const blob = await loadBlob('ts-game') as { [K: string]: Save };
+                const blob = await loadBlob('ts-game');
                 if (blob) {
-                    return new Map(Object.entries(blob));
+                    return blob as T;
                 }
                 return null;
             default: return null;

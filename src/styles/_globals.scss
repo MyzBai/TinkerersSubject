@@ -19,6 +19,16 @@
         grid-template-rows: 1fr auto;
     }
 
+    &[data-modal-type="relative"] {
+        position: absolute;
+        margin: 0;
+        padding: $padding-container;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+
     * {
         z-index: 10;
     }
@@ -101,34 +111,19 @@
     padding: $padding-button;
     cursor: default;
     user-select: none;
-    // border-radius: 3px;
+    border-radius: 3px;
     color: #c9d1d9;
     // background-color: #21262d;
-    // border-color: rgba(240, 246, 252, 0.1);
+    border-color: rgba(240, 246, 252, 0.1);
     &:hover {
         background-color: $color-action-list-item-default-hover-bg;
     }
 
-    &:active {
-        background-color: $color-global-button-bg-active;
-    }
-
-    &.selected{
-        background-color: $color-action-list-item-default-selected-bg;
-        pointer-events: all;
-    }
-
-    &[data-role="confirm"] {
+    &[data-role=confirm]{
         background-color: $color-button-confirm-bg;
-        &:hover {
-            background-color: $color-button-confirm-hover-bg;
-        }
     }
-    &[data-role="cancel"] {
-        background-color: $color-button-cancel-bg;
-    }
-    &[data-role="action"] {
-        background-color: $color-button-control-bg;
+    &[data-role=delete]{
+        background-color: $color-button-delete-bg;
     }
 }
 
@@ -152,7 +147,11 @@
     cursor: default;
     user-select: none;
     &.selected {
+        position: relative;
         background-color: $color-action-list-item-default-selected-bg;
+        &:not([data-highlight-notification]){
+            pointer-events: none;
+        }
     }
     &:hover {
         background-color: $color-action-list-item-default-hover-bg;
@@ -191,14 +190,10 @@
     color: $color-var-invalid-fg;
 }
 [data-highlight-notification] {
-    border-left: 0.2em solid $color-highlight-border-bg !important;
+    border-left: 0.2em solid $color-highlight-border-bg;
 }
 
-.g-text-small {
+.g-text-small{
     font-size: 0.8em;
-}
-
-.g-gold {
-    color: $color-gold-fg;
 }
 /*#endregion Global*/

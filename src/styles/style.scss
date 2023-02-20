@@ -7,12 +7,12 @@
 // @forward "../game/game";
 
 :root {
-    font-size: 19px;
+    font-size: 20px;
     font-family: serif;
 }
 body {
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr;
     grid-template-columns: 1fr;
     height: 100vh;
     min-height: 100vh;
@@ -48,7 +48,9 @@ body > header {
     grid-template-columns: 1fr 1fr 1fr;
     font-size: 1.3em;
     text-align: center;
+    grid-column: 1/4;
     align-items: center;
+    // background-color: #161b22;
     color: #d6a02c;
     padding: $padding-container;
     font-weight: bold;
@@ -57,21 +59,5 @@ body > header {
 
     .title{
         padding: $padding-container;
-    }
-}
-
-body > footer{
-    display: flex;
-    padding: $padding-container;
-    font-size: 0.8em;
-    align-items: center;
-    .copyright{
-        margin-left: auto;
-        color: $color-fg-muted;
-        padding: $padding-container;
-        font-size: 0.8em;
-    }
-    a{
-        padding: $padding-button;
     }
 }

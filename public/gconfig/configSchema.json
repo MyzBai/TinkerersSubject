@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
-    "required": [ "enemies" ],
+    "required": [ "skills", "enemies" ],
     "properties": {
         "enemies": {
             "type": "object",
@@ -26,141 +26,132 @@
                 }
             }
         },
-        "components": {
+        "skills": {
             "type": "object",
-            "additionalProperties": false,
+            "required": [ "attackSkills" ],
             "properties": {
-                "skills": {
+                "attackSkills": {
                     "type": "object",
-                    "required": [ "attackSkills" ],
+                    "required": [ "skillList" ],
                     "properties": {
-                        "attackSkills": {
-                            "type": "object",
-                            "required": [ "skillList" ],
-                            "properties": {
-                                "skillList": {
-                                    "type": "array",
-                                    "minItems": 1,
-                                    "items": {
-                                        "type": "object",
-                                        "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq" ],
-                                        "properties": {
-                                            "name": { "type": "string" },
-                                            "levelReq": { "type": "integer", "minimum": 1, "default": 1, "description": "Required player level\nNote - At least one skill must have a value of 1" },
-                                            "attackSpeed": { "type": "number", "minimum": 0.001, "maximum": 10, "default": 1, "description": "Number of attacks per second" },
-                                            "manaCost": { "type": "integer", "minimum": 0 },
-                                            "baseDamageMultiplier": { "type": "integer", "minimum": 1, "default": 100, "description": "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
-                                            "mods": {
-                                                "type": "array",
-                                                "items": { "$ref": "#/definitions/mod" }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "buffSkills": {
-                            "type": "object",
-                            "required": [ "skillList", "skillSlots" ],
-                            "properties": {
-                                "skillSlots": {
-                                    "type": "array",
-                                    "minItems": 1,
-                                    "items": {
-                                        "type": "object",
-                                        "required": [ "levelReq" ],
-                                        "properties": {
-                                            "levelReq": {
-                                                "type": "integer",
-                                                "minimum": 1
-                                            }
-                                        }
-                                    }
-                                },
-                                "skillList": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "required": [ "name", "baseDuration", "manaCost", "levelReq" ],
-                                        "properties": {
-                                            "name": { "type": "string" },
-                                            "levelReq": { "type": "number" },
-                                            "baseDuration": { "type": "integer" },
-                                            "manaCost": { "type": "integer" },
-                                            "mods": {
-                                                "type": "array",
-                                                "items": { "$ref": "#/definitions/mod" }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "passives": {
-                    "type": "object",
-                    "required": [ "pointsPerLevel", "passiveLists" ],
-                    "properties": {
-                        "pointsPerLevel": {
-                            "type": "number",
-                            "minimum": 0.001,
-                            "default": 1
-                        },
-                        "passiveLists": {
+                        "skillList": {
                             "type": "array",
                             "minItems": 1,
                             "items": {
-                                "type": "array",
-                                "minItems": 1,
-                                "items": {
-                                    "type": "object",
-                                    "required": [ "levelReq", "mod", "points" ],
-                                    "properties": {
-                                        "levelReq": { "$ref": "#/definitions/levelReq" },
-                                        "mod": { "$ref": "#/definitions/mod" },
-                                        "points": { "type": "integer", "minimum": 1 }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "items": {
-                    "type": "object",
-                    "required": [ "levelReq", "itemList", "craftList", "modLists" ],
-                    "properties": {
-                        "levelReq": { "$ref": "#/definitions/levelReq" },
-                        "itemList": {
-                            "type": "array",
-                            "items": {
                                 "type": "object",
+                                "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq" ],
                                 "properties": {
                                     "name": { "type": "string" },
-                                    "levelReq": { "type": "integer", "minimum": 0 }
+                                    "levelReq": { "type": "integer", "minimum": 1, "default": 1, "description": "Required player level\nNote - At least one skill must have a value of 1" },
+                                    "attackSpeed": { "type": "number", "minimum": 0.001, "maximum": 10, "default": 1, "description": "Number of attacks per second" },
+                                    "manaCost": { "type": "integer", "minimum": 0 },
+                                    "baseDamageMultiplier": { "type": "integer", "minimum": 1, "default": 100, "description": "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
+                                    "mods": {
+                                        "type": "array",
+                                        "items": { "$ref": "#/definitions/mod" }
+                                    }
                                 }
                             }
-                        },
-                        "craftList": {
+                        }
+                    }
+                },
+                "buffSkills": {
+                    "type": "object",
+                    "required": [ "skillList", "skillSlots" ],
+                    "properties": {
+                        "skillSlots": {
                             "type": "array",
                             "minItems": 1,
                             "items": {
                                 "type": "object",
-                                "required": [ "id", "levelReq", "cost" ],
+                                "required": [ "levelReq" ],
                                 "properties": {
-                                    "id": {
-                                        "enum": [
-                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
-                                            "addRandom", "addPhysical", "addCritical", "addMana",
-                                            "removeRandom", "removePhysical", "removeCritical", "removeMana",
-                                            "removeRandomAddPhysical", "removeRandomAddCritical", "removeRandomAddMana" ]
-                                    },
-                                    "levelReq": { "type": "integer", "minimum": 0 },
-                                    "cost": { "type": "integer", "minimum": 0 }
+                                    "levelReq": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
                                 }
                             }
                         },
-                        "modLists": {
+                        "skillList": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [ "name", "baseDuration", "manaCost", "levelReq" ],
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "levelReq": { "type": "number" },
+                                    "baseDuration": { "type": "integer" },
+                                    "manaCost": { "type": "integer" },
+                                    "mods": {
+                                        "type": "array",
+                                        "items": { "$ref": "#/definitions/mod" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "passives": {
+            "type": "object",
+            "required": [ "levelReq", "passiveList" ],
+            "properties": {
+                "levelReq": { "$ref": "#/definitions/levelReq" },
+                "passiveList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [ "levelReq", "mod", "points" ],
+                        "properties": {
+                            "levelReq": { "$ref": "#/definitions/levelReq" },
+                            "mod": { "$ref": "#/definitions/mod" },
+                            "points": { "type": "integer", "minimum": 1 }
+                        }
+                    }
+                }
+            }
+        },
+        "items": {
+            "type": "object",
+            "required": [ "itemList", "craftList", "modTables" ],
+            "properties": {
+                "levelReq": { "$ref": "#/definitions/levelReq" },
+                "itemList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": { "type": "string" },
+                            "levelReq": { "type": "integer", "minimum": 0 }
+                        }
+                    }
+                },
+                "craftList": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "required": [ "id", "levelReq", "cost" ],
+                        "properties": {
+                            "id": {
+                                "enum": [
+                                    "reforge", "reforgeIncludePhysical", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                    "addRandom", "addPhysical", "addCritical", "addMana",
+                                    "removeRandom", "removePhysical", "removeCritical", "removeMana",
+                                    "removeRandomAddPhysical", "removeRandomAddCritical", "removeRandomAddMana" ]
+                            },
+                            "levelReq": { "type": "integer", "minimum": 0 },
+                            "cost": { "type": "integer", "minimum": 0 }
+                        }
+                    }
+                },
+                "modTables": {
+                    "type": "object",
+                    "required": [ "general" ],
+                    "properties": {
+                        "general": {
                             "type": "array",
                             "items": {
                                 "type": "array",
@@ -176,93 +167,48 @@
                             }
                         }
                     }
-                },
-                "missions": {
-                    "type": "object",
-                    "required": [ "levelReq", "slots", "missionLists" ],
-                    "properties": {
-                        "levelReq": { "$ref": "#/definitions/levelReq" },
-                        "cost": { "$ref": "#/definitions/cost" },
-                        "slots": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "levelReq": { "$ref": "#/definitions/levelReq" },
-                                    "cost": { "$ref": "#/definitions/cost" }
-                                }
-                            }
-                        },
-                        "missionLists": {
-                            "type": "array",
-                            "items": {
+                }
+            }
+        },
+        "achievements": {
+            "type": "object",
+            "properties": {
+                "levelReq": { "$ref": "#/definitions/levelReq" },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [ "description" ],
+                        "properties": {
+                            "description": {
+                                "type": "string",
+                                "anyOf": [
+                                    { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
+                                    { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
+                                    { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                                    { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                                    { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                                    { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                                    { "enum": [ "Perform Critical Hits {#} Total Critical Hits" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+                                ]
+                            },
+                            "modList": {
                                 "type": "array",
+                                "description": "Each mod will be applied upon completing the achievement",
                                 "items": {
-                                    "type": "object",
-                                    "required": [ "levelReq", "goldAmount", "description" ],
-                                    "properties": {
-                                        "levelReq": { "$ref": "#/definitions/levelReq" },
-                                        "goldAmount": { "type": "integer" },
-                                        "description": {
-                                            "type": "string",
-                                            "anyOf": [
-                                                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                                                { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
-                                                { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
-                                                { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
-                                                { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
-                                            ],
-                                            "pattern": "^[^#]*$"
-                                        }
-                                    }
+                                    "$ref": "#/definitions/mod"
                                 }
                             }
                         }
-                    }
-                },
-                "achievements": {
-                    "type": "object",
-                    "required": [ "list" ],
-                    "properties": {
-                        "list": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "required": [ "description" ],
-                                "properties": {
-                                    "description": {
-                                        "type": "string",
-                                        "anyOf": [
-                                            { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
-                                            { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
-                                            { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                                            { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
-                                            { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
-                                            { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
-                                            { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
-                                        ],
-                                        "pattern": "^[^#]*$"
-                                    },
-                                    "modList": {
-                                        "type": "array",
-                                        "minItems": 1,
-                                        "description": "Each mod will be applied upon completing the achievement",
-                                        "items": {
-                                            "$ref": "#/definitions/mod"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "prestige": {
-                    "type": "object",
-                    "required": [ "goldMultiplier" ],
-                    "properties": {
-                        "goldMultiplier": { "type": "integer", "default": 20, "description": "Each prestige will apply this multiplier to gold per second" }
                     }
                 }
+            }
+        },
+        "prestige": {
+            "type": "object",
+            "required": [ "goldMultiplier" ],
+            "properties": {
+                "goldMultiplier": { "type": "integer", "default": 20, "description": "Each prestige will apply this multiplier to gold per second" }
             }
         }
     },
@@ -284,8 +230,7 @@
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
                 { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
                 { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
-            ],
-            "pattern": "^[^#]*$"
+            ]
         },
         "name": {
             "type": "string",
@@ -295,11 +240,6 @@
             "type": "integer",
             "default": 1,
             "minimum": 1
-        },
-        "cost": {
-            "type": "integer",
-            "default": 0,
-            "minimum": 0
         }
     }
 }
