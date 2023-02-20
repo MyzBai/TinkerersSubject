@@ -32,7 +32,7 @@ export default class Achievements extends Component {
     updateUI(time: number): void {
         if(time - this.updateUITime > 1){
             this.achievements.forEach(x => x.updateLabel());
-            this.updateUITime = 0;
+            this.updateUITime = time;
         }
     }
 
