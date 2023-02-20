@@ -362,27 +362,21 @@ class BuffSkillSlot extends BaseSkillSlot {
         if (!this.skill) {
             return;
         }
-        const manaEval = (mana: number) => {
+        const loopEval = (mana: number) => {
             if (!this.skill) {
                 return;
             }
             if (mana < this.skill.data.manaCost) {
                 return;
             }
-            
-            this.skills.game.player.stats.curMana.removeListener('change', manaEval);
+
+            this.skills.game.player.stats.curMana.removeListener('change', loopEval);
+            this.player.stats.curMana.subtract(this.skill.data.manaCost);
             this.loop();
+
         };
-        this.skills.game.player.stats.curMana.addListener('change', manaEval);
-        manaEval(this.skills.game.player.stats.curMana.get());
-
-        const sufficientMana = this.player.stats.curMana.get() >= this.skill.data.manaCost;
-        if (!sufficientMana) {
-            return;
-        }
-        this.player.stats.curMana.subtract(this.skill.data.manaCost);
-
-        this.loop();
+        this.skills.game.player.stats.curMana.addListener('change', loopEval);
+        loopEval(this.skills.game.player.stats.curMana.get());
     }
     //Loop
     loop() {
@@ -399,12 +393,13 @@ class BuffSkillSlot extends BaseSkillSlot {
         this._running = true;
         this.skills.game.player.stats.skillDurationMultiplier.addListener('change', calcDuration);
         this.skill.applyModifiers();
+        console.log(this._duration);
         const loopId = this.skills.game.gameLoop.subscribe((dt) => {
             if (!this.skill) {
                 return;
             }
 
-            this._time = this._duration * (this._time / this._duration);
+            // this._time = this._duration * (this._time / this._duration);
 
             if (this._time <= 0) {
                 this._time = 0;
