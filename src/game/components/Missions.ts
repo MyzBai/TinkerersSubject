@@ -217,9 +217,9 @@ class MissionSlot {
         button.insertAdjacentHTML('beforeend', `<span class="g-gold" data-cost>${this.unlockCost}</span>`);
         button.setAttribute('data-trigger', 'buy');
         button.addEventListener('click', () => { this.unlock() });
-
-        this.missions.game.player.stats.gold.registerCallback(this.unlockCost, () => {
-            button.disabled = false;
+        button.disabled = true;
+        this.missions.game.player.stats.gold.addListener('change', amount => {
+            button.disabled = amount < this.unlockCost;
         });
 
         li.appendChild(label);
