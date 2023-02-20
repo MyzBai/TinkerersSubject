@@ -3,58 +3,59 @@ type Callback = (dt: number) => void;
 
 interface Instance {
     time: number;
-    id: number;
+    id: string;
     callback: Callback;
     options?: Options;
 }
-interface AnimInstance {
-    id: number;
-    callback: Callback;
+interface AnimInstance extends Instance {
+
 }
-interface Options {
+export interface Options {
     intervalMilliseconds: number;
 }
 
-const TARGET_FRAME_TIME = 1000 / 25;
+const TARGET_FRAME_TIME = 1000 / 30;
 const DELTA_TIME_SECONDS = TARGET_FRAME_TIME / 1000;
 
 export default class Loop {
     public running: boolean = false;
-    
-    private instances = new Map<number, Instance>();
-    private animInstances = new Map<number, AnimInstance>();
+
+    private readonly instances = new Map<string, Instance>();
+    private readonly animInstances = new Map<string, AnimInstance>();
     private loopId = 0;
     private animLoopId = 0;
-    private counter = 0;
-    private animCounter = 0;
     constructor() {
 
     }
 
     subscribe(callback: Callback, options?: Options) {
-        const id = this.counter++;
+        const id = crypto.randomUUID();
         const instance: Instance = { callback, time: 0, id, options };
         this.instances.set(id, instance);
         return id;
     }
 
-    subscribeAnim(callback: Callback) {
-        const id = this.animCounter++;
-        const instance: AnimInstance = { callback, id };
+    subscribeAnim(callback: Callback, options?: Options) {
+        const id = crypto.randomUUID();
+        const instance: AnimInstance = { callback, time: 0, id, options };
         this.animInstances.set(id, instance);
         return id;
     }
 
-    unsubscribe(id: number) {
+    unsubscribe(id: string | undefined) {
+        if (!id) {
+            return;
+        }
         this.instances.delete(id);
     }
 
-    unsubscribeAnim(id: number){
+    unsubscribeAnim(id: string) {
         this.animInstances.delete(id);
     }
 
     reset() {
         this.instances.clear();
+        this.animInstances.clear();
         this.running = false;
     }
 
@@ -64,7 +65,7 @@ export default class Loop {
         }
         this.running = true;
         this.beginLoop();
-        this.beginAnimationLoop();
+        this.beginLoopAnim();
     }
 
     stop() {
@@ -76,8 +77,8 @@ export default class Loop {
     private beginLoop() {
         let remainder = 0;
         let now = performance.now();
+        clearTimeout(this.loopId);
         const loop = () => {
-            clearTimeout(this.loopId);
             this.loopId = window.setTimeout(() => {
                 let diff = performance.now() - now + remainder;
                 now = performance.now();
@@ -100,18 +101,56 @@ export default class Loop {
         loop();
     }
 
-    private beginAnimationLoop() {
-        let now = performance.now();
+    private beginLoopAnim() {
+        cancelAnimationFrame(this.animLoopId);
         const loop = () => {
-            let diff = performance.now() - now;
-            now = performance.now();
-            const dt = diff / 1000;
-            for (const instance of this.animInstances.values()) {
-                instance.callback(dt);
-            }
 
-            this.animLoopId = requestAnimationFrame(loop);
+            this.animLoopId = requestAnimationFrame(() => {
+                this.animInstances.forEach(instance => {
+                    instance.time += TARGET_FRAME_TIME;
+                    let ms = instance.options?.intervalMilliseconds || 0;
+                    if (instance.time > ms) {
+                        instance.callback(DELTA_TIME_SECONDS);
+                        instance.time -= ms || instance.time;
+                    }
+                });
+                loop();
+            });
+
+            // this.animLoopId = requestAnimationFrame(() => {
+            //     let diff = performance.now() - now + remainder;
+            //     now = performance.now();
+            //     while (diff >= TARGET_FRAME_TIME) {
+            //         diff -= TARGET_FRAME_TIME;
+
+            //         this.animInstances.forEach(instance => {
+            //             instance.time += TARGET_FRAME_TIME;
+            //             let ms = instance.options?.intervalMilliseconds || 0;
+            //             if (instance.time > ms) {
+            //                 instance.callback(DELTA_TIME_SECONDS);
+            //                 instance.time -= ms || instance.time;
+            //             }
+            //         });
+            //     }
+            //     remainder = diff;
+            //     loop();
+            // });
         }
-        this.animLoopId = requestAnimationFrame(loop);
+        loop();
     }
+
+    // private beginAnimationLoop() {
+    //     let now = performance.now();
+    //     const loop = () => {
+    //         let diff = performance.now() - now;
+    //         now = performance.now();
+    //         const dt = diff / 1000;
+    //         for (const instance of this.animInstances.values()) {
+    //             instance.callback(dt);
+    //         }
+
+    //         this.animLoopId = requestAnimationFrame(loop);
+    //     }
+    //     this.animLoopId = requestAnimationFrame(loop);
+    // }
 }
