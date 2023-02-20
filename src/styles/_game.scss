@@ -36,7 +36,7 @@ game-element {
                         width: 100%;
                         &::-webkit-progress-bar {
                             background-color: $color-health-bar-background-bg;
-                            background: none;
+                            // background: none;
                             border-radius: 2px;
                             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
                         }
@@ -53,7 +53,7 @@ game-element {
                         width: 100%;
                         &::-webkit-progress-bar {
                             background-color: $color-mana-bar-background-bg;
-                            background: none;
+                            // background: none;
                             border-radius: 2px;
                             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
                         }
