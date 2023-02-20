@@ -97,7 +97,12 @@ export default class CraftPresets {
         }
         this.activePreset.element.remove();
         this.presets.splice(this.presets.indexOf(this.activePreset), 1);
-        this.presets[0]?.element.click();
+        if(this.presets.length === 0){
+            this.items.populateCraftList([]);
+            this.selectPreset(undefined);
+        } else {
+            this.presets[0]?.element.click();
+        }
     }
 }
 
