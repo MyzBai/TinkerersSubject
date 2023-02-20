@@ -2,7 +2,7 @@ import Value from '@utils/Value';
 import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
-import { clamp, invLerp, queryHTML, remap } from "@src/utils/helpers";
+import { invLerp, queryHTML } from "@src/utils/helpers";
 import type Game from './Game';
 import type { Save } from '@src/types/save';
 
@@ -133,14 +133,13 @@ export default class Player {
         this.game.gameLoop.subscribe(dt => {
             this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
             time += dt;
-            if (time > waitTimeSeconds) {
+            if (time >= waitTimeSeconds) {
                 const curMana = this.stats.curMana.get();
                 const manaCost = this.stats.attackManaCost.get();
                 if (curMana > manaCost) {
                     this.stats.curMana.subtract(manaCost);
                     this.performAttack();
                     waitTimeSeconds = calcWaitTime();
-                    time = 0;
                 }
             }
         });
