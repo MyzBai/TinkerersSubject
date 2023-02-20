@@ -425,6 +425,7 @@ progress[value]::-webkit-progress-value {
 }
 .p-home .s-main {
   display: flex;
+  min-height: 0;
 }
 .p-home .s-main .p-new,
 .p-home .s-main .p-saved {
@@ -491,26 +492,33 @@ game-element .p-game [data-main-view] .p-combat {
   display: grid;
   grid-template-rows: 1fr 1fr;
 }
-game-element .p-game [data-main-view] .p-combat .s-enemy .s-health-bar-background {
+game-element .p-game [data-main-view] .p-combat .s-enemy progress {
+  width: 100%;
+}
+game-element .p-game [data-main-view] .p-combat .s-enemy progress::-webkit-progress-bar {
   background-color: #771111;
+  background: none;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
 }
-game-element .p-game [data-main-view] .p-combat .s-enemy .s-health-bar-background .health-bar {
-  display: flex;
+game-element .p-game [data-main-view] .p-combat .s-enemy progress::-webkit-progress-value {
   background-color: #a12525;
+  border-radius: 2px;
+  transition: width 70ms linear;
+}
+game-element .p-game [data-main-view] .p-combat .s-player progress {
   width: 100%;
-  align-items: center;
-  justify-content: center;
 }
-game-element .p-game [data-main-view] .p-combat .s-enemy .s-health-bar-background .health-bar[data-damage]::after {
-  content: attr(data-damage);
-  margin: auto;
-}
-game-element .p-game [data-main-view] .p-combat .s-player .s-mana-bar-background {
+game-element .p-game [data-main-view] .p-combat .s-player progress::-webkit-progress-bar {
   background-color: #225c7e;
+  background: none;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
 }
-game-element .p-game [data-main-view] .p-combat .s-player .s-mana-bar-background .mana-bar {
+game-element .p-game [data-main-view] .p-combat .s-player progress::-webkit-progress-value {
   background-color: #307da1;
-  width: 100%;
+  border-radius: 2px;
+  transition: width 70ms linear;
 }
 game-element .p-game [data-main-view] .p-skills {
   display: grid;

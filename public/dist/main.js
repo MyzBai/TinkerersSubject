@@ -8842,7 +8842,7 @@
   });
 
   // src/webComponents/html/game.html
-  var game_default = '<main class="p-game hidden" data-tab-content="game">\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <li class="g-list-item hidden" data-tab-target="passives">Passives</li>\n        <li class="g-list-item hidden" data-tab-target="items">Items</li>\n        <li class="g-list-item hidden" data-tab-target="missions">Missions</li>\n        <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n        <li class="g-list-item" data-tab-target="settings">Settings</li>\n    </menu>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <div class="s-enemy">\n                <div class="s-health-bar-background g-progress-bar-background">\n                    <div class="health-bar g-progress-bar" data-health-bar></div>\n                </div>\n            </div>\n            <div class="s-player">\n                <div class="s-mana-bar-background g-progress-bar-background">\n                    <div class="mana-bar g-progress-bar" data-mana-bar></div>\n                </div>\n            </div>\n            <div class="g-modal s-skill-modal hidden" data-skill-modal data-modal-type="relative">\n                <div class="wrapper">\n                    <section>\n                        <ul class="g-list-v" data-skill-list></ul>\n                        <div class="s-skill-info" data-skill-info>\n                            <div data-title>Example Name</div>\n                            <div class="g-field">\n                                <div>Mana Cost</div>\n                                <i data-stat="manaCost"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Attack Speed</div>\n                                <i data-stat="attackSpeed"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Damage Multiplier</div>\n                                <i data-stat="baseDamageMultiplier"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Duration</div>\n                                <i data-stat="baseDuration"></i>\n                            </div>\n                            <ul data-mod-list></ul>\n                        </div>\n                    </section>\n                    <footer>\n                        <button class="g-button" data-apply>Apply</button>\n                        <button class="g-button" data-remove>Remove</button>\n                        <button class="g-button" data-cancel>Cancel</button>\n                    </footer>\n                </div>\n            </div>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n        <div class="p-settings hidden" data-tab-content="settings">\n            <button class="g-button" data-role="cancel" data-delete-save>Delete Save</button>\n        </div>\n    </div>\n    <aside class="s-stats">\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n\n\n</main>';
+  var game_default = '<main class="p-game hidden" data-tab-content="game">\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <li class="g-list-item hidden" data-tab-target="passives">Passives</li>\n        <li class="g-list-item hidden" data-tab-target="items">Items</li>\n        <li class="g-list-item hidden" data-tab-target="missions">Missions</li>\n        <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n        <li class="g-list-item" data-tab-target="settings">Settings</li>\n    </menu>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <div class="s-enemy">\n                <progress data-health-bar value="0.5" max="1"></progress>\n                <!-- <div class="s-health-bar-background g-progress-bar-background">\n                    <div class="health-bar g-progress-bar" data-health-bar></div>\n                </div> -->\n            </div>\n            <div class="s-player">\n                <progress data-mana-bar value="0.5" max="1"></progress>\n                <!-- <div class="s-mana-bar-background g-progress-bar-background">\n                    <div class="mana-bar g-progress-bar" data-mana-bar></div>\n                </div> -->\n            </div>\n            <div class="g-modal s-skill-modal hidden" data-skill-modal data-modal-type="relative">\n                <div class="wrapper">\n                    <section>\n                        <ul class="g-list-v" data-skill-list></ul>\n                        <div class="s-skill-info" data-skill-info>\n                            <div data-title>Example Name</div>\n                            <div class="g-field">\n                                <div>Mana Cost</div>\n                                <i data-stat="manaCost"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Attack Speed</div>\n                                <i data-stat="attackSpeed"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Damage Multiplier</div>\n                                <i data-stat="baseDamageMultiplier"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Duration</div>\n                                <i data-stat="baseDuration"></i>\n                            </div>\n                            <ul data-mod-list></ul>\n                        </div>\n                    </section>\n                    <footer>\n                        <button class="g-button" data-apply>Apply</button>\n                        <button class="g-button" data-remove>Remove</button>\n                        <button class="g-button" data-cancel>Cancel</button>\n                    </footer>\n                </div>\n            </div>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n        <div class="p-settings hidden" data-tab-content="settings">\n            <button class="g-button" data-role="cancel" data-delete-save>Delete Save</button>\n        </div>\n    </div>\n    <aside class="s-stats">\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n\n\n</main>';
 
   // src/webComponents/html/skills.html
   var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <h3 class="title"></h3>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-remove>Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-skill-list></ul>\n\n    </div>\n\n</div>';
@@ -9623,13 +9623,17 @@
       }
       const stats = [];
       for (const statTemplate of template.stats) {
-        const groups = match[template.stats.indexOf(statTemplate)].groups;
-        if (!groups) {
-          throw Error();
+        const index = template.stats.indexOf(statTemplate);
+        const matchValue = match[index];
+        if (!matchValue || !matchValue.groups) {
+          throw Error("invalid modifier");
         }
-        const { v1, v2 } = groups;
+        const { v1, v2 } = matchValue.groups;
+        if (!v1) {
+          throw Error("invalid modifier");
+        }
         const min = parseFloat(v1);
-        const max = parseFloat(v2) || min;
+        const max = v2 ? parseFloat(v2) : min;
         const value = min;
         stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
       }
@@ -9638,9 +9642,11 @@
     static parseDescription(desc, stats) {
       let i = 0;
       return desc.replace(/#+/g, (x) => {
-        var _a;
         const stat = stats[i++];
-        const value = ((_a = stat.value) == null ? void 0 : _a.toFixed(x.length - 1)) || "#";
+        if (!stat) {
+          throw Error("invalid mod description");
+        }
+        const value = stat.value.toFixed(x.length - 1) || "#";
         return value;
       });
     }
@@ -9652,13 +9658,6 @@
     }
     copy() {
       return new Modifier(this.text);
-    }
-    setStatValues(values) {
-      if (this.stats.length !== values.length) {
-        return;
-      }
-      this.stats.forEach((x, i) => x.value = values[i]);
-      return true;
     }
   };
   var StatModifier = class {
@@ -10009,6 +10008,7 @@
       var _a;
       await this.updateStats();
       this.stats.curMana.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.curMana) || this.stats.maxMana.get());
+      this.updateManaBar();
     }
     updateStats() {
       return new Promise((resolve) => {
@@ -10034,8 +10034,8 @@
       });
     }
     updateManaBar() {
-      const pct = this.stats.curMana.get() / this.stats.maxMana.get() * 100;
-      this.manaBar.style.width = pct + "%";
+      const pct = this.stats.curMana.get() / this.stats.maxMana.get();
+      this.manaBar.value = pct;
     }
     startAutoAttack() {
       const calcWaitTime = () => 1 / this.stats.attackSpeed.get();
@@ -10148,8 +10148,8 @@
       };
     }
     updateHealthBar() {
-      const pct = this.health / this.maxHealth * 100;
-      this.healthBar.style.width = `${pct}%`;
+      const pct = this.health / this.maxHealth;
+      this.healthBar.value = pct;
     }
   };
 
@@ -10720,15 +10720,12 @@
       __publicField(this, "modLists");
       __publicField(this, "presets");
       this.modLists = data.modLists.flatMap((group) => group.map((mod) => new ItemModifier(mod, group)));
-      if (data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
+      if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
         throw Error("No items available! There must be at least 1 item available");
       }
       this.createItems();
       this.activeItem = this.items[0];
       this.activeItem.element.click();
-      if ([...data.craftList].sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
-        throw Error("No crafts available! There must be at least 1 craft available");
-      }
       queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove("hidden");
       game.player.stats.level.addListener("change", () => this.updateCraftList());
       this.craftButton.addEventListener("click", () => this.performCraft());
@@ -10886,7 +10883,10 @@
             return;
           }
           savedMod.values.forEach((v, i) => {
-            mod.stats[i].value = v;
+            const statMod = mod.stats[i];
+            if (statMod) {
+              statMod.value = v;
+            }
           });
           return mod;
         }).filter((x) => !!x);
@@ -11062,6 +11062,9 @@
         throw Error(`Task.ts: ${text} is an invalid task string`);
       }
       const match = this.validator[0].exec(text);
+      if (!match[1]) {
+        throw Error("invalid task validator");
+      }
       this.startValue = parseFloat((this.validator[1].get() - this.validator[1].defaultValue).toFixed());
       this._targetValue = parseFloat(match[1]);
       const valueIndex = text.indexOf(`{${match[1]}}`);
@@ -11312,7 +11315,10 @@
       }
       const index = Math.floor(Math.random() * missionDataArr.length);
       this._missionData = missionDataArr[index];
-      const description = this._missionData.description;
+      if (!this._missionData) {
+        throw Error("missing mission data");
+      }
+      const description = this._missionData.description || "Error";
       this._task = new Task(this.missions.game, description);
       const id = this.missions.game.gameLoop.subscribe(() => {
         var _a;
@@ -11528,7 +11534,7 @@
       this.populateSkillList(skillSlot, skillList);
     }
     populateSkillList(skillSlot, skillList) {
-      var _a, _b;
+      var _a, _b, _c;
       const skillListContainer = queryHTML(".p-game .p-skills .s-skill-list ul", this.page);
       const elements = [];
       for (const skill of skillList) {
@@ -11555,7 +11561,7 @@
           return x.getAttribute("data-name") === ((_a2 = skillSlot.skill) == null ? void 0 : _a2.data.name);
         })) == null ? void 0 : _b.click();
       } else {
-        elements[0].click();
+        (_c = elements[0]) == null ? void 0 : _c.click();
       }
     }
     showSkill(skill) {
@@ -11711,6 +11717,9 @@
           this.setSkill(savedSkill);
           return;
         }
+      }
+      if (!this.skills.attackSkills[0]) {
+        throw Error("no attack skill available");
       }
       this.setSkill(this.skills.attackSkills[0]);
     }
