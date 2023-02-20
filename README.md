@@ -20,11 +20,11 @@ A *Configuration* file is stored in a json format, thus making it easy for every
 * Open demo.json at [public/gconfig/demo.json](public/gconfig/demo.json)
 
 #### Create new *Configuration*
-* Create a new file at [public/gconfig](public/gconfig)
+* Create a new .json file at [public/gconfig](public/gconfig) E.g. myConfig.json
 * Include file at [public/gconfig/configList.json](public/gconfig/configList.json)
 
 #### Submit your *Configuration*
 * Create a new branch
-* Add an object in *public/gconfig/configList.json* "list": []
+* Add an object in '[public/gconfig/configList.json](public/gconfig/configList.json)' ```"list": []```
 * Commit your changes
-* Make a Pull Request to merge your branch into this repo's main branch
+* Make a Pull Request to merge your branch into this repo's ```main``` branch
