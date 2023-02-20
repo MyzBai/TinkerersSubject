@@ -1,5 +1,5 @@
 {
-    "$schema": "./configSchema.json",
+    "$schema": "./config.schema.json",
     "enemies": {
         "enemyList": [ 100, 500, 1000, 8000, 30000, 8000, 500000, 700000, 800000, 1e6 ]
     },
