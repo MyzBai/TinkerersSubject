@@ -114,25 +114,30 @@ export default class Home {
     }
 
     private async tryStartGame(entry: GConfig['meta'], saveObj?: Save) {
-        const config = await (await fetch(entry.rawUrl)).json() as GConfig;
-        if (!validateConfig(config)) {
-            console.error(`${entry.name} is not valid`);
-            return false;
-        }
-
-        if (!saveObj) {
-            saveObj = {
-                meta: { ...entry, createdAt: Date.now() }
+        try {
+            const config = await (await fetch(entry.rawUrl)).json() as GConfig;
+            if (!validateConfig(config)) {
+                console.error(`${entry.name} is not valid`);
+                return false;
             }
+
+            if (!saveObj) {
+                saveObj = {
+                    meta: { ...entry, createdAt: Date.now() }
+                }
+            }
+            config.meta = saveObj.meta;
+
+            this.game.init(config, saveObj);
+
+            const navBtn = queryHTML('header [data-target]');
+            navBtn.classList.remove('hidden');
+            navBtn.click();
+            return true;
+        } catch (e) {
+            console.error(e);
         }
-        config.meta = saveObj.meta;
 
-        this.game.init(config, saveObj);
-
-        const navBtn = queryHTML('header [data-target]');
-        navBtn.classList.remove('hidden');
-        navBtn.click();
-        return true;
     }
 
     private async getEntries(type: EntryType): Promise<GConfig['meta'][]> {
