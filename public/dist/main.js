@@ -11265,6 +11265,7 @@
         this.unlock();
         this._task = new Task(missions.game, savedSlot.desc);
         this._task.startValue = savedSlot.startValue;
+        this.updateLabel();
       }
     }
     get element() {
@@ -11534,9 +11535,10 @@
         });
         const triggerButton = queryHTML("[data-trigger]", skillInfoContainer);
         const removeButton = queryHTML("[data-remove]", skillInfoContainer);
+        const automateButton = queryHTML("[data-automate]", skillInfoContainer);
         removeButton.addEventListener("click", () => this.removeSkillFromSlot(this.activeSkillSlot));
         triggerButton.addEventListener("click", () => this.triggerSkill(this.activeSkillSlot));
-        queryHTML("[data-automate]", skillInfoContainer).addEventListener("click", () => this.toggleAutoMode(this.activeSkillSlot));
+        automateButton.addEventListener("click", () => this.toggleAutoMode(this.activeSkillSlot));
         game.gameLoop.subscribeAnim(() => {
           if (this.page.classList.contains("hidden")) {
             return;
@@ -11784,6 +11786,9 @@
     }
     toggleAutomate() {
       this._automate = !this._automate;
+      if (this._automate && !this._running) {
+        this.start();
+      }
     }
     setSkill(skill) {
       var _a;
@@ -11800,6 +11805,18 @@
       if (!this.skill) {
         return;
       }
+      const manaEval = (mana) => {
+        if (!this.skill) {
+          return;
+        }
+        if (mana < this.skill.data.manaCost) {
+          return;
+        }
+        this.skills.game.player.stats.curMana.removeListener("change", manaEval);
+        this.loop();
+      };
+      this.skills.game.player.stats.curMana.addListener("change", manaEval);
+      manaEval(this.skills.game.player.stats.curMana.get());
       const sufficientMana = this.player.stats.curMana.get() >= this.skill.data.manaCost;
       if (!sufficientMana) {
         return;
@@ -11846,18 +11863,7 @@
         this.skills.showSkill(this.skill);
       }
       if (this._automate) {
-        const autoLoopManaEval = (mana) => {
-          if (!this.skill || !this._automate) {
-            this.skills.game.player.stats.curMana.removeListener("change", autoLoopManaEval);
-            return;
-          }
-          if (mana < this.skill.data.manaCost) {
-            return;
-          }
-          this.skills.game.player.stats.curMana.removeListener("change", autoLoopManaEval);
-          this.start();
-        };
-        this.skills.game.player.stats.curMana.addListener("change", autoLoopManaEval);
+        this.start();
         return;
       }
     }
