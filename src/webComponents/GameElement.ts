@@ -72,9 +72,12 @@ export class GameElement extends HTMLElement {
             if (!element) {
                 throw Error('invalid component html');
             }
+            element.classList.add('hidden');
             this.componentPages.push(element);
             container.appendChild(element);
-            menu.appendChild(this.createMenuItem(componentData.name, componentData.targetName));
+            const menuItem = this.createMenuItem(componentData.name, componentData.targetName);
+            menuItem.classList.add('hidden');
+            menu.appendChild(menuItem);
         }
 
         menu.appendChild(this.createMenuItem('Statistics', 'statistics'));
