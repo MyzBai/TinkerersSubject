@@ -50,7 +50,8 @@ export default class Player {
         }
 
         this.game.enemy.onDeath.listen(() => {
-            if (this.stats.level.get() < this.game.enemy.maxIndex) {
+            if (this.stats.level.get() <= this.game.enemy.maxIndex) {
+                // this.stats.level.set(this.game.enemy.index+1);
                 this.stats.level.add(1);
             }
         });
@@ -158,7 +159,6 @@ export default class Player {
         if (result.crit) {
             this.game.statistics.statistics["Critical Hits"].add(1);
         }
-
         this.game.enemy.dealDamage(result.totalDamage);
     }
 
