@@ -74,6 +74,7 @@ class MissionSlot {
             this.unlock();
             this._task = new Task(missions.game, savedSlot.desc);
             this._task.startValue = savedSlot.startValue;
+            this.updateLabel();
         }
     }
     get element() {
