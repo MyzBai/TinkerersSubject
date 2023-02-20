@@ -1,22 +1,29 @@
-# Tinkerers-Subject
+# Tinkerers Subject
 
-Website: [Game](https://myzbai.github.io/TinkerersSubject)
+Play the game [here](https://myzbai.github.io/TinkerersSubject)
 
-The game is initialized with a configuration json file. This allows for the community to create their own version of gameplay.
+##### Note
+The game is initialized with a *Configuration* file. This allows for players to play the game in many different ways. 
+
+A *Configuration* file is stored in a json format, thus making it easy for everyone to create their own.
 
 
-### Create your own *Configuration* (VSCode/Node)
+## Create your own *Configuration* (Require NodeJS & Git)
+#### Setup
 * Fork this repository [Docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
 * Clone the forked repository [Docs](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-* Run *npm install* to install dependencies
-* Run *npm run build* to build
-* Change *"env": "production"* to *"env": "dev-config"* in *public/env.json*
-* If you change file path of your config file (directory or filename) make sure *"gConfigPath"* is pointing to the new path
-* (Optional) Install Live Server to refresh browser automatially when you modify the file
-* Helper methods are available in your browsers devtools inside an object called TS
 
-### Include your *Configuration* in the *ConfigList.json*
-* Make sure you have a fork of this repo
+* Run ```npm install``` to install dependencies
+* Run ```npm run build``` to build project
+
+#### Modify existing *Configuration*
+* Open demo.json at [public/gconfig/demo.json](public/gconfig/demo.json)
+
+#### Create new *Configuration*
+* Create a new file at [public/gconfig](public/gconfig)
+* Include file at [public/gconfig/configList.json](public/gconfig/configList.json)
+
+#### Submit your *Configuration*
 * Create a new branch
 * Add an object in *public/gconfig/configList.json* "list": []
 * Commit your changes
