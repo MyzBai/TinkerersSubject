@@ -2,7 +2,7 @@ import GConfig from "@src/types/gconfig";
 import { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
 import Game from "../Game";
-import { ModDB, Modifier, StatModifier } from "../mods";
+import { Modifier, StatModifier } from "../mods";
 import Player from "../Player";
 import Component from "./Component";
 
@@ -124,7 +124,7 @@ export default class Skills extends Component {
         if (skillSlot.skill) {
             elements.find(x => x.getAttribute('data-name') === skillSlot.skill?.data.name)?.click();
         } else {
-            elements[0].click();
+            elements[0]?.click();
         }
 
     }
@@ -297,6 +297,9 @@ class AttackSkillSlot extends BaseSkillSlot {
                 this.setSkill(savedSkill);
                 return;
             }
+        }
+        if (!this.skills.attackSkills[0]) {
+            throw Error('no attack skill available');
         }
         this.setSkill(this.skills.attackSkills[0]);
     }

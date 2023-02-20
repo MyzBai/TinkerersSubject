@@ -157,11 +157,11 @@ function generateConversionTable(config: Configuration) {
         for (let j = i + 1; j < damageTypeFlagKeys.length; j++) {
             const otherDamageType = damageTypeFlagKeys[i];
             const convertedToName = `${damageType}ConvertedTo${otherDamageType}` as StatName;
-            globalConv[otherDamageType] = calcModBase(convertedToName, config);
-            globalTotal += globalConv[otherDamageType] as number;
-            skillConv[otherDamageType] = calcModBase(convertedToName, config);
-            skillTotal += skillConv[otherDamageType] as number;
-            add[otherDamageType] = calcModBase(`${damageType}GainAs${otherDamageType}` as StatName, config);
+            globalConv[otherDamageType!] = calcModBase(convertedToName, config);
+            globalTotal += globalConv[otherDamageType!] as number;
+            skillConv[otherDamageType!] = calcModBase(convertedToName, config);
+            skillTotal += skillConv[otherDamageType!] as number;
+            add[otherDamageType!] = calcModBase(`${damageType}GainAs${otherDamageType}` as StatName, config);
         }
 
         const fac = skillTotal > 100 ? 100 / skillTotal : (100 - skillTotal) / globalTotal;
@@ -176,7 +176,7 @@ function generateConversionTable(config: Configuration) {
             conversionValues[key as DamageType] = (value + skillConvValue + addValue) / 100;
         }
         conversionValues.multi = 1 - Math.min((globalTotal + skillTotal) / 100, 1)
-        conversionTable[damageType] = conversionValues;
+        conversionTable[damageType!] = conversionValues;
     }
     conversionTable['Chaos'] = { multi: 1 };
     return conversionTable;

@@ -40,6 +40,9 @@ export default class Task {
         }
 
         const match = this.validator[0].exec(text) as RegExpMatchArray;
+        if(!match[1]){
+            throw Error('invalid task validator');
+        }
         this.startValue = parseFloat((this.validator[1].get() - this.validator[1].defaultValue).toFixed());
         this._targetValue = parseFloat(match[1]);
 

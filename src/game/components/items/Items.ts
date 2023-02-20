@@ -30,16 +30,13 @@ export default class Items extends Component {
 
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
 
-        if (data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
+        if(data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0]!.levelReq > data.levelReq){
             throw Error('No items available! There must be at least 1 item available');
         }
         this.createItems();
-        this.activeItem = this.items[0];
+        this.activeItem = this.items[0]!;
         this.activeItem.element.click();
 
-        if ([...data.craftList].sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
-            throw Error('No crafts available! There must be at least 1 craft available');
-        }
         queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove('hidden');
 
         game.player.stats.level.addListener('change', () => this.updateCraftList());
@@ -212,7 +209,10 @@ class Item {
                     return;
                 }
                 savedMod.values.forEach((v, i) => {
-                    mod.stats[i].value = v;
+                    const statMod = mod.stats[i];
+                    if(statMod){
+                        statMod.value = v;
+                    }
                 });
                 return mod;
             }).filter((x): x is ItemModifier => !!x);

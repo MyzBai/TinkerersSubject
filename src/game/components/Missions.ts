@@ -151,7 +151,10 @@ class MissionSlot {
         }
         const index = Math.floor(Math.random() * missionDataArr.length);
         this._missionData = missionDataArr[index];
-        const description = this._missionData.description;
+        if(!this._missionData){
+            throw Error('missing mission data');
+        }
+        const description = this._missionData.description || 'Error';
         this._task = new Task(this.missions.game, description);
 
         const id = this.missions.game.gameLoop.subscribe(() => {

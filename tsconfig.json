@@ -5,6 +5,7 @@
         "lib": [ "DOM", "ESNext", "dom.iterable" ],
         "resolveJsonModule": true,
         // "importsNotUsedAsValues": "error",
+        "noUncheckedIndexedAccess": true,
         "skipLibCheck": true,
         "moduleResolution": "node",
         "baseUrl": ".",

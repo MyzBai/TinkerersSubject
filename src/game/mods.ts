@@ -222,11 +222,15 @@ export class Modifier {
         }
         const stats: StatModifier[] = [];
         for (const statTemplate of template.stats) {
-            const groups = match[template.stats.indexOf(statTemplate)].groups;
-            if (!groups) {
-                throw Error();
+            const index = template.stats.indexOf(statTemplate);
+            const matchValue = match[index];
+            if (!matchValue || !matchValue.groups) {
+                throw Error('invalid modifier');
             }
-            const { v1, v2 } = groups;
+            const { v1, v2 } = matchValue.groups;
+            if (!v1 || !v2) {
+                throw Error('invalid modifier');
+            }
             const min = parseFloat(v1);
             const max = parseFloat(v2) || min;
             const value = min;
@@ -239,7 +243,10 @@ export class Modifier {
         let i = 0;
         return desc.replace(/#+/g, (x) => {
             const stat = stats[i++];
-            const value = stat.value?.toFixed(x.length - 1) || '#';
+            if(!stat){
+                throw Error('invalid mod description');
+            }
+            const value = stat.value.toFixed(x.length - 1) || '#';
             return value;
         });
     }
@@ -254,14 +261,6 @@ export class Modifier {
 
     copy() {
         return new Modifier(this.text);
-    }
-
-    setStatValues(values: number[]) {
-        if (this.stats.length !== values.length) {
-            return;
-        }
-        this.stats.forEach((x, i) => x.value = values[i]);
-        return true;
     }
 }
 
