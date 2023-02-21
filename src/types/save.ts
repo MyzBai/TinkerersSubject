@@ -33,7 +33,7 @@ export interface Save {
             name: string;
             modList: {
                 values: number[];
-                desc: ModDescription
+                text: string;
             }[];
         }[];
         craftPresets: { name: string, ids: CraftId[] }[];

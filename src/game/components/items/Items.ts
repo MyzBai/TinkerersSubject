@@ -28,7 +28,7 @@ export default class Items extends Component {
 
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
 
-        if(data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0]!.levelReq > data.levelReq){
+        if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0]!.levelReq > data.levelReq) {
             throw Error('No items available! There must be at least 1 item available');
         }
         this.createItems();
@@ -56,7 +56,7 @@ export default class Items extends Component {
             items: this.items.map<Required<Save>['items']['items'][number]>(item => ({
                 name: item.name,
                 modList: item.mods.map(mod => ({
-                    desc: mod.template.desc,
+                    text: mod.text,
                     values: mod.stats.map(x => x.value)
                 }))
             })),
@@ -197,23 +197,7 @@ class Item {
     constructor(readonly items: Items, readonly name: string) {
         this.element = this.createElement();
 
-        const savedItem = items.game.saveObj.items?.items?.find(x => x.name === name);
-        if (savedItem) {
-            const mods = savedItem.modList.map(savedMod => {
-                const mod = items.modLists.find(x => x.template.desc === savedMod.desc)?.copy();
-                if (!mod) {
-                    return;
-                }
-                savedMod.values.forEach((v, i) => {
-                    const statMod = mod.stats[i];
-                    if(statMod){
-                        statMod.value = v;
-                    }
-                });
-                return mod;
-            }).filter((x): x is ItemModifier => !!x);
-            this.mods = mods;
-        }
+        this.tryLoad();
     }
     get mods() { return this._mods; }
     set mods(v: ItemModifier[]) {
@@ -231,6 +215,30 @@ class Item {
             this.items.items.forEach(x => x.element.classList.toggle('selected', x === this));
         });
         return li;
+    }
+
+    private tryLoad() {
+        const savedItem = this.items.game.saveObj.items?.items?.find(x => x.name === this.name);
+        if (!savedItem) {
+            return;
+        }
+        if (savedItem) {
+            const mods = savedItem.modList.map(savedMod => {
+                const mod = this.items.modLists.find(x => x.text === savedMod.text)?.copy();
+                if (!mod || savedMod.values.length !== mod.stats.length) {
+                    console.error('invalid saved mod:', savedMod);
+                    return;
+                }
+                savedMod.values.forEach((v, i) => {
+                    const statMod = mod.stats[i];
+                    if (statMod) {
+                        statMod.value = v;
+                    }
+                });
+                return mod;
+            }).filter((x): x is ItemModifier => !!x);
+            this.mods = mods;
+        }
     }
 }
 
