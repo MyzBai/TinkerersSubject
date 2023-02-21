@@ -74,7 +74,7 @@ export default class Home {
             callback: async (confirm) => {
                 if (confirm) {
                     await this.game.deleteSave(this.game.config.meta.id);
-                    this.init();
+                    this.populateEntryList('saved');
                 }
             }
         });
