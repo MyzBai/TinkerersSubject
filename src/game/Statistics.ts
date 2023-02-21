@@ -1,5 +1,5 @@
 import type { Save } from "@src/types/save";
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import Value from "@utils/Value";
 import type Game from "./Game";
 
@@ -22,7 +22,7 @@ export default class Statistics {
         'Total Physical Damage': new Statistic(0),
         'Prestige Count': new Statistic(0),
     } as const;
-    private readonly page = queryHTML('.p-game .p-statistics');
+    private readonly page = querySelector('.p-game .p-statistics');
     constructor(readonly game: Game) {
 
 
@@ -64,7 +64,7 @@ export default class Statistics {
             const element = createField(key as string);
             elements.push(element);
         }
-        queryHTML('.p-statistics ul').replaceChildren(...elements);
+        querySelector('.p-statistics ul').replaceChildren(...elements);
     }
 
     private getFormatType(key: keyof typeof this.statistics) {
@@ -76,7 +76,7 @@ export default class Statistics {
 
     private updateStatisticsUI() {
         for (const [key, value] of Object.entries(this.statistics)) {
-            const element = queryHTML(`.p-statistics [data-stat="${key}"]`);
+            const element = querySelector(`.p-statistics [data-stat="${key}"]`);
             if (!element) {
                 continue;
             }

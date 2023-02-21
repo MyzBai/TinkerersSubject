@@ -6,7 +6,7 @@ import missionsHtml from './html/missions.html';
 import achievementsHtml from './html/achievements.html';
 import prestigeHtml from './html/prestige.html';
 import type { ComponentName } from '@src/types/gconfig';
-import { queryHTML, registerTabs } from '@src/utils/helpers';
+import { querySelector, registerTabs } from '@src/utils/helpers';
 
 interface ComponentData {
     name: string;
@@ -59,8 +59,8 @@ export class GameElement extends HTMLElement {
     }
 
     init(names: ComponentName[]) {
-        const container = queryHTML('[data-main-view]', this);
-        const menu = queryHTML('.p-game [data-main-menu]');
+        const container = querySelector('[data-main-view]', this);
+        const menu = querySelector('.p-game [data-main-menu]');
         menu.replaceChildren();
 
         this.componentPages.forEach(x => x.remove());
@@ -83,7 +83,7 @@ export class GameElement extends HTMLElement {
         menu.appendChild(this.createMenuItem('Statistics', 'statistics'));
         menu.appendChild(this.createMenuItem('Settings', 'settings'));
 
-        registerTabs(menu, queryHTML('.p-game', this));
+        registerTabs(menu, querySelector('.p-game', this));
     }
 
     private createMenuItem(label: string, targetName: string) {

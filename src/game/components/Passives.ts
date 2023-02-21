@@ -1,6 +1,6 @@
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
@@ -27,7 +27,7 @@ export default class Passives extends Component {
                     this.passives.push(passive);
 
                 }
-                queryHTML('.s-passive-list table', this.page).append(...this.passives.map(x => x.element));
+                querySelector('.s-passive-list table', this.page).append(...this.passives.map(x => x.element));
             }
         }
 
@@ -57,8 +57,8 @@ export default class Passives extends Component {
     }
 
     private updatePoints() {
-        queryHTML<HTMLSpanElement>('.p-game .p-passives [data-cur-points]').textContent = this.curPoints.toFixed();
-        queryHTML<HTMLSpanElement>('.p-game .p-passives [data-max-points]').textContent = this.maxPoints.toFixed();
+        querySelector<HTMLSpanElement>('.p-game .p-passives [data-cur-points]').textContent = this.curPoints.toFixed();
+        querySelector<HTMLSpanElement>('.p-game .p-passives [data-max-points]').textContent = this.maxPoints.toFixed();
     }
 
     private updatePassiveList() {

@@ -1,9 +1,9 @@
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import { GenericModal } from "@src/webComponents/GenericModal";
 import type Game from "./Game";
 
 export default class Settings {
-    private readonly deleteSaveButton = queryHTML<HTMLButtonElement>('.p-settings [data-delete-save]');
+    private readonly deleteSaveButton = querySelector<HTMLButtonElement>('.p-settings [data-delete-save]');
     constructor(readonly game: Game) {
 
         this.deleteSaveButton.addEventListener('click', this.openDeleteSaveModal.bind(this));
@@ -12,7 +12,7 @@ export default class Settings {
 
 
     private openDeleteSaveModal() {
-        const modal = queryHTML<GenericModal>('body > generic-modal');
+        const modal = querySelector<GenericModal>('body > generic-modal');
         modal.init({
             title: 'Delete Save',
             body: 'Are you sure?',

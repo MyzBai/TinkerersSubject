@@ -1,6 +1,6 @@
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
@@ -25,7 +25,7 @@ export default class Achievements extends Component {
             });
         });
 
-        queryHTML('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
+        querySelector('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
     }
 
     updateUI(time: number): void {
@@ -60,7 +60,7 @@ class Achievement {
     }
 
     updateLabel() {
-        const label = queryHTML('[data-label]', this.element);
+        const label = querySelector('[data-label]', this.element);
         const descElement = document.createElement('span');
         descElement.textContent = this.task.textData.labelText + ' ';
         descElement.setAttribute('data-desc', '');

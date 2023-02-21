@@ -2,12 +2,12 @@ import Value from '@utils/Value';
 import { ModDB, Modifier } from "./mods";
 import { calcPlayerStats } from './calc/calcMod';
 import { calcAttack } from "./calc/calcDamage";
-import { invLerp, queryHTML } from "@src/utils/helpers";
+import { invLerp, querySelector } from "@src/utils/helpers";
 import type Game from './Game';
 import type { Save } from '@src/types/save';
 
 export default class Player {
-    private readonly playerStatsContainer = queryHTML('.p-game [data-player-stats]');
+    private readonly playerStatsContainer = querySelector('.p-game [data-player-stats]');
     private readonly manaBar: HTMLProgressElement;
     private statsUpdateId = -1;
     readonly modDB = new ModDB();
@@ -24,7 +24,7 @@ export default class Player {
     };
     private _attackProgressPct: number = 0;
     constructor(readonly game: Game) {
-        this.manaBar = queryHTML<HTMLProgressElement>('[data-mana-bar]', this.game.gamePage);
+        this.manaBar = querySelector<HTMLProgressElement>('[data-mana-bar]', this.game.gamePage);
     }
 
     get attackProgressPct() {
@@ -37,8 +37,8 @@ export default class Player {
 
         Object.values(this.stats).forEach(x => x.reset());
 
-        this.stats.level.addListener('change', x => queryHTML('[data-stat="level"]', this.playerStatsContainer).textContent = x.toFixed());
-        this.stats.gold.addListener('change', x => queryHTML('[data-stat="gold"]', this.playerStatsContainer).textContent = x.toFixed());
+        this.stats.level.addListener('change', x => querySelector('[data-stat="level"]', this.playerStatsContainer).textContent = x.toFixed());
+        this.stats.gold.addListener('change', x => querySelector('[data-stat="gold"]', this.playerStatsContainer).textContent = x.toFixed());
         this.stats.level.set(this.game.saveObj.player?.level || 1);
         this.stats.gold.set(this.game.saveObj.player?.gold || 0);
 

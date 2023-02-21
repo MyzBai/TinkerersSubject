@@ -1,4 +1,4 @@
-import { generateTime, queryHTML, registerTabs } from "./utils/helpers";
+import { generateTime, querySelector, registerTabs } from "./utils/helpers";
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
 import Game from "@src/game/Game";
@@ -10,19 +10,19 @@ const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
 
 export default class Home {
-    private readonly page = queryHTML('.p-home'); 
+    private readonly page = querySelector('.p-home'); 
     readonly game: Game;
     private activeEntry?: GConfig['meta'];
     constructor() {
 
         this.game = new Game(this);
 
-        queryHTML('[data-target="game"]', this.page).addEventListener('click', () => {
+        querySelector('[data-target="game"]', this.page).addEventListener('click', () => {
             this.page.classList.add('hidden');
-            queryHTML('.p-game').classList.remove('hidden');
+            querySelector('.p-game').classList.remove('hidden');
         });
 
-        registerTabs(queryHTML('.p-home > menu'), queryHTML('.p-home .s-main'), target => {
+        registerTabs(querySelector('.p-home > menu'), querySelector('.p-home .s-main'), target => {
             const type = target.getAttribute('data-tab-target') as EntryType;
             if (!entryTypes.includes(type)) {
                 throw Error('wrong type');
@@ -30,13 +30,13 @@ export default class Home {
             this.populateEntryList(type);
         });
 
-        queryHTML('.p-home .p-new [data-entry-info] [data-start]').addEventListener('click', () => {
+        querySelector('.p-home .p-new [data-entry-info] [data-start]').addEventListener('click', () => {
             if (!this.activeEntry) {
                 return;
             }
             this.tryStartGame(this.activeEntry,);
         });
-        queryHTML('.p-home .p-saved [data-entry-info] [data-start]').addEventListener('click', async () => {
+        querySelector('.p-home .p-saved [data-entry-info] [data-start]').addEventListener('click', async () => {
             if (!this.activeEntry) {
                 return;
             }
@@ -53,11 +53,11 @@ export default class Home {
     }
 
     async init() {
-        const navBtn = queryHTML('header [data-target]');
+        const navBtn = querySelector('header [data-target]');
         navBtn.setAttribute('data-target', 'home');
         navBtn.click();
         navBtn.classList.add('hidden');
-        queryHTML('.p-home > menu [data-type="new"]').click();
+        querySelector('.p-home > menu [data-type="new"]').click();
     }
 
     async tryLoadRecentSave() {
@@ -72,9 +72,9 @@ export default class Home {
     async populateEntryList(type: EntryType) {
         const entries = await this.getEntries(type);
         const elements = this.createEntryListElements(entries, type);
-        const container = queryHTML(`.p-home [data-tab-content=${type}]`);
-        const entryListContainer = queryHTML('[data-entry-list]', container);
-        queryHTML('[data-entry-list]', container).replaceChildren(...elements);
+        const container = querySelector(`.p-home [data-tab-content=${type}]`);
+        const entryListContainer = querySelector('[data-entry-list]', container);
+        querySelector('[data-entry-list]', container).replaceChildren(...elements);
         if (elements.length === 0) {
             let msg = '';
             switch (type) {
@@ -83,7 +83,7 @@ export default class Home {
             }
             entryListContainer.textContent = msg;
         }
-        queryHTML('.p-home [data-entry-info]').classList.toggle('hidden', elements.length === 0);
+        querySelector('.p-home [data-entry-info]').classList.toggle('hidden', elements.length === 0);
         elements[0]?.click();
     }
 
@@ -114,9 +114,9 @@ export default class Home {
     }
 
     private showEntry(entry: GConfig['meta'], type: EntryType) {
-        const infoContainer = queryHTML(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
-        queryHTML('[data-title]', infoContainer).textContent = entry.name;
-        queryHTML('[data-desc]', infoContainer).textContent = entry.description || '';
+        const infoContainer = querySelector(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
+        querySelector('[data-title]', infoContainer).textContent = entry.name;
+        querySelector('[data-desc]', infoContainer).textContent = entry.description || '';
     }
 
     private async tryStartGame(entry: GConfig['meta'], saveObj?: Save) {
@@ -136,7 +136,7 @@ export default class Home {
 
             this.game.init(config, saveObj);
 
-            const navBtn = queryHTML('header [data-target]');
+            const navBtn = querySelector('header [data-target]');
             navBtn.classList.remove('hidden');
             navBtn.click();
             return true;

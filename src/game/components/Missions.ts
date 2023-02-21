@@ -1,6 +1,6 @@
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import Task from "../Task";
@@ -10,7 +10,7 @@ type MissionData = MissionsData['missionLists'][number][number];
 
 export default class Missions extends Component {
     readonly slots: MissionSlot[] = [];
-    private readonly missionsListContainer = queryHTML<HTMLUListElement>('ul[data-mission-list]', this.page);
+    private readonly missionsListContainer = querySelector<HTMLUListElement>('ul[data-mission-list]', this.page);
     constructor(readonly game: Game, readonly data: MissionsData) {
         super(game, 'missions');
 
@@ -24,7 +24,7 @@ export default class Missions extends Component {
 
         game.gameLoop.subscribe(() => { this.slots.forEach(x => x.tryCompletion()); }, { intervalMilliseconds: 1000 });
 
-        queryHTML('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
+        querySelector('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
     }
 
     updateUI(time: number): void {
@@ -96,7 +96,7 @@ class MissionSlot {
             return;
         }
 
-        queryHTML<HTMLButtonElement>('[data-trigger="buy"]', this._element).remove();
+        querySelector<HTMLButtonElement>('[data-trigger="buy"]', this._element).remove();
 
         const buttonClaim = document.createElement('button');
         buttonClaim.classList.add('g-button');
@@ -173,7 +173,7 @@ class MissionSlot {
         if (!this._task) {
             return;
         }
-        const label = queryHTML('[data-label]', this._element);
+        const label = querySelector('[data-label]', this._element);
         const descElement = document.createElement('span');
         descElement.textContent = this._task.textData.labelText + ' ';
         descElement.setAttribute('data-desc', '');
@@ -194,8 +194,8 @@ class MissionSlot {
         if (!this._missionData) {
             return;
         }
-        const element = queryHTML<HTMLButtonElement>('[data-trigger="claim"]', this._element);
-        queryHTML('[data-cost]', element).textContent = this._missionData.goldAmount.toFixed();
+        const element = querySelector<HTMLButtonElement>('[data-trigger="claim"]', this._element);
+        querySelector('[data-cost]', element).textContent = this._missionData.goldAmount.toFixed();
         element.disabled = !enabled;
     }
 
@@ -203,8 +203,8 @@ class MissionSlot {
         if (!this._missionData || !this._task) {
             return;
         }
-        const element = queryHTML<HTMLButtonElement>('[data-trigger="new"]', this._element);
-        queryHTML<HTMLSpanElement>('[data-cost]', element).textContent = this.newMissionCost.toFixed();
+        const element = querySelector<HTMLButtonElement>('[data-trigger="new"]', this._element);
+        querySelector<HTMLSpanElement>('[data-cost]', element).textContent = this.newMissionCost.toFixed();
         element.disabled = this._task.completed || this.missions.game.player.stats.gold.get() < this.newMissionCost;
     }
 

@@ -1,4 +1,4 @@
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 
 type ActionCallback = (confirm: Boolean, userData: any) => void;
 interface InitParams {
@@ -27,9 +27,9 @@ export class GenericModal extends HTMLElement {
         </dialog>`;
 
 
-        this.modal = queryHTML<HTMLDialogElement>('dialog', this);
+        this.modal = querySelector<HTMLDialogElement>('dialog', this);
 
-        queryHTML('.backdrop').addEventListener('mousedown', () => this.closeModal());
+        querySelector('.backdrop').addEventListener('mousedown', () => this.closeModal());
         this.classList.add('hidden');
     }
 
@@ -40,11 +40,11 @@ export class GenericModal extends HTMLElement {
     }
 
     init(args: InitParams) {
-        queryHTML('header h3', this.modal).textContent = args.title || '';
+        querySelector('header h3', this.modal).textContent = args.title || '';
         if (typeof args.body === 'string') {
-            queryHTML('[data-body]', this.modal).innerHTML = args.body;
+            querySelector('[data-body]', this.modal).innerHTML = args.body;
         } else {
-            queryHTML('[data-body]', this.modal).replaceChildren(args.body);
+            querySelector('[data-body]', this.modal).replaceChildren(args.body);
         }
         const buttons: HTMLButtonElement[] = [];
         for (const buttonData of args.buttons) {
@@ -59,9 +59,9 @@ export class GenericModal extends HTMLElement {
             });
             buttons.push(button);
         }
-        queryHTML('footer', this).replaceChildren(...buttons);
+        querySelector('footer', this).replaceChildren(...buttons);
         if(args.footerText){
-            queryHTML('footer', this).insertAdjacentHTML('beforeend', `<small>${args.footerText}</small>`);
+            querySelector('footer', this).insertAdjacentHTML('beforeend', `<small>${args.footerText}</small>`);
         }
     }
 

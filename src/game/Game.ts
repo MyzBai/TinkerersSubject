@@ -1,4 +1,4 @@
-import { registerTabs, queryHTML, isLocalHost } from "@utils/helpers";
+import { registerTabs, querySelector, isLocalHost } from "@utils/helpers";
 import Player from './Player';
 import Enemy from './Enemy';
 import type GConfig from "@src/types/gconfig";
@@ -26,7 +26,7 @@ type Entries<T> = {
 type ComponentsEntries = Entries<Required<GConfig>['components']>;
 
 export default class Game {
-    readonly gamePage = queryHTML('.p-game');
+    readonly gamePage = querySelector('.p-game');
     readonly gameLoop = new Loop();
     readonly enemy: Enemy;
     readonly player: Player;
@@ -49,11 +49,11 @@ export default class Game {
             this.setupDevHelpers();
         }
 
-        queryHTML('[data-target="home"]', this.gamePage).addEventListener('click', () => {
+        querySelector('[data-target="home"]', this.gamePage).addEventListener('click', () => {
             this.gamePage.classList.add('hidden');
-            queryHTML('.p-home').classList.remove('hidden');
+            querySelector('.p-home').classList.remove('hidden');
         });
-        registerTabs(queryHTML('[data-main-menu]', this.gamePage), queryHTML('[data-main-view]', this.gamePage));
+        registerTabs(querySelector('[data-main-menu]', this.gamePage), querySelector('[data-main-view]', this.gamePage));
     }
     get config() {
         return this._config!;
@@ -84,7 +84,7 @@ export default class Game {
         });
 
 
-        queryHTML('[data-config-name]',this.gamePage).textContent = this._config.meta.name;
+        querySelector('[data-config-name]',this.gamePage).textContent = this._config.meta.name;
         // this.gameLoop.subscribe(() => {
         //     saveGame(config.meta);
         // }, { intervalMilliseconds: 1000 * 60 });
@@ -100,7 +100,7 @@ export default class Game {
         if (!isLocalHost) {
             this.gameLoop.start();
         }
-        queryHTML('[data-tab-target="combat"]', this.gamePage).click();
+        querySelector('[data-tab-target="combat"]', this.gamePage).click();
         document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
     }
 
@@ -117,14 +117,14 @@ export default class Game {
         }
 
         const keys = Object.keys(this.config.components) as ComponentName[];
-        const gameElement = queryHTML<GameElement>('game-element');
+        const gameElement = querySelector<GameElement>('game-element');
         gameElement.init(keys);
 
 
         const entries = Object.entries(this.config.components) as Required<ComponentsEntries>;
         const initComponent = (entry: Required<ComponentsEntries>[number]) => {
             const name = entry![0];
-            queryHTML(`.p-game [data-main-menu] [data-tab-target="${name}"]`).classList.remove('hidden');
+            querySelector(`.p-game [data-main-menu] [data-tab-target="${name}"]`).classList.remove('hidden');
             let component: Component | undefined = undefined;
             switch (name) {
                 case 'skills':

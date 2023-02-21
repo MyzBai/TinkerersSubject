@@ -1,6 +1,6 @@
 import type { Save } from "@src/types/save";
 import EventEmitter from "@src/utils/EventEmitter";
-import { clamp, queryHTML } from "@src/utils/helpers";
+import { clamp, querySelector } from "@src/utils/helpers";
 import type Game from "./Game";
 
 export default class Enemy {
@@ -11,7 +11,7 @@ export default class Enemy {
     private readonly healthBar: HTMLProgressElement;
     constructor(readonly game: Game) {
         this._index = 0;
-        this.healthBar = queryHTML<HTMLProgressElement>('[data-health-bar]', this.game.gamePage);
+        this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]', this.game.gamePage);
 
 
     }

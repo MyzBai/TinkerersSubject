@@ -4,7 +4,7 @@ import { Modifier } from "@src/game/mods";
 import type { CraftId, ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import { CraftData, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
 
@@ -12,12 +12,12 @@ type ItemsData = Required<Required<GConfig>['components']>['items'];
 export type ModTables = { [K in keyof ItemsData['modLists']]: ItemModifier[] }
 
 export default class Items extends Component {
-    private readonly itemsPage = queryHTML('.p-game .p-items');
-    private readonly itemListContainer = queryHTML('[data-item-list]', this.itemsPage);
-    private readonly itemModListContainer = queryHTML('[data-mod-list]', this.itemsPage);
-    private readonly itemCraftTableContainer = queryHTML('.s-craft-container [data-craft-list] table', this.itemsPage);
-    private readonly craftButton = queryHTML<HTMLButtonElement>('.s-craft-container [data-craft-button]', this.itemsPage);
-    private readonly craftMessageElement = queryHTML<HTMLButtonElement>('[data-craft-message]', this.itemsPage);
+    private readonly itemsPage = querySelector('.p-game .p-items');
+    private readonly itemListContainer = querySelector('[data-item-list]', this.itemsPage);
+    private readonly itemModListContainer = querySelector('[data-mod-list]', this.itemsPage);
+    private readonly itemCraftTableContainer = querySelector('.s-craft-container [data-craft-list] table', this.itemsPage);
+    private readonly craftButton = querySelector<HTMLButtonElement>('.s-craft-container [data-craft-button]', this.itemsPage);
+    private readonly craftMessageElement = querySelector<HTMLButtonElement>('[data-craft-message]', this.itemsPage);
     readonly items: Item[] = [];
     private activeItem: Item;
     private activeCraftId?: CraftId;
@@ -142,7 +142,7 @@ export default class Items extends Component {
             if (!this.activeCraftId) {
                 return 'No Craft Selected';
             }
-            const costAttr = queryHTML(`[data-id="${this.activeCraftId}"]`).getAttribute('data-cost');
+            const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute('data-cost');
             const cost = Number(costAttr);
             if (cost > this.game.player.stats.gold.get()) {
                 return 'Not Enough Gold';

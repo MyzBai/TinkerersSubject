@@ -10,7 +10,7 @@ export const invLerp = (a: number, b: number, v: number) => (v - a) / (b - a);
 export const remap = (iMin: number, iMax: number, oMin: number, oMax: number, v: number) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
 export const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.port.length !== 0 || location.protocol !== 'http:';
 
-export function queryHTML<T extends HTMLElement>(selectors: string, parent?: HTMLElement) {
+export function querySelector<T extends HTMLElement>(selectors: string, parent?: HTMLElement) {
     const element = (parent || document).querySelector<T>(selectors);
     if (!element) {
         throw Error(`HTMLElement with selectors ${selectors} could not be found!`);

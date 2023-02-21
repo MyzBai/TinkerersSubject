@@ -1,4 +1,4 @@
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import { CraftId } from "./crafting";
 import type Items from "./Items";
 
@@ -8,32 +8,32 @@ export default class CraftPresets {
     private readonly modal: HTMLDialogElement;
     constructor(readonly items: Items) {
 
-        this.modal = queryHTML<HTMLDialogElement>('.p-game .p-items [data-preset-modal]', this.items.page);
+        this.modal = querySelector<HTMLDialogElement>('.p-game .p-items [data-preset-modal]', this.items.page);
 
         //new preset button
-        queryHTML('.s-preset-container [data-new]', this.items.page).addEventListener('click', () => {
+        querySelector('.s-preset-container [data-new]', this.items.page).addEventListener('click', () => {
             const preset = this.newPreset();
             this.editActivePreset();
             preset.element.click();
         });
         //edit preset button
-        queryHTML('.s-preset-container [data-edit]', this.items.page).addEventListener('click', () => this.editActivePreset());
+        querySelector('.s-preset-container [data-edit]', this.items.page).addEventListener('click', () => this.editActivePreset());
 
         //preset modal apply button
-        queryHTML('[data-apply]', this.modal).addEventListener('click', () => {
+        querySelector('[data-apply]', this.modal).addEventListener('click', () => {
             if (!this.activePreset) {
                 return;
             }
             const newIds = [...this.modal.querySelectorAll<HTMLTableRowElement>('[data-craft-list] table [data-id]')].filter(x => x.classList.contains('selected')).map(x => x.getAttribute('data-id'));
             this.activePreset!.ids = newIds as CraftId[];
-            const name = queryHTML<HTMLInputElement>('input[data-name]', this.modal).value;
+            const name = querySelector<HTMLInputElement>('input[data-name]', this.modal).value;
             if (name !== this.activePreset.name) {
                 this.activePreset.name = name;
             }
             this.selectPreset(this.activePreset);
         });
         //preset modal delete button
-        queryHTML('[data-delete]', this.modal).addEventListener('click', () => this.deleteActivePreset());
+        querySelector('[data-delete]', this.modal).addEventListener('click', () => this.deleteActivePreset());
 
         if (items.game.saveObj.items?.craftPresets) {
             for (const savedPreset of items.game.saveObj.items?.craftPresets) {
@@ -50,7 +50,7 @@ export default class CraftPresets {
             this.presets.forEach(x => x.element.classList.toggle('selected', x === preset));
             this.selectPreset(preset);
         });
-        queryHTML('.s-preset-container [data-preset-list]').appendChild(preset.element);
+        querySelector('.s-preset-container [data-preset-list]').appendChild(preset.element);
         this.presets.push(preset);
         preset.element.click();
         return preset;
@@ -59,16 +59,16 @@ export default class CraftPresets {
     selectPreset(preset?: CraftPreset) {
         this.activePreset = preset;
         this.items.populateCraftList(this.activePreset?.ids);
-        queryHTML<HTMLButtonElement>('.s-preset-container [data-edit]', this.items.page).disabled = typeof this.activePreset === 'undefined';
+        querySelector<HTMLButtonElement>('.s-preset-container [data-edit]', this.items.page).disabled = typeof this.activePreset === 'undefined';
     }
 
     editActivePreset() {
         if (!this.activePreset) {
             return;
         }
-        const modal = queryHTML<HTMLDialogElement>('.p-game .p-items [data-preset-modal]');
+        const modal = querySelector<HTMLDialogElement>('.p-game .p-items [data-preset-modal]');
 
-        queryHTML<HTMLInputElement>('input[data-name]', modal).value = this.activePreset?.name;
+        querySelector<HTMLInputElement>('input[data-name]', modal).value = this.activePreset?.name;
         const filteredCraftList = this.items.data.craftList.filter(x => x.levelReq <= this.items.game.player.stats.level.get());
         const rows = [] as HTMLTableRowElement[];
         for (const craftData of filteredCraftList) {
@@ -87,7 +87,7 @@ export default class CraftPresets {
             rows.push(row);
         }
 
-        queryHTML<HTMLTableElement>('[data-craft-list] table tbody', modal).replaceChildren(...rows);
+        querySelector<HTMLTableElement>('[data-craft-list] table tbody', modal).replaceChildren(...rows);
         modal.showModal();
     }
 

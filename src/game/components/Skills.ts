@@ -1,6 +1,6 @@
 import GConfig from "@src/types/gconfig";
 import { Save } from "@src/types/save";
-import { queryHTML } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import Game from "../Game";
 import { Modifier, StatModifier } from "../mods";
 import Player from "../Player";
@@ -37,13 +37,13 @@ export default class Skills extends Component {
                 }
                 this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
             });
-            queryHTML('[data-attack-skill-slot]', this.page).replaceChildren(this.attackSkillSlot.element!);
-            queryHTML('[data-skill-name]', this.attackSkillSlot.element).click();
+            querySelector('[data-attack-skill-slot]', this.page).replaceChildren(this.attackSkillSlot.element!);
+            querySelector('[data-skill-name]', this.attackSkillSlot.element).click();
         }
 
         //setup buff skills
         {
-            const buffSkillSlotContainer = queryHTML('.s-skill-slots [data-buff-skill-slots]', this.page);
+            const buffSkillSlotContainer = querySelector('.s-skill-slots [data-buff-skill-slots]', this.page);
             buffSkillSlotContainer.replaceChildren();
             if (data.buffSkills) {
                 this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<BuffSkill>(x => new BuffSkill(this, x));
@@ -61,15 +61,15 @@ export default class Skills extends Component {
         }
 
         {
-            const skillInfoContainer = queryHTML('[data-skill-info]', this.page);
-            queryHTML('[data-enable]', skillInfoContainer).addEventListener('click', () => {
+            const skillInfoContainer = querySelector('[data-skill-info]', this.page);
+            querySelector('[data-enable]', skillInfoContainer).addEventListener('click', () => {
                 if (this.activeSkill) {
                     this.enableSkill(this.activeSkillSlot, this.activeSkill);
                 }
             });
-            const triggerButton = queryHTML<HTMLButtonElement>('[data-trigger]', skillInfoContainer);
-            const removeButton = queryHTML<HTMLButtonElement>('[data-remove]', skillInfoContainer);
-            const automateButton = queryHTML<HTMLButtonElement>('[data-automate]', skillInfoContainer);
+            const triggerButton = querySelector<HTMLButtonElement>('[data-trigger]', skillInfoContainer);
+            const removeButton = querySelector<HTMLButtonElement>('[data-remove]', skillInfoContainer);
+            const automateButton = querySelector<HTMLButtonElement>('[data-automate]', skillInfoContainer);
             removeButton.addEventListener('click', () => this.removeSkillFromSlot(this.activeSkillSlot as BuffSkillSlot));
             triggerButton.addEventListener('click', () => this.triggerSkill(this.activeSkillSlot as BuffSkillSlot));
             automateButton.addEventListener('click', () => this.toggleAutoMode(this.activeSkillSlot as BuffSkillSlot));
@@ -99,7 +99,7 @@ export default class Skills extends Component {
 
 
     private populateSkillList(skillSlot: SkillSlot, skillList: BaseSkill[]) {
-        const skillListContainer = queryHTML('.p-game .p-skills .s-skill-list ul', this.page);
+        const skillListContainer = querySelector('.p-game .p-skills .s-skill-list ul', this.page);
         const elements: HTMLLIElement[] = [];
         for (const skill of skillList) {
             const li = document.createElement('li');
@@ -130,7 +130,7 @@ export default class Skills extends Component {
     }
 
     showSkill(skill: BaseSkill) {
-        const skillInfoContainer = queryHTML('[data-skill-info]', this.page);
+        const skillInfoContainer = querySelector('[data-skill-info]', this.page);
         const createTableRow = (label: string, value: string) => {
             const row = document.createElement('tr');
             row.insertAdjacentHTML('beforeend', `<td>${label}</td>`);
@@ -138,9 +138,9 @@ export default class Skills extends Component {
             return row;
         };
 
-        queryHTML('header .title', skillInfoContainer).textContent = skill.data.name;
+        querySelector('header .title', skillInfoContainer).textContent = skill.data.name;
 
-        const table = queryHTML('table', skillInfoContainer);
+        const table = querySelector('table', skillInfoContainer);
         table.replaceChildren();
         table.appendChild(createTableRow('Mana Cost', skill.data.manaCost.toFixed()));
 
@@ -159,13 +159,13 @@ export default class Skills extends Component {
                 modElement.textContent = mod.desc;
                 modElements.push(modElement);
             }
-            queryHTML('.s-mods', skillInfoContainer).replaceChildren(...modElements);
+            querySelector('.s-mods', skillInfoContainer).replaceChildren(...modElements);
         }
 
-        const enableButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-enable]', this.page);
-        const removeButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-remove]', this.page);
-        const triggerButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-trigger]', this.page);
-        const automateButton = queryHTML<HTMLButtonElement>('[data-skill-info] [data-automate]', this.page);
+        const enableButton = querySelector<HTMLButtonElement>('[data-skill-info] [data-enable]', this.page);
+        const removeButton = querySelector<HTMLButtonElement>('[data-skill-info] [data-remove]', this.page);
+        const triggerButton = querySelector<HTMLButtonElement>('[data-skill-info] [data-trigger]', this.page);
+        const automateButton = querySelector<HTMLButtonElement>('[data-skill-info] [data-automate]', this.page);
 
         removeButton.classList.toggle('hidden', skill instanceof AttackSkill);
         triggerButton.classList.toggle('hidden', skill instanceof AttackSkill);
@@ -243,7 +243,7 @@ class BaseSkillSlot {
     readonly progressBar: HTMLProgressElement;
     constructor() {
         this.element = this.createElement();
-        this.progressBar = queryHTML<HTMLProgressElement>('progress', this.element);
+        this.progressBar = querySelector<HTMLProgressElement>('progress', this.element);
     }
 
     setSkill(skill?: BaseSkill) {
@@ -252,7 +252,7 @@ class BaseSkillSlot {
     }
     get hasSkill() { return typeof this.skill !== 'undefined'; }
     get canRemove() { return this.hasSkill }
-    get slotLabelElement() { return queryHTML('[data-skill-name]', this.element); }
+    get slotLabelElement() { return querySelector('[data-skill-name]', this.element); }
     get canTrigger() { return false; }
     get canEnable() { return false; }
 
@@ -350,7 +350,7 @@ class BuffSkillSlot extends BaseSkillSlot {
 
     setSkill(skill?: BuffSkill) {
         this.skill = skill;
-        queryHTML('[data-skill-name]', this.element).textContent = this.skill?.data.name || '[Empty Slot]';
+        querySelector('[data-skill-name]', this.element).textContent = this.skill?.data.name || '[Empty Slot]';
     }
 
     updateProgressBar() {
