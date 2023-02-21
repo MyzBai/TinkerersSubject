@@ -24,14 +24,13 @@ export default class Missions extends Component {
 
         game.gameLoop.subscribe(() => { this.slots.forEach(x => x.tryCompletion()); }, { intervalMilliseconds: 1000 });
 
-        querySelector('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
-    }
+        game.visiblityObserver.registerLoop(this.page, visible => {
+            if (visible) {
+                this.slots.forEach(x => x.updateLabel());
+            }
+        }, { intervalMilliseconds: 1000 });
 
-    updateUI(time: number): void {
-        if (time - this.updateUITime > 1) {
-            this.slots.forEach(x => x.updateLabel());
-            this.updateUITime = time;
-        }
+        querySelector('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
     }
 
     save(saveObj: Save): void {
@@ -151,7 +150,7 @@ class MissionSlot {
         }
         const index = Math.floor(Math.random() * missionDataArr.length);
         this._missionData = missionDataArr[index];
-        if(!this._missionData){
+        if (!this._missionData) {
             throw Error('missing mission data');
         }
         const description = this._missionData.description || 'Error';
@@ -222,7 +221,7 @@ class MissionSlot {
         button.addEventListener('click', () => {
             this.missions.game.player.stats.gold.subtract(this.unlockCost);
             this.unlock();
-         });
+        });
         button.disabled = true;
         this.missions.game.player.stats.gold.addListener('change', amount => {
             button.disabled = amount < this.unlockCost;

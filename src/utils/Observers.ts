@@ -1,22 +1,18 @@
 import Loop, { Options } from "./Loop";
 
 export type Callback = (visible: boolean, observer: IntersectionObserver) => void;
-
+export type Instance = { observer: IntersectionObserver, loopId?: string }
 export class VisibilityObserver {
-    private readonly _observers: (IntersectionObserver | { loop: Loop, observer: IntersectionObserver })[] = [];
-    constructor() {
+    private readonly instances: Instance[] = [];
+    constructor(readonly loop?: Loop) {
 
     }
-    get observers() {
-        return this._observers;
-    }
+
     disconnectAll() {
-        this._observers.forEach(x => {
-            if ('loop' in x) {
-                x.loop.reset();
-                x.observer.disconnect();
-            } else {
-                x.disconnect();
+        this.instances.forEach(x => {
+            x.observer.disconnect();
+            if (x.loopId) {
+                this.loop?.unsubscribe(x.loopId);
             }
         });
     }
@@ -25,47 +21,26 @@ export class VisibilityObserver {
             entries.forEach(x => callback(x.isIntersecting, observer));
         });
         observer.observe(element);
-        this._observers.push(observer);
+        this.instances.push({ observer });
         return observer;
     }
     registerLoop(element: HTMLElement, callback: Callback, options?: Options) {
-        const loop = new Loop();
-        let loopId: string;
-        const observer = this.register(element, (visible, observer) => {
+        if (!this.loop) {
+            throw Error('VisibilityObserver has no loop instance');
+        }
+        let loopId: string | undefined;
+        const observer = this.register(element, visible => {
             callback(visible, observer);
             if (visible) {
-                loopId = loop.subscribe(() => { callback(visible, observer); }, options);
-                loop.start();
+                loopId = this.loop?.subscribeAnim(() => {
+                    callback(visible, observer);
+                }, options);
             } else {
-                loop.unsubscribe(loopId);
-                loop.stop();
+                this.loop?.unsubscribe(loopId);
             }
         });
-        this._observers.push({ loop, observer })
-        return { loop, observer }
+        observer.observe(element);
+        this.instances.push({ observer, loopId });
+        return observer;
     }
 }
-
-// export const visibilityObserver = (element: HTMLElement, callback: Callback) => {
-//     const observer = new IntersectionObserver(entries => {
-//         entries.forEach(x => callback(x.isIntersecting, observer));
-//     });
-//     observer.observe(element);
-//     return observer;
-// }
-
-// export function visibilityObserverLoop(element: HTMLElement, callback: (visible: boolean, observer: IntersectionObserver) => void, options?: Options) {
-//     const loop = new Loop();
-//     let loopId: string;
-//     const observer = visibilityObserver(element, (visible: boolean, observer: IntersectionObserver) => {
-//         callback(visible, observer);
-//         if (visible) {
-//             loopId = loop.subscribe(() => { callback(visible, observer); }, options);
-//             loop.start();
-//         } else {
-//             loop.unsubscribe(loopId);
-//             loop.stop();
-//         }
-//     });
-//     return { loop, observer }
-// }

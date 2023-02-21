@@ -31,11 +31,11 @@ export default class Skills extends Component {
                 this.selectSkillSlot(this.attackSkillSlot, this.attackSkills);
             });
 
-            game.gameLoop.subscribeAnim(() => {
-                if (this.page.classList.contains('hidden')) {
-                    return;
+
+            this.game.visiblityObserver.registerLoop(this.page, visible => {
+                if (visible) {
+                    this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
                 }
-                this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
             });
             querySelector('[data-attack-skill-slot]', this.page).replaceChildren(this.attackSkillSlot.element!);
             querySelector('[data-skill-name]', this.attackSkillSlot.element).click();
@@ -74,20 +74,14 @@ export default class Skills extends Component {
             triggerButton.addEventListener('click', () => this.triggerSkill(this.activeSkillSlot as BuffSkillSlot));
             automateButton.addEventListener('click', () => this.toggleAutoMode(this.activeSkillSlot as BuffSkillSlot));
 
-            game.gameLoop.subscribeAnim(() => {
-                if (this.page.classList.contains('hidden')) {
-                    return;
+            this.game.visiblityObserver.registerLoop(this.page, visible => {
+                if (visible) {
+                    triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+                    removeButton.disabled = !this.activeSkillSlot.canRemove;
                 }
-                triggerButton.disabled = !this.activeSkillSlot.canTrigger;
-                removeButton.disabled = !this.activeSkillSlot.canRemove;
             }, { intervalMilliseconds: 100 });
         }
 
-    }
-
-    updateUI(): void {
-        this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
-        this.buffSkillSlots.forEach(x => x.updateProgressBar());
     }
 
     selectSkillSlot(skillSlot: SkillSlot, skillList: BaseSkill[]) {

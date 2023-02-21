@@ -25,13 +25,6 @@ export default class Statistics {
     private readonly page = querySelector('.p-game .p-statistics');
     constructor(readonly game: Game) {
 
-
-        this.game.visiblityObserver.registerLoop(this.page, visible => {
-            if(visible){
-                this.updateStatisticsUI();
-            }
-        }, { intervalMilliseconds: 1000 });
- 
     }
 
     init() {
@@ -42,6 +35,12 @@ export default class Statistics {
                 this.statistics[name].set(value);
             });
         }
+        this.game.visiblityObserver.registerLoop(this.page, visible => {
+            if (visible) {
+                this.updateStatisticsUI();
+            }
+        }, { intervalMilliseconds: 1000 });
+        
         this.createStatisticsElements();
         this.updateStatisticsUI();
     }

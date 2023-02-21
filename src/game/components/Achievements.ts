@@ -25,14 +25,13 @@ export default class Achievements extends Component {
             });
         });
 
-        querySelector('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
-    }
+        this.game.visiblityObserver.registerLoop(this.page, visible => {
+            if (visible) {
+                this.achievements.forEach(x => x.updateLabel());
+            }
+        }, { intervalMilliseconds: 1000 });
 
-    updateUI(time: number): void {
-        if(time - this.updateUITime > 1){
-            this.achievements.forEach(x => x.updateLabel());
-            this.updateUITime = time;
-        }
+        querySelector('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
     }
 
     //@ts-expect-error

@@ -6,7 +6,6 @@ import type Game from "../Game";
 export default abstract class Component {
     private _page: HTMLElement;
     private _menuItem: HTMLElement;
-    protected updateUITime = 0;
     constructor(readonly game: Game, readonly name: keyof Required<GConfig>['components']) {
         this._page = querySelector(`.p-game .p-${name}`);
         this._menuItem = querySelector(`.p-game [data-main-menu] [data-tab-target="${name}"]`);
@@ -22,7 +21,4 @@ export default abstract class Component {
         // console.log(`${this.name} was disposed`);
     }
     abstract save(saveObj: Save): void;
-
-    //@ts-ignore
-    updateUI(time: number) { }
 }

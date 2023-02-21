@@ -47,9 +47,6 @@ export default class Loop {
             return;
         }
         this.instances.delete(id);
-    }
-
-    unsubscribeAnim(id: string) {
         this.animInstances.delete(id);
     }
 
@@ -106,12 +103,12 @@ export default class Loop {
         cancelAnimationFrame(this.animLoopId);
         const loop = () => {
             const now = performance.now();
-            const dt = (now - lastTime) / 1000;
+            const dt = (now - lastTime);
             this.animInstances.forEach(instance => {
                 instance.time += dt;
                 let ms = instance.options?.intervalMilliseconds || 0;
                 if (instance.time > ms) {
-                    instance.callback(dt);
+                    instance.callback(dt / 1000);
                     instance.time -= ms || instance.time;
                 }
             });

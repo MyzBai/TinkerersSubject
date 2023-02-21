@@ -26,7 +26,7 @@ type Entries<T> = {
 type ComponentsEntries = Entries<Required<GConfig>['components']>;
 
 export default class Game {
-    readonly gamePage = querySelector('.p-game');
+    readonly gamePage: HTMLElement;
     readonly gameLoop = new Loop();
     readonly enemy: Enemy;
     readonly player: Player;
@@ -37,8 +37,8 @@ export default class Game {
     readonly onSave = new EventEmitter<Save>();
     private _config: GConfig | undefined;
     private _saveObj: Save | undefined;
-    private time = 0;
     constructor(readonly home: Home) {
+        this.gamePage = querySelector('.p-game');
         this.enemy = new Enemy(this);
         this.player = new Player(this);
 
@@ -78,13 +78,7 @@ export default class Game {
             this.statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
 
-        this.gameLoop.subscribeAnim(dt => {
-            this.time += dt;
-            this.updateComponentsUI();
-        });
-
-
-        querySelector('[data-config-name]',this.gamePage).textContent = this._config.meta.name;
+        querySelector('[data-config-name]', this.gamePage).textContent = this._config.meta.name;
         // this.gameLoop.subscribe(() => {
         //     saveGame(config.meta);
         // }, { intervalMilliseconds: 1000 * 60 });
@@ -161,12 +155,6 @@ export default class Game {
             componentData.dispose();
         }
         this.componentsList.splice(0);
-    }
-
-    private updateComponentsUI() {
-
-        const visibleComponent = this.componentsList.find(x => !x.page.classList.contains('hidden'));
-        visibleComponent?.updateUI(this.time);
     }
 
     private setupDevHelpers() {
@@ -247,12 +235,12 @@ export default class Game {
         }
     }
 
-    async deleteSave() {
+    async deleteSave(id: string) {
         const map = await saveManager.load('Game');
         if (!map) {
             return;
         }
-        if (map?.delete(this.config.meta.id)) {
+        if (map?.delete(id)) {
             return await saveManager.save('Game', Object.fromEntries(map));
         }
     }
