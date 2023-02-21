@@ -20,6 +20,7 @@ export default class Settings {
             footerText: 'This will delete your save file permanently',
             callback: async (confirm) => {
                 if (confirm) {
+                    querySelector('[data-target="home"]').click();
                     await this.game.deleteSave(this.game.config.meta.id);
                     //dispose game and return to home
                     this.game.home.init();

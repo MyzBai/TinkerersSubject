@@ -5,12 +5,13 @@ import Game from "@src/game/Game";
 import type { Save } from "@src/types/save";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
+import { GenericModal } from "./webComponents/GenericModal";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
 
 export default class Home {
-    private readonly page = querySelector('.p-home'); 
+    private readonly page = querySelector('.p-home');
     readonly game: Game;
     private activeEntry?: GConfig['meta'];
     constructor() {
@@ -33,26 +34,6 @@ export default class Home {
             this.populateEntryList(type);
         });
 
-        querySelector('.p-home .p-new [data-entry-info] [data-start]').addEventListener('click', () => {
-            if (!this.activeEntry) {
-                return;
-            }
-            this.tryStartGame(this.activeEntry,);
-        });
-        querySelector('.p-home .p-saved [data-entry-info] [data-start]').addEventListener('click', async () => {
-            if (!this.activeEntry) {
-                return;
-            }
-            const map = await saveManager.load('Game');
-            if (!map) {
-                return;
-            }
-            const saveObj = map.get(this.activeEntry.id);
-            if (!saveObj) {
-                return;
-            }
-            this.tryStartGame(this.activeEntry, saveObj);
-        });
         //start new config button
         querySelector('.p-home .p-new [data-entry-info] [data-start]').addEventListener('click', this.startNewConfig.bind(this, this.activeEntry));
         //start saved config button
@@ -61,23 +42,58 @@ export default class Home {
         querySelector('.p-home .p-saved [data-entry-info] [data-delete]').addEventListener('click', this.deleteSavedConfig.bind(this));
     }
 
+    private startNewConfig() {
+        if (!this.activeEntry) {
+            return;
+        }
+        this.tryStartGame(this.activeEntry,);
+    }
+
+    private async startSavedConfig() {
+        if (!this.activeEntry) {
+            return;
+        }
+        const map = await saveManager.load('Game');
+        if (!map) {
+            return;
+        }
+        const saveObj = map.get(this.activeEntry.id);
+        if (!saveObj) {
+            return;
+        }
+        return await this.tryStartGame(this.activeEntry, saveObj);
+    }
+
+    private deleteSavedConfig() {
+        const modal = querySelector<GenericModal>('body > generic-modal');
+        modal.init({
+            title: 'Delete Save',
+            body: 'Are you sure?',
+            buttons: [{ label: 'Yes', type: 'confirm' }, { label: 'No', type: 'cancel' }],
+            footerText: 'This will delete your save file permanently',
+            callback: async (confirm) => {
+                if (confirm) {
+                    await this.game.deleteSave(this.game.config.meta.id);
+                    this.init();
+                }
+            }
+        });
+        modal.openModal();
+    }
+
     async init() {
-        const navBtn = querySelector('header [data-target]');
-        navBtn.setAttribute('data-target', 'home');
-        navBtn.click();
-        navBtn.classList.add('hidden');
+        querySelector('header [data-target]').classList.add('hidden');
         querySelector('.p-home > menu [data-type="new"]').click();
     }
 
     async tryLoadRecentSave() {
         const save = await this.game.loadMostRecentSave();
         if (!save) {
+            console.log('not auto load');
             return false;
         }
-        const success = await this.tryStartGame(save.meta, save);
-        if (success) {
-
-        }
+        console.log('auto load');
+        await this.tryStartGame(save.meta, save);
         return
     }
 
@@ -85,22 +101,23 @@ export default class Home {
         const page = querySelector(`.p-home .p-${type}`);
         const listContainer = querySelector(`.p-home [data-entry-list]`, page);
         const infoContainer = querySelector(`.p-home [data-entry-info]`, page);
+        listContainer.classList.add('hidden');
+        infoContainer.classList.add('hidden');
         const entries = await this.getEntries(type);
-        listContainer.style.visibility = entries.length === 0 ? 'true' : 'false';
         const elements = this.createEntryListElements(entries, type);
-        const container = querySelector(`.p-home [data-tab-content=${type}]`);
-        const entryListContainer = querySelector('[data-entry-list]', container);
-        querySelector('[data-entry-list]', container).replaceChildren(...elements);
+        listContainer.replaceChildren(...elements);
         if (elements.length === 0) {
             let msg = '';
             switch (type) {
                 case 'new': msg = 'Configuration list is empty'; break;
                 case 'saved': msg = 'There are no saved games'; break;
             }
+  
             listContainer.textContent = msg;
-            infoContainer.classList.add('hidden');
+         
         }
-        querySelector('.p-home [data-entry-info]').classList.toggle('hidden', elements.length === 0);
+        listContainer.classList.remove('hidden');
+        infoContainer.classList.toggle('hidden', entries.length === 0);
         elements[0]?.click();
     }
 
@@ -152,6 +169,7 @@ export default class Home {
             config.meta = saveObj.meta;
 
             this.game.init(config, saveObj);
+
 
             const navBtn = querySelector('header [data-target]');
             navBtn.classList.remove('hidden');
