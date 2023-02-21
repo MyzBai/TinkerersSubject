@@ -126,9 +126,9 @@
     }
     &[data-role="cancel"] {
         background-color: $color-button-cancel-bg;
-    }
-    &[data-role="action"] {
-        background-color: $color-button-control-bg;
+        &:hover{
+            background-color: $color-button-cancel-hover-bg;
+        }
     }
 }
 
