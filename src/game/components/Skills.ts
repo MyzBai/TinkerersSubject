@@ -41,6 +41,8 @@ export default class Skills extends Component {
             querySelector('[data-skill-name]', this.attackSkillSlot.element).click();
         }
 
+
+
         //setup buff skills
         {
             const buffSkillSlotContainer = querySelector('.s-skill-slots [data-buff-skill-slots]', this.page);
@@ -57,6 +59,12 @@ export default class Skills extends Component {
                         this.buffSkillSlots.push(slot);
                     });
                 }
+                this.game.visiblityObserver.registerLoop(this.page, visible => {
+                    if (visible) {
+                        this.buffSkillSlots.forEach(x => x.updateProgressBar());
+                    }
+                });
+
             }
         }
 
@@ -74,14 +82,15 @@ export default class Skills extends Component {
             triggerButton.addEventListener('click', () => this.triggerSkill(this.activeSkillSlot as BuffSkillSlot));
             automateButton.addEventListener('click', () => this.toggleAutoMode(this.activeSkillSlot as BuffSkillSlot));
 
-            this.game.visiblityObserver.registerLoop(this.page, visible => {
-                if (visible) {
-                    triggerButton.disabled = !this.activeSkillSlot.canTrigger;
-                    removeButton.disabled = !this.activeSkillSlot.canRemove;
-                }
-            }, { intervalMilliseconds: 100 });
+            if (this.data.buffSkills) {
+                this.game.visiblityObserver.registerLoop(this.page, visible => {
+                    if (visible) {
+                        triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+                        removeButton.disabled = !this.activeSkillSlot.canRemove;
+                    }
+                }, { intervalMilliseconds: 100 });
+            }
         }
-
     }
 
     selectSkillSlot(skillSlot: SkillSlot, skillList: BaseSkill[]) {
@@ -390,7 +399,6 @@ class BuffSkillSlot extends BaseSkillSlot {
         this._running = true;
         this.skills.game.player.stats.skillDurationMultiplier.addListener('change', calcDuration);
         this.skill.applyModifiers();
-        console.log(this._duration);
         const loopId = this.skills.game.gameLoop.subscribe((dt) => {
             if (!this.skill) {
                 return;
