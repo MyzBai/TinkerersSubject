@@ -32,12 +32,13 @@ export default class Game {
     readonly player: Player;
     readonly statistics: Statistics;
     readonly settings: Settings;
-    readonly visiblityObserver = new VisibilityObserver();
+    readonly visiblityObserver: VisibilityObserver;
     readonly componentsList: Component[] = [];
     readonly onSave = new EventEmitter<Save>();
     private _config: GConfig | undefined;
     private _saveObj: Save | undefined;
     constructor(readonly home: Home) {
+        this.visiblityObserver = new VisibilityObserver(this.gameLoop);
         this.gamePage = querySelector('.p-game');
         this.enemy = new Enemy(this);
         this.player = new Player(this);
