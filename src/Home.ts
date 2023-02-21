@@ -89,10 +89,8 @@ export default class Home {
     async tryLoadRecentSave() {
         const save = await this.game.loadMostRecentSave();
         if (!save) {
-            console.log('not auto load');
             return false;
         }
-        console.log('auto load');
         await this.tryStartGame(save.meta, save);
         return
     }

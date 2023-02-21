@@ -80,9 +80,10 @@ export default class Game {
         }, { intervalMilliseconds: 1000 });
 
         querySelector('[data-config-name]', this.gamePage).textContent = this._config.meta.name;
-        // this.gameLoop.subscribe(() => {
-        //     saveGame(config.meta);
-        // }, { intervalMilliseconds: 1000 * 60 });
+
+        this.gameLoop.subscribe(() => {
+            this.save();
+        }, { intervalMilliseconds: 1000 * 60 });
 
         await this.setup();
 
