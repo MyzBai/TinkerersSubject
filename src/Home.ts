@@ -10,11 +10,17 @@ const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
 
 export default class Home {
+    private readonly page = queryHTML('.p-home'); 
     readonly game: Game;
     private activeEntry?: GConfig['meta'];
     constructor() {
 
         this.game = new Game(this);
+
+        queryHTML('[data-target="game"]', this.page).addEventListener('click', () => {
+            this.page.classList.add('hidden');
+            queryHTML('.p-game').classList.remove('hidden');
+        });
 
         registerTabs(queryHTML('.p-home > menu'), queryHTML('.p-home .s-main'), target => {
             const type = target.getAttribute('data-tab-target') as EntryType;

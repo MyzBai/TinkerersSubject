@@ -4,14 +4,12 @@ import { Modifier } from "@src/game/mods";
 import type { CraftId, ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { highlightHTMLElement, queryHTML } from "@src/utils/helpers";
+import { queryHTML } from "@src/utils/helpers";
 import { CraftData, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
 
 type ItemsData = Required<Required<GConfig>['components']>['items'];
 export type ModTables = { [K in keyof ItemsData['modLists']]: ItemModifier[] }
-
-const mainMenuContainer = queryHTML('.p-game > menu');
 
 export default class Items extends Component {
     private readonly itemsPage = queryHTML('.p-game .p-items');
@@ -36,8 +34,6 @@ export default class Items extends Component {
         this.createItems();
         this.activeItem = this.items[0]!;
         this.activeItem.element.click();
-
-        queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove('hidden');
 
         game.player.stats.level.addListener('change', () => this.updateCraftList());
 

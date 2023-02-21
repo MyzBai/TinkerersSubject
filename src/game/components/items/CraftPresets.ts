@@ -1,5 +1,5 @@
 import { queryHTML } from "@src/utils/helpers";
-import { CraftId, craftTemplates } from "./crafting";
+import { CraftId } from "./crafting";
 import type Items from "./Items";
 
 export default class CraftPresets {

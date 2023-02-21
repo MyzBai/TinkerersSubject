@@ -4,65 +4,85 @@ game-element {
     min-height: 0;
     .p-game {
         display: grid;
-        grid-template-columns: minmax(10em, auto) 1fr minmax(13em, auto);
+        grid-template-columns: minmax(10em, auto) 1fr minmax(auto, 15em);
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "upperLeft upperCenter upperRight"
+            "left center right";
         grid-gap: 0.3em;
         background-color: $color-canvas-default;
         min-height: 0;
         height: 100%;
 
         & > * {
-            padding: $padding-container;
             background-color: $color-canvas-inset;
-            flex: 1;
-            min-height: 0;
+            padding: $padding-container;
         }
 
-        [data-main-view] {
+        .s-home-button {
+            grid-area: upperLeft;
             display: flex;
-
-            & > * {
-                flex: 1;
-                min-height: 0;
+            justify-content: center;
+            * {
                 width: 100%;
             }
+        }
+        .s-progress-bars {
+            grid-area: upperCenter;
+            min-height: 0;
 
-            .p-combat {
-                position: relative;
+            progress{
+                width: 100%;
+            }
+            [data-health-bar] {
+                display: block;
+                &::-webkit-progress-bar {
+                    background-color: $color-health-bar-background-bg;
+                    border-radius: 2px;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+                }
+                &::-webkit-progress-value {
+                    background-color: $color-health-bar-foreground-bg;
+                    border-radius: 2px;
+                    transition: width 70ms linear;
+                }
+            }
+            [data-mana-bar] {
+                &::-webkit-progress-bar {
+                    background-color: $color-mana-bar-background-bg;
+                    border-radius: 2px;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+                }
+                &::-webkit-progress-value {
+                    background-color: $color-mana-bar-foreground-bg;
+                    border-radius: 2px;
+                    transition: width 70ms linear;
+                }
+            }
+        }
+        .s-title {
+            display: flex;
+            color: #d6a02c;
+            grid-area: upperRight;
+            justify-content: center;
+            align-items: baseline;
+            text-align: center;
+            font-size: calc(1em - 0.15vw);
+        }
+        [data-main-view] {
+            grid-area: center;
+            display: grid;
+            grid-column: 2;
+
+            .p-combat{
                 display: grid;
                 grid-template-rows: 1fr 1fr;
 
-                .s-enemy {
-                    progress {
-                        width: 100%;
-                        &::-webkit-progress-bar {
-                            background-color: $color-health-bar-background-bg;
-                            // background: none;
-                            border-radius: 2px;
-                            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
-                        }
-                        &::-webkit-progress-value {
-                            background-color: $color-health-bar-foreground-bg;
-                            border-radius: 2px;
-                            transition: width 70ms linear;
-                        }
-                    }
-                }
-
-                .s-player {
-                    progress {
-                        width: 100%;
-                        &::-webkit-progress-bar {
-                            background-color: $color-mana-bar-background-bg;
-                            // background: none;
-                            border-radius: 2px;
-                            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
-                        }
-                        &::-webkit-progress-value {
-                            background-color: $color-mana-bar-foreground-bg;
-                            border-radius: 2px;
-                            transition: width 70ms linear;
-                        }
-                    }
+                ul{
+                    display: flex;
+                    flex-direction: column-reverse;
+                    width: 100%;
+                    border-top: 1px solid $color-border-highlight;
                 }
             }
 
@@ -363,6 +383,9 @@ game-element {
                     }
                 }
             }
+        }
+        .s-stats {
+            grid-area: right;
         }
     }
 }

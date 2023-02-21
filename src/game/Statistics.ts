@@ -1,6 +1,5 @@
 import type { Save } from "@src/types/save";
 import { queryHTML } from "@src/utils/helpers";
-import { visibilityObserver } from "@src/utils/Observers";
 import Value from "@utils/Value";
 import type Game from "./Game";
 
@@ -26,15 +25,13 @@ export default class Statistics {
     private readonly page = queryHTML('.p-game .p-statistics');
     constructor(readonly game: Game) {
 
-        let loopId: string | undefined;
-        visibilityObserver(this.page, visible => {
-            if (visible) {
+
+        this.game.visiblityObserver.registerLoop(this.page, visible => {
+            if(visible){
                 this.updateStatisticsUI();
-                loopId = this.game.gameLoop.subscribe(() => this.updateStatisticsUI(), { intervalMilliseconds: 1000 });
-            } else {
-                this.game.gameLoop.unsubscribe(loopId);
             }
-        });
+        }, { intervalMilliseconds: 1000 });
+ 
     }
 
     init() {

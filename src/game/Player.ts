@@ -7,9 +7,8 @@ import type Game from './Game';
 import type { Save } from '@src/types/save';
 
 export default class Player {
-    private readonly playerStatsContainer = queryHTML('.p-game > .s-stats');
-    private readonly combatPage = queryHTML('.p-combat');
-    private readonly manaBar = queryHTML<HTMLProgressElement>('[data-mana-bar]', this.combatPage);
+    private readonly playerStatsContainer = queryHTML('.p-game [data-player-stats]');
+    private readonly manaBar: HTMLProgressElement;
     private statsUpdateId = -1;
     readonly modDB = new ModDB();
     readonly stats = {
@@ -25,7 +24,7 @@ export default class Player {
     };
     private _attackProgressPct: number = 0;
     constructor(readonly game: Game) {
-
+        this.manaBar = queryHTML<HTMLProgressElement>('[data-mana-bar]', this.game.gamePage);
     }
 
     get attackProgressPct() {
@@ -48,6 +47,10 @@ export default class Player {
                 this.modDB.add(new Modifier(x).stats, 'Player');
             });
         }
+
+        this.game.gameLoop.subscribeAnim(() => {
+            this.updateManaBar();
+        });
 
         this.game.enemy.onDeath.listen(() => {
             if (this.stats.level.get() <= this.game.enemy.maxIndex) {
@@ -73,13 +76,6 @@ export default class Player {
             const manaRegen = this.stats.manaRegen.get() * dt;
             this.stats.curMana.add(manaRegen);
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
-        });
-
-        this.game.gameLoop.subscribeAnim(() => {
-            if (this.combatPage.classList.contains('hidden')) {
-                return;
-            }
-            this.updateManaBar();
         });
 
         this.game.onSave.listen(this.save.bind(this));

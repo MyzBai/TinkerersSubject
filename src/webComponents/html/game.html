@@ -1,4 +1,8 @@
 <main class="p-game hidden" data-tab-content="game">
+
+    <div class="s-home-button">
+        <button class="g-button" data-target="home">Home</button>
+    </div>
     <menu class="s-menu g-list-v" data-main-menu>
         <li class="g-list-item" data-tab-target="combat">Combat</li>
         <li class="g-list-item hidden" data-tab-target="passives">Passives</li>
@@ -8,52 +12,19 @@
         <li class="g-list-item" data-tab-target="statistics">Statistics</li>
         <li class="g-list-item" data-tab-target="settings">Settings</li>
     </menu>
+    <div class="s-progress-bars">
+        <progress data-health-bar value="1" max="1"></progress>
+        <progress data-mana-bar value="1" max="1"></progress>
+    </div>
+    <div class="s-title">
+        <span data-config-name>Tinkerers Subject</span>
+    </div>
     <div data-main-view>
         <div class="p-combat" data-tab-content="combat">
-            <div class="s-enemy">
-                <progress data-health-bar value="0.5" max="1"></progress>
-                <!-- <div class="s-health-bar-background g-progress-bar-background">
-                    <div class="health-bar g-progress-bar" data-health-bar></div>
-                </div> -->
-            </div>
-            <div class="s-player">
-                <progress data-mana-bar value="0.5" max="1"></progress>
-                <!-- <div class="s-mana-bar-background g-progress-bar-background">
-                    <div class="mana-bar g-progress-bar" data-mana-bar></div>
-                </div> -->
-            </div>
-            <div class="g-modal s-skill-modal hidden" data-skill-modal data-modal-type="relative">
-                <div class="wrapper">
-                    <section>
-                        <ul class="g-list-v" data-skill-list></ul>
-                        <div class="s-skill-info" data-skill-info>
-                            <div data-title>Example Name</div>
-                            <div class="g-field">
-                                <div>Mana Cost</div>
-                                <i data-stat="manaCost"></i>
-                            </div>
-                            <div class="g-field">
-                                <div>Attack Speed</div>
-                                <i data-stat="attackSpeed"></i>
-                            </div>
-                            <div class="g-field">
-                                <div>Base Damage Multiplier</div>
-                                <i data-stat="baseDamageMultiplier"></i>
-                            </div>
-                            <div class="g-field">
-                                <div>Base Duration</div>
-                                <i data-stat="baseDuration"></i>
-                            </div>
-                            <ul data-mod-list></ul>
-                        </div>
-                    </section>
-                    <footer>
-                        <button class="g-button" data-apply>Apply</button>
-                        <button class="g-button" data-remove>Remove</button>
-                        <button class="g-button" data-cancel>Cancel</button>
-                    </footer>
-                </div>
-            </div>
+            <div></div>
+            <ul class=".s-log">
+                <li>Damage entry test</li>
+            </ul>
         </div>
         <div class="p-statistics hidden" data-tab-content="statistics">
             <ul> </ul>
@@ -62,7 +33,8 @@
             <button class="g-button" data-role="cancel" data-delete-save>Delete Save</button>
         </div>
     </div>
-    <aside class="s-stats">
+
+    <aside class="s-stats" data-player-stats>
         <ul>
             <li class="g-field">
                 <div>Level</div>
@@ -106,6 +78,4 @@
             </li>
         </ul>
     </aside>
-
-
 </main>

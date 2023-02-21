@@ -9,7 +9,7 @@ export default abstract class Component {
     protected updateUITime = 0;
     constructor(readonly game: Game, readonly name: keyof Required<GConfig>['components']) {
         this._page = queryHTML(`.p-game .p-${name}`);
-        this._menuItem = queryHTML(`.p-game > menu [data-tab-target="${name}"]`);
+        this._menuItem = queryHTML(`.p-game [data-main-menu] [data-tab-target="${name}"]`);
     }
 
     get page() { return this._page; }

@@ -12,7 +12,7 @@
 }
 body {
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: 1fr auto;
     grid-template-columns: 1fr;
     height: 100vh;
     min-height: 100vh;
@@ -43,10 +43,10 @@ body {
 //     }
 // }
 
-body > header {
+header.s-main-header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    font-size: 1.3em;
+    grid-template-columns: auto 1fr auto;
+    // font-size: 1.3em;
     text-align: center;
     align-items: center;
     color: #d6a02c;
@@ -54,10 +54,6 @@ body > header {
     font-weight: bold;
     font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana,
         sans-serif;
-
-    .title{
-        padding: $padding-container;
-    }
 }
 
 body > footer{

@@ -8,15 +8,18 @@ export default class Enemy {
     private _index: number;
     private healthList: number[] = [];
     private _health = 0;
-    private healthBar = queryHTML<HTMLProgressElement>('.p-game .s-enemy [data-health-bar]');
+    private readonly healthBar: HTMLProgressElement;
     constructor(readonly game: Game) {
         this._index = 0;
+        this.healthBar = queryHTML<HTMLProgressElement>('[data-health-bar]', this.game.gamePage);
+
+
     }
     get index() {
         return this._index;
     }
     get maxIndex() {
-        return this.healthList.length-1;
+        return this.healthList.length - 1;
     }
     get maxHealth() {
         return this.healthList[this.index] || 1;
@@ -31,26 +34,29 @@ export default class Enemy {
     init() {
         this.game.onSave.listen(this.save.bind(this));
         this.onDeath.removeAllListeners();
+        this.game.gameLoop.subscribeAnim(() => {
+            this.updateHealthBar();
+        });
+        
         this.healthList = this.game.config.enemies.enemyList;
         this._index = this.game.saveObj.enemy?.index || 0;
         this.health = this.game.saveObj.enemy?.health || this.maxHealth;
         this.spawn();
     }
 
-    setIndex(index: number){
+    setIndex(index: number) {
         this._index = index;
     }
 
-    spawn(){
+    spawn() {
         this.health = this.maxHealth;
-        if(this.index === this.maxIndex+1){
+        if (this.index === this.maxIndex + 1) {
             this.healthBar.textContent = 'Dummy (Cannot die)';
         }
-        this.updateHealthBar();
     }
 
     dealDamage(amount: number) {
-        if(this.index === this.maxIndex+1){
+        if (this.index === this.maxIndex + 1) {
             return;
         }
         this.health -= amount;
@@ -61,7 +67,6 @@ export default class Enemy {
             this.onDeath.invoke(this);
             this.spawn();
         }
-        this.updateHealthBar();
     }
 
     save(saveObj: Save) {

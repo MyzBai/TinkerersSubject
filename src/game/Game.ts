@@ -17,6 +17,7 @@ import type { Save } from "@src/types/save";
 import Settings from "./Settings";
 import Home from "@src/Home";
 import Skills from "./components/Skills";
+import { VisibilityObserver } from "@src/utils/Observers";
 
 
 type Entries<T> = {
@@ -31,6 +32,7 @@ export default class Game {
     readonly player: Player;
     readonly statistics: Statistics;
     readonly settings: Settings;
+    readonly visiblityObserver = new VisibilityObserver();
     readonly componentsList: Component[] = [];
     readonly onSave = new EventEmitter<Save>();
     private _config: GConfig | undefined;
@@ -47,7 +49,11 @@ export default class Game {
             this.setupDevHelpers();
         }
 
-        registerTabs(queryHTML(':scope > menu', this.gamePage), queryHTML('[data-main-view]', this.gamePage));
+        queryHTML('[data-target="home"]', this.gamePage).addEventListener('click', () => {
+            this.gamePage.classList.add('hidden');
+            queryHTML('.p-home').classList.remove('hidden');
+        });
+        registerTabs(queryHTML('[data-main-menu]', this.gamePage), queryHTML('[data-main-view]', this.gamePage));
     }
     get config() {
         return this._config!;
@@ -72,11 +78,13 @@ export default class Game {
             this.statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
 
-        this.gameLoop.subscribe(dt => {
+        this.gameLoop.subscribeAnim(dt => {
             this.time += dt;
             this.updateComponentsUI();
         });
 
+
+        queryHTML('[data-config-name]',this.gamePage).textContent = this._config.meta.name;
         // this.gameLoop.subscribe(() => {
         //     saveGame(config.meta);
         // }, { intervalMilliseconds: 1000 * 60 });
@@ -100,6 +108,7 @@ export default class Game {
         this.onSave.removeAllListeners();
         this.gameLoop.reset();
         this.disposeComponents();
+        this.visiblityObserver.disconnectAll();
     }
 
     private createComponents() {
@@ -115,7 +124,7 @@ export default class Game {
         const entries = Object.entries(this.config.components) as Required<ComponentsEntries>;
         const initComponent = (entry: Required<ComponentsEntries>[number]) => {
             const name = entry![0];
-            queryHTML(`.p-game > menu [data-tab-target="${name}"]`).classList.remove('hidden');
+            queryHTML(`.p-game [data-main-menu] [data-tab-target="${name}"]`).classList.remove('hidden');
             let component: Component | undefined = undefined;
             switch (name) {
                 case 'skills':
@@ -182,7 +191,7 @@ export default class Game {
         });
 
         console.log('Press Space to toggle GameLoop');
-        document.addEventListener('keydown', x => {
+        document.body.addEventListener('keydown', x => {
             if (x.code === 'Space') {
                 if (this.gameLoop.running) {
                     document.title = `Tinkerers Subject (Stopped)`;

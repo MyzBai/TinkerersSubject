@@ -26,7 +26,6 @@ export default class Achievements extends Component {
         });
 
         queryHTML('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
-        queryHTML('.p-game > menu [data-tab-target="achievements"]').classList.remove('hidden');
     }
 
     updateUI(time: number): void {
