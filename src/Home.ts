@@ -14,8 +14,11 @@ export default class Home {
     readonly game: Game;
     private activeEntry?: GConfig['meta'];
     constructor() {
-
         this.game = new Game(this);
+        this.setupEventListeners();
+        this.init();
+    }
+    private setupEventListeners() {
 
         querySelector('[data-target="game"]', this.page).addEventListener('click', () => {
             this.page.classList.add('hidden');
@@ -50,6 +53,12 @@ export default class Home {
             }
             this.tryStartGame(this.activeEntry, saveObj);
         });
+        //start new config button
+        querySelector('.p-home .p-new [data-entry-info] [data-start]').addEventListener('click', this.startNewConfig.bind(this, this.activeEntry));
+        //start saved config button
+        querySelector('.p-home .p-saved [data-entry-info] [data-start]').addEventListener('click', this.startSavedConfig.bind(this));
+        //delete saved config button
+        querySelector('.p-home .p-saved [data-entry-info] [data-delete]').addEventListener('click', this.deleteSavedConfig.bind(this));
     }
 
     async init() {
@@ -65,12 +74,19 @@ export default class Home {
         if (!save) {
             return false;
         }
+        const success = await this.tryStartGame(save.meta, save);
+        if (success) {
 
-        return await this.tryStartGame(save.meta, save);
+        }
+        return
     }
 
     async populateEntryList(type: EntryType) {
+        const page = querySelector(`.p-home .p-${type}`);
+        const listContainer = querySelector(`.p-home [data-entry-list]`, page);
+        const infoContainer = querySelector(`.p-home [data-entry-info]`, page);
         const entries = await this.getEntries(type);
+        listContainer.style.visibility = entries.length === 0 ? 'true' : 'false';
         const elements = this.createEntryListElements(entries, type);
         const container = querySelector(`.p-home [data-tab-content=${type}]`);
         const entryListContainer = querySelector('[data-entry-list]', container);
@@ -81,7 +97,8 @@ export default class Home {
                 case 'new': msg = 'Configuration list is empty'; break;
                 case 'saved': msg = 'There are no saved games'; break;
             }
-            entryListContainer.textContent = msg;
+            listContainer.textContent = msg;
+            infoContainer.classList.add('hidden');
         }
         querySelector('.p-home [data-entry-info]').classList.toggle('hidden', elements.length === 0);
         elements[0]?.click();

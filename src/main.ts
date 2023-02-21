@@ -9,8 +9,6 @@ window.addEventListener('DOMContentLoaded', () => {
 async function init() {
 
     const home = new Home();
-    await home.init();
     await home.tryLoadRecentSave();
-
     document.body.classList.remove('hidden');
 }
