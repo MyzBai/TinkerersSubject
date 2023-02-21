@@ -73,7 +73,10 @@ export default class Home {
             footerText: 'This will delete your save file permanently',
             callback: async (confirm) => {
                 if (confirm) {
-                    await this.game.deleteSave(this.game.config.meta.id);
+                    if (!this.activeEntry?.id) {
+                        return;
+                    }
+                    await this.game.deleteSave(this.activeEntry.id);
                     this.populateEntryList('saved');
                 }
             }
@@ -110,9 +113,7 @@ export default class Home {
                 case 'new': msg = 'Configuration list is empty'; break;
                 case 'saved': msg = 'There are no saved games'; break;
             }
-  
             listContainer.textContent = msg;
-         
         }
         listContainer.classList.remove('hidden');
         infoContainer.classList.toggle('hidden', entries.length === 0);
