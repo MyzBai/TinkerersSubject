@@ -46,6 +46,8 @@ class Achievement {
     constructor(readonly achievements: Achievements, readonly data: AchievementData['list'][number]) {
         this.element = this.createElement();
         this.task = new Task(achievements.game, data.description);
+        //always start from 0 because it's being calculated from saved statistics and thus no need to save any achievement progress
+        this.task.startValue = 0; 
     }
     get taskCompleted() { return this.task.completed; }
     tryCompletion() {
