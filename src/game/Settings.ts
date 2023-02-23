@@ -1,13 +1,16 @@
-import { querySelector } from "@src/utils/helpers";
+import { querySelector, registerTabs } from "@src/utils/helpers";
 import { GenericModal } from "@src/webComponents/GenericModal";
 import type Game from "./Game";
 
 export default class Settings {
+    private readonly page = querySelector('.p-game .p-settings');
     private readonly deleteSaveButton = querySelector<HTMLButtonElement>('.p-settings [data-delete-save]');
     constructor(readonly game: Game) {
 
         this.deleteSaveButton.addEventListener('click', this.openDeleteSaveModal.bind(this));
 
+        registerTabs(querySelector('.p-settings menu', this.page), this.page);
+        querySelector('.p-settings menu [data-tab-target="general"]', this.page).click();
     }
 
 

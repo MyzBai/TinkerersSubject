@@ -18,13 +18,26 @@
     </div>
     <div data-main-view>
         <div class="p-combat" data-tab-content="combat">
-      
+
         </div>
         <div class="p-statistics hidden" data-tab-content="statistics">
             <ul> </ul>
         </div>
         <div class="p-settings hidden" data-tab-content="settings">
-            <button class="g-button" data-role="cancel" data-delete-save>Delete Save</button>
+            <menu class="g-list-h">
+                <li class="g-list-item" data-tab-target="general">General</li>
+                <li class="g-list-item" data-tab-target="social">Social</li>
+            </menu>
+            <div class=".p-general" data-tab-content="general">
+                <button class="g-button" data-role="cancel" data-delete-save>Delete Save</button>
+            </div>
+            <div class=".p-general" data-tab-content="social">
+                <a class="g-button" target="_blank" href="https://github.com/MyzBai/TinkerersSubject">Github</a>
+                <a class="g-button" target="_blank" href="https://discord.gg/TF7aXyrffh">Discord</a> 
+                <a class="g-button" target="_blank" href="https://www.reddit.com/r/TinkerersSubject">Reddit</a>
+
+            </div>
+
         </div>
     </div>
 

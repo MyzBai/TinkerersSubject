@@ -23,7 +23,7 @@ a {
     text-decoration: none;
     color: $color-accent-fg;
     font-family: "Times New Roman", monospace;
-
+    cursor: pointer !important;
     &:hover {
         text-decoration: underline;
     }
