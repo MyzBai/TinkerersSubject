@@ -1,4 +1,3 @@
-import './webComponents/GameElement';
 import './webComponents/GenericModal';
 import Home from './Home';
 

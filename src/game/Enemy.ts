@@ -11,9 +11,7 @@ export default class Enemy {
     private readonly healthBar: HTMLProgressElement;
     constructor(readonly game: Game) {
         this._index = 0;
-        this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]', this.game.gamePage);
-
-
+        this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]', this.game.page);
     }
     get index() {
         return this._index;

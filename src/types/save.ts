@@ -1,4 +1,3 @@
-import type { ModDescription } from "@src/game/mods";
 import type Statistics from "@src/game/Statistics";
 import type { CraftId } from "./gconfig";
 import type GConfig from "./gconfig";

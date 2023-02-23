@@ -58,7 +58,6 @@ export interface Components {
     items?: Items;
     missions?: Missions;
     achievements?: Achievements;
-    prestige?: Prestige;
 }
 
 export interface Passives {

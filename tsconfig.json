@@ -30,7 +30,7 @@
             "@game/*": [ "./src/game/*" ],
             "@public/*": [ "./public/*" ],
             "@types/*": [ "./src/types/*.d.ts" ],
-            "@html/*": ["./src/webComponents/*.html"]
+            "@html/*": ["./src/webComponents/html/*"]
         },
     },
     "include": [ "**/*.ts", "**/globals.d.ts" ],

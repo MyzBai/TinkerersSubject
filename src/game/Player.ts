@@ -24,7 +24,7 @@ export default class Player {
     };
     private _attackProgressPct: number = 0;
     constructor(readonly game: Game) {
-        this.manaBar = querySelector<HTMLProgressElement>('[data-mana-bar]', this.game.gamePage);
+        this.manaBar = querySelector<HTMLProgressElement>('[data-mana-bar]', this.game.page);
     }
 
     get attackProgressPct() {

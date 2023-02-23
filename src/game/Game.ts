@@ -5,28 +5,19 @@ import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import Statistics from "./Statistics";
 import EventEmitter from "@src/utils/EventEmitter";
-import Items from "./components/items/Items";
-import type Component from "./components/Component";
-import Passives from "./components/Passives";
-import Achievements from "./components/Achievements";
-import Missions from "./components/Missions";
 import type { ComponentName } from "@src/types/gconfig";
-import type { GameElement } from "@src/webComponents/GameElement";
+import gameHtml from '@html/game.html';
 import saveManager from "@src/utils/saveManager";
 import type { Save } from "@src/types/save";
 import Settings from "./Settings";
 import Home from "@src/Home";
-import Skills from "./components/Skills";
+
 import { VisibilityObserver } from "@src/utils/Observers";
-
-
-type Entries<T> = {
-    [K in keyof T]: [K, T[K]];
-}[keyof T][];
-type ComponentsEntries = Entries<Required<GConfig>['components']>;
+import Component from "./components/Component";
+import { componentConfigs, loadComponent } from "./components/loader";
 
 export default class Game {
-    readonly gamePage: HTMLElement;
+    readonly page: HTMLElement;
     readonly gameLoop = new Loop();
     readonly enemy: Enemy;
     readonly player: Player;
@@ -38,8 +29,10 @@ export default class Game {
     private _config: GConfig | undefined;
     private _saveObj: Save | undefined;
     constructor(readonly home: Home) {
+        this.page = new DOMParser().parseFromString(gameHtml, 'text/html').querySelector('.p-game')!;
+        querySelector('.p-home').after(this.page);
         this.visiblityObserver = new VisibilityObserver(this.gameLoop);
-        this.gamePage = querySelector('.p-game');
+        this.page = querySelector('.p-game');
         this.enemy = new Enemy(this);
         this.player = new Player(this);
 
@@ -50,11 +43,11 @@ export default class Game {
             this.setupDevHelpers();
         }
 
-        querySelector('[data-target="home"]', this.gamePage).addEventListener('click', () => {
-            this.gamePage.classList.add('hidden');
+        querySelector('[data-target="home"]', this.page).addEventListener('click', () => {
+            this.page.classList.add('hidden');
             querySelector('.p-home').classList.remove('hidden');
         });
-        registerTabs(querySelector('[data-main-menu]', this.gamePage), querySelector('[data-main-view]', this.gamePage));
+        registerTabs(querySelector('[data-main-menu]', this.page), querySelector('[data-main-view]', this.page));
     }
     get config() {
         return this._config!;
@@ -73,13 +66,13 @@ export default class Game {
         this.player.init();
         this.statistics.init();
 
-        this.createComponents();
+        this.initComponents();
 
         this.gameLoop.subscribe(() => {
             this.statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
 
-        querySelector('[data-config-name]', this.gamePage).textContent = this._config.meta.name;
+        querySelector('[data-config-name]', this.page).textContent = this._config.meta.name;
 
         this.gameLoop.subscribe(() => {
             this.save();
@@ -96,7 +89,7 @@ export default class Game {
         if (!isLocalHost) {
             this.gameLoop.start();
         }
-        querySelector('[data-tab-target="combat"]', this.gamePage).click();
+        querySelector('[data-tab-target="combat"]', this.page).click();
         document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
     }
 
@@ -107,49 +100,23 @@ export default class Game {
         this.visiblityObserver.disconnectAll();
     }
 
-    private createComponents() {
+    private initComponents() {
+        const menuContainer = querySelector('[data-main-menu] .s-components', this.page);
+        menuContainer.replaceChildren();
         if (!this.config.components) {
             return;
         }
-
-        const keys = Object.keys(this.config.components) as ComponentName[];
-        const gameElement = querySelector<GameElement>('game-element');
-        gameElement.init(keys);
-
-
-        const entries = Object.entries(this.config.components) as Required<ComponentsEntries>;
-        const initComponent = (entry: Required<ComponentsEntries>[number]) => {
-            const name = entry![0];
-            querySelector(`.p-game [data-main-menu] [data-tab-target="${name}"]`).classList.remove('hidden');
-            let component: Component | undefined = undefined;
-            switch (name) {
-                case 'skills':
-                    component = new Skills(this, entry[1]!);
-                    break;
-                case 'passives':
-                    component = new Passives(this, entry[1]!);
-                    break;
-                case 'items':
-                    component = new Items(this, entry[1]!);
-                    break;
-                case 'missions':
-                    component = new Missions(this, entry[1]!);
-                    break;
-                case 'achievements':
-                    component = new Achievements(this, entry[1]!);
-                    break;
+        for (const key of Object.keys(componentConfigs)) {
+            const data = this.config.components[key as ComponentName];
+            if (!data) {
+                continue;
             }
-            if (!component) {
-                throw Error('invalid component type');
-            }
-            this.componentsList.push(component);
-        }
-        for (const entry of entries) {
-            const data = entry[1]!;
             this.player.stats.level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
-                initComponent(entry);
+                const component = loadComponent(this, key as ComponentName);
+                this.componentsList.push(component);
             });
         }
+
     }
 
     private disposeComponents() {
