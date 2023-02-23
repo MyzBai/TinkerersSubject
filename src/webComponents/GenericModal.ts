@@ -63,6 +63,7 @@ export class GenericModal extends HTMLElement {
         if(args.footerText){
             querySelector('footer', this).insertAdjacentHTML('beforeend', `<small>${args.footerText}</small>`);
         }
+        return this;
     }
 
     openModal() {

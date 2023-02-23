@@ -5,6 +5,7 @@ import { calcAttack } from "./calc/calcDamage";
 import { invLerp, querySelector } from "@src/utils/helpers";
 import type Game from './Game';
 import type { Save } from '@src/types/save';
+import { GenericModal } from '@src/webComponents/GenericModal';
 
 export default class Player {
     private readonly playerStatsContainer = querySelector('.p-game [data-player-stats]');
@@ -56,6 +57,14 @@ export default class Player {
             if (this.stats.level.get() <= this.game.enemy.maxIndex) {
                 // this.stats.level.set(this.game.enemy.index+1);
                 this.stats.level.add(1);
+            } else {
+                if (this.game.config.meta.name === 'Demo') {
+                    querySelector<GenericModal>('generic-modal').init({
+                        title: 'You win!',
+                        body: 'This is the end of this demo.',
+                        buttons: [{ label: 'Continue', type: 'confirm' }],
+                    }).openModal();
+                }
             }
         });
 
