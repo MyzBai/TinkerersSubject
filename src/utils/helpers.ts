@@ -58,10 +58,10 @@ export function registerTabs(btnsParent: HTMLElement, contentsParent?: HTMLEleme
             }
             if (mutation.attributeName === 'class') {
                 if (target.classList.contains('selected')) {
-                    const btns = Array.from(btnsParent.querySelectorAll<HTMLElement>(queryString));
+                    const btns = btnsParent.querySelectorAll<HTMLElement>(queryString);
                     btns.forEach(x => x.classList.toggle('selected', x === target));
                     if (contentsParent) {
-                        const contents = Array.from(contentsParent.querySelectorAll<HTMLElement>('[data-tab-content]') || []);
+                        const contents = contentsParent.querySelectorAll<HTMLElement>(':scope > [data-tab-content]') || [];
                         const targetAttr = target.getAttribute('data-tab-target');
                         contents.forEach(x => x.classList.toggle('hidden', x.getAttribute('data-tab-content') !== targetAttr));
                     }
@@ -75,7 +75,7 @@ export function registerTabs(btnsParent: HTMLElement, contentsParent?: HTMLEleme
             btn.classList.add('selected');
         });
     }
-    Array.from(btnsParent.querySelectorAll<HTMLElement>(queryString)).forEach(x => addBtn(x));
+    btnsParent.querySelectorAll<HTMLElement>(queryString).forEach(x => addBtn(x));
     observer.observe(btnsParent, { attributes: true, subtree: true, childList: true });
     return observer;
 }
