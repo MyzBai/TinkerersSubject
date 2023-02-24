@@ -1,6 +1,6 @@
 import GConfig from "@src/types/gconfig";
 import { Save } from "@src/types/save";
-import { querySelector } from "@src/utils/helpers";
+import { highlightHTMLElement, querySelector, registerTabs } from "@src/utils/helpers";
 import Game from "../Game";
 import { Modifier, StatModifier } from "../mods";
 import Player from "../Player";
@@ -22,26 +22,30 @@ export default class Skills extends Component {
     constructor(readonly game: Game, readonly data: SkillsData) {
         super(game, 'skills');
 
+        registerTabs(querySelector('.s-skill-slots', this.page), querySelector('.s-skill-list'));
+        registerTabs(querySelector('.s-skill-list', this.page), undefined, undefined, '[data-name]');
+
         // //setup attack skills
         {
-            this.attackSkills = [...data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<AttackSkill>(x => new AttackSkill(this, x));
+            this.attackSkills = [...this.data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<AttackSkill>(x => new AttackSkill(this, x));
             this.attackSkillSlot = new AttackSkillSlot(this);
             this.activeSkillSlot = this.attackSkillSlot;
-            this.attackSkillSlot.slotLabelElement.addEventListener('click', () => {
-                this.selectSkillSlot(this.attackSkillSlot, this.attackSkills);
-            });
-
-
-            this.game.visiblityObserver.registerLoop(this.page, visible => {
-                if (visible) {
-                    this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
-                }
+            this.attackSkillSlot.element.setAttribute('data-tab-target', 'attack');
+            this.attackSkillSlot.element.addEventListener('click', () => {
+                this.activeSkillSlot = this.attackSkillSlot;
+                this.selectSkillListItem(querySelector('[data-attack-skill-list]', this.page), this.activeSkillSlot.skill);
             });
             querySelector('[data-attack-skill-slot]', this.page).replaceChildren(this.attackSkillSlot.element!);
-            querySelector('[data-skill-name]', this.attackSkillSlot.element).click();
+            setTimeout(() => {
+                this.attackSkillSlot.element.click();
+            }, 10);
+
+            for (const skill of this.attackSkills) {
+                game.player.stats.level.registerCallback(skill.data.levelReq, () => {
+                    this.addSkillListItem(skill, querySelector('[data-attack-skill-list]'));
+                });
+            }
         }
-
-
 
         //setup buff skills
         {
@@ -52,22 +56,29 @@ export default class Skills extends Component {
                 for (const buffSkillData of data.buffSkills.skillSlots || []) {
                     game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
                         const slot = new BuffSkillSlot(this);
-                        slot.slotLabelElement.addEventListener('click', () => {
-                            this.selectSkillSlot(slot, this.buffSkills);
+                        slot.element.addEventListener('click', () => {
+                            this.activeSkillSlot = slot;
+                            setTimeout(() => {
+                                this.selectSkillListItem(querySelector('[data-buff-skill-list]', this.page), this.activeSkillSlot.skill);
+
+                            }, 10);
                         });
+                        slot.element.setAttribute('data-tab-target', 'buff');
                         buffSkillSlotContainer.appendChild(slot.element!);
                         this.buffSkillSlots.push(slot);
                     });
                 }
-                this.game.visiblityObserver.registerLoop(this.page, visible => {
-                    if (visible) {
-                        this.buffSkillSlots.forEach(x => x.updateProgressBar());
-                    }
-                });
+
+                for (const skill of this.buffSkills) {
+                    game.player.stats.level.registerCallback(skill.data.levelReq, () => {
+                        this.addSkillListItem(skill, querySelector('[data-buff-skill-list]'));
+                    });
+                }
 
             }
         }
 
+        //setup skill info
         {
             const skillInfoContainer = querySelector('[data-skill-info]', this.page);
             querySelector('[data-enable]', skillInfoContainer).addEventListener('click', () => {
@@ -91,45 +102,45 @@ export default class Skills extends Component {
                 }, { intervalMilliseconds: 100 });
             }
         }
+
+        this.game.visiblityObserver.registerLoop(this.page, visible => {
+            if (visible) {
+                this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+                for (const buffSkillSlot of this.buffSkillSlots) {
+                    buffSkillSlot.updateProgressBar();
+                }
+            }
+        });
     }
 
-    selectSkillSlot(skillSlot: SkillSlot, skillList: BaseSkill[]) {
-
-        this.activeSkillSlot = skillSlot;
-        [this.attackSkillSlot, ...this.buffSkillSlots].forEach(slot => slot.slotLabelElement.classList.toggle('selected', slot === skillSlot));
-        this.populateSkillList(skillSlot, skillList);
-    }
-
-
-    private populateSkillList(skillSlot: SkillSlot, skillList: BaseSkill[]) {
-        const skillListContainer = querySelector('.p-game .p-skills .s-skill-list ul', this.page);
-        const elements: HTMLLIElement[] = [];
-        for (const skill of skillList) {
-            const li = document.createElement('li');
-            li.classList.add('g-list-item');
-            li.classList.toggle('selected', skill.data.name === skillSlot.skill?.data.name);
-            li.setAttribute('data-name', skill.data.name);
-            li.textContent = skill.data.name;
-            li.addEventListener('click', () => {
-                this.activeSkill = skill;
-                this.showSkill(skill);
-                elements.forEach(x => x.classList.toggle('selected', x === li));
-            });
-            elements.push(li);
-        }
-        skillListContainer.replaceChildren(...elements);
-
-        if (elements.length === 0) {
-            skillListContainer.textContent = 'No skills available';
-            return;
-        }
-
-        if (skillSlot.skill) {
-            elements.find(x => x.getAttribute('data-name') === skillSlot.skill?.data.name)?.click();
+    private selectSkillListItem(container: HTMLElement, skill: BaseSkill | undefined) {
+        const skillInfoContainer = querySelector('[data-skill-info]');
+        skillInfoContainer.classList.remove('hidden');
+        if (skill) {
+            const listItem = container.querySelector<HTMLElement>(`[data-name="${skill.data.name}"]`);
+            listItem?.click();
+            this.showSkill(skill);
         } else {
-            elements[0]?.click();
+            const element = container.querySelector<HTMLElement>('[data-name]');
+            if (!element) {
+                skillInfoContainer.classList.add('hidden');
+            } else {
+                element.click();
+            }
         }
+    }
 
+    private addSkillListItem(skill: BaseSkill, container: HTMLElement) {
+        const li = document.createElement('li');
+        li.classList.add('g-list-item');
+        li.setAttribute('data-name', skill.data.name);
+        li.textContent = skill.data.name;
+        li.addEventListener('click', () => {
+            this.activeSkill = skill;
+            this.showSkill(skill);
+        });
+        highlightHTMLElement(li, 'mouseover');
+        container.appendChild(li);
     }
 
     showSkill(skill: BaseSkill) {
@@ -227,16 +238,6 @@ export default class Skills extends Component {
                 time: x.time
             }))
         }
-        // saveObj.skills = {
-        //     attackSkillName: this.attackSkillSlot?.skill?.name || 'invalid name',
-        //     buffSkills: this.buffSkillSlots.filter(x => x.skill).map(x => {
-        //         return {
-        //             name: x.skill!.name,
-        //             time: x.time,
-        //             index: x.index
-        //         };
-        //     })
-        // }
     }
 }
 
@@ -261,8 +262,8 @@ class BaseSkillSlot {
 
     protected createElement() {
         const li = document.createElement('li');
-        li.classList.add('s-skill-slot');
-        li.insertAdjacentHTML('beforeend', '<div class="g-list-item" data-skill-name></div>');
+        li.classList.add('s-skill-slot', 'g-list-item');
+        li.insertAdjacentHTML('beforeend', '<div data-skill-name></div>');
 
         {
             const progressBar = document.createElement('progress');
@@ -319,6 +320,8 @@ class BuffSkillSlot extends BaseSkillSlot {
         this.setSkill(undefined);
         this.player = skills.game.player;
         this.tryLoad();
+        highlightHTMLElement(skills.menuItem, 'click');
+        highlightHTMLElement(this.element, 'mouseover');
     }
     get canEnable() {
         return !this.running;

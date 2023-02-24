@@ -74,7 +74,7 @@ export function registerTabs(btnsParent: HTMLElement, contentsParent?: HTMLEleme
         btn.addEventListener('click', () => {
             btn.classList.add('selected');
         });
-    }
+    };
     btnsParent.querySelectorAll<HTMLElement>(queryString).forEach(x => addBtn(x));
     observer.observe(btnsParent, { attributes: true, subtree: true, childList: true });
     return observer;
