@@ -10732,6 +10732,10 @@
         return;
       }
       const loopEval = (mana) => {
+        if (!this._automate) {
+          this.skills.game.player.stats.curMana.removeListener("change", loopEval);
+          return;
+        }
         if (!this.skill) {
           return;
         }
