@@ -365,6 +365,10 @@ class BuffSkillSlot extends BaseSkillSlot {
             return;
         }
         const loopEval = (mana: number) => {
+            if(!this._automate){
+                this.skills.game.player.stats.curMana.removeListener('change', loopEval);
+                return;
+            }
             if (!this.skill) {
                 return;
             }
