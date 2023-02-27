@@ -1,6 +1,6 @@
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { querySelector } from "@src/utils/helpers";
+import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import Task from "../Task";
@@ -84,8 +84,8 @@ class MissionSlot {
             return;
         }
         this.completed = true;
-        // highlightHTMLElement(missionsMenuButton, 'click');
-        // highlightHTMLElement(this.element, 'mouseover');
+        highlightHTMLElement(this.missions.menuItem, 'click');
+        highlightHTMLElement(this.element, 'mouseover');
         this.setNewButton();
         this.setClaimButton(true);
     }
