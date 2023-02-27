@@ -47,7 +47,7 @@ export function registerMutationObserver(parentElement: HTMLElement, options: Mu
 /**
  * @description listens for changes to all children queried with {@link queryString}
  */
-export function registerTabs(btnsParent: HTMLElement, contentsParent?: HTMLElement, callback?: (target: HTMLElement) => void, queryString = '[data-tab-target]') {
+export function registerTabs(btnsParent: HTMLElement, contentsParent: HTMLElement, callback?: (target: HTMLElement) => void, queryString = '[data-tab-target]') {
     const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
             const target = mutation.target as HTMLElement;
