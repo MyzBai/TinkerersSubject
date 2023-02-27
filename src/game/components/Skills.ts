@@ -348,6 +348,7 @@ class BuffSkillSlot extends BaseSkillSlot {
 
     setSkill(skill?: BuffSkill) {
         this.skill = skill;
+        this._automate = false;
         querySelector('[data-skill-name]', this.element).textContent = this.skill?.data.name || '[Empty Slot]';
     }
 
