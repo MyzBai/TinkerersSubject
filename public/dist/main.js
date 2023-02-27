@@ -12249,7 +12249,7 @@
         const li = document.createElement("li");
         li.classList.add("g-list-item");
         if (type === "new") {
-          const suffix = entry.rawUrl.startsWith("https") ? "" : "(Local) ";
+          const suffix = entry.rawUrl.startsWith("https") && !isLocalHost ? "" : "(Local) ";
           const label = suffix.concat(entry.name);
           li.insertAdjacentHTML("beforeend", `<span>${label}</span>`);
         } else if (type === "saved") {
