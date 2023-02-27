@@ -1,4 +1,4 @@
-import { generateTime, querySelector, registerTabs } from "./utils/helpers";
+import { generateTime, isLocalHost, querySelector, registerTabs } from "./utils/helpers";
 import type GConfig from "@src/types/gconfig";
 import { validateConfig } from "@src/utils/validateConfig";
 import Game from "@src/game/Game";
@@ -126,7 +126,7 @@ export default class Home {
             const li = document.createElement('li');
             li.classList.add('g-list-item');
             if (type === 'new') {
-                const suffix = entry.rawUrl.startsWith('https') ? '' : '(Local) ';
+                const suffix = entry.rawUrl.startsWith('https') || !isLocalHost ? '' : '(Local) ';
                 const label = suffix.concat(entry.name);
                 li.insertAdjacentHTML('beforeend', `<span>${label}</span>`);
             } else if (type === 'saved') {
