@@ -93,38 +93,30 @@
             .s-skill-slots {
                 padding-bottom: $padding-container;
                 padding-right: $padding-container;
+
+                .s-skill-slot{
+                    display: block;
+                    width: 100%;
+
+                    progress {
+                        display: block;
+                        width: 100%;
+                        height: 5px;
+                    }
+                }
+
                 .s-attack-skill-slot {
                     padding-bottom: $padding-container;
-                    .s-skill-slot {
-                        display: block;
-                        [data-skill-slot] {
-                            width: 100%;
-                        }
-                        progress {
-                            display: block;
-                            width: 100%;
-                            height: 5px;
-                        }
-                    }
                     border-bottom: 1px solid $color-border-highlight;
                 }
                 ul {
                     margin-top: $padding-container;
                     min-height: 0;
-
-                    li.s-skill-slot {
-                        display: grid;
-                        grid-template-columns: 1fr auto;
-                        button {
-                            margin-left: $padding-container;
-                        }
-
-                        progress {
-                            display: block;
-                            width: 100%;
-                            height: 5px;
-                            grid-column: 1;
-                        }
+                    li.s-skill-slot.selected{
+                        pointer-events: all;
+                        // &:hover{
+                        //     background-color: $color-action-list-item-default-hover-bg;
+                        // }
                     }
                 }
             }
