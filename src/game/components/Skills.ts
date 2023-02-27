@@ -76,7 +76,8 @@ export default class Skills extends Component {
             const skillInfoContainer = querySelector('[data-skill-info]', this.page);
             querySelector('[data-enable]', skillInfoContainer).addEventListener('click', () => {
                 if (this.activeSkill) {
-                    this.enableSkill(this.activeSkillSlot, this.activeSkill);
+                    this.activeSkillSlot.setSkill(this.activeSkill);
+                    this.showSkill(this.activeSkill);
                 }
             });
             const triggerButton = querySelector<HTMLButtonElement>('[data-trigger]', skillInfoContainer);
@@ -113,7 +114,9 @@ export default class Skills extends Component {
         const skillInfoContainer = querySelector('[data-skill-info]');
         skillInfoContainer.classList.toggle('hidden', container.childElementCount === 0);
         if (skill) {
+            this.activeSkill = skill;
             const listItem = container.querySelector<HTMLElement>(`[data-name="${skill.data.name}"]`);
+            container.querySelectorAll('[data-name]').forEach(x => x.classList.toggle('selected', x === listItem));
             listItem?.click();
             this.showSkill(skill);
         } else {
@@ -128,9 +131,7 @@ export default class Skills extends Component {
         li.setAttribute('data-name', skill.data.name);
         li.textContent = skill.data.name;
         li.addEventListener('click', () => {
-            this.activeSkill = skill;
-            this.showSkill(skill);
-            li.parentElement?.querySelectorAll('[data-name]').forEach(x => x.classList.toggle('selected', x === li));
+            this.selectSkillListItem(container, skill);
         });
         highlightHTMLElement(li, 'mouseover');
         highlightHTMLElement(this.menuItem, 'mouseover');
@@ -175,9 +176,12 @@ export default class Skills extends Component {
         const triggerButton = querySelector<HTMLButtonElement>('[data-skill-info] [data-trigger]', this.page);
         const automateButton = querySelector<HTMLButtonElement>('[data-skill-info] [data-automate]', this.page);
 
-        removeButton.classList.toggle('hidden', skill instanceof AttackSkill);
-        triggerButton.classList.toggle('hidden', skill instanceof AttackSkill);
-        automateButton.classList.toggle('hidden', skill instanceof AttackSkill);
+        const hideExtraButtons = skill instanceof AttackSkill || this.activeSkillSlot.skill !== skill;
+        removeButton.classList.toggle('hidden', hideExtraButtons);
+        triggerButton.classList.toggle('hidden', hideExtraButtons);
+        automateButton.classList.toggle('hidden', hideExtraButtons);
+
+        //only show buttons if active skill slot contains this skill
 
         enableButton.disabled = !this.activeSkillSlot.canEnable || [this.attackSkillSlot, ...this.buffSkillSlots].some(x => x.skill === skill);
         if (skill instanceof BuffSkill && this.activeSkillSlot instanceof BuffSkillSlot && this.activeSkillSlot.skill === skill) {
@@ -192,11 +196,6 @@ export default class Skills extends Component {
             triggerButton.disabled = true;
             automateButton.disabled = true;
         }
-    }
-
-    private enableSkill(skillSlot: BaseSkillSlot, skill: BaseSkill) {
-        skillSlot.setSkill(skill);
-        this.showSkill(skill);
     }
 
     private triggerSkill(skillSlot: BuffSkillSlot) {
