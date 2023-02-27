@@ -9,7 +9,6 @@ import type { ComponentName } from "@src/types/gconfig";
 import gameHtml from '@html/game.html';
 import saveManager from "@src/utils/saveManager";
 import type { Save } from "@src/types/save";
-import Settings from "./Settings";
 import Home from "@src/Home";
 
 import { VisibilityObserver } from "@src/utils/Observers";
@@ -22,7 +21,6 @@ export default class Game {
     readonly enemy: Enemy;
     readonly player: Player;
     readonly statistics: Statistics;
-    readonly settings: Settings;
     readonly visiblityObserver: VisibilityObserver;
     readonly componentsList: Component[] = [];
     readonly onSave = new EventEmitter<Save>();
@@ -37,7 +35,6 @@ export default class Game {
         this.player = new Player(this);
 
         this.statistics = new Statistics(this);
-        this.settings = new Settings(this);
 
         if (isLocalHost) {
             this.setupDevHelpers();
