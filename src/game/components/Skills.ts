@@ -68,7 +68,6 @@ export default class Skills extends Component {
                         this.addSkillListItem(skill, buffSkillListContainer);
                     });
                 }
-
             }
         }
 
@@ -95,7 +94,6 @@ export default class Skills extends Component {
                     }
                 }, { intervalMilliseconds: 100 });
             }
-
         }
 
         this.game.visiblityObserver.registerLoop(this.page, visible => {
@@ -248,11 +246,10 @@ class BaseSkillSlot {
 
     setSkill(skill?: BaseSkill) {
         this.skill = skill;
-        this.slotLabelElement.textContent = skill?.data.name || '[Empty Slot]';
+        this.element.querySelector('[data-skill-name]')!.textContent = skill?.data.name || '[Empty Slot]';
     }
     get hasSkill() { return typeof this.skill !== 'undefined'; }
     get canRemove() { return this.hasSkill }
-    get slotLabelElement() { return querySelector('[data-skill-name]', this.element); }
     get canTrigger() { return false; }
     get canEnable() { return false; }
 
