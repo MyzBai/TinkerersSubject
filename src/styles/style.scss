@@ -19,17 +19,17 @@ body {
     max-height: 100vh;
     margin: 0;
     padding: 0;
-    font-size: min(1em, 1.4vw);
+    font-size: min(1rem, 1.7vw, 3vh);
     background-color: $color-canvas-default;
     color: $color-fg-default;
     margin: 0 auto;
     width: 80%;
 }
 
-@media only screen and (max-width: 1600px) {
-    // :root {
-    //     // font-size: 14px;
-    // }
+@media (max-width: 1600px) {
+    :root {
+        // font-size: 11px;
+    }
     body {
         margin: 0;
         width: 100vw;
