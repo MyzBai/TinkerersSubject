@@ -8,7 +8,7 @@ export const clamp = (value: number, min: number, max: number) => Math.max(min, 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 export const invLerp = (a: number, b: number, v: number) => (v - a) / (b - a);
 export const remap = (iMin: number, iMax: number, oMin: number, oMax: number, v: number) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
-export const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+export const isLocalHost = () => location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 export function querySelector<T extends HTMLElement>(selectors: string, parent?: HTMLElement) {
     const element = (parent || document).querySelector<T>(selectors);

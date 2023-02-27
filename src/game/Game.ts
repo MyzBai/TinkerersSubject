@@ -36,7 +36,7 @@ export default class Game {
 
         this.statistics = new Statistics(this);
 
-        if (isLocalHost) {
+        if (isLocalHost()) {
             this.setupDevHelpers();
         }
 
@@ -78,14 +78,12 @@ export default class Game {
         await this.setup();
 
         await this.save();
-
-        this.gameLoop.start();
     }
 
     async setup() {
         this.player.setup();
 
-        if (!isLocalHost) {
+        if (!isLocalHost()) {
             this.gameLoop.start();
         }
         querySelector('[data-tab-target="combat"]', this.page).click();
