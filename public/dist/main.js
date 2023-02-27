@@ -212,9 +212,9 @@
       exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
       var code_1 = require_code();
       var ValueError = class extends Error {
-        constructor(name) {
-          super(`CodeGen: "code" for ${name} not defined`);
-          this.value = name.value;
+        constructor(name2) {
+          super(`CodeGen: "code" for ${name2} not defined`);
+          this.value = name2.value;
         }
       };
       var UsedValueState;
@@ -281,8 +281,8 @@
           var _a;
           if (value.ref === void 0)
             throw new Error("CodeGen: ref must be passed in value");
-          const name = this.toName(nameOrPrefix);
-          const { prefix } = name;
+          const name2 = this.toName(nameOrPrefix);
+          const { prefix } = name2;
           const valueKey = (_a = value.key) !== null && _a !== void 0 ? _a : value.ref;
           let vs = this._values[prefix];
           if (vs) {
@@ -292,12 +292,12 @@
           } else {
             vs = this._values[prefix] = /* @__PURE__ */ new Map();
           }
-          vs.set(valueKey, name);
+          vs.set(valueKey, name2);
           const s = this._scope[prefix] || (this._scope[prefix] = []);
           const itemIndex = s.length;
           s[itemIndex] = value.ref;
-          name.setValue(value, { property: prefix, itemIndex });
-          return name;
+          name2.setValue(value, { property: prefix, itemIndex });
+          return name2;
         }
         getValue(prefix, keyOrRef) {
           const vs = this._values[prefix];
@@ -306,17 +306,17 @@
           return vs.get(keyOrRef);
         }
         scopeRefs(scopeName, values = this._values) {
-          return this._reduceValues(values, (name) => {
-            if (name.scopePath === void 0)
-              throw new Error(`CodeGen: name "${name}" has no value`);
-            return (0, code_1._)`${scopeName}${name.scopePath}`;
+          return this._reduceValues(values, (name2) => {
+            if (name2.scopePath === void 0)
+              throw new Error(`CodeGen: name "${name2}" has no value`);
+            return (0, code_1._)`${scopeName}${name2.scopePath}`;
           });
         }
         scopeCode(values = this._values, usedValues, getCode) {
-          return this._reduceValues(values, (name) => {
-            if (name.value === void 0)
-              throw new Error(`CodeGen: name "${name}" has no value`);
-            return name.value.code;
+          return this._reduceValues(values, (name2) => {
+            if (name2.value === void 0)
+              throw new Error(`CodeGen: name "${name2}" has no value`);
+            return name2.value.code;
           }, usedValues, getCode);
         }
         _reduceValues(values, valueCode, usedValues = {}, getCode) {
@@ -326,20 +326,20 @@
             if (!vs)
               continue;
             const nameSet = usedValues[prefix] = usedValues[prefix] || /* @__PURE__ */ new Map();
-            vs.forEach((name) => {
-              if (nameSet.has(name))
+            vs.forEach((name2) => {
+              if (nameSet.has(name2))
                 return;
-              nameSet.set(name, UsedValueState.Started);
-              let c = valueCode(name);
+              nameSet.set(name2, UsedValueState.Started);
+              let c = valueCode(name2);
               if (c) {
                 const def = this.opts.es5 ? exports.varKinds.var : exports.varKinds.const;
-                code = (0, code_1._)`${code}${def} ${name} = ${c};${this.opts._n}`;
-              } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name)) {
+                code = (0, code_1._)`${code}${def} ${name2} = ${c};${this.opts._n}`;
+              } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name2)) {
                 code = (0, code_1._)`${code}${c}${this.opts._n}`;
               } else {
-                throw new ValueError(name);
+                throw new ValueError(name2);
               }
-              nameSet.set(name, UsedValueState.Completed);
+              nameSet.set(name2, UsedValueState.Completed);
             });
           }
           return code;
@@ -416,10 +416,10 @@
         }
       };
       var Def = class extends Node {
-        constructor(varKind, name, rhs) {
+        constructor(varKind, name2, rhs) {
           super();
           this.varKind = varKind;
-          this.name = name;
+          this.name = name2;
           this.rhs = rhs;
         }
         render({ es5, _n }) {
@@ -639,17 +639,17 @@
         }
       };
       var ForRange = class extends For {
-        constructor(varKind, name, from, to) {
+        constructor(varKind, name2, from, to) {
           super();
           this.varKind = varKind;
-          this.name = name;
+          this.name = name2;
           this.from = from;
           this.to = to;
         }
         render(opts) {
           const varKind = opts.es5 ? scope_1.varKinds.var : this.varKind;
-          const { name, from, to } = this;
-          return `for(${varKind} ${name}=${from}; ${name}<${to}; ${name}++)` + super.render(opts);
+          const { name: name2, from, to } = this;
+          return `for(${varKind} ${name2}=${from}; ${name2}<${to}; ${name2}++)` + super.render(opts);
         }
         get names() {
           const names = addExprNames(super.names, this.from);
@@ -657,11 +657,11 @@
         }
       };
       var ForIter = class extends For {
-        constructor(loop, varKind, name, iterable) {
+        constructor(loop, varKind, name2, iterable) {
           super();
           this.loop = loop;
           this.varKind = varKind;
-          this.name = name;
+          this.name = name2;
           this.iterable = iterable;
         }
         render(opts) {
@@ -678,9 +678,9 @@
         }
       };
       var Func = class extends BlockNode {
-        constructor(name, args, async) {
+        constructor(name2, args, async) {
           super();
-          this.name = name;
+          this.name = name2;
           this.args = args;
           this.async = async;
         }
@@ -764,10 +764,10 @@
           return this._extScope.name(prefix);
         }
         scopeValue(prefixOrName, value) {
-          const name = this._extScope.value(prefixOrName, value);
-          const vs = this._values[name.prefix] || (this._values[name.prefix] = /* @__PURE__ */ new Set());
-          vs.add(name);
-          return name;
+          const name2 = this._extScope.value(prefixOrName, value);
+          const vs = this._values[name2.prefix] || (this._values[name2.prefix] = /* @__PURE__ */ new Set());
+          vs.add(name2);
+          return name2;
         }
         getScopeValue(prefix, keyOrRef) {
           return this._extScope.getValue(prefix, keyOrRef);
@@ -779,11 +779,11 @@
           return this._extScope.scopeCode(this._values);
         }
         _def(varKind, nameOrPrefix, rhs, constant) {
-          const name = this._scope.toName(nameOrPrefix);
+          const name2 = this._scope.toName(nameOrPrefix);
           if (rhs !== void 0 && constant)
-            this._constants[name.str] = rhs;
-          this._leafNode(new Def(varKind, name, rhs));
-          return name;
+            this._constants[name2.str] = rhs;
+          this._leafNode(new Def(varKind, name2, rhs));
+          return name2;
         }
         const(nameOrPrefix, rhs, _constant) {
           return this._def(scope_1.varKinds.const, nameOrPrefix, rhs, _constant);
@@ -851,26 +851,26 @@
           return this._for(new ForLoop(iteration), forBody);
         }
         forRange(nameOrPrefix, from, to, forBody, varKind = this.opts.es5 ? scope_1.varKinds.var : scope_1.varKinds.let) {
-          const name = this._scope.toName(nameOrPrefix);
-          return this._for(new ForRange(varKind, name, from, to), () => forBody(name));
+          const name2 = this._scope.toName(nameOrPrefix);
+          return this._for(new ForRange(varKind, name2, from, to), () => forBody(name2));
         }
         forOf(nameOrPrefix, iterable, forBody, varKind = scope_1.varKinds.const) {
-          const name = this._scope.toName(nameOrPrefix);
+          const name2 = this._scope.toName(nameOrPrefix);
           if (this.opts.es5) {
             const arr = iterable instanceof code_1.Name ? iterable : this.var("_arr", iterable);
             return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i) => {
-              this.var(name, (0, code_1._)`${arr}[${i}]`);
-              forBody(name);
+              this.var(name2, (0, code_1._)`${arr}[${i}]`);
+              forBody(name2);
             });
           }
-          return this._for(new ForIter("of", varKind, name, iterable), () => forBody(name));
+          return this._for(new ForIter("of", varKind, name2, iterable), () => forBody(name2));
         }
         forIn(nameOrPrefix, obj, forBody, varKind = this.opts.es5 ? scope_1.varKinds.var : scope_1.varKinds.const) {
           if (this.opts.ownProperties) {
             return this.forOf(nameOrPrefix, (0, code_1._)`Object.keys(${obj})`, forBody);
           }
-          const name = this._scope.toName(nameOrPrefix);
-          return this._for(new ForIter("in", varKind, name, obj), () => forBody(name));
+          const name2 = this._scope.toName(nameOrPrefix);
+          return this._for(new ForIter("in", varKind, name2, obj), () => forBody(name2));
         }
         endFor() {
           return this._endBlockNode(For);
@@ -926,8 +926,8 @@
           this._nodes.length = len;
           return this;
         }
-        func(name, args = code_1.nil, async, funcBody) {
-          this._blockNode(new Func(name, args, async));
+        func(name2, args = code_1.nil, async, funcBody) {
+          this._blockNode(new Func(name2, args, async));
           if (funcBody)
             this.code(funcBody).endFunc();
           return this;
@@ -3993,9 +3993,9 @@
             if (mailtoComponents.body)
               headers["body"] = mailtoComponents.body;
             var fields = [];
-            for (var name in headers) {
-              if (headers[name] !== O[name]) {
-                fields.push(name.replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFNAME, pctEncChar) + "=" + headers[name].replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFVALUE, pctEncChar));
+            for (var name2 in headers) {
+              if (headers[name2] !== O[name2]) {
+                fields.push(name2.replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFNAME, pctEncChar) + "=" + headers[name2].replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFVALUE, pctEncChar));
               }
             }
             if (fields.length) {
@@ -4463,10 +4463,10 @@
           }
           return this;
         }
-        addFormat(name, format) {
+        addFormat(name2, format) {
           if (typeof format == "string")
             format = new RegExp(format);
-          this.formats[name] = format;
+          this.formats[name2] = format;
           return this;
         }
         errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
@@ -4583,10 +4583,10 @@
             this.addSchema(optsSchemas[key], key);
       }
       function addInitialFormats() {
-        for (const name in this.opts.formats) {
-          const format = this.opts.formats[name];
+        for (const name2 in this.opts.formats) {
+          const format = this.opts.formats[name2];
           if (format)
-            this.addFormat(name, format);
+            this.addFormat(name2, format);
         }
       }
       function addInitialKeywords(defs) {
@@ -8841,27 +8841,6 @@
     }
   });
 
-  // src/webComponents/html/game.html
-  var game_default = '<main class="p-game hidden" data-tab-content="game">\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <li class="g-list-item hidden" data-tab-target="passives">Passives</li>\n        <li class="g-list-item hidden" data-tab-target="items">Items</li>\n        <li class="g-list-item hidden" data-tab-target="missions">Missions</li>\n        <li class="g-list-item hidden" data-tab-target="achievements">Achievements</li>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n        <li class="g-list-item" data-tab-target="settings">Settings</li>\n    </menu>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <div class="s-enemy">\n                <progress data-health-bar value="0.5" max="1"></progress>\n                <!-- <div class="s-health-bar-background g-progress-bar-background">\n                    <div class="health-bar g-progress-bar" data-health-bar></div>\n                </div> -->\n            </div>\n            <div class="s-player">\n                <progress data-mana-bar value="0.5" max="1"></progress>\n                <!-- <div class="s-mana-bar-background g-progress-bar-background">\n                    <div class="mana-bar g-progress-bar" data-mana-bar></div>\n                </div> -->\n            </div>\n            <div class="g-modal s-skill-modal hidden" data-skill-modal data-modal-type="relative">\n                <div class="wrapper">\n                    <section>\n                        <ul class="g-list-v" data-skill-list></ul>\n                        <div class="s-skill-info" data-skill-info>\n                            <div data-title>Example Name</div>\n                            <div class="g-field">\n                                <div>Mana Cost</div>\n                                <i data-stat="manaCost"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Attack Speed</div>\n                                <i data-stat="attackSpeed"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Damage Multiplier</div>\n                                <i data-stat="baseDamageMultiplier"></i>\n                            </div>\n                            <div class="g-field">\n                                <div>Base Duration</div>\n                                <i data-stat="baseDuration"></i>\n                            </div>\n                            <ul data-mod-list></ul>\n                        </div>\n                    </section>\n                    <footer>\n                        <button class="g-button" data-apply>Apply</button>\n                        <button class="g-button" data-remove>Remove</button>\n                        <button class="g-button" data-cancel>Cancel</button>\n                    </footer>\n                </div>\n            </div>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n        <div class="p-settings hidden" data-tab-content="settings">\n            <button class="g-button" data-role="cancel" data-delete-save>Delete Save</button>\n        </div>\n    </div>\n    <aside class="s-stats">\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n\n\n</main>';
-
-  // src/webComponents/html/skills.html
-  var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <h3 class="title"></h3>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-remove>Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-skill-list></ul>\n\n    </div>\n\n</div>';
-
-  // src/webComponents/html/passives.html
-  var passives_default = '<div class="p-passives hidden" data-tab-content="passives">\n    <header>\n        <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>\n        <button class="g-button" data-clear>Clear</button>\n    </header>\n    <div class="s-passive-list">\n        <table>\n\n        </table>\n    </div>\n</div>';
-
-  // src/webComponents/html/items.html
-  var items_default = '<div class="p-items hidden" data-tab-content="items">\n    <menu class="g-list-v" data-item-list></menu>\n    <ul data-mod-list></ul>\n    <div class="s-preset-container">\n        <menu class="g-list-h">\n            <button class="g-button" data-new>New</button>\n            <button class="g-button" data-edit>Edit</button>\n        </menu>\n        <menu class="g-list-v" data-preset-list></menu>\n    </div>\n    <div class="s-craft-container">\n        <div data-craft-list>\n            <table></table>\n        </div>\n        <button class="g-button" data-craft-button data-role="confirm">Craft</button>\n        <div data-craft-message></div>\n    </div>\n    <dialog data-modal data-preset-modal>\n        <form method="dialog">\n            <h2>Craft Preset</h2>\n            <input type="text" data-name>\n            <div class="g-list-v" data-craft-list>\n                <table>\n                    <thead>\n                        <tr>\n                            <td></td>\n                            <td>Level</td>\n                            <td>Cost</td>\n                        </tr>\n                    </thead>\n                    <tbody></tbody>\n                </table>\n            </div>\n            <footer>\n                <input class="g-button" type="submit" value="Apply" data-apply>\n                <input class="g-button" type="submit" value="Cancel" data-cancel>\n                <input class="g-button" type="submit" value="Delete" data-cancel data-delete>\n            </footer>\n        </form>\n    </dialog>\n</div>';
-
-  // src/webComponents/html/missions.html
-  var missions_default = '<div class="p-missions hidden" data-tab-content="missions">\n    <ul data-mission-list></ul>\n</div>';
-
-  // src/webComponents/html/achievements.html
-  var achievements_default = '<div class="p-achievements hidden" data-tab-content="achievements">\n    <ul></ul>\n</div>';
-
-  // src/webComponents/html/prestige.html
-  var prestige_default = "<div></div>";
-
   // src/utils/helpers.ts
   var avg = (a, b) => (a + b) / 2;
   var randomRange = (min, max) => Math.random() * (max - min) + min;
@@ -8870,7 +8849,7 @@
   var invLerp = (a, b, v) => (v - a) / (b - a);
   var remap = (iMin, iMax, oMin, oMax, v) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
   var isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.port.length !== 0 || location.protocol !== "http:";
-  function queryHTML(selectors, parent) {
+  function querySelector(selectors, parent) {
     const element = (parent || document).querySelector(selectors);
     if (!element) {
       throw Error(`HTMLElement with selectors ${selectors} could not be found!`);
@@ -8888,10 +8867,10 @@
         }
         if (mutation.attributeName === "class") {
           if (target.classList.contains("selected")) {
-            const btns = Array.from(btnsParent.querySelectorAll(queryString));
+            const btns = btnsParent.querySelectorAll(queryString);
             btns.forEach((x) => x.classList.toggle("selected", x === target));
             if (contentsParent) {
-              const contents = Array.from(contentsParent.querySelectorAll("[data-tab-content]") || []);
+              const contents = contentsParent.querySelectorAll(":scope > [data-tab-content]") || [];
               const targetAttr = target.getAttribute("data-tab-target");
               contents.forEach((x) => x.classList.toggle("hidden", x.getAttribute("data-tab-content") !== targetAttr));
             }
@@ -8905,7 +8884,7 @@
         btn.classList.add("selected");
       });
     };
-    Array.from(btnsParent.querySelectorAll(queryString)).forEach((x) => addBtn(x));
+    btnsParent.querySelectorAll(queryString).forEach((x) => addBtn(x));
     observer.observe(btnsParent, { attributes: true, subtree: true, childList: true });
     return observer;
   }
@@ -8921,80 +8900,18 @@
       ms
     };
   }
-
-  // src/webComponents/GameElement.ts
-  var componentDataList = {
-    skills: {
-      html: skills_default,
-      name: "Skills",
-      targetName: "skills"
-    },
-    passives: {
-      html: passives_default,
-      name: "Passives",
-      targetName: "passives"
-    },
-    items: {
-      html: items_default,
-      name: "Items",
-      targetName: "items"
-    },
-    missions: {
-      html: missions_default,
-      name: "Missions",
-      targetName: "missions"
-    },
-    achievements: {
-      html: achievements_default,
-      name: "Achievements",
-      targetName: "achievements"
-    },
-    prestige: {
-      html: prestige_default,
-      name: "Prestige",
-      targetName: "prestige"
+  function highlightHTMLElement(element, trigger) {
+    const attr = "data-highlight-notification";
+    if (element.classList.contains("selected")) {
+      return;
     }
-  };
-  var GameElement = class extends HTMLElement {
-    constructor() {
-      super();
-      __publicField(this, "componentPages", []);
-    }
-    connectedCallback() {
-      this.innerHTML = game_default;
-    }
-    init(names) {
-      const container = queryHTML("[data-main-view]", this);
-      const menu = queryHTML(".p-game > menu");
-      menu.replaceChildren();
-      this.componentPages.forEach((x) => x.remove());
-      menu.appendChild(this.createMenuItem("Combat", "combat"));
-      for (const name of names) {
-        const componentData = componentDataList[name];
-        const element = new DOMParser().parseFromString(componentData.html, "text/html").body.firstElementChild;
-        if (!element) {
-          throw Error("invalid component html");
-        }
-        element.classList.add("hidden");
-        this.componentPages.push(element);
-        container.appendChild(element);
-        const menuItem = this.createMenuItem(componentData.name, componentData.targetName);
-        menuItem.classList.add("hidden");
-        menu.appendChild(menuItem);
-      }
-      menu.appendChild(this.createMenuItem("Statistics", "statistics"));
-      menu.appendChild(this.createMenuItem("Settings", "settings"));
-      registerTabs(menu, queryHTML(".p-game", this));
-    }
-    createMenuItem(label, targetName) {
-      const li = document.createElement("li");
-      li.classList.add("g-list-item");
-      li.setAttribute("data-tab-target", targetName);
-      li.textContent = label;
-      return li;
-    }
-  };
-  customElements.define("game-element", GameElement);
+    element.setAttribute(attr, "");
+    const listener = () => {
+      element.removeAttribute(attr);
+      element.removeEventListener(trigger, listener);
+    };
+    element.addEventListener(trigger, listener);
+  }
 
   // src/webComponents/GenericModal.ts
   var GenericModal = class extends HTMLElement {
@@ -9012,8 +8929,8 @@
             </form>
             <div class="backdrop"></div>
         </dialog>`;
-      this.modal = queryHTML("dialog", this);
-      queryHTML(".backdrop").addEventListener("mousedown", () => this.closeModal());
+      this.modal = querySelector("dialog", this);
+      querySelector(".backdrop").addEventListener("mousedown", () => this.closeModal());
       this.classList.add("hidden");
     }
     connectedCallback() {
@@ -9022,11 +8939,11 @@
       }
     }
     init(args) {
-      queryHTML("header h3", this.modal).textContent = args.title || "";
+      querySelector("header h3", this.modal).textContent = args.title || "";
       if (typeof args.body === "string") {
-        queryHTML("[data-body]", this.modal).innerHTML = args.body;
+        querySelector("[data-body]", this.modal).innerHTML = args.body;
       } else {
-        queryHTML("[data-body]", this.modal).replaceChildren(args.body);
+        querySelector("[data-body]", this.modal).replaceChildren(args.body);
       }
       const buttons = [];
       for (const buttonData of args.buttons) {
@@ -9042,10 +8959,11 @@
         });
         buttons.push(button);
       }
-      queryHTML("footer", this).replaceChildren(...buttons);
+      querySelector("footer", this).replaceChildren(...buttons);
       if (args.footerText) {
-        queryHTML("footer", this).insertAdjacentHTML("beforeend", `<small>${args.footerText}</small>`);
+        querySelector("footer", this).insertAdjacentHTML("beforeend", `<small>${args.footerText}</small>`);
       }
+      return this;
     }
     openModal() {
       this.modal.show();
@@ -9908,14 +9826,14 @@
     const more = calcModMore(modName, config);
     return base * inc * more;
   }
-  function calcModSum(valueType, name, config) {
-    name = Array.isArray(name) ? name : [name];
+  function calcModSum(valueType, name2, config) {
+    name2 = Array.isArray(name2) ? name2 : [name2];
     let result = valueType === "More" ? 1 : 0;
     const hasFlag = (a, b) => {
       return (a & b) === b;
     };
     const filteredModList = config.statModList.filter((x) => {
-      if (!name.includes(x.name)) {
+      if (!name2.includes(x.name)) {
         return false;
       }
       if (x.valueType !== valueType)
@@ -9939,9 +9857,8 @@
   var Player = class {
     constructor(game) {
       this.game = game;
-      __publicField(this, "playerStatsContainer", queryHTML(".p-game > .s-stats"));
-      __publicField(this, "combatPage", queryHTML(".p-combat"));
-      __publicField(this, "manaBar", queryHTML("[data-mana-bar]", this.combatPage));
+      __publicField(this, "playerStatsContainer", querySelector(".p-game [data-player-stats]"));
+      __publicField(this, "manaBar");
       __publicField(this, "statsUpdateId", -1);
       __publicField(this, "modDB", new ModDB());
       __publicField(this, "stats", {
@@ -9956,6 +9873,7 @@
         skillDurationMultiplier: new Value(1)
       });
       __publicField(this, "_attackProgressPct", 0);
+      this.manaBar = querySelector("[data-mana-bar]", this.game.page);
     }
     get attackProgressPct() {
       return this._attackProgressPct;
@@ -9965,8 +9883,8 @@
       this.modDB.clear();
       this.modDB.onChange.listen(() => this.updateStats());
       Object.values(this.stats).forEach((x) => x.reset());
-      this.stats.level.addListener("change", (x) => queryHTML('[data-stat="level"]', this.playerStatsContainer).textContent = x.toFixed());
-      this.stats.gold.addListener("change", (x) => queryHTML('[data-stat="gold"]', this.playerStatsContainer).textContent = x.toFixed());
+      this.stats.level.addListener("change", (x) => querySelector('[data-stat="level"]', this.playerStatsContainer).textContent = x.toFixed());
+      this.stats.gold.addListener("change", (x) => querySelector('[data-stat="gold"]', this.playerStatsContainer).textContent = x.toFixed());
       this.stats.level.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.level) || 1);
       this.stats.gold.set(((_b = this.game.saveObj.player) == null ? void 0 : _b.gold) || 0);
       if (this.game.config.player) {
@@ -9974,9 +9892,20 @@
           this.modDB.add(new Modifier(x).stats, "Player");
         });
       }
+      this.game.gameLoop.subscribeAnim(() => {
+        this.updateManaBar();
+      });
       this.game.enemy.onDeath.listen(() => {
         if (this.stats.level.get() <= this.game.enemy.maxIndex) {
           this.stats.level.add(1);
+        } else {
+          if (this.game.config.meta.name === "Demo") {
+            querySelector("generic-modal").init({
+              title: "You win!",
+              body: "This is the end of this demo.",
+              buttons: [{ label: "Continue", type: "confirm" }]
+            }).openModal();
+          }
         }
       });
       this.stats.curMana.addListener("change", (curMana) => {
@@ -9994,12 +9923,6 @@
         const manaRegen = this.stats.manaRegen.get() * dt;
         this.stats.curMana.add(manaRegen);
         this.game.statistics.statistics["Mana Generated"].add(manaRegen);
-      });
-      this.game.gameLoop.subscribeAnim(() => {
-        if (this.combatPage.classList.contains("hidden")) {
-          return;
-        }
-        this.updateManaBar();
       });
       this.game.onSave.listen(this.save.bind(this));
       this.startAutoAttack();
@@ -10090,8 +10013,9 @@
       __publicField(this, "_index");
       __publicField(this, "healthList", []);
       __publicField(this, "_health", 0);
-      __publicField(this, "healthBar", queryHTML(".p-game .s-enemy [data-health-bar]"));
+      __publicField(this, "healthBar");
       this._index = 0;
+      this.healthBar = querySelector("[data-health-bar]", this.game.page);
     }
     get index() {
       return this._index;
@@ -10112,10 +10036,14 @@
       var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
       this.onDeath.removeAllListeners();
+      this.game.gameLoop.subscribeAnim(() => {
+        this.updateHealthBar();
+      });
       this.healthList = this.game.config.enemies.enemyList;
       this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
-      this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
       this.spawn();
+      this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
+      this.updateHealthBar();
     }
     setIndex(index) {
       this._index = index;
@@ -10125,7 +10053,6 @@
       if (this.index === this.maxIndex + 1) {
         this.healthBar.textContent = "Dummy (Cannot die)";
       }
-      this.updateHealthBar();
     }
     dealDamage(amount) {
       if (this.index === this.maxIndex + 1) {
@@ -10138,7 +10065,6 @@
         this.onDeath.invoke(this);
         this.spawn();
       }
-      this.updateHealthBar();
     }
     save(saveObj) {
       saveObj.enemy = {
@@ -10181,8 +10107,6 @@
         return;
       }
       this.instances.delete(id);
-    }
-    unsubscribeAnim(id) {
       this.animInstances.delete(id);
     }
     reset() {
@@ -10230,32 +10154,25 @@
       loop();
     }
     beginLoopAnim() {
+      let lastTime = 0;
       cancelAnimationFrame(this.animLoopId);
       const loop = () => {
-        this.animLoopId = requestAnimationFrame(() => {
-          this.animInstances.forEach((instance) => {
-            var _a;
-            instance.time += TARGET_FRAME_TIME;
-            let ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
-            if (instance.time > ms) {
-              instance.callback(DELTA_TIME_SECONDS);
-              instance.time -= ms || instance.time;
-            }
-          });
-          loop();
+        const now = performance.now();
+        const dt = now - lastTime;
+        this.animInstances.forEach((instance) => {
+          var _a;
+          instance.time += dt;
+          let ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
+          if (instance.time > ms) {
+            instance.callback(dt / 1e3);
+            instance.time -= ms || instance.time;
+          }
         });
+        lastTime = now;
+        this.animLoopId = requestAnimationFrame(loop);
       };
-      loop();
+      this.animLoopId = requestAnimationFrame(loop);
     }
-  };
-
-  // src/utils/Observers.ts
-  var visibilityObserver = (element, callback) => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((x) => callback(x.isIntersecting, observer));
-    });
-    observer.observe(element);
-    return observer;
   };
 
   // src/game/Statistics.ts
@@ -10279,25 +10196,21 @@
         "Total Physical Damage": new Statistic(0),
         "Prestige Count": new Statistic(0)
       });
-      __publicField(this, "page", queryHTML(".p-game .p-statistics"));
-      let loopId;
-      visibilityObserver(this.page, (visible) => {
-        if (visible) {
-          this.updateStatisticsUI();
-          loopId = this.game.gameLoop.subscribe(() => this.updateStatisticsUI(), { intervalMilliseconds: 1e3 });
-        } else {
-          this.game.gameLoop.unsubscribe(loopId);
-        }
-      });
+      __publicField(this, "page", querySelector(".p-game .p-statistics"));
     }
     init() {
       this.game.onSave.listen(this.save.bind(this));
       Object.values(this.statistics).forEach((x) => x.reset());
       if (this.game.saveObj.statistics) {
-        this.game.saveObj.statistics.forEach(({ name, value }) => {
-          this.statistics[name].set(value);
+        this.game.saveObj.statistics.forEach(({ name: name2, value }) => {
+          this.statistics[name2].set(value);
         });
       }
+      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
+        if (visible) {
+          this.updateStatisticsUI();
+        }
+      }, { intervalMilliseconds: 1e3 });
       this.createStatisticsElements();
       this.updateStatisticsUI();
     }
@@ -10319,7 +10232,7 @@
         const element = createField(key);
         elements.push(element);
       }
-      queryHTML(".p-statistics ul").replaceChildren(...elements);
+      querySelector(".p-statistics ul").replaceChildren(...elements);
     }
     getFormatType(key) {
       switch (key) {
@@ -10331,7 +10244,7 @@
     updateStatisticsUI() {
       var _a;
       for (const [key, value] of Object.entries(this.statistics)) {
-        const element = queryHTML(`.p-statistics [data-stat="${key}"]`);
+        const element = querySelector(`.p-statistics [data-stat="${key}"]`);
         if (!element) {
           continue;
         }
@@ -10363,16 +10276,112 @@
     }
   };
 
+  // src/webComponents/html/game.html
+  var game_default = '<main class="p-game hidden" data-tab-content="game">\n\n    <div class="s-home-button">\n        <button class="g-button" data-target="home">Home</button>\n    </div>\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <div class="s-components"></div>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n    </menu>\n    <div class="s-progress-bars">\n        <progress data-health-bar value="1" max="1"></progress>\n        <progress data-mana-bar value="1" max="1"></progress>\n    </div>\n    <div class="s-title">\n        <span data-config-name>Tinkerers Subject</span>\n    </div>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n    </div>\n\n    <aside class="s-stats" data-player-stats>\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n</main>';
+
+  // src/utils/saveManager.ts
+  var import_localforage = __toESM(require_localforage(), 1);
+  var saveManager_default = { save, load };
+  async function save(type, object) {
+    try {
+      switch (type) {
+        case "Game":
+          return await saveBlob("ts-game", object);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  async function load(type) {
+    try {
+      switch (type) {
+        case "Game":
+          const blob = await loadBlob("ts-game");
+          if (blob) {
+            return new Map(Object.entries(blob));
+          }
+          return null;
+        default:
+          return null;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  async function saveBlob(key, object) {
+    const str = window.btoa(JSON.stringify(object));
+    const blob = new Blob([str], { type: "text/plain" });
+    return await import_localforage.default.setItem(key, blob);
+  }
+  async function loadBlob(key) {
+    const blob = await import_localforage.default.getItem(key);
+    if (!blob) {
+      return blob;
+    }
+    const str = await blob.text();
+    return JSON.parse(window.atob(str));
+  }
+
+  // src/utils/Observers.ts
+  var VisibilityObserver = class {
+    constructor(loop) {
+      this.loop = loop;
+      __publicField(this, "instances", []);
+      __publicField(this, "loopInstances", []);
+    }
+    disconnectAll() {
+      this.instances.forEach((x) => x.disconnect());
+      this.loopInstances.forEach((x) => x.disconnect());
+      this.instances.splice(0);
+      this.loopInstances.splice(0);
+    }
+    register(element, callback) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((x) => callback(x.isIntersecting, observer));
+      });
+      observer.observe(element);
+      this.instances.push(observer);
+      return observer;
+    }
+    registerLoop(element, callback, options) {
+      if (!this.loop) {
+        throw Error("VisibilityObserver has no loop instance");
+      }
+      let loopId;
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((x) => {
+          var _a, _b;
+          const visible = x.isIntersecting;
+          callback(visible, observer);
+          if (visible) {
+            loopId = (_a = this.loop) == null ? void 0 : _a.subscribeAnim(() => {
+              callback(visible, observer);
+            }, options);
+          } else {
+            (_b = this.loop) == null ? void 0 : _b.unsubscribe(loopId);
+          }
+        });
+      });
+      observer.observe(element);
+      const disconnect = () => {
+        var _a;
+        observer.disconnect();
+        (_a = this.loop) == null ? void 0 : _a.unsubscribe(loopId);
+      };
+      this.loopInstances.push({ observer, disconnect });
+      return { observer, disconnect };
+    }
+  };
+
   // src/game/components/Component.ts
   var Component = class {
-    constructor(game, name) {
+    constructor(game, name2) {
       this.game = game;
-      this.name = name;
+      this.name = name2;
       __publicField(this, "_page");
       __publicField(this, "_menuItem");
-      __publicField(this, "updateUITime", 0);
-      this._page = queryHTML(`.p-game .p-${name}`);
-      this._menuItem = queryHTML(`.p-game > menu [data-tab-target="${name}"]`);
+      this._page = querySelector(`.p-game .p-${name2}`);
+      this._menuItem = querySelector(`.p-game [data-main-menu] [data-tab-target="${name2}"]`);
     }
     get page() {
       return this._page;
@@ -10385,7 +10394,453 @@
       this.page.replaceChildren();
       this.menuItem.remove();
     }
-    updateUI(time) {
+  };
+
+  // src/game/components/Skills.ts
+  var Skills = class extends Component {
+    constructor(game, data) {
+      super(game, "skills");
+      this.game = game;
+      this.data = data;
+      __publicField(this, "activeSkillSlot");
+      __publicField(this, "activeSkill");
+      __publicField(this, "attackSkills", []);
+      __publicField(this, "attackSkillSlot");
+      __publicField(this, "buffSkillSlots", []);
+      __publicField(this, "buffSkills", []);
+      const attackSkillListContainer = querySelector("[data-attack-skill-list]", this.page);
+      const buffSkillListContainer = querySelector("[data-buff-skill-list]", this.page);
+      {
+        this.attackSkills = [...this.data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new AttackSkill(this, x));
+        this.attackSkillSlot = new AttackSkillSlot(this);
+        this.activeSkillSlot = this.attackSkillSlot;
+        this.attackSkillSlot.element.setAttribute("data-tab-target", "attack");
+        this.attackSkillSlot.element.addEventListener("click", () => {
+          this.activeSkillSlot = this.attackSkillSlot;
+          this.selectSkillListItem(attackSkillListContainer, this.activeSkillSlot.skill);
+        });
+        querySelector("[data-attack-skill-slot]", this.page).replaceChildren(this.attackSkillSlot.element);
+        for (const skill of this.attackSkills) {
+          game.player.stats.level.registerCallback(skill.data.levelReq, () => {
+            this.addSkillListItem(skill, attackSkillListContainer);
+          });
+        }
+      }
+      {
+        const buffSkillSlotContainer = querySelector(".s-skill-slots [data-buff-skill-slots]", this.page);
+        if (data.buffSkills) {
+          this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new BuffSkill(this, x));
+          for (const buffSkillData of data.buffSkills.skillSlots || []) {
+            game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
+              const slot = new BuffSkillSlot(this);
+              slot.element.setAttribute("data-tab-target", "buff");
+              slot.element.addEventListener("click", () => {
+                this.activeSkillSlot = slot;
+                this.selectSkillListItem(buffSkillListContainer, this.activeSkillSlot.skill);
+              });
+              buffSkillSlotContainer.appendChild(slot.element);
+              this.buffSkillSlots.push(slot);
+              highlightHTMLElement(this.menuItem, "click");
+              highlightHTMLElement(slot.element, "mouseover");
+            });
+          }
+          for (const skill of this.buffSkills) {
+            game.player.stats.level.registerCallback(skill.data.levelReq, () => {
+              this.addSkillListItem(skill, buffSkillListContainer);
+            });
+          }
+        }
+      }
+      {
+        const skillInfoContainer = querySelector("[data-skill-info]", this.page);
+        querySelector("[data-enable]", skillInfoContainer).addEventListener("click", () => {
+          if (this.activeSkill) {
+            this.activeSkillSlot.setSkill(this.activeSkill);
+            this.showSkill(this.activeSkill);
+          }
+        });
+        const triggerButton = querySelector("[data-trigger]", skillInfoContainer);
+        const removeButton = querySelector("[data-remove]", skillInfoContainer);
+        const automateButton = querySelector("[data-automate]", skillInfoContainer);
+        removeButton.addEventListener("click", () => this.removeSkillFromSlot(this.activeSkillSlot));
+        triggerButton.addEventListener("click", () => this.triggerSkill(this.activeSkillSlot));
+        automateButton.addEventListener("click", () => this.toggleAutoMode(this.activeSkillSlot));
+        if (this.data.buffSkills) {
+          this.game.visiblityObserver.registerLoop(this.page, (visible) => {
+            if (visible) {
+              triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+              removeButton.disabled = !this.activeSkillSlot.canRemove;
+            }
+          }, { intervalMilliseconds: 100 });
+        }
+      }
+      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
+        if (visible) {
+          this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+          for (const buffSkillSlot of this.buffSkillSlots) {
+            buffSkillSlot.updateProgressBar();
+          }
+        }
+      });
+      registerTabs(querySelector(".s-skill-slots", this.page), querySelector(".s-skill-list"));
+      this.attackSkillSlot.element.click();
+    }
+    selectSkillListItem(container, skill) {
+      const skillInfoContainer = querySelector("[data-skill-info]");
+      skillInfoContainer.classList.toggle("hidden", container.childElementCount === 0);
+      if (skill) {
+        this.activeSkill = skill;
+        const listItem = container.querySelector(`[data-name="${skill.data.name}"]`);
+        container.querySelectorAll("[data-name]").forEach((x) => x.classList.toggle("selected", x === listItem));
+        listItem == null ? void 0 : listItem.click();
+        this.showSkill(skill);
+      } else {
+        const element = container.querySelector("[data-name]:first-child");
+        element == null ? void 0 : element.click();
+      }
+    }
+    addSkillListItem(skill, container) {
+      const li = document.createElement("li");
+      li.classList.add("g-list-item");
+      li.setAttribute("data-name", skill.data.name);
+      li.textContent = skill.data.name;
+      li.addEventListener("click", () => {
+        this.selectSkillListItem(container, skill);
+      });
+      highlightHTMLElement(li, "mouseover");
+      highlightHTMLElement(this.menuItem, "mouseover");
+      container.appendChild(li);
+    }
+    showSkill(skill) {
+      const skillInfoContainer = querySelector("[data-skill-info]", this.page);
+      const createTableRow = (label, value) => {
+        const row = document.createElement("tr");
+        row.insertAdjacentHTML("beforeend", `<td>${label}</td>`);
+        row.insertAdjacentHTML("beforeend", `<td>${value}</td>`);
+        return row;
+      };
+      querySelector("header .title", skillInfoContainer).textContent = skill.data.name;
+      const table = querySelector("table", skillInfoContainer);
+      table.replaceChildren();
+      table.appendChild(createTableRow("Mana Cost", skill.data.manaCost.toFixed()));
+      if (skill instanceof AttackSkill) {
+        table.appendChild(createTableRow("Attack Speed", skill.data.attackSpeed.toFixed(2)));
+        table.appendChild(createTableRow("Base Damage", skill.data.baseDamageMultiplier.toFixed() + "%"));
+      } else if (skill instanceof BuffSkill) {
+        table.appendChild(createTableRow("Duration", skill.data.baseDuration.toFixed() + "s"));
+      }
+      if (skill.data.mods) {
+        const modElements = [];
+        for (const mod of skill.mods) {
+          const modElement = document.createElement("div");
+          modElement.classList.add("g-mod-desc");
+          modElement.textContent = mod.desc;
+          modElements.push(modElement);
+        }
+        querySelector(".s-mods", skillInfoContainer).replaceChildren(...modElements);
+      }
+      const enableButton = querySelector("[data-skill-info] [data-enable]", this.page);
+      const removeButton = querySelector("[data-skill-info] [data-remove]", this.page);
+      const triggerButton = querySelector("[data-skill-info] [data-trigger]", this.page);
+      const automateButton = querySelector("[data-skill-info] [data-automate]", this.page);
+      const hideExtraButtons = skill instanceof AttackSkill || this.activeSkillSlot.skill !== skill;
+      removeButton.classList.toggle("hidden", hideExtraButtons);
+      triggerButton.classList.toggle("hidden", hideExtraButtons);
+      automateButton.classList.toggle("hidden", hideExtraButtons);
+      enableButton.disabled = !this.activeSkillSlot.canEnable || [this.attackSkillSlot, ...this.buffSkillSlots].some((x) => x.skill === skill);
+      if (skill instanceof BuffSkill && this.activeSkillSlot instanceof BuffSkillSlot && this.activeSkillSlot.skill === skill) {
+        removeButton.disabled = !this.activeSkillSlot.canRemove;
+        triggerButton.disabled = !this.activeSkillSlot.canTrigger;
+        automateButton.disabled = !this.activeSkillSlot.canAutomate;
+        const automate = this.activeSkillSlot.automate;
+        automateButton.setAttribute("data-role", automate ? "confirm" : "cancel");
+      } else {
+        removeButton.disabled = true;
+        triggerButton.disabled = true;
+        automateButton.disabled = true;
+      }
+    }
+    triggerSkill(skillSlot) {
+      skillSlot.start();
+      if (skillSlot.skill) {
+        this.showSkill(skillSlot.skill);
+      }
+    }
+    removeSkillFromSlot(skillSlot) {
+      skillSlot.setSkill(void 0);
+      if (this.activeSkill) {
+        this.showSkill(this.activeSkill);
+      }
+    }
+    toggleAutoMode(skillSlot) {
+      skillSlot.toggleAutomate();
+      if (skillSlot.skill) {
+        this.showSkill(skillSlot.skill);
+      }
+    }
+    save(saveObj) {
+      var _a;
+      saveObj.skills = {
+        attackSkillName: ((_a = this.attackSkillSlot.skill) == null ? void 0 : _a.data.name) || "",
+        buffSkills: this.buffSkillSlots.filter((x) => x.skill).map((x, index) => {
+          var _a2;
+          return {
+            index,
+            name: ((_a2 = x.skill) == null ? void 0 : _a2.data.name) || "",
+            active: x.running,
+            automate: x.automate,
+            time: x.time
+          };
+        })
+      };
+    }
+  };
+  var BaseSkillSlot = class {
+    constructor() {
+      __publicField(this, "element");
+      __publicField(this, "skill");
+      __publicField(this, "progressBar");
+      this.element = this.createElement();
+      this.progressBar = querySelector("progress", this.element);
+    }
+    setSkill(skill) {
+      this.skill = skill;
+      this.element.querySelector("[data-skill-name]").textContent = (skill == null ? void 0 : skill.data.name) || "[Empty Slot]";
+    }
+    get hasSkill() {
+      return typeof this.skill !== "undefined";
+    }
+    get canRemove() {
+      return this.hasSkill;
+    }
+    get canTrigger() {
+      return false;
+    }
+    get canEnable() {
+      return false;
+    }
+    createElement() {
+      const li = document.createElement("li");
+      li.classList.add("s-skill-slot", "g-list-item");
+      li.insertAdjacentHTML("beforeend", "<div data-skill-name></div>");
+      {
+        const progressBar = document.createElement("progress");
+        progressBar.max = 1;
+        progressBar.value = 0;
+        li.appendChild(progressBar);
+      }
+      return li;
+    }
+  };
+  var AttackSkillSlot = class extends BaseSkillSlot {
+    constructor(skills) {
+      super();
+      this.skills = skills;
+      this.tryLoad();
+    }
+    get canEnable() {
+      return true;
+    }
+    setSkill(skill) {
+      var _a;
+      (_a = this.skill) == null ? void 0 : _a.removeModifiers();
+      super.setSkill(skill);
+      skill.applyModifiers();
+    }
+    updateProgressBar(attackProgressPct) {
+      this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
+    }
+    tryLoad() {
+      if (this.skills.game.saveObj.skills) {
+        const name2 = this.skills.game.saveObj.skills.attackSkillName;
+        const savedSkill = this.skills.attackSkills.find((x) => x.data.name === name2);
+        if (savedSkill) {
+          this.setSkill(savedSkill);
+          return;
+        }
+      }
+      if (!this.skills.attackSkills[0]) {
+        throw Error("no attack skill available");
+      }
+      this.setSkill(this.skills.attackSkills[0]);
+    }
+  };
+  var BuffSkillSlot = class extends BaseSkillSlot {
+    constructor(skills) {
+      super();
+      this.skills = skills;
+      __publicField(this, "_running", false);
+      __publicField(this, "_time", 0);
+      __publicField(this, "_duration", 0);
+      __publicField(this, "_automate", false);
+      __publicField(this, "player");
+      this.setSkill(void 0);
+      this.player = skills.game.player;
+      this.tryLoad();
+      highlightHTMLElement(skills.menuItem, "click");
+      highlightHTMLElement(this.element, "mouseover");
+    }
+    get canEnable() {
+      return !this.running;
+    }
+    get canRemove() {
+      return this.hasSkill && !this._running;
+    }
+    get canTrigger() {
+      return typeof this.skill !== "undefined" && !this.automate && !this._running && this.skills.game.player.stats.curMana.get() > this.skill.data.manaCost;
+    }
+    get canAutomate() {
+      return this.hasSkill;
+    }
+    get automate() {
+      return this._automate;
+    }
+    set automate(v) {
+      this._automate = v;
+      if (this._automate && !this._running) {
+      }
+    }
+    get running() {
+      return this._running;
+    }
+    get time() {
+      return this._time;
+    }
+    toggleAutomate() {
+      this._automate = !this._automate;
+      if (this._automate && !this._running) {
+        this.start();
+      }
+    }
+    setSkill(skill) {
+      var _a;
+      this.skill = skill;
+      this._automate = false;
+      querySelector("[data-skill-name]", this.element).textContent = ((_a = this.skill) == null ? void 0 : _a.data.name) || "[Empty Slot]";
+    }
+    updateProgressBar() {
+      if (!this._running) {
+        return;
+      }
+      this.progressBar.value = this._time / this._duration || 0;
+    }
+    start() {
+      if (!this.skill) {
+        return;
+      }
+      const loopEval = (mana) => {
+        if (!this.skill) {
+          return;
+        }
+        if (mana < this.skill.data.manaCost) {
+          return;
+        }
+        this.skills.game.player.stats.curMana.removeListener("change", loopEval);
+        this.player.stats.curMana.subtract(this.skill.data.manaCost);
+        this.loop();
+      };
+      this.skills.game.player.stats.curMana.addListener("change", loopEval);
+      loopEval(this.skills.game.player.stats.curMana.get());
+    }
+    loop() {
+      if (!this.skill) {
+        return;
+      }
+      const calcDuration = (multiplier) => {
+        const baseDuration = this.skill.data.baseDuration;
+        return baseDuration * multiplier;
+      };
+      this._duration = calcDuration(this.skills.game.player.stats.skillDurationMultiplier.get());
+      this._time = this._time > 0 ? this._time : this._duration;
+      this._running = true;
+      this.skills.game.player.stats.skillDurationMultiplier.addListener("change", calcDuration);
+      this.skill.applyModifiers();
+      const loopId = this.skills.game.gameLoop.subscribe((dt) => {
+        if (!this.skill) {
+          return;
+        }
+        if (this._time <= 0) {
+          this._time = 0;
+          this.skills.game.gameLoop.unsubscribe(loopId);
+          this.skills.game.player.stats.skillDurationMultiplier.removeListener("change", calcDuration);
+          this.stop();
+          return;
+        }
+        this._time -= dt;
+      });
+    }
+    stop() {
+      if (!this.skill) {
+        return;
+      }
+      this._running = false;
+      this.player.modDB.removeBySource(this.skill.sourceName);
+      this.progressBar.value = 0;
+      if (this === this.skills.activeSkillSlot) {
+        this.skills.showSkill(this.skill);
+      }
+      if (this._automate) {
+        this.start();
+        return;
+      }
+    }
+    tryLoad() {
+      var _a;
+      const savedSkillSlotData = (_a = this.skills.game.saveObj.skills) == null ? void 0 : _a.buffSkills.find((x) => x.index === this.skills.buffSkillSlots.length);
+      if (savedSkillSlotData) {
+        const skill = this.skills.buffSkills.find((x) => x.data.name === savedSkillSlotData.name);
+        if (skill) {
+          this.setSkill(skill);
+          this._time = savedSkillSlotData.time;
+          this._automate = savedSkillSlotData.automate;
+          if (savedSkillSlotData.active) {
+            this.loop();
+          }
+        }
+      }
+    }
+  };
+  var BaseSkill = class {
+    constructor(skills, data) {
+      this.skills = skills;
+      this.data = data;
+      __publicField(this, "_mods");
+      var _a;
+      this._mods = ((_a = data.mods) == null ? void 0 : _a.map((x) => new Modifier(x))) || [];
+    }
+    get sourceName() {
+      return `Skill/${this.data.name || "[error]"}`;
+    }
+    get mods() {
+      return this._mods;
+    }
+    removeModifiers() {
+      this.skills.game.player.modDB.removeBySource(this.sourceName);
+    }
+    applyModifiers() {
+      this.skills.game.player.modDB.add(this.mods.flatMap((x) => x.copy().stats), this.sourceName);
+    }
+  };
+  var AttackSkill = class extends BaseSkill {
+    constructor(skills, data) {
+      super(skills, data);
+      this.skills = skills;
+      this.data = data;
+    }
+    applyModifiers() {
+      const source = `Skill/${this.data.name}`;
+      this.skills.game.player.modDB.removeBySource(source);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "BaseDamageMultiplier", valueType: "Base", value: this.data.baseDamageMultiplier })], this.sourceName);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackSpeed", valueType: "Base", value: this.data.attackSpeed })], this.sourceName);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackManaCost", valueType: "Base", value: this.data.manaCost })], this.sourceName);
+      this.mods.forEach((x) => this.skills.game.player.modDB.add(x.stats, this.sourceName));
+    }
+  };
+  var BuffSkill = class extends BaseSkill {
+    constructor(skills, data) {
+      super(skills, data);
+      this.skills = skills;
+      this.data = data;
     }
   };
 
@@ -10592,26 +11047,26 @@
       __publicField(this, "activePreset");
       __publicField(this, "modal");
       var _a, _b;
-      this.modal = queryHTML(".p-game .p-items [data-preset-modal]", this.items.page);
-      queryHTML(".s-preset-container [data-new]", this.items.page).addEventListener("click", () => {
+      this.modal = querySelector(".p-game .p-items [data-preset-modal]", this.items.page);
+      querySelector(".s-preset-container [data-new]", this.items.page).addEventListener("click", () => {
         const preset = this.newPreset();
         this.editActivePreset();
         preset.element.click();
       });
-      queryHTML(".s-preset-container [data-edit]", this.items.page).addEventListener("click", () => this.editActivePreset());
-      queryHTML("[data-apply]", this.modal).addEventListener("click", () => {
+      querySelector(".s-preset-container [data-edit]", this.items.page).addEventListener("click", () => this.editActivePreset());
+      querySelector("[data-apply]", this.modal).addEventListener("click", () => {
         if (!this.activePreset) {
           return;
         }
         const newIds = [...this.modal.querySelectorAll("[data-craft-list] table [data-id]")].filter((x) => x.classList.contains("selected")).map((x) => x.getAttribute("data-id"));
         this.activePreset.ids = newIds;
-        const name = queryHTML("input[data-name]", this.modal).value;
-        if (name !== this.activePreset.name) {
-          this.activePreset.name = name;
+        const name2 = querySelector("input[data-name]", this.modal).value;
+        if (name2 !== this.activePreset.name) {
+          this.activePreset.name = name2;
         }
         this.selectPreset(this.activePreset);
       });
-      queryHTML("[data-delete]", this.modal).addEventListener("click", () => this.deleteActivePreset());
+      querySelector("[data-delete]", this.modal).addEventListener("click", () => this.deleteActivePreset());
       if ((_a = items.game.saveObj.items) == null ? void 0 : _a.craftPresets) {
         for (const savedPreset of (_b = items.game.saveObj.items) == null ? void 0 : _b.craftPresets) {
           this.newPreset(savedPreset.name, savedPreset.ids);
@@ -10620,13 +11075,13 @@
         this.newPreset("Default", items.data.craftList.map((x) => x.id));
       }
     }
-    newPreset(name = "New", ids = this.items.data.craftList.map((x) => x.id)) {
-      const preset = new CraftPreset(name, ids);
+    newPreset(name2 = "New", ids = this.items.data.craftList.map((x) => x.id)) {
+      const preset = new CraftPreset(name2, ids);
       preset.element.addEventListener("click", () => {
         this.presets.forEach((x) => x.element.classList.toggle("selected", x === preset));
         this.selectPreset(preset);
       });
-      queryHTML(".s-preset-container [data-preset-list]").appendChild(preset.element);
+      querySelector(".s-preset-container [data-preset-list]").appendChild(preset.element);
       this.presets.push(preset);
       preset.element.click();
       return preset;
@@ -10634,16 +11089,16 @@
     selectPreset(preset) {
       var _a;
       this.activePreset = preset;
-      this.items.populateCraftList((_a = this.activePreset) == null ? void 0 : _a.ids);
-      queryHTML(".s-preset-container [data-edit]", this.items.page).disabled = typeof this.activePreset === "undefined";
+      this.items.updateCraftList((_a = this.activePreset) == null ? void 0 : _a.ids);
+      querySelector(".s-preset-container [data-edit]", this.items.page).disabled = typeof this.activePreset === "undefined";
     }
     editActivePreset() {
       var _a;
       if (!this.activePreset) {
         return;
       }
-      const modal = queryHTML(".p-game .p-items [data-preset-modal]");
-      queryHTML("input[data-name]", modal).value = (_a = this.activePreset) == null ? void 0 : _a.name;
+      const modal = querySelector(".p-game .p-items [data-preset-modal]");
+      querySelector("input[data-name]", modal).value = (_a = this.activePreset) == null ? void 0 : _a.name;
       const filteredCraftList = this.items.data.craftList.filter((x) => x.levelReq <= this.items.game.player.stats.level.get());
       const rows = [];
       for (const craftData of filteredCraftList) {
@@ -10661,7 +11116,7 @@
         });
         rows.push(row);
       }
-      queryHTML("[data-craft-list] table tbody", modal).replaceChildren(...rows);
+      querySelector("[data-craft-list] table tbody", modal).replaceChildren(...rows);
       modal.showModal();
     }
     deleteActivePreset() {
@@ -10672,7 +11127,7 @@
       this.activePreset.element.remove();
       this.presets.splice(this.presets.indexOf(this.activePreset), 1);
       if (this.presets.length === 0) {
-        this.items.populateCraftList([]);
+        this.items.updateCraftList();
         this.selectPreset(void 0);
       } else {
         (_a = this.presets[0]) == null ? void 0 : _a.element.click();
@@ -10702,23 +11157,24 @@
   };
 
   // src/game/components/items/Items.ts
-  var mainMenuContainer = queryHTML(".p-game > menu");
   var Items = class extends Component {
     constructor(game, data) {
+      var _a;
       super(game, "items");
       this.game = game;
       this.data = data;
-      __publicField(this, "itemsPage", queryHTML(".p-game .p-items"));
-      __publicField(this, "itemListContainer", queryHTML("[data-item-list]", this.itemsPage));
-      __publicField(this, "itemModListContainer", queryHTML("[data-mod-list]", this.itemsPage));
-      __publicField(this, "itemCraftTableContainer", queryHTML(".s-craft-container [data-craft-list] table", this.itemsPage));
-      __publicField(this, "craftButton", queryHTML(".s-craft-container [data-craft-button]", this.itemsPage));
-      __publicField(this, "craftMessageElement", queryHTML("[data-craft-message]", this.itemsPage));
+      __publicField(this, "itemsPage", querySelector(".p-game .p-items"));
+      __publicField(this, "itemListContainer", querySelector("[data-item-list]", this.itemsPage));
+      __publicField(this, "itemModListContainer", querySelector("[data-mod-list]", this.itemsPage));
+      __publicField(this, "itemCraftTableContainer", querySelector(".s-craft-container [data-craft-list] table", this.itemsPage));
+      __publicField(this, "craftButton", querySelector(".s-craft-container [data-craft-button]", this.itemsPage));
+      __publicField(this, "craftMessageElement", querySelector("[data-craft-message]", this.itemsPage));
       __publicField(this, "items", []);
       __publicField(this, "activeItem");
       __publicField(this, "activeCraftId");
       __publicField(this, "modLists");
       __publicField(this, "presets");
+      this.presets = new CraftPresets(this);
       this.modLists = data.modLists.flatMap((group) => group.map((mod) => new ItemModifier(mod, group)));
       if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
         throw Error("No items available! There must be at least 1 item available");
@@ -10726,10 +11182,8 @@
       this.createItems();
       this.activeItem = this.items[0];
       this.activeItem.element.click();
-      queryHTML('[data-tab-target="items"]', mainMenuContainer).classList.remove("hidden");
-      game.player.stats.level.addListener("change", () => this.updateCraftList());
-      this.craftButton.addEventListener("click", () => this.performCraft());
-      this.presets = new CraftPresets(this);
+      this.createCraftListItems(data.craftList);
+      this.updateCraftList((_a = this.presets.activePreset) == null ? void 0 : _a.ids);
       this.game.player.stats.gold.addListener("change", () => {
         if (this.page.classList.contains("hidden")) {
           return;
@@ -10738,13 +11192,18 @@
           this.updateCraftButton();
         }
       });
+      game.player.stats.level.addListener("change", () => {
+        var _a2;
+        return this.updateCraftList((_a2 = this.presets.activePreset) == null ? void 0 : _a2.ids);
+      });
+      this.craftButton.addEventListener("click", () => this.performCraft());
     }
     save(saveObj) {
       saveObj.items = {
         items: this.items.map((item) => ({
           name: item.name,
           modList: item.mods.map((mod) => ({
-            desc: mod.template.desc,
+            text: mod.text,
             values: mod.stats.map((x) => x.value)
           }))
         })),
@@ -10776,38 +11235,41 @@
           const item = new Item(this, itemData.name);
           this.items.push(item);
           this.itemListContainer.appendChild(item.element);
+          highlightHTMLElement(this.menuItem, "click");
+          highlightHTMLElement(item.element, "mouseover");
         });
       }
     }
-    populateCraftList(ids = []) {
+    createCraftListItems(craftDataList) {
       var _a;
       const rows = [];
-      for (const craftData of this.data.craftList.filter((x) => ids.includes(x.id))) {
+      for (const craftData of craftDataList) {
+        const { cost, id, levelReq } = craftData;
         const tr = document.createElement("tr");
-        tr.classList.add("g-list-item");
-        tr.setAttribute("data-id", craftData.id);
-        tr.setAttribute("data-cost", craftData.cost.toFixed());
-        const label = this.craftDescToHtml(craftData.id);
-        tr.insertAdjacentHTML("beforeend", `<tr><td>${label}</td><td class="g-gold" data-cost>${craftData.cost}</td></tr>`);
+        tr.classList.add("g-list-item", "hidden");
+        tr.setAttribute("data-id", id);
+        tr.setAttribute("data-cost", cost.toFixed());
+        const label = this.craftDescToHtml(id);
+        tr.insertAdjacentHTML("beforeend", `<tr><td>${label}</td><td class="g-gold" data-cost>${cost}</td></tr>`);
         tr.addEventListener("click", () => {
           rows.forEach((x) => x.classList.toggle("selected", x === tr));
-          this.activeCraftId = craftData.id;
+          this.activeCraftId = id;
           this.updateCraftButton();
+        });
+        this.game.player.stats.level.registerCallback(levelReq, () => {
+          tr.setAttribute("data-enabled", "");
+          highlightHTMLElement(this.menuItem, "click");
+          highlightHTMLElement(tr, "mouseover");
         });
         rows.push(tr);
       }
       this.itemCraftTableContainer.replaceChildren(...rows);
-      this.updateCraftList();
-      (_a = rows.filter((x) => !x.classList.contains("hidden"))[0]) == null ? void 0 : _a.click();
+      (_a = rows[0]) == null ? void 0 : _a.click();
     }
-    updateCraftList() {
-      this.itemCraftTableContainer.querySelectorAll("[data-id]").forEach((x) => {
+    updateCraftList(ids = []) {
+      this.itemCraftTableContainer.querySelectorAll(`[data-enabled][data-id]`).forEach((x) => {
         const id = x.getAttribute("data-id");
-        const craftData = this.data.craftList.find((x2) => x2.id === id);
-        if (!craftData) {
-          return;
-        }
-        x.classList.toggle("hidden", (craftData == null ? void 0 : craftData.levelReq) > this.game.player.stats.level.get());
+        x.classList.toggle("hidden", !ids.includes(id));
       });
     }
     generateCraftData() {
@@ -10821,7 +11283,7 @@
         if (!this.activeCraftId) {
           return "No Craft Selected";
         }
-        const costAttr = queryHTML(`[data-id="${this.activeCraftId}"]`).getAttribute("data-cost");
+        const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute("data-cost");
         const cost = Number(costAttr);
         if (cost > this.game.player.stats.gold.get()) {
           return "Not Enough Gold";
@@ -10867,31 +11329,13 @@
     }
   };
   var Item = class {
-    constructor(items, name) {
+    constructor(items, name2) {
       this.items = items;
-      this.name = name;
+      this.name = name2;
       __publicField(this, "element");
       __publicField(this, "_mods", []);
-      var _a, _b;
       this.element = this.createElement();
-      const savedItem = (_b = (_a = items.game.saveObj.items) == null ? void 0 : _a.items) == null ? void 0 : _b.find((x) => x.name === name);
-      if (savedItem) {
-        const mods = savedItem.modList.map((savedMod) => {
-          var _a2;
-          const mod = (_a2 = items.modLists.find((x) => x.template.desc === savedMod.desc)) == null ? void 0 : _a2.copy();
-          if (!mod) {
-            return;
-          }
-          savedMod.values.forEach((v, i) => {
-            const statMod = mod.stats[i];
-            if (statMod) {
-              statMod.value = v;
-            }
-          });
-          return mod;
-        }).filter((x) => !!x);
-        this.mods = mods;
-      }
+      this.tryLoad();
     }
     get mods() {
       return this._mods;
@@ -10911,6 +11355,31 @@
         this.items.items.forEach((x) => x.element.classList.toggle("selected", x === this));
       });
       return li;
+    }
+    tryLoad() {
+      var _a, _b;
+      const savedItem = (_b = (_a = this.items.game.saveObj.items) == null ? void 0 : _a.items) == null ? void 0 : _b.find((x) => x.name === this.name);
+      if (!savedItem) {
+        return;
+      }
+      if (savedItem) {
+        const mods = savedItem.modList.map((savedMod) => {
+          var _a2;
+          const mod = (_a2 = this.items.modLists.find((x) => x.text === savedMod.text)) == null ? void 0 : _a2.copy();
+          if (!mod || savedMod.values.length !== mod.stats.length) {
+            console.error("invalid saved mod:", savedMod);
+            return;
+          }
+          savedMod.values.forEach((v, i) => {
+            const statMod = mod.stats[i];
+            if (statMod) {
+              statMod.value = v;
+            }
+          });
+          return mod;
+        }).filter((x) => !!x);
+        this.mods = mods;
+      }
     }
   };
   var ItemModifier = class extends Modifier {
@@ -10939,6 +11408,8 @@
       this.game = game;
       this.data = data;
       __publicField(this, "passives", []);
+      __publicField(this, "passivesListContainer");
+      this.passivesListContainer = querySelector(".s-passive-list table", this.page);
       {
         for (const passiveListData of data.passiveLists) {
           passiveListData.sort((a, b) => a.levelReq - b.levelReq);
@@ -10949,15 +11420,21 @@
               this.updatePoints();
               this.updatePassiveList();
             });
+            this.game.player.stats.level.registerCallback(passiveData.levelReq, () => {
+              passive.element.classList.remove("hidden");
+              highlightHTMLElement(this.menuItem, "click");
+              highlightHTMLElement(passive.element, "mouseover");
+            });
             this.passives.push(passive);
           }
-          queryHTML(".s-passive-list table", this.page).append(...this.passives.map((x) => x.element));
+          querySelector(".s-passive-list table", this.page).append(...this.passives.map((x) => x.element));
         }
       }
       this.game.player.stats.level.addListener("change", () => {
         this.updatePoints();
         this.updatePassiveList();
       });
+      querySelector("[data-clear]", this.page).addEventListener("click", () => this.clearPassives());
       this.updatePoints();
       this.updatePassiveList();
     }
@@ -10966,6 +11443,11 @@
     }
     get curPoints() {
       return this.maxPoints - this.passives.filter((x) => x.assigned).reduce((a, c) => a += c.data.points, 0);
+    }
+    clearPassives() {
+      this.passives.forEach((x) => x.assigned = false);
+      this.updatePassiveList();
+      this.updatePoints();
     }
     save(saveObj) {
       saveObj.passives = {
@@ -10976,13 +11458,12 @@
       };
     }
     updatePoints() {
-      queryHTML(".p-game .p-passives [data-cur-points]").textContent = this.curPoints.toFixed();
-      queryHTML(".p-game .p-passives [data-max-points]").textContent = this.maxPoints.toFixed();
+      querySelector(".p-game .p-passives [data-cur-points]").textContent = this.curPoints.toFixed();
+      querySelector(".p-game .p-passives [data-max-points]").textContent = this.maxPoints.toFixed();
     }
     updatePassiveList() {
       for (const passive of this.passives) {
         const { element, assigned } = passive;
-        element.classList.toggle("hidden", passive.data.levelReq > this.game.player.stats.level.get());
         element.toggleAttribute("disabled", !passive.assigned && this.curPoints < passive.data.points);
         element.classList.toggle("selected", assigned);
       }
@@ -10999,6 +11480,7 @@
       var _a, _b;
       this.mod = new Modifier(data.mod);
       this.element = this.createElement();
+      highlightHTMLElement(this.element, "mouseover");
       passives.game.player.stats.level.registerCallback(data.levelReq, () => {
         this.element.classList.remove("hidden");
       });
@@ -11027,7 +11509,7 @@
     }
     createElement() {
       const row = document.createElement("tr");
-      row.classList.add("g-list-item");
+      row.classList.add("g-list-item", "hidden");
       row.insertAdjacentHTML("beforeend", `<td>${this.mod.desc}</td>`);
       row.insertAdjacentHTML("beforeend", `<td>${this.data.points}</td>`);
       return row;
@@ -11102,15 +11584,13 @@
         this.achievements.forEach((x) => {
           x.tryCompletion();
         });
-      });
-      queryHTML(".p-game .p-achievements ul").append(...this.achievements.map((x) => x.element));
-      queryHTML('.p-game > menu [data-tab-target="achievements"]').classList.remove("hidden");
-    }
-    updateUI(time) {
-      if (time - this.updateUITime > 1) {
-        this.achievements.forEach((x) => x.updateLabel());
-        this.updateUITime = time;
-      }
+      }, { intervalMilliseconds: 1e3 });
+      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
+        if (visible) {
+          this.achievements.forEach((x) => x.updateLabel());
+        }
+      }, { intervalMilliseconds: 1e3 });
+      querySelector(".p-game .p-achievements ul").append(...this.achievements.map((x) => x.element));
     }
     save(saveObj) {
     }
@@ -11124,21 +11604,30 @@
       __publicField(this, "completed", false);
       this.element = this.createElement();
       this.task = new Task(achievements.game, data.description);
+      this.task.startValue = 0;
     }
     get taskCompleted() {
       return this.task.completed;
     }
     tryCompletion() {
-      if (!this.taskCompleted || this.completed || !this.data.modList) {
+      if (!this.taskCompleted || this.completed) {
         return;
       }
+      if (this.data.modList) {
+        const modifiers = this.data.modList.flatMap((x) => new Modifier(x).stats);
+        const source = `Achievement/${this.data.description}`;
+        this.achievements.game.player.modDB.add(modifiers, source);
+      }
+      highlightHTMLElement(this.achievements.menuItem, "click");
+      highlightHTMLElement(this.element, "mouseover");
+      this.updateLabel();
       this.completed = true;
-      const modifiers = this.data.modList.flatMap((x) => new Modifier(x).stats);
-      const source = `Achievement/${this.data.description}`;
-      this.achievements.game.player.modDB.add(modifiers, source);
     }
     updateLabel() {
-      const label = queryHTML("[data-label]", this.element);
+      if (this.completed) {
+        return;
+      }
+      const label = querySelector("[data-label]", this.element);
       const descElement = document.createElement("span");
       descElement.textContent = this.task.textData.labelText + " ";
       descElement.setAttribute("data-desc", "");
@@ -11182,7 +11671,7 @@
       this.game = game;
       this.data = data;
       __publicField(this, "slots", []);
-      __publicField(this, "missionsListContainer", queryHTML("ul[data-mission-list]", this.page));
+      __publicField(this, "missionsListContainer", querySelector("ul[data-mission-list]", this.page));
       for (const slotData of data.slots) {
         game.player.stats.level.registerCallback(slotData.levelReq, () => {
           const slot = new MissionSlot(this, slotData.cost);
@@ -11193,13 +11682,12 @@
       game.gameLoop.subscribe(() => {
         this.slots.forEach((x) => x.tryCompletion());
       }, { intervalMilliseconds: 1e3 });
-      queryHTML('.p-game > menu [data-tab-target="missions"]').classList.remove("hidden");
-    }
-    updateUI(time) {
-      if (time - this.updateUITime > 1) {
-        this.slots.forEach((x) => x.updateLabel());
-        this.updateUITime = time;
-      }
+      game.visiblityObserver.registerLoop(this.page, (visible) => {
+        if (visible) {
+          this.slots.forEach((x) => x.updateLabel());
+        }
+      }, { intervalMilliseconds: 1e3 });
+      querySelector('.p-game > menu [data-tab-target="missions"]').classList.remove("hidden");
     }
     save(saveObj) {
       saveObj.missions = (() => {
@@ -11261,6 +11749,8 @@
         return;
       }
       this.completed = true;
+      highlightHTMLElement(this.missions.menuItem, "click");
+      highlightHTMLElement(this.element, "mouseover");
       this.setNewButton();
       this.setClaimButton(true);
     }
@@ -11268,7 +11758,7 @@
       if (this._task) {
         return;
       }
-      queryHTML('[data-trigger="buy"]', this._element).remove();
+      querySelector('[data-trigger="buy"]', this._element).remove();
       const buttonClaim = document.createElement("button");
       buttonClaim.classList.add("g-button");
       buttonClaim.setAttribute("data-trigger", "claim");
@@ -11335,7 +11825,7 @@
       if (!this._task) {
         return;
       }
-      const label = queryHTML("[data-label]", this._element);
+      const label = querySelector("[data-label]", this._element);
       const descElement = document.createElement("span");
       descElement.textContent = this._task.textData.labelText + " ";
       descElement.setAttribute("data-desc", "");
@@ -11353,16 +11843,16 @@
       if (!this._missionData) {
         return;
       }
-      const element = queryHTML('[data-trigger="claim"]', this._element);
-      queryHTML("[data-cost]", element).textContent = this._missionData.goldAmount.toFixed();
+      const element = querySelector('[data-trigger="claim"]', this._element);
+      querySelector("[data-cost]", element).textContent = this._missionData.goldAmount.toFixed();
       element.disabled = !enabled;
     }
     setNewButton() {
       if (!this._missionData || !this._task) {
         return;
       }
-      const element = queryHTML('[data-trigger="new"]', this._element);
-      queryHTML("[data-cost]", element).textContent = this.newMissionCost.toFixed();
+      const element = querySelector('[data-trigger="new"]', this._element);
+      querySelector("[data-cost]", element).textContent = this.newMissionCost.toFixed();
       element.disabled = this._task.completed || this.missions.game.player.stats.gold.get() < this.newMissionCost;
     }
     createElement() {
@@ -11389,541 +11879,100 @@
     }
   };
 
-  // src/utils/saveManager.ts
-  var import_localforage = __toESM(require_localforage(), 1);
-  var saveManager_default = { save, load };
-  async function save(type, object) {
-    try {
-      switch (type) {
-        case "Game":
-          return await saveBlob("ts-game", object);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  async function load(type) {
-    try {
-      switch (type) {
-        case "Game":
-          const blob = await loadBlob("ts-game");
-          if (blob) {
-            return new Map(Object.entries(blob));
-          }
-          return null;
-        default:
-          return null;
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  async function saveBlob(key, object) {
-    const str = window.btoa(JSON.stringify(object));
-    const blob = new Blob([str], { type: "text/plain" });
-    return await import_localforage.default.setItem(key, blob);
-  }
-  async function loadBlob(key) {
-    const blob = await import_localforage.default.getItem(key);
-    if (!blob) {
-      return blob;
-    }
-    const str = await blob.text();
-    return JSON.parse(window.atob(str));
-  }
+  // src/webComponents/html/skills.html
+  var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <h3 class="title"></h3>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-remove>Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-attack-skill-list data-tab-content="attack"></ul>\n        <ul data-buff-skill-list data-tab-content="buff"></ul>\n    </div>\n\n</div>';
 
-  // src/game/Settings.ts
-  var Settings = class {
-    constructor(game) {
-      this.game = game;
-      __publicField(this, "deleteSaveButton", queryHTML(".p-settings [data-delete-save]"));
-      this.deleteSaveButton.addEventListener("click", this.openDeleteSaveModal.bind(this));
-    }
-    openDeleteSaveModal() {
-      const modal = queryHTML("body > generic-modal");
-      modal.init({
-        title: "Delete Save",
-        body: "Are you sure?",
-        buttons: [{ label: "Yes", type: "confirm" }, { label: "No", type: "cancel" }],
-        footerText: "This will delete your save file permanently",
-        callback: async (confirm) => {
-          if (confirm) {
-            await this.game.deleteSave();
-            this.game.home.init();
-          }
-        }
-      });
-      modal.openModal();
-    }
-  };
+  // src/webComponents/html/passives.html
+  var passives_default = '<div class="p-passives hidden" data-tab-content="passives">\n    <header>\n        <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>\n        <button class="g-button" data-clear>Clear</button>\n    </header>\n    <div class="s-passive-list">\n        <table>\n\n        </table>\n    </div>\n</div>';
 
-  // src/game/components/Skills.ts
-  var Skills = class extends Component {
-    constructor(game, data) {
-      super(game, "skills");
-      this.game = game;
-      this.data = data;
-      __publicField(this, "activeSkillSlot");
-      __publicField(this, "activeSkill");
-      __publicField(this, "attackSkills", []);
-      __publicField(this, "attackSkillSlot");
-      __publicField(this, "buffSkillSlots", []);
-      __publicField(this, "buffSkills", []);
-      {
-        this.attackSkills = [...data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new AttackSkill(this, x));
-        this.attackSkillSlot = new AttackSkillSlot(this);
-        this.activeSkillSlot = this.attackSkillSlot;
-        this.attackSkillSlot.slotLabelElement.addEventListener("click", () => {
-          this.selectSkillSlot(this.attackSkillSlot, this.attackSkills);
-        });
-        game.gameLoop.subscribeAnim(() => {
-          if (this.page.classList.contains("hidden")) {
-            return;
-          }
-          this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
-        });
-        queryHTML("[data-attack-skill-slot]", this.page).replaceChildren(this.attackSkillSlot.element);
-        queryHTML("[data-skill-name]", this.attackSkillSlot.element).click();
-      }
-      {
-        const buffSkillSlotContainer = queryHTML(".s-skill-slots [data-buff-skill-slots]", this.page);
-        buffSkillSlotContainer.replaceChildren();
-        if (data.buffSkills) {
-          this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new BuffSkill(this, x));
-          for (const buffSkillData of data.buffSkills.skillSlots || []) {
-            game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
-              const slot = new BuffSkillSlot(this);
-              slot.slotLabelElement.addEventListener("click", () => {
-                this.selectSkillSlot(slot, this.buffSkills);
-              });
-              buffSkillSlotContainer.appendChild(slot.element);
-              this.buffSkillSlots.push(slot);
-            });
-          }
-        }
-      }
-      {
-        const skillInfoContainer = queryHTML("[data-skill-info]", this.page);
-        queryHTML("[data-enable]", skillInfoContainer).addEventListener("click", () => {
-          if (this.activeSkill) {
-            this.enableSkill(this.activeSkillSlot, this.activeSkill);
-          }
-        });
-        const triggerButton = queryHTML("[data-trigger]", skillInfoContainer);
-        const removeButton = queryHTML("[data-remove]", skillInfoContainer);
-        const automateButton = queryHTML("[data-automate]", skillInfoContainer);
-        removeButton.addEventListener("click", () => this.removeSkillFromSlot(this.activeSkillSlot));
-        triggerButton.addEventListener("click", () => this.triggerSkill(this.activeSkillSlot));
-        automateButton.addEventListener("click", () => this.toggleAutoMode(this.activeSkillSlot));
-        game.gameLoop.subscribeAnim(() => {
-          if (this.page.classList.contains("hidden")) {
-            return;
-          }
-          triggerButton.disabled = !this.activeSkillSlot.canTrigger;
-          removeButton.disabled = !this.activeSkillSlot.canRemove;
-        }, { intervalMilliseconds: 100 });
-      }
-    }
-    updateUI() {
-      this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
-      this.buffSkillSlots.forEach((x) => x.updateProgressBar());
-    }
-    selectSkillSlot(skillSlot, skillList) {
-      this.activeSkillSlot = skillSlot;
-      [this.attackSkillSlot, ...this.buffSkillSlots].forEach((slot) => slot.slotLabelElement.classList.toggle("selected", slot === skillSlot));
-      this.populateSkillList(skillSlot, skillList);
-    }
-    populateSkillList(skillSlot, skillList) {
-      var _a, _b, _c;
-      const skillListContainer = queryHTML(".p-game .p-skills .s-skill-list ul", this.page);
-      const elements = [];
-      for (const skill of skillList) {
-        const li = document.createElement("li");
-        li.classList.add("g-list-item");
-        li.classList.toggle("selected", skill.data.name === ((_a = skillSlot.skill) == null ? void 0 : _a.data.name));
-        li.setAttribute("data-name", skill.data.name);
-        li.textContent = skill.data.name;
-        li.addEventListener("click", () => {
-          this.activeSkill = skill;
-          this.showSkill(skill);
-          elements.forEach((x) => x.classList.toggle("selected", x === li));
-        });
-        elements.push(li);
-      }
-      skillListContainer.replaceChildren(...elements);
-      if (elements.length === 0) {
-        skillListContainer.textContent = "No skills available";
-        return;
-      }
-      if (skillSlot.skill) {
-        (_b = elements.find((x) => {
-          var _a2;
-          return x.getAttribute("data-name") === ((_a2 = skillSlot.skill) == null ? void 0 : _a2.data.name);
-        })) == null ? void 0 : _b.click();
-      } else {
-        (_c = elements[0]) == null ? void 0 : _c.click();
-      }
-    }
-    showSkill(skill) {
-      const skillInfoContainer = queryHTML("[data-skill-info]", this.page);
-      const createTableRow = (label, value) => {
-        const row = document.createElement("tr");
-        row.insertAdjacentHTML("beforeend", `<td>${label}</td>`);
-        row.insertAdjacentHTML("beforeend", `<td>${value}</td>`);
-        return row;
-      };
-      queryHTML("header .title", skillInfoContainer).textContent = skill.data.name;
-      const table = queryHTML("table", skillInfoContainer);
-      table.replaceChildren();
-      table.appendChild(createTableRow("Mana Cost", skill.data.manaCost.toFixed()));
-      if (skill instanceof AttackSkill) {
-        table.appendChild(createTableRow("Attack Speed", skill.data.attackSpeed.toFixed(2)));
-        table.appendChild(createTableRow("Base Damage", skill.data.baseDamageMultiplier.toFixed() + "%"));
-      } else if (skill instanceof BuffSkill) {
-        table.appendChild(createTableRow("Duration", skill.data.baseDuration.toFixed() + "s"));
-      }
-      if (skill.data.mods) {
-        const modElements = [];
-        for (const mod of skill.mods) {
-          const modElement = document.createElement("div");
-          modElement.classList.add("g-mod-desc");
-          modElement.textContent = mod.desc;
-          modElements.push(modElement);
-        }
-        queryHTML(".s-mods", skillInfoContainer).replaceChildren(...modElements);
-      }
-      const enableButton = queryHTML("[data-skill-info] [data-enable]", this.page);
-      const removeButton = queryHTML("[data-skill-info] [data-remove]", this.page);
-      const triggerButton = queryHTML("[data-skill-info] [data-trigger]", this.page);
-      const automateButton = queryHTML("[data-skill-info] [data-automate]", this.page);
-      removeButton.classList.toggle("hidden", skill instanceof AttackSkill);
-      triggerButton.classList.toggle("hidden", skill instanceof AttackSkill);
-      automateButton.classList.toggle("hidden", skill instanceof AttackSkill);
-      enableButton.disabled = !this.activeSkillSlot.canEnable || [this.attackSkillSlot, ...this.buffSkillSlots].some((x) => x.skill === skill);
-      if (skill instanceof BuffSkill && this.activeSkillSlot instanceof BuffSkillSlot && this.activeSkillSlot.skill === skill) {
-        removeButton.disabled = !this.activeSkillSlot.canRemove;
-        triggerButton.disabled = !this.activeSkillSlot.canTrigger;
-        automateButton.disabled = !this.activeSkillSlot.canAutomate;
-        const automate = this.activeSkillSlot.automate;
-        automateButton.setAttribute("data-role", automate ? "confirm" : "cancel");
-      } else {
-        removeButton.disabled = true;
-        triggerButton.disabled = true;
-        automateButton.disabled = true;
-      }
-    }
-    enableSkill(skillSlot, skill) {
-      skillSlot.setSkill(skill);
-      this.showSkill(skill);
-    }
-    triggerSkill(skillSlot) {
-      skillSlot.start();
-      if (skillSlot.skill) {
-        this.showSkill(skillSlot.skill);
-      }
-    }
-    removeSkillFromSlot(skillSlot) {
-      skillSlot.setSkill(void 0);
-      if (this.activeSkill) {
-        this.showSkill(this.activeSkill);
-      }
-    }
-    toggleAutoMode(skillSlot) {
-      skillSlot.toggleAutomate();
-      if (skillSlot.skill) {
-        this.showSkill(skillSlot.skill);
-      }
-    }
-    save(saveObj) {
-      var _a;
-      saveObj.skills = {
-        attackSkillName: ((_a = this.attackSkillSlot.skill) == null ? void 0 : _a.data.name) || "",
-        buffSkills: this.buffSkillSlots.filter((x) => x.skill).map((x, index) => {
-          var _a2;
-          return {
-            index,
-            name: ((_a2 = x.skill) == null ? void 0 : _a2.data.name) || "",
-            active: x.running,
-            automate: x.automate,
-            time: x.time
-          };
-        })
-      };
+  // src/webComponents/html/items.html
+  var items_default = '<div class="p-items hidden" data-tab-content="items">\n    <menu class="g-list-v" data-item-list></menu>\n    <ul data-mod-list></ul>\n    <div class="s-preset-container">\n        <menu class="g-list-h">\n            <button class="g-button" data-new>New</button>\n            <button class="g-button" data-edit>Edit</button>\n        </menu>\n        <menu class="g-list-v" data-preset-list></menu>\n    </div>\n    <div class="s-craft-container">\n        <div data-craft-list>\n            <table></table>\n        </div>\n        <button class="g-button" data-craft-button data-role="confirm">Craft</button>\n        <div data-craft-message></div>\n    </div>\n    <dialog data-modal data-preset-modal>\n        <form method="dialog">\n            <h2>Craft Preset</h2>\n            <input type="text" data-name>\n            <div class="g-list-v" data-craft-list>\n                <table>\n                    <thead>\n                        <tr>\n                            <td></td>\n                            <td>Level</td>\n                            <td>Cost</td>\n                        </tr>\n                    </thead>\n                    <tbody></tbody>\n                </table>\n            </div>\n            <footer>\n                <input class="g-button" type="submit" value="Apply" data-apply>\n                <input class="g-button" type="submit" value="Cancel" data-cancel>\n                <input class="g-button" type="submit" value="Delete" data-cancel data-delete>\n            </footer>\n        </form>\n    </dialog>\n</div>';
+
+  // src/webComponents/html/missions.html
+  var missions_default = '<div class="p-missions hidden" data-tab-content="missions">\n    <ul data-mission-list></ul>\n</div>';
+
+  // src/webComponents/html/achievements.html
+  var achievements_default = '<div class="p-achievements hidden" data-tab-content="achievements">\n    <ul></ul>\n</div>';
+
+  // src/game/components/loader.ts
+  var componentConfigs = {
+    skills: {
+      constr: Skills,
+      html: skills_default,
+      label: "Skills"
+    },
+    passives: {
+      constr: Passives,
+      html: passives_default,
+      label: "Passives"
+    },
+    items: {
+      constr: Items,
+      html: items_default,
+      label: "Items"
+    },
+    missions: {
+      constr: Missions,
+      html: missions_default,
+      label: "Missions"
+    },
+    achievements: {
+      constr: Achievements,
+      html: achievements_default,
+      label: "Achievements"
     }
   };
-  var BaseSkillSlot = class {
-    constructor() {
-      __publicField(this, "element");
-      __publicField(this, "skill");
-      __publicField(this, "progressBar");
-      this.element = this.createElement();
-      this.progressBar = queryHTML("progress", this.element);
+  function loadComponent(game, key) {
+    if (!game.config.components) {
+      throw Error();
     }
-    setSkill(skill) {
-      this.skill = skill;
-      this.slotLabelElement.textContent = (skill == null ? void 0 : skill.data.name) || "[Empty Slot]";
+    const gamePage = querySelector(".p-game");
+    const menuContainer = querySelector("[data-main-menu] .s-components", gamePage);
+    const mainView = querySelector("[data-main-view]", gamePage);
+    const { constr, html, label } = componentConfigs[key];
+    const page = new DOMParser().parseFromString(html, "text/html").querySelector(`.p-${key}`);
+    if (!page || !(page instanceof HTMLElement)) {
+      throw Error(`invalid html of component: ${name}`);
     }
-    get hasSkill() {
-      return typeof this.skill !== "undefined";
-    }
-    get canRemove() {
-      return this.hasSkill;
-    }
-    get slotLabelElement() {
-      return queryHTML("[data-skill-name]", this.element);
-    }
-    get canTrigger() {
-      return false;
-    }
-    get canEnable() {
-      return false;
-    }
-    createElement() {
-      const li = document.createElement("li");
-      li.classList.add("s-skill-slot");
-      li.insertAdjacentHTML("beforeend", '<div class="g-list-item" data-skill-name></div>');
-      {
-        const progressBar = document.createElement("progress");
-        progressBar.max = 1;
-        progressBar.value = 0;
-        li.appendChild(progressBar);
-      }
-      return li;
-    }
-  };
-  var AttackSkillSlot = class extends BaseSkillSlot {
-    constructor(skills) {
-      super();
-      this.skills = skills;
-      this.tryLoad();
-    }
-    get canEnable() {
-      return true;
-    }
-    setSkill(skill) {
-      var _a;
-      (_a = this.skill) == null ? void 0 : _a.removeModifiers();
-      super.setSkill(skill);
-      skill.applyModifiers();
-    }
-    updateProgressBar(attackProgressPct) {
-      this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
-    }
-    tryLoad() {
-      if (this.skills.game.saveObj.skills) {
-        const name = this.skills.game.saveObj.skills.attackSkillName;
-        const savedSkill = this.skills.attackSkills.find((x) => x.data.name === name);
-        if (savedSkill) {
-          this.setSkill(savedSkill);
-          return;
-        }
-      }
-      if (!this.skills.attackSkills[0]) {
-        throw Error("no attack skill available");
-      }
-      this.setSkill(this.skills.attackSkills[0]);
-    }
-  };
-  var BuffSkillSlot = class extends BaseSkillSlot {
-    constructor(skills) {
-      super();
-      this.skills = skills;
-      __publicField(this, "_running", false);
-      __publicField(this, "_time", 0);
-      __publicField(this, "_duration", 0);
-      __publicField(this, "_automate", false);
-      __publicField(this, "player");
-      this.setSkill(void 0);
-      this.player = skills.game.player;
-      this.tryLoad();
-    }
-    get canEnable() {
-      return !this.running;
-    }
-    get canRemove() {
-      return this.hasSkill && !this._running;
-    }
-    get canTrigger() {
-      return typeof this.skill !== "undefined" && !this.automate && !this._running && this.skills.game.player.stats.curMana.get() > this.skill.data.manaCost;
-    }
-    get canAutomate() {
-      return this.hasSkill;
-    }
-    get automate() {
-      return this._automate;
-    }
-    set automate(v) {
-      this._automate = v;
-      if (this._automate && !this._running) {
-      }
-    }
-    get running() {
-      return this._running;
-    }
-    get time() {
-      return this._time;
-    }
-    toggleAutomate() {
-      this._automate = !this._automate;
-      if (this._automate && !this._running) {
-        this.start();
-      }
-    }
-    setSkill(skill) {
-      var _a;
-      this.skill = skill;
-      queryHTML("[data-skill-name]", this.element).textContent = ((_a = this.skill) == null ? void 0 : _a.data.name) || "[Empty Slot]";
-    }
-    updateProgressBar() {
-      if (!this._running) {
-        return;
-      }
-      this.progressBar.value = this._time / this._duration || 0;
-    }
-    start() {
-      if (!this.skill) {
-        return;
-      }
-      const loopEval = (mana) => {
-        if (!this.skill) {
-          return;
-        }
-        if (mana < this.skill.data.manaCost) {
-          return;
-        }
-        this.skills.game.player.stats.curMana.removeListener("change", loopEval);
-        this.player.stats.curMana.subtract(this.skill.data.manaCost);
-        this.loop();
-      };
-      this.skills.game.player.stats.curMana.addListener("change", loopEval);
-      loopEval(this.skills.game.player.stats.curMana.get());
-    }
-    loop() {
-      if (!this.skill) {
-        return;
-      }
-      const calcDuration = (multiplier) => {
-        const baseDuration = this.skill.data.baseDuration;
-        return baseDuration * multiplier;
-      };
-      this._duration = calcDuration(this.skills.game.player.stats.skillDurationMultiplier.get());
-      this._time = this._time > 0 ? this._time : this._duration;
-      this._running = true;
-      this.skills.game.player.stats.skillDurationMultiplier.addListener("change", calcDuration);
-      this.skill.applyModifiers();
-      console.log(this._duration);
-      const loopId = this.skills.game.gameLoop.subscribe((dt) => {
-        if (!this.skill) {
-          return;
-        }
-        if (this._time <= 0) {
-          this._time = 0;
-          this.skills.game.gameLoop.unsubscribe(loopId);
-          this.skills.game.player.stats.skillDurationMultiplier.removeListener("change", calcDuration);
-          this.stop();
-          return;
-        }
-        this._time -= dt;
-      });
-    }
-    stop() {
-      if (!this.skill) {
-        return;
-      }
-      this._running = false;
-      this.player.modDB.removeBySource(this.skill.sourceName);
-      this.progressBar.value = 0;
-      if (this === this.skills.activeSkillSlot) {
-        this.skills.showSkill(this.skill);
-      }
-      if (this._automate) {
-        this.start();
-        return;
-      }
-    }
-    tryLoad() {
-      var _a;
-      const savedSkillSlotData = (_a = this.skills.game.saveObj.skills) == null ? void 0 : _a.buffSkills.find((x) => x.index === this.skills.buffSkillSlots.length);
-      if (savedSkillSlotData) {
-        const skill = this.skills.buffSkills.find((x) => x.data.name === savedSkillSlotData.name);
-        if (skill) {
-          this.setSkill(skill);
-          this._time = savedSkillSlotData.time;
-          this._automate = savedSkillSlotData.automate;
-          if (savedSkillSlotData.active) {
-            this.loop();
-          }
-        }
-      }
-    }
-  };
-  var BaseSkill = class {
-    constructor(skills, data) {
-      this.skills = skills;
-      this.data = data;
-      __publicField(this, "_mods");
-      var _a;
-      this._mods = ((_a = data.mods) == null ? void 0 : _a.map((x) => new Modifier(x))) || [];
-    }
-    get sourceName() {
-      return `Skill/${this.data.name || "[error]"}`;
-    }
-    get mods() {
-      return this._mods;
-    }
-    removeModifiers() {
-      this.skills.game.player.modDB.removeBySource(this.sourceName);
-    }
-    applyModifiers() {
-      this.skills.game.player.modDB.add(this.mods.flatMap((x) => x.copy().stats), this.sourceName);
-    }
-  };
-  var AttackSkill = class extends BaseSkill {
-    constructor(skills, data) {
-      super(skills, data);
-      this.skills = skills;
-      this.data = data;
-    }
-    applyModifiers() {
-      const source = `Skill/${this.data.name}`;
-      this.skills.game.player.modDB.removeBySource(source);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "BaseDamageMultiplier", valueType: "Base", value: this.data.baseDamageMultiplier })], this.sourceName);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackSpeed", valueType: "Base", value: this.data.attackSpeed })], this.sourceName);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackManaCost", valueType: "Base", value: this.data.manaCost })], this.sourceName);
-      this.mods.forEach((x) => this.skills.game.player.modDB.add(x.stats, this.sourceName));
-    }
-  };
-  var BuffSkill = class extends BaseSkill {
-    constructor(skills, data) {
-      super(skills, data);
-      this.skills = skills;
-      this.data = data;
-    }
-  };
+    mainView.appendChild(page);
+    const menuItem = document.createElement("li");
+    menuItem.textContent = label;
+    menuItem.classList.add("g-list-item");
+    menuItem.setAttribute("data-tab-target", key);
+    menuContainer.appendChild(menuItem);
+    const instance = new constr(game, game.config.components[key]);
+    return instance;
+  }
 
   // src/game/Game.ts
   var Game = class {
     constructor(home) {
       this.home = home;
-      __publicField(this, "gamePage", queryHTML(".p-game"));
+      __publicField(this, "page");
       __publicField(this, "gameLoop", new Loop());
       __publicField(this, "enemy");
       __publicField(this, "player");
       __publicField(this, "statistics");
-      __publicField(this, "settings");
+      __publicField(this, "visiblityObserver");
       __publicField(this, "componentsList", []);
       __publicField(this, "onSave", new EventEmitter());
       __publicField(this, "_config");
       __publicField(this, "_saveObj");
-      __publicField(this, "time", 0);
+      this.page = new DOMParser().parseFromString(game_default, "text/html").querySelector(".p-game");
+      querySelector(".p-home").after(this.page);
+      this.visiblityObserver = new VisibilityObserver(this.gameLoop);
+      this.page = querySelector(".p-game");
       this.enemy = new Enemy(this);
       this.player = new Player(this);
       this.statistics = new Statistics(this);
-      this.settings = new Settings(this);
       if (isLocalHost) {
         this.setupDevHelpers();
       }
-      registerTabs(queryHTML(":scope > menu", this.gamePage), queryHTML("[data-main-view]", this.gamePage));
+      querySelector('[data-target="home"]', this.page).addEventListener("click", () => {
+        this.page.classList.add("hidden");
+        querySelector(".p-home").classList.remove("hidden");
+      });
+      registerTabs(querySelector("[data-main-menu]", this.page), querySelector("[data-main-view]", this.page));
     }
     get config() {
       return this._config;
@@ -11938,14 +11987,14 @@
       this.enemy.init();
       this.player.init();
       this.statistics.init();
-      this.createComponents();
+      this.initComponents();
       this.gameLoop.subscribe(() => {
         this.statistics.statistics["Time Played"].add(1);
       }, { intervalMilliseconds: 1e3 });
-      this.gameLoop.subscribe((dt) => {
-        this.time += dt;
-        this.updateComponentsUI();
-      });
+      querySelector("[data-config-name]", this.page).textContent = this._config.meta.name;
+      this.gameLoop.subscribe(() => {
+        this.save();
+      }, { intervalMilliseconds: 1e3 * 60 });
       await this.setup();
       await this.save();
     }
@@ -11954,52 +12003,29 @@
       if (!isLocalHost) {
         this.gameLoop.start();
       }
-      queryHTML('[data-tab-target="combat"]', this.gamePage).click();
+      querySelector('[data-tab-target="combat"]', this.page).click();
       document.querySelectorAll("[data-highlight-notification]").forEach((x) => x.removeAttribute("data-highlight-notification"));
     }
     async dispose() {
       this.onSave.removeAllListeners();
       this.gameLoop.reset();
       this.disposeComponents();
+      this.visiblityObserver.disconnectAll();
     }
-    createComponents() {
+    initComponents() {
+      const menuContainer = querySelector("[data-main-menu] .s-components", this.page);
+      menuContainer.replaceChildren();
       if (!this.config.components) {
         return;
       }
-      const keys = Object.keys(this.config.components);
-      const gameElement = queryHTML("game-element");
-      gameElement.init(keys);
-      const entries = Object.entries(this.config.components);
-      const initComponent = (entry) => {
-        const name = entry[0];
-        queryHTML(`.p-game > menu [data-tab-target="${name}"]`).classList.remove("hidden");
-        let component = void 0;
-        switch (name) {
-          case "skills":
-            component = new Skills(this, entry[1]);
-            break;
-          case "passives":
-            component = new Passives(this, entry[1]);
-            break;
-          case "items":
-            component = new Items(this, entry[1]);
-            break;
-          case "missions":
-            component = new Missions(this, entry[1]);
-            break;
-          case "achievements":
-            component = new Achievements(this, entry[1]);
-            break;
+      for (const key of Object.keys(componentConfigs)) {
+        const data = this.config.components[key];
+        if (!data) {
+          continue;
         }
-        if (!component) {
-          throw Error("invalid component type");
-        }
-        this.componentsList.push(component);
-      };
-      for (const entry of entries) {
-        const data = entry[1];
         this.player.stats.level.registerCallback("levelReq" in data ? data.levelReq : 1, () => {
-          initComponent(entry);
+          const component = loadComponent(this, key);
+          this.componentsList.push(component);
         });
       }
     }
@@ -12008,10 +12034,6 @@
         componentData.dispose();
       }
       this.componentsList.splice(0);
-    }
-    updateComponentsUI() {
-      const visibleComponent = this.componentsList.find((x) => !x.page.classList.contains("hidden"));
-      visibleComponent == null ? void 0 : visibleComponent.updateUI(this.time);
     }
     setupDevHelpers() {
       if ("TS" in window) {
@@ -12034,7 +12056,7 @@
         }
       });
       console.log("Press Space to toggle GameLoop");
-      document.addEventListener("keydown", (x) => {
+      document.body.addEventListener("keydown", (x) => {
         if (x.code === "Space") {
           if (this.gameLoop.running) {
             document.title = `Tinkerers Subject (Stopped)`;
@@ -12082,12 +12104,12 @@
         console.error(e);
       }
     }
-    async deleteSave() {
+    async deleteSave(id) {
       const map = await saveManager_default.load("Game");
       if (!map) {
         return;
       }
-      if (map == null ? void 0 : map.delete(this.config.meta.id)) {
+      if (map == null ? void 0 : map.delete(id)) {
         return await saveManager_default.save("Game", Object.fromEntries(map));
       }
     }
@@ -12116,58 +12138,91 @@
   var entryTypes = ["new", "saved"];
   var Home = class {
     constructor() {
+      __publicField(this, "page", querySelector(".p-home"));
       __publicField(this, "game");
       __publicField(this, "activeEntry");
       this.game = new Game(this);
-      registerTabs(queryHTML(".p-home > menu"), queryHTML(".p-home .s-main"), (target) => {
+      this.setupEventListeners();
+      this.init();
+    }
+    setupEventListeners() {
+      querySelector('[data-target="game"]', this.page).addEventListener("click", () => {
+        this.page.classList.add("hidden");
+        querySelector(".p-game").classList.remove("hidden");
+      });
+      registerTabs(querySelector(".p-home > menu"), querySelector(".p-home .s-main"), (target) => {
         const type = target.getAttribute("data-tab-target");
         if (!entryTypes.includes(type)) {
           throw Error("wrong type");
         }
         this.populateEntryList(type);
       });
-      queryHTML(".p-home .p-new [data-entry-info] [data-start]").addEventListener("click", () => {
-        if (!this.activeEntry) {
-          return;
+      querySelector(".p-home .p-new [data-entry-info] [data-start]").addEventListener("click", this.startNewConfig.bind(this, this.activeEntry));
+      querySelector(".p-home .p-saved [data-entry-info] [data-start]").addEventListener("click", this.startSavedConfig.bind(this));
+      querySelector(".p-home .p-saved [data-entry-info] [data-delete]").addEventListener("click", this.deleteSavedConfig.bind(this));
+    }
+    startNewConfig() {
+      if (!this.activeEntry) {
+        return;
+      }
+      this.tryStartGame(this.activeEntry);
+    }
+    async startSavedConfig() {
+      if (!this.activeEntry) {
+        return;
+      }
+      const map = await saveManager_default.load("Game");
+      if (!map) {
+        return;
+      }
+      const saveObj = map.get(this.activeEntry.id);
+      if (!saveObj) {
+        return;
+      }
+      return await this.tryStartGame(this.activeEntry, saveObj);
+    }
+    deleteSavedConfig() {
+      const modal = querySelector("body > generic-modal");
+      modal.init({
+        title: "Delete Save",
+        body: "Are you sure?",
+        buttons: [{ label: "Yes", type: "confirm" }, { label: "No", type: "cancel" }],
+        footerText: "This will delete your save file permanently",
+        callback: async (confirm) => {
+          var _a;
+          if (confirm) {
+            if (!((_a = this.activeEntry) == null ? void 0 : _a.id)) {
+              return;
+            }
+            await this.game.deleteSave(this.activeEntry.id);
+            this.populateEntryList("saved");
+          }
         }
-        this.tryStartGame(this.activeEntry);
       });
-      queryHTML(".p-home .p-saved [data-entry-info] [data-start]").addEventListener("click", async () => {
-        if (!this.activeEntry) {
-          return;
-        }
-        const map = await saveManager_default.load("Game");
-        if (!map) {
-          return;
-        }
-        const saveObj = map.get(this.activeEntry.id);
-        if (!saveObj) {
-          return;
-        }
-        this.tryStartGame(this.activeEntry, saveObj);
-      });
+      modal.openModal();
     }
     async init() {
-      const navBtn = queryHTML("header [data-target]");
-      navBtn.setAttribute("data-target", "home");
-      navBtn.click();
-      navBtn.classList.add("hidden");
-      queryHTML('.p-home > menu [data-type="new"]').click();
+      querySelector("header [data-target]").classList.add("hidden");
+      querySelector('.p-home > menu [data-type="new"]').click();
     }
     async tryLoadRecentSave() {
       const save2 = await this.game.loadMostRecentSave();
       if (!save2) {
         return false;
       }
-      return await this.tryStartGame(save2.meta, save2);
+      await this.tryStartGame(save2.meta, save2);
+      return;
     }
     async populateEntryList(type) {
       var _a;
+      const page = querySelector(`.p-home .p-${type}`);
+      const listContainer = querySelector(`.p-home [data-entry-list]`, page);
+      const infoContainer = querySelector(`.p-home [data-entry-info]`, page);
+      listContainer.classList.add("hidden");
+      infoContainer.classList.add("hidden");
       const entries = await this.getEntries(type);
       const elements = this.createEntryListElements(entries, type);
-      const container = queryHTML(`.p-home [data-tab-content=${type}]`);
-      const entryListContainer = queryHTML("[data-entry-list]", container);
-      queryHTML("[data-entry-list]", container).replaceChildren(...elements);
+      listContainer.replaceChildren(...elements);
       if (elements.length === 0) {
         let msg = "";
         switch (type) {
@@ -12178,9 +12233,10 @@
             msg = "There are no saved games";
             break;
         }
-        entryListContainer.textContent = msg;
+        listContainer.textContent = msg;
       }
-      queryHTML(".p-home [data-entry-info]").classList.toggle("hidden", elements.length === 0);
+      listContainer.classList.remove("hidden");
+      infoContainer.classList.toggle("hidden", entries.length === 0);
       (_a = elements[0]) == null ? void 0 : _a.click();
     }
     createEntryListElements(entries, type) {
@@ -12209,9 +12265,9 @@
       return elements;
     }
     showEntry(entry, type) {
-      const infoContainer = queryHTML(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
-      queryHTML("[data-title]", infoContainer).textContent = entry.name;
-      queryHTML("[data-desc]", infoContainer).textContent = entry.description || "";
+      const infoContainer = querySelector(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
+      querySelector("[data-title]", infoContainer).textContent = entry.name;
+      querySelector("[data-desc]", infoContainer).textContent = entry.description || "";
     }
     async tryStartGame(entry, saveObj) {
       try {
@@ -12227,7 +12283,7 @@
         }
         config.meta = saveObj.meta;
         this.game.init(config, saveObj);
-        const navBtn = queryHTML("header [data-target]");
+        const navBtn = querySelector("header [data-target]");
         navBtn.classList.remove("hidden");
         navBtn.click();
         return true;
@@ -12254,32 +12310,11 @@
   };
 
   // src/main.ts
-  queryHTML('header [data-target="game"]').addEventListener("click", (e) => {
-    if (e.target instanceof Element) {
-      const target = e.target;
-      const attr = e.target.getAttribute("data-target");
-      switch (attr) {
-        case "home":
-          target.textContent = "Back";
-          target.setAttribute("data-target", "game");
-          queryHTML(".p-home").classList.remove("hidden");
-          queryHTML(".p-game").classList.add("hidden");
-          break;
-        case "game":
-          target.textContent = "Home";
-          target.setAttribute("data-target", "home");
-          queryHTML(".p-home").classList.add("hidden");
-          queryHTML(".p-game").classList.remove("hidden");
-          break;
-      }
-    }
-  });
   window.addEventListener("DOMContentLoaded", () => {
     init();
   });
   async function init() {
     const home = new Home();
-    await home.init();
     await home.tryLoadRecentSave();
     document.body.classList.remove("hidden");
   }

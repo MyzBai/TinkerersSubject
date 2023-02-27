@@ -14,14 +14,14 @@
 </head>
 
 <body class="dark hidden">
-    <header>
-        <div>
-            <button class="g-button hidden" data-target="game">Back</button>
-        </div>
-        <p class="title">Tinkerers Subject</p>
-        <div></div>
-    </header>
-    <main class="p-home" data-tab-content="home">
+    <main class="p-home" data-tab-content="game">
+        <header class="s-main-header">
+            <div>
+                <button class="g-button hidden" data-target="game">Return</button>
+            </div>
+            <div></div>
+            <div><span>Tinkerers Subject</span></div>
+        </header>
         <menu class="g-list-h">
             <li class="g-list-item" data-type="new" data-tab-target="new">New</li>
             <li class="g-list-item" data-type="saved" data-tab-target="saved">Load</li>
@@ -32,26 +32,27 @@
                 <div class="s-info" data-entry-info>
                     <h3 data-title></h3>
                     <div data-desc></div>
-                    <button class="g-button" data-start>Start</button>
+                    <button class="g-button" data-start data-role="confirm">Start</button>
                 </div>
             </div>
-            <div class="p-saved" data-tab-content="saved">
+            <div class="p-saved hidden" data-tab-content="saved">
                 <ul class="g-list-v" data-entry-list></ul>
                 <div class="s-info" data-entry-info>
                     <h3 data-title></h3>
                     <div data-desc></div>
-                    <button class="g-button" data-start>Start</button>
+                    <button class="g-button" data-start data-role="confirm">Start</button>
+                    <button class="g-button" data-delete data-role="cancel">Delete</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <game-element></game-element>
+
 
     <footer>
-        <a href="https://github.com/MyzBai/TinkerersSubject">Github</a>
-        <span>|</span>
-        <a href="https://discord.gg/TF7aXyrffh">Discord</a>
+        <a href="https://github.com/MyzBai/TinkerersSubject" target="_blank">Github</a>
+        <a href="https://discord.gg/TF7aXyrffh" target="_blank">Discord</a>
+        <a href="https://www.reddit.com/r/TinkerersSubject" target="_blank">Reddit</a>
 
         <span class="copyright">© 2023 Tinkerers Subject</span>
     </footer>

@@ -1,7 +1,7 @@
 {
     "$schema": "./config.schema.json",
     "enemies": {
-        "enemyList": [ 100, 500, 1000, 8000, 30000, 8000, 500000, 700000, 800000, 1e6 ]
+        "enemyList": [ 100, 500, 1000, 8000, 30000, 100000, 500000, 700000, 800000, 1e6 ]
     },
     "player": {
         "modList": [
@@ -127,11 +127,8 @@
                     { "weight": 100, "levelReq": 5, "mod": "{80-100}% Increased Physical Damage" }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "+{5}% Hit Chance" },
-                    { "weight": 100, "levelReq": 2, "mod": "+{6-8}% Hit Chance" },
-                    { "weight": 100, "levelReq": 3, "mod": "+{9-12}% Hit Chance" },
-                    { "weight": 100, "levelReq": 5, "mod": "+{13-15}% Hit Chance" },
-                    { "weight": 100, "levelReq": 7, "mod": "+{16-20}% Hit Chance" }
+                    { "weight": 100, "levelReq": 1, "mod": "+{5-10}% Hit Chance" },
+                    { "weight": 100, "levelReq": 5, "mod": "+{11-20}% Hit Chance" }
                 ],
                 [
                     { "weight": 30, "levelReq": 1, "mod": "{5-10}% Increased Attack Speed" },
@@ -139,8 +136,7 @@
                 ],
                 [
                     { "weight": 70, "levelReq": 1, "mod": "+{10}% Critical Hit Chance" },
-                    { "weight": 70, "levelReq": 2, "mod": "+{20}% Critical Hit Chance" },
-                    { "weight": 70, "levelReq": 5, "mod": "+{30}% Critical Hit Chance" }
+                    { "weight": 70, "levelReq": 5, "mod": "+{20}% Critical Hit Chance" }
                 ],
                 [
                     { "weight": 60, "levelReq": 1, "mod": "+{20}% Critical Hit Multiplier" },
@@ -149,9 +145,7 @@
                 ],
                 [
                     { "weight": 100, "levelReq": 1, "mod": "+{10-20} Maximum Mana" },
-                    { "weight": 100, "levelReq": 2, "mod": "+{21-30} Maximum Mana" },
-                    { "weight": 100, "levelReq": 3, "mod": "+{31-40} Maximum Mana" },
-                    { "weight": 100, "levelReq": 5, "mod": "+{41-50} Maximum Mana" }
+                    { "weight": 10, "levelReq": 5, "mod": "+{50-100} Maximum Mana" }
                 ],
                 [
                     { "weight": 100, "levelReq": 1, "mod": "{20-30}% Increased Maximum Mana" },
@@ -169,12 +163,12 @@
                 { "id": "reforgeIncludeCritical", "cost": 50, "levelReq": 3 },
                 { "id": "reforgeIncludeMana", "cost": 50, "levelReq": 3 },
 
-                { "id": "addRandom", "cost": 100, "levelReq": 1 },
+                { "id": "addRandom", "cost": 50, "levelReq": 1 },
                 { "id": "addPhysical", "cost": 100, "levelReq": 3 },
                 { "id": "addCritical", "cost": 100, "levelReq": 5 },
                 { "id": "addMana", "cost": 100, "levelReq": 5 },
+                { "id": "removeRandom", "cost": 50, "levelReq": 5 }
 
-                { "id": "removeRandom", "cost": 100, "levelReq": 5 }
             ]
         },
         "passives": {
@@ -204,7 +198,7 @@
                         "mod": "{20}% Increased Physical Damage"
                     },
                     {
-                        "levelReq": 2,
+                        "levelReq": 3,
                         "points": 2,
                         "mod": "{50}% Increased Physical Damage"
                     },
@@ -267,12 +261,12 @@
                         "mod": "{20}% Increased Maximum Mana"
                     },
                     {
-                        "levelReq": 1,
+                        "levelReq": 3,
                         "points": 2,
                         "mod": "{50}% Increased Maximum Mana"
                     },
                     {
-                        "levelReq": 1,
+                        "levelReq": 5,
                         "points": 3,
                         "mod": "{100}% Increased Maximum Mana"
                     }
@@ -324,33 +318,24 @@
                 {
                     "levelReq": 5,
                     "cost": 100
-                },
-                {
-                    "levelReq": 7,
-                    "cost": 500
                 }
             ],
             "missionLists": [
                 [
                     {
-                        "levelReq": 1,
-                        "goldAmount": 50,
-                        "description": "Deal Damage {100}"
-                    },
-                    {
                         "levelReq": 3,
-                        "goldAmount": 100,
-                        "description": "Deal Damage {1000}"
+                        "goldAmount": 50,
+                        "description": "Deal Damage {500}"
                     },
                     {
                         "levelReq": 5,
-                        "goldAmount": 200,
+                        "goldAmount": 100,
                         "description": "Deal Damage {10000}"
                     },
                     {
                         "levelReq": 7,
-                        "goldAmount": 300,
-                        "description": "Deal Damage {100000}"
+                        "goldAmount": 200,
+                        "description": "Deal Damage {500000}"
                     }
                 ],
                 [
@@ -406,11 +391,11 @@
         "achievements": {
             "list": [
                 { "description": "Reach Level {10}" },
-                { "description": "Deal Physical Damage {200000}", "modList": [ "{10}% More Physical Damage" ] },
-                { "description": "Generate Gold {1000}", "modList": [ "+{1} Gold Per Second" ] },
-                { "description": "Perform Hits {1000}", "modList": [ "+{5}% Hit Chance" ] },
-                { "description": "Perform Critical Hits {1000}", "modList": [ "+{5}% Critical Hit Chance" ] },
-                { "description": "Regenerate Mana {2000}", "modList": [ "+{1} Mana Regeneration" ] }
+                { "description": "Deal Physical Damage {2000000}", "modList": [ "{20}% More Physical Damage" ] },
+                { "description": "Generate Gold {1500}", "modList": [ "+{1} Gold Per Second" ] },
+                { "description": "Perform Hits {1500}", "modList": [ "+{5}% Hit Chance" ] },
+                { "description": "Perform Critical Hits {1500}", "modList": [ "+{5}% Critical Hit Chance" ] },
+                { "description": "Regenerate Mana {10000}", "modList": [ "+{1} Mana Regeneration" ] }
             ]
         }
     }
