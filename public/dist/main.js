@@ -8848,7 +8848,7 @@
   var lerp = (a, b, t) => a + (b - a) * t;
   var invLerp = (a, b, v) => (v - a) / (b - a);
   var remap = (iMin, iMax, oMin, oMax, v) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
-  var isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.port.length !== 0 || location.protocol !== "http:";
+  var isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   function querySelector(selectors, parent) {
     const element = (parent || document).querySelector(selectors);
     if (!element) {
