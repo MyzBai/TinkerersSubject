@@ -1,6 +1,6 @@
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { querySelector } from "@src/utils/helpers";
+import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
@@ -23,7 +23,7 @@ export default class Achievements extends Component {
             this.achievements.forEach(x => {
                 x.tryCompletion();
             });
-        });
+        }, { intervalMilliseconds: 1000 });
 
         this.game.visiblityObserver.registerLoop(this.page, visible => {
             if (visible) {
@@ -47,17 +47,21 @@ class Achievement {
         this.element = this.createElement();
         this.task = new Task(achievements.game, data.description);
         //always start from 0 because it's being calculated from saved statistics and thus no need to save any achievement progress
-        this.task.startValue = 0; 
+        this.task.startValue = 0;
     }
     get taskCompleted() { return this.task.completed; }
     tryCompletion() {
-        if (!this.taskCompleted || this.completed || !this.data.modList) {
+        if (!this.taskCompleted || this.completed) {
             return;
         }
         this.completed = true;
-        const modifiers = this.data.modList.flatMap(x => new Modifier(x).stats);
-        const source = `Achievement/${this.data.description}`;
-        this.achievements.game.player.modDB.add(modifiers, source);
+        if (this.data.modList) {
+            const modifiers = this.data.modList.flatMap(x => new Modifier(x).stats);
+            const source = `Achievement/${this.data.description}`;
+            this.achievements.game.player.modDB.add(modifiers, source);
+        }
+        highlightHTMLElement(this.achievements.menuItem, 'click');
+        highlightHTMLElement(this.element, 'mouseover');
     }
 
     updateLabel() {

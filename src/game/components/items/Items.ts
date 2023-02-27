@@ -4,11 +4,12 @@ import { Modifier } from "@src/game/mods";
 import type { CraftId, ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { querySelector } from "@src/utils/helpers";
+import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import { CraftData, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
 
 type ItemsData = Required<Required<GConfig>['components']>['items'];
+type CraftDataList = ItemsData['craftList'];
 export type ModTables = { [K in keyof ItemsData['modLists']]: ItemModifier[] }
 
 export default class Items extends Component {
@@ -25,8 +26,9 @@ export default class Items extends Component {
     private presets: CraftPresets;
     constructor(readonly game: Game, readonly data: ItemsData) {
         super(game, 'items');
-
+        this.presets = new CraftPresets(this);
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
+
 
         if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0]!.levelReq > data.levelReq) {
             throw Error('No items available! There must be at least 1 item available');
@@ -35,11 +37,9 @@ export default class Items extends Component {
         this.activeItem = this.items[0]!;
         this.activeItem.element.click();
 
-        game.player.stats.level.addListener('change', () => this.updateCraftList());
 
-        this.craftButton.addEventListener('click', () => this.performCraft());
-
-        this.presets = new CraftPresets(this);
+        this.createCraftListItems(data.craftList);
+        this.updateCraftList(this.presets.activePreset?.ids);
 
         this.game.player.stats.gold.addListener('change', () => {
             if (this.page.classList.contains('hidden')) {
@@ -49,6 +49,9 @@ export default class Items extends Component {
                 this.updateCraftButton();
             }
         });
+
+        game.player.stats.level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
+        this.craftButton.addEventListener('click', () => this.performCraft());
     }
 
     save(saveObj: Save) {
@@ -92,41 +95,43 @@ export default class Items extends Component {
                 const item = new Item(this, itemData.name);
                 this.items.push(item);
                 this.itemListContainer.appendChild(item.element);
+                highlightHTMLElement(this.menuItem, 'click');
+                highlightHTMLElement(item.element, 'mouseover');
             });
         }
     }
 
-    populateCraftList(ids: CraftId[] = []) {
+    private createCraftListItems(craftDataList: CraftDataList) {
         const rows = [] as HTMLTableRowElement[];
-        for (const craftData of this.data.craftList.filter(x => ids.includes(x.id))) {
+        for (const craftData of craftDataList) {
+            const { cost, id, levelReq } = craftData;
             const tr = document.createElement('tr');
-            tr.classList.add('g-list-item');
-            tr.setAttribute('data-id', craftData.id);
-            tr.setAttribute('data-cost', craftData.cost.toFixed());
-            const label = this.craftDescToHtml(craftData.id);
-            tr.insertAdjacentHTML('beforeend', `<tr><td>${label}</td><td class="g-gold" data-cost>${craftData.cost}</td></tr>`);
+            tr.classList.add('g-list-item', 'hidden');
+            tr.setAttribute('data-id', id);
+            tr.setAttribute('data-cost', cost.toFixed());
+            const label = this.craftDescToHtml(id);
+            tr.insertAdjacentHTML('beforeend', `<tr><td>${label}</td><td class="g-gold" data-cost>${cost}</td></tr>`);
             tr.addEventListener('click', () => {
                 rows.forEach(x => x.classList.toggle('selected', x === tr));
-                this.activeCraftId = craftData.id;
+                this.activeCraftId = id;
                 this.updateCraftButton();
             });
 
+            this.game.player.stats.level.registerCallback(levelReq, () => {
+                tr.setAttribute('data-enabled', '');
+                highlightHTMLElement(this.menuItem, 'click');
+                highlightHTMLElement(tr, 'mouseover');
+            });
             rows.push(tr);
         }
         this.itemCraftTableContainer.replaceChildren(...rows);
-        this.updateCraftList();
-
-        rows.filter(x => !x.classList.contains('hidden'))[0]?.click();
+        rows[0]?.click();
     }
 
-    private updateCraftList() {
-        this.itemCraftTableContainer.querySelectorAll('[data-id]').forEach(x => {
-            const id = x.getAttribute('data-id');
-            const craftData = this.data.craftList.find(x => x.id === id);
-            if (!craftData) {
-                return;
-            }
-            x.classList.toggle('hidden', craftData?.levelReq > this.game.player.stats.level.get());
+    updateCraftList(ids: CraftId[] = []) {
+        this.itemCraftTableContainer.querySelectorAll(`[data-enabled][data-id]`).forEach(x => {
+            const id = x.getAttribute('data-id') as CraftId;
+            x.classList.toggle('hidden', !ids.includes(id));
         });
     }
 

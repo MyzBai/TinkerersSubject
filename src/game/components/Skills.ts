@@ -58,6 +58,8 @@ export default class Skills extends Component {
                         });
                         buffSkillSlotContainer.appendChild(slot.element);
                         this.buffSkillSlots.push(slot);
+                        highlightHTMLElement(this.menuItem, 'click');
+                        highlightHTMLElement(slot.element, 'mouseover');
                     });
                 }
 
@@ -133,6 +135,7 @@ export default class Skills extends Component {
             li.parentElement?.querySelectorAll('[data-name]').forEach(x => x.classList.toggle('selected', x === li));
         });
         highlightHTMLElement(li, 'mouseover');
+        highlightHTMLElement(this.menuItem, 'mouseover');
         container.appendChild(li);
     }
 

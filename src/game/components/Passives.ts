@@ -30,6 +30,7 @@ export default class Passives extends Component {
                     });
                     this.game.player.stats.level.registerCallback(passiveData.levelReq, () => {
                         passive.element.classList.remove('hidden');
+                        highlightHTMLElement(this.menuItem, 'click');
                         highlightHTMLElement(passive.element, 'mouseover');
                     });
                     this.passives.push(passive);

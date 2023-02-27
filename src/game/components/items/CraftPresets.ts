@@ -58,7 +58,7 @@ export default class CraftPresets {
 
     selectPreset(preset?: CraftPreset) {
         this.activePreset = preset;
-        this.items.populateCraftList(this.activePreset?.ids);
+        this.items.updateCraftList(this.activePreset?.ids);
         querySelector<HTMLButtonElement>('.s-preset-container [data-edit]', this.items.page).disabled = typeof this.activePreset === 'undefined';
     }
 
@@ -98,7 +98,7 @@ export default class CraftPresets {
         this.activePreset.element.remove();
         this.presets.splice(this.presets.indexOf(this.activePreset), 1);
         if(this.presets.length === 0){
-            this.items.populateCraftList([]);
+            this.items.updateCraftList();
             this.selectPreset(undefined);
         } else {
             this.presets[0]?.element.click();
