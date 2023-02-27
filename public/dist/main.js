@@ -8848,7 +8848,7 @@
   var lerp = (a, b, t) => a + (b - a) * t;
   var invLerp = (a, b, v) => (v - a) / (b - a);
   var remap = (iMin, iMax, oMin, oMax, v) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
-  var isLocalHost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  var isLocalHost = () => location.hostname === "localhost" || location.hostname === "127.0.0.1";
   function querySelector(selectors, parent) {
     const element = (parent || document).querySelector(selectors);
     if (!element) {
@@ -11968,7 +11968,7 @@
       this.enemy = new Enemy(this);
       this.player = new Player(this);
       this.statistics = new Statistics(this);
-      if (isLocalHost) {
+      if (isLocalHost()) {
         this.setupDevHelpers();
       }
       querySelector('[data-target="home"]', this.page).addEventListener("click", () => {
@@ -12000,11 +12000,10 @@
       }, { intervalMilliseconds: 1e3 * 60 });
       await this.setup();
       await this.save();
-      this.gameLoop.start();
     }
     async setup() {
       this.player.setup();
-      if (!isLocalHost) {
+      if (!isLocalHost()) {
         this.gameLoop.start();
       }
       querySelector('[data-tab-target="combat"]', this.page).click();
@@ -12249,7 +12248,7 @@
         const li = document.createElement("li");
         li.classList.add("g-list-item");
         if (type === "new") {
-          const suffix = entry.rawUrl.startsWith("https") || !isLocalHost ? "" : "(Local) ";
+          const suffix = entry.rawUrl.startsWith("https") || !isLocalHost() ? "" : "(Local) ";
           const label = suffix.concat(entry.name);
           li.insertAdjacentHTML("beforeend", `<span>${label}</span>`);
         } else if (type === "saved") {
