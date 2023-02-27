@@ -10,8 +10,6 @@ type SkillsData = Required<Required<GConfig>['components']>['skills'];
 type AttackSkillData = SkillsData['attackSkills']['skillList'][number];
 type BuffSkillData = Required<SkillsData>['buffSkills']['skillList'][number];
 
-type SkillSlot = AttackSkillSlot | BuffSkillSlot;
-
 export default class Skills extends Component {
     activeSkillSlot: BaseSkillSlot;
     private activeSkill?: BaseSkill;
@@ -21,28 +19,26 @@ export default class Skills extends Component {
     readonly buffSkills: BuffSkill[] = [];
     constructor(readonly game: Game, readonly data: SkillsData) {
         super(game, 'skills');
-
-        registerTabs(querySelector('.s-skill-slots', this.page), querySelector('.s-skill-list'));
-        registerTabs(querySelector('.s-skill-list', this.page), undefined, undefined, '[data-name]');
+        const attackSkillListContainer = querySelector('[data-attack-skill-list]', this.page);
+        const buffSkillListContainer = querySelector('[data-buff-skill-list]', this.page);
 
         // //setup attack skills
         {
-            this.attackSkills = [...this.data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<AttackSkill>(x => new AttackSkill(this, x));
+            this.attackSkills = [...this.data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map(x => new AttackSkill(this, x));
+
             this.attackSkillSlot = new AttackSkillSlot(this);
             this.activeSkillSlot = this.attackSkillSlot;
             this.attackSkillSlot.element.setAttribute('data-tab-target', 'attack');
             this.attackSkillSlot.element.addEventListener('click', () => {
                 this.activeSkillSlot = this.attackSkillSlot;
-                this.selectSkillListItem(querySelector('[data-attack-skill-list]', this.page), this.activeSkillSlot.skill);
+                this.selectSkillListItem(attackSkillListContainer, this.activeSkillSlot.skill);
             });
+
             querySelector('[data-attack-skill-slot]', this.page).replaceChildren(this.attackSkillSlot.element!);
-            setTimeout(() => {
-                this.attackSkillSlot.element.click();
-            }, 10);
 
             for (const skill of this.attackSkills) {
                 game.player.stats.level.registerCallback(skill.data.levelReq, () => {
-                    this.addSkillListItem(skill, querySelector('[data-attack-skill-list]'));
+                    this.addSkillListItem(skill, attackSkillListContainer);
                 });
             }
         }
@@ -50,28 +46,24 @@ export default class Skills extends Component {
         //setup buff skills
         {
             const buffSkillSlotContainer = querySelector('.s-skill-slots [data-buff-skill-slots]', this.page);
-            buffSkillSlotContainer.replaceChildren();
             if (data.buffSkills) {
                 this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map<BuffSkill>(x => new BuffSkill(this, x));
                 for (const buffSkillData of data.buffSkills.skillSlots || []) {
                     game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
                         const slot = new BuffSkillSlot(this);
+                        slot.element.setAttribute('data-tab-target', 'buff');
                         slot.element.addEventListener('click', () => {
                             this.activeSkillSlot = slot;
-                            setTimeout(() => {
-                                this.selectSkillListItem(querySelector('[data-buff-skill-list]', this.page), this.activeSkillSlot.skill);
-
-                            }, 10);
+                            this.selectSkillListItem(buffSkillListContainer, this.activeSkillSlot.skill);
                         });
-                        slot.element.setAttribute('data-tab-target', 'buff');
-                        buffSkillSlotContainer.appendChild(slot.element!);
+                        buffSkillSlotContainer.appendChild(slot.element);
                         this.buffSkillSlots.push(slot);
                     });
                 }
 
                 for (const skill of this.buffSkills) {
                     game.player.stats.level.registerCallback(skill.data.levelReq, () => {
-                        this.addSkillListItem(skill, querySelector('[data-buff-skill-list]'));
+                        this.addSkillListItem(skill, buffSkillListContainer);
                     });
                 }
 
@@ -101,6 +93,7 @@ export default class Skills extends Component {
                     }
                 }, { intervalMilliseconds: 100 });
             }
+
         }
 
         this.game.visiblityObserver.registerLoop(this.page, visible => {
@@ -111,22 +104,21 @@ export default class Skills extends Component {
                 }
             }
         });
+
+        registerTabs(querySelector('.s-skill-slots', this.page), querySelector('.s-skill-list'));
+        this.attackSkillSlot.element.click();
     }
 
     private selectSkillListItem(container: HTMLElement, skill: BaseSkill | undefined) {
         const skillInfoContainer = querySelector('[data-skill-info]');
-        skillInfoContainer.classList.remove('hidden');
+        skillInfoContainer.classList.toggle('hidden', container.childElementCount === 0);
         if (skill) {
             const listItem = container.querySelector<HTMLElement>(`[data-name="${skill.data.name}"]`);
             listItem?.click();
             this.showSkill(skill);
         } else {
-            const element = container.querySelector<HTMLElement>('[data-name]');
-            if (!element) {
-                skillInfoContainer.classList.add('hidden');
-            } else {
-                element.click();
-            }
+            const element = container.querySelector<HTMLElement>('[data-name]:first-child');
+            element?.click();
         }
     }
 
@@ -138,6 +130,7 @@ export default class Skills extends Component {
         li.addEventListener('click', () => {
             this.activeSkill = skill;
             this.showSkill(skill);
+            li.parentElement?.querySelectorAll('[data-name]').forEach(x => x.classList.toggle('selected', x === li));
         });
         highlightHTMLElement(li, 'mouseover');
         container.appendChild(li);
