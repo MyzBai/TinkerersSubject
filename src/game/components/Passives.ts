@@ -36,6 +36,8 @@ export default class Passives extends Component {
             this.updatePassiveList();
         });
 
+        querySelector('[data-clear]', this.page).addEventListener('click', () => this.clearPassives());
+
         this.updatePoints();
         this.updatePassiveList();
     }
@@ -45,6 +47,12 @@ export default class Passives extends Component {
     }
     get curPoints() {
         return this.maxPoints - this.passives.filter(x => x.assigned).reduce((a, c) => a += c.data.points, 0);
+    }
+
+    private clearPassives() {
+        this.passives.forEach(x => x.assigned = false);
+        this.updatePassiveList();
+        this.updatePoints();
     }
 
     save(saveObj: Save): void {
