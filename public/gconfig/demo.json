@@ -198,7 +198,7 @@
                         "mod": "{20}% Increased Physical Damage"
                     },
                     {
-                        "levelReq": 2,
+                        "levelReq": 3,
                         "points": 2,
                         "mod": "{50}% Increased Physical Damage"
                     },
@@ -261,12 +261,12 @@
                         "mod": "{20}% Increased Maximum Mana"
                     },
                     {
-                        "levelReq": 1,
+                        "levelReq": 3,
                         "points": 2,
                         "mod": "{50}% Increased Maximum Mana"
                     },
                     {
-                        "levelReq": 1,
+                        "levelReq": 5,
                         "points": 3,
                         "mod": "{100}% Increased Maximum Mana"
                     }
