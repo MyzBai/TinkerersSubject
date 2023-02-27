@@ -59,6 +59,9 @@
         padding: $padding-list-item;
         cursor: default;
         user-select: none;
+        *{
+            pointer-events: none;
+        }
         &:hover {
             background-color: $color-accordion-hover-bg;
         }
