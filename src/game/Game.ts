@@ -78,6 +78,8 @@ export default class Game {
         await this.setup();
 
         await this.save();
+
+        this.gameLoop.start();
     }
 
     async setup() {
