@@ -54,7 +54,7 @@ class Achievement {
         if (!this.taskCompleted || this.completed) {
             return;
         }
-        this.completed = true;
+
         if (this.data.modList) {
             const modifiers = this.data.modList.flatMap(x => new Modifier(x).stats);
             const source = `Achievement/${this.data.description}`;
@@ -62,9 +62,14 @@ class Achievement {
         }
         highlightHTMLElement(this.achievements.menuItem, 'click');
         highlightHTMLElement(this.element, 'mouseover');
+        this.updateLabel();
+        this.completed = true;
     }
 
     updateLabel() {
+        if(this.completed){
+            return;
+        }
         const label = querySelector('[data-label]', this.element);
         const descElement = document.createElement('span');
         descElement.textContent = this.task.textData.labelText + ' ';
