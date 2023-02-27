@@ -1,6 +1,6 @@
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
-import { querySelector } from "@src/utils/helpers";
+import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
@@ -11,8 +11,12 @@ type PassiveData = PassivesData['passiveLists'][number][number];
 export default class Passives extends Component {
 
     readonly passives: Passive[] = [];
+    readonly passivesListContainer: HTMLElement;
     constructor(readonly game: Game, readonly data: PassivesData) {
         super(game, 'passives');
+
+        this.passivesListContainer = querySelector('.s-passive-list table', this.page);
+
         {
             //init passive list
             for (const passiveListData of data.passiveLists) {
@@ -23,9 +27,12 @@ export default class Passives extends Component {
                         passive.assigned = !passive.assigned;
                         this.updatePoints();
                         this.updatePassiveList();
-                    })
+                    });
+                    this.game.player.stats.level.registerCallback(passiveData.levelReq, () => {
+                        passive.element.classList.remove('hidden');
+                        highlightHTMLElement(passive.element, 'mouseover');
+                    });
                     this.passives.push(passive);
-
                 }
                 querySelector('.s-passive-list table', this.page).append(...this.passives.map(x => x.element));
             }
@@ -72,7 +79,6 @@ export default class Passives extends Component {
     private updatePassiveList() {
         for (const passive of this.passives) {
             const { element, assigned } = passive;
-            element.classList.toggle('hidden', passive.data.levelReq > this.game.player.stats.level.get());
             element.toggleAttribute('disabled', !passive.assigned && this.curPoints < passive.data.points);
             element.classList.toggle('selected', assigned);
         }
@@ -87,6 +93,7 @@ class Passive {
         this.mod = new Modifier(data.mod);
 
         this.element = this.createElement();
+        highlightHTMLElement(this.element, 'mouseover');
         passives.game.player.stats.level.registerCallback(data.levelReq, () => {
             this.element.classList.remove('hidden');
         });
@@ -119,7 +126,7 @@ class Passive {
 
     private createElement() {
         const row = document.createElement('tr');
-        row.classList.add('g-list-item');
+        row.classList.add('g-list-item', 'hidden');
         row.insertAdjacentHTML('beforeend', `<td>${this.mod.desc}</td>`);
         row.insertAdjacentHTML('beforeend', `<td>${this.data.points}</td>`);
         return row;
