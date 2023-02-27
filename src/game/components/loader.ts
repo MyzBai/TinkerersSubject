@@ -37,15 +37,15 @@ export const componentConfigs: Record<keyof Required<GConfig>['components'], Com
         html: itemsHtml,
         label: 'Items'
     },
-    achievements: {
-        constr: Achievements,
-        html: achievementsHtml,
-        label: 'Achievements'
-    },
     missions: {
         constr: Missions,
         html: missionsHtml,
         label: 'Missions'
+    },
+    achievements: {
+        constr: Achievements,
+        html: achievementsHtml,
+        label: 'Achievements'
     }
 }
 
