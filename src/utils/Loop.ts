@@ -117,19 +117,4 @@ export default class Loop {
         }
         this.animLoopId = requestAnimationFrame(loop);
     }
-
-    // private beginAnimationLoop() {
-    //     let now = performance.now();
-    //     const loop = () => {
-    //         let diff = performance.now() - now;
-    //         now = performance.now();
-    //         const dt = diff / 1000;
-    //         for (const instance of this.animInstances.values()) {
-    //             instance.callback(dt);
-    //         }
-
-    //         this.animLoopId = requestAnimationFrame(loop);
-    //     }
-    //     this.animLoopId = requestAnimationFrame(loop);
-    // }
 }

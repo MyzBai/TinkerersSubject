@@ -107,18 +107,3 @@ export default class Statistics {
         });
     }
 }
-
-// export function saveStatistics(saveObj: Save) {
-//     saveObj.statistics = Object.entries(statistics).map(([key, value]) => {
-//         return {
-//             name: key,
-//             value: value.get()
-//         }
-//     });
-// }
-
-// export function loadStatistics(saveObj: Save) {
-//     saveObj.statistics?.forEach(x => {
-//         statistics[x.name as keyof typeof statistics]?.set(x.value);
-//     });
-// }
