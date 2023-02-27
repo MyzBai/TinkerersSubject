@@ -38,8 +38,9 @@ export default class Enemy {
         
         this.healthList = this.game.config.enemies.enemyList;
         this._index = this.game.saveObj.enemy?.index || 0;
-        this.health = this.game.saveObj.enemy?.health || this.maxHealth;
         this.spawn();
+        this.health = this.game.saveObj.enemy?.health || this.maxHealth;
+        this.updateHealthBar();
     }
 
     setIndex(index: number) {
