@@ -9957,6 +9957,9 @@
       });
     }
     updateManaBar() {
+      if (this.stats.maxMana.get() <= 0) {
+        return;
+      }
       const pct = this.stats.curMana.get() / this.stats.maxMana.get();
       this.manaBar.value = pct;
     }
@@ -11997,6 +12000,7 @@
       }, { intervalMilliseconds: 1e3 * 60 });
       await this.setup();
       await this.save();
+      this.gameLoop.start();
     }
     async setup() {
       this.player.setup();
