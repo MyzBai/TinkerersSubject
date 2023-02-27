@@ -124,6 +124,9 @@ export default class Player {
     }
 
     private updateManaBar() {
+        if(this.stats.maxMana.get() <= 0){
+            return;
+        }
         const pct = this.stats.curMana.get() / this.stats.maxMana.get();
         this.manaBar.value = pct;
     }
