@@ -880,12 +880,6 @@ body > footer {
   font-size: 0.8em;
   align-items: center;
 }
-body > footer .copyright {
-  margin-left: auto;
-  color: #8b949e;
-  padding: 0.3em;
-  font-size: 0.8em;
-}
 body > footer a {
   padding: 0.3em;
 }
