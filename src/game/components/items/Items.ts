@@ -129,10 +129,17 @@ export default class Items extends Component {
     }
 
     updateCraftList(ids: CraftId[] = []) {
-        this.itemCraftTableContainer.querySelectorAll(`[data-enabled][data-id]`).forEach(x => {
+        const elements = [...this.itemCraftTableContainer.querySelectorAll<HTMLElement>(`[data-enabled][data-id]`)];
+        elements.forEach(x => {
             const id = x.getAttribute('data-id') as CraftId;
             x.classList.toggle('hidden', !ids.includes(id));
         });
+        const firstElement = elements.find(x => !x.classList.contains('hidden'));
+        firstElement?.click();
+        if(!firstElement){
+            this.activeCraftId = undefined;
+        }
+        this.updateCraftButton();
     }
 
     private generateCraftData(): CraftData {
