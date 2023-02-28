@@ -112,9 +112,24 @@ export interface Prestige {
 export type Mod = string;
 
 export type CraftId =
-    'reforge' | 'reforgeIncludePhysical' | 'reforgeIncludeMana' | 'reforgeIncludeCritical' | 'reforgeHigherChanceSameMods' | 'reforgeLowerChanceSameMods' |
-    'addRandom' | 'addPhysical' | 'addMana' | 'addCritical' |
-    'removeRandom' | 'removeRandomAddRandom' | 'removeRandomAddPhysical' | 'removeRandomAddMana' | 'removeRandomAddCritical';
+    | 'reforge' 
+    | 'reforgeIncludePhysical'
+    | 'reforgeIncludeElemental'
+    | 'reforgeIncludeMana' 
+    | 'reforgeIncludeCritical' 
+    | 'reforgeHigherChanceSameMods' 
+    | 'reforgeLowerChanceSameMods'
+    | 'addRandom' 
+    | 'addPhysical' 
+    | 'addElemental' 
+    | 'addMana' 
+    | 'addCritical' 
+    | 'removeRandom' 
+    | 'removeRandomAddRandom' 
+    | 'removeRandomAddPhysical' 
+    | 'removeRandomAddElemental' 
+    | 'removeRandomAddMana' 
+    | 'removeRandomAddCritical';
 
 
 export type Components = GConfig['components'];

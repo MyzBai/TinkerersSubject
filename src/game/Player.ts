@@ -165,6 +165,7 @@ export default class Player {
         this.game.statistics.statistics.Hits.add(1);
         this.game.statistics.statistics["Total Damage"].add(result.totalDamage);
         this.game.statistics.statistics["Total Physical Damage"].add(result.totalPhysicalDamage);
+        this.game.statistics.statistics["Total Elemental Damage"].add(result.totalElementalDamage);
         if (result.crit) {
             this.game.statistics.statistics["Critical Hits"].add(1);
         }

@@ -218,6 +218,9 @@ progress[value] {
 [data-mod-tag=physical]{
     color: $color-mod-tag-physical;
 }
+[data-mod-tag=elemental]{
+    color: $color-mod-tag-elemental;
+}
 [data-mod-tag=critical]{
     color: $color-mod-tag-critical;
 }

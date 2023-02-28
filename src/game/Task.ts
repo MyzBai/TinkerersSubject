@@ -26,6 +26,7 @@ export default class Task {
             [/^Prestige {\d+}?$/, this.game.statistics.statistics["Prestige Count"]],
             [/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]],
             [/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]],
+            [/^Deal Elemental Damage {(\d+)}$/, this.game.statistics.statistics["Total Elemental Damage"]],
             [/^Perform Hits {(\d+)}$/, this.game.statistics.statistics.Hits],
             [/^Perform Critical Hits {(\d+)}$/, this.game.statistics.statistics["Critical Hits"]],
             [/^Generate Gold {(\d+)}$/, this.game.statistics.statistics["Gold Generated"]],
