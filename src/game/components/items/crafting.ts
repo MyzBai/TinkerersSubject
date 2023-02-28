@@ -22,6 +22,11 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Physical'),
         getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Physical').addMultiple(data.modList, generateReforgeModCount(1)).modList
     },
+    reforgeIncludeElemental: {
+        desc: 'Reforge the item with new random modifiers, including a [elemental] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Elemental'),
+        getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Elemental').addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
     reforgeIncludeMana: {
         desc: 'Reforge the item with new random modifiers, including a [mana] modifier',
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Mana'),
@@ -70,6 +75,11 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Physical'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Physical').modList
     },
+    addElemental: {
+        desc: 'Add a [elemental] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Elemental'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Elemental').modList
+    },
     addMana: {
         desc: 'Add a [mana] modifier',
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Mana'),
@@ -94,6 +104,11 @@ export const craftTemplates = {
         desc: 'Remove a random modifier and add a new [physical] modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Physical').itemCanCraftModWithTag(data.itemModList, data.modList, 'Physical'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Physical').modList
+    },
+    removeRandomAddElemental: {
+        desc: 'Remove a random modifier and add a new [elemental] modifier',
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Elemental').itemCanCraftModWithTag(data.itemModList, data.modList, 'Elemental'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Elemental').modList
     },
     removeRandomAddMana: {
         desc: 'Remove a random modifier and add a new [mana] modifier',

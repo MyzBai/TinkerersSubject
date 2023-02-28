@@ -2,14 +2,17 @@ import type { Mod } from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types
-export type ModifierTag = 'Gold' | 'Physical' | 'Speed' | 'Mana' | 'Critical';
+export type ModifierTag = 'Gold' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical';
 export type StatModifierValueType = 'Base' | 'Inc' | 'More';
 //#region Mod Description
 export type ModDescription =
     | '#% Increased Physical Damage'
+    | '#% Increased Elemental Damage'
     | '#% More Physical Damage'
+    | '#% More Elemental Damage'
     | '#% More Damage'
     | 'Adds # To # Physical Damage'
+    | 'Adds # To # Elemental Damage'
     | '+#% Hit Chance'
     | '#% Increased Attack Speed'
     | '#% More Attack Speed'
@@ -93,9 +96,19 @@ export const modTemplates: ModTemplate[] = [
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical }]
     },
     {
+        desc: '#% Increased Elemental Damage',
+        tags: ['Elemental'],
+        stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental }]
+    },
+    {
         desc: '#% More Physical Damage',
         tags: ['Physical'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical }]
+    },
+    {
+        desc: '#% More Elemental Damage',
+        tags: ['Elemental'],
+        stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Elemental }]
     },
     {
         desc: '#% More Damage',
@@ -107,6 +120,12 @@ export const modTemplates: ModTemplate[] = [
         tags: ['Physical'],
         stats: [{ name: 'MinDamage', valueType: 'Base', flags: StatModifierFlags.Physical },
         { name: 'MaxDamage', valueType: 'Base', flags: StatModifierFlags.Physical }]
+    },
+    {
+        desc: 'Adds # To # Elemental Damage',
+        tags: ['Elemental'],
+        stats: [{ name: 'MinDamage', valueType: 'Base', flags: StatModifierFlags.Elemental },
+        { name: 'MaxDamage', valueType: 'Base', flags: StatModifierFlags.Elemental }]
     },
     {
         desc: '+#% Hit Chance',

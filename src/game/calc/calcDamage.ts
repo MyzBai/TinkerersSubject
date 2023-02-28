@@ -73,11 +73,13 @@ export function calcAttack(statModList: StatModifier[]) {
 
     const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
     const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
+    const totalElementalDamage = baseDamage.elementalDamage * finalMultiplier;
     return {
         hit,
         crit,
         totalDamage,
-        totalPhysicalDamage
+        totalPhysicalDamage,
+        totalElementalDamage,
     }
 }
 
@@ -99,16 +101,18 @@ export function calcBaseDamage(config: Configuration) {
 
     let totalBaseDamage = 0;
 
-    {
-        config.flags |= StatModifierFlags.Physical;
-        const { min, max } = calcDamage('Physical', config, conversionTable);
-        output.minPhysicalDamage = min;
-        output.maxPhysicalDamage = max;
+    for (const damageType of Object.keys(DamageTypeFlags) as DamageType[]) {
+        const bit = StatModifierFlags[damageType];
+        config.flags |= bit
+        const { min, max } = calcDamage(damageType, config, conversionTable);
+        output[`min${damageType}Damage`] = min;
+        output[`max${damageType}Damage`] = max;
         const baseDamage = config.calcMinMax(min, max);
-        output.physicalDamage = baseDamage;
+        output[`${damageType.toLowerCase()}Damage` as keyof typeof output] = baseDamage;
         totalBaseDamage += baseDamage;
+        config.flags &= ~bit;
     }
-
+  
     output.totalBaseDamage = totalBaseDamage;
     return output;
 }
