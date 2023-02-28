@@ -9134,19 +9134,23 @@
                       enum: [
                         "reforge",
                         "reforgeIncludePhysical",
+                        "reforgeIncludeElemental",
                         "reforgeIncludeCritical",
                         "reforgeIncludeMana",
                         "reforgeHigherChanceSameMods",
                         "reforgeLowerChanceSameMods",
                         "addRandom",
                         "addPhysical",
+                        "addElemental",
                         "addCritical",
                         "addMana",
                         "removeRandom",
                         "removePhysical",
+                        "removeElemental",
                         "removeCritical",
                         "removeMana",
                         "removeRandomAddPhysical",
+                        "removeRandomAddElemental",
                         "removeRandomAddCritical",
                         "removeRandomAddMana"
                       ]
@@ -9202,7 +9206,7 @@
                       description: {
                         type: "string",
                         anyOf: [
-                          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}"] },
+                          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}"] },
                           { pattern: "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
                           { enum: ["Generate Gold {#}"] },
                           { pattern: "^Generate Gold \\{\\d+\\}$" },
@@ -9238,7 +9242,7 @@
                         { pattern: "^Reach Level \\{\\d+\\}$" },
                         { enum: ["Prestige {#}"] },
                         { pattern: "^Prestige \\{\\d+?\\}$" },
-                        { enum: ["Deal Damage {#}", "Deal Physical Damage {#}"] },
+                        { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}"] },
                         { pattern: "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
                         { enum: ["Generate Gold {#}"] },
                         { pattern: "^Generate Gold \\{\\d+\\}$" },
@@ -9278,12 +9282,12 @@
       mod: {
         type: "string",
         oneOf: [
-          { enum: ["Adds {#} To {#} Physical Damage"] },
-          { pattern: "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Physical Damage$" },
-          { enum: ["{#}% Increased Physical Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Physical Damage$" },
-          { enum: ["{#}% More Physical Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Physical Damage$" },
+          { enum: ["Adds {#} To {#} Physical Damage", "Adds {#} To {#} Elemental Damage"] },
+          { pattern: "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} (Physical|Elemental) Damage$" },
+          { enum: ["{#}% Increased Physical Damage", "{#}% Increased Elemental Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Physical|Elemental) Damage$" },
+          { enum: ["{#}% More Physical Damage", "{#}% More Elemental Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Physical|Elemental) Damage$" },
           { enum: ["{#}% More Damage"] },
           { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
           { enum: ["+{#}% Hit Chance"] },
@@ -9434,9 +9438,19 @@
       stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Physical }]
     },
     {
+      desc: "#% Increased Elemental Damage",
+      tags: ["Elemental"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental }]
+    },
+    {
       desc: "#% More Physical Damage",
       tags: ["Physical"],
       stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Physical }]
+    },
+    {
+      desc: "#% More Elemental Damage",
+      tags: ["Elemental"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Elemental }]
     },
     {
       desc: "#% More Damage",
@@ -9449,6 +9463,14 @@
       stats: [
         { name: "MinDamage", valueType: "Base", flags: StatModifierFlags.Physical },
         { name: "MaxDamage", valueType: "Base", flags: StatModifierFlags.Physical }
+      ]
+    },
+    {
+      desc: "Adds # To # Elemental Damage",
+      tags: ["Elemental"],
+      stats: [
+        { name: "MinDamage", valueType: "Base", flags: StatModifierFlags.Elemental },
+        { name: "MaxDamage", valueType: "Base", flags: StatModifierFlags.Elemental }
       ]
     },
     {
@@ -9670,11 +9692,13 @@
     const finalMultiplier = baseDamageMultiplier / 100 * critMultiplier;
     const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
     const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
+    const totalElementalDamage = baseDamage.elementalDamage * finalMultiplier;
     return {
       hit,
       crit,
       totalDamage,
-      totalPhysicalDamage
+      totalPhysicalDamage,
+      totalElementalDamage
     };
   }
   function calcBaseDamage(config) {
@@ -9692,14 +9716,16 @@
       chaosDamage: 0
     };
     let totalBaseDamage = 0;
-    {
-      config.flags |= StatModifierFlags.Physical;
-      const { min, max } = calcDamage("Physical", config, conversionTable);
-      output.minPhysicalDamage = min;
-      output.maxPhysicalDamage = max;
+    for (const damageType of Object.keys(DamageTypeFlags)) {
+      const bit = StatModifierFlags[damageType];
+      config.flags |= bit;
+      const { min, max } = calcDamage(damageType, config, conversionTable);
+      output[`min${damageType}Damage`] = min;
+      output[`max${damageType}Damage`] = max;
       const baseDamage = config.calcMinMax(min, max);
-      output.physicalDamage = baseDamage;
+      output[`${damageType.toLowerCase()}Damage`] = baseDamage;
       totalBaseDamage += baseDamage;
+      config.flags &= ~bit;
     }
     output.totalBaseDamage = totalBaseDamage;
     return output;
@@ -9994,6 +10020,7 @@
       this.game.statistics.statistics.Hits.add(1);
       this.game.statistics.statistics["Total Damage"].add(result.totalDamage);
       this.game.statistics.statistics["Total Physical Damage"].add(result.totalPhysicalDamage);
+      this.game.statistics.statistics["Total Elemental Damage"].add(result.totalElementalDamage);
       if (result.crit) {
         this.game.statistics.statistics["Critical Hits"].add(1);
       }
@@ -10197,6 +10224,7 @@
         "Critical Hits": new Statistic(0),
         "Total Damage": new Statistic(0),
         "Total Physical Damage": new Statistic(0),
+        "Total Elemental Damage": new Statistic(0),
         "Prestige Count": new Statistic(0)
       });
       __publicField(this, "page", querySelector(".p-game .p-statistics"));
@@ -10866,6 +10894,11 @@
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Physical"),
       getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Physical").addMultiple(data.modList, generateReforgeModCount(1)).modList
     },
+    reforgeIncludeElemental: {
+      desc: "Reforge the item with new random modifiers, including a [elemental] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Elemental"),
+      getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Elemental").addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
     reforgeIncludeMana: {
       desc: "Reforge the item with new random modifiers, including a [mana] modifier",
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Mana"),
@@ -10914,6 +10947,11 @@
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Physical"),
       getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Physical").modList
     },
+    addElemental: {
+      desc: "Add a [elemental] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Elemental"),
+      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Elemental").modList
+    },
     addMana: {
       desc: "Add a [mana] modifier",
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Mana"),
@@ -10938,6 +10976,11 @@
       desc: "Remove a random modifier and add a new [physical] modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Physical").itemCanCraftModWithTag(data.itemModList, data.modList, "Physical"),
       getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Physical").modList
+    },
+    removeRandomAddElemental: {
+      desc: "Remove a random modifier and add a new [elemental] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Elemental").itemCanCraftModWithTag(data.itemModList, data.modList, "Elemental"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Elemental").modList
     },
     removeRandomAddMana: {
       desc: "Remove a random modifier and add a new [mana] modifier",
@@ -11539,6 +11582,7 @@
         [/^Prestige {\d+}?$/, this.game.statistics.statistics["Prestige Count"]],
         [/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]],
         [/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]],
+        [/^Deal Elemental Damage {(\d+)}$/, this.game.statistics.statistics["Total Elemental Damage"]],
         [/^Perform Hits {(\d+)}$/, this.game.statistics.statistics.Hits],
         [/^Perform Critical Hits {(\d+)}$/, this.game.statistics.statistics["Critical Hits"]],
         [/^Generate Gold {(\d+)}$/, this.game.statistics.statistics["Gold Generated"]],
@@ -12137,6 +12181,11 @@
         name: "Demo",
         rawUrl: "public/gconfig/demo.json",
         description: "This is a short configuration for demonstration purposes."
+      },
+      {
+        name: "Demo 2",
+        rawUrl: "public/gconfig/demo2.json",
+        description: "This demo is currently in development. Changes may occur unexpectedly."
       }
     ]
   };

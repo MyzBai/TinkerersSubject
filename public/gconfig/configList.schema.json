@@ -14,7 +14,7 @@
                     },
                     "description": {
                         "type": "string",
-                        "pattern": "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;]*$"
+                        "pattern": "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;']*$"
                     },
                     "rawUrl": {
                         "type": "string",

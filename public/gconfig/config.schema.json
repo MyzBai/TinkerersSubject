@@ -150,10 +150,10 @@
                                 "properties": {
                                     "id": {
                                         "enum": [
-                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
-                                            "addRandom", "addPhysical", "addCritical", "addMana",
-                                            "removeRandom", "removePhysical", "removeCritical", "removeMana",
-                                            "removeRandomAddPhysical", "removeRandomAddCritical", "removeRandomAddMana" ]
+                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana",
+                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana",
+                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana" ]
                                     },
                                     "levelReq": { "type": "integer", "minimum": 0 },
                                     "cost": { "type": "integer", "minimum": 0 }
@@ -206,7 +206,7 @@
                                         "description": {
                                             "type": "string",
                                             "anyOf": [
-                                                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                                                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
                                                 { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
                                                 { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
                                                 { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
@@ -235,7 +235,7 @@
                                         "anyOf": [
                                             { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
                                             { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
-                                            { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
+                                            { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
                                             { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
                                             { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
                                             { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
@@ -270,9 +270,9 @@
         "mod": {
             "type": "string",
             "oneOf": [
-                { "enum": [ "Adds {#} To {#} Physical Damage" ] }, { "pattern": "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Physical Damage$" },
-                { "enum": [ "{#}% Increased Physical Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Physical Damage$" },
-                { "enum": [ "{#}% More Physical Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Physical Damage$" },
+                { "enum": [ "Adds {#} To {#} Physical Damage", "Adds {#} To {#} Elemental Damage" ] }, { "pattern": "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% Increased Physical Damage", "{#}% Increased Elemental Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% More Physical Damage", "{#}% More Elemental Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Physical|Elemental) Damage$" },
                 { "enum": [ "{#}% More Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
                 { "enum": [ "+{#}% Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$" },
                 { "enum": [ "{#}% Increased Attack Speed" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$" },

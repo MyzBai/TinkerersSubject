@@ -395,6 +395,10 @@ progress[value]::-webkit-progress-value {
   color: #a8a8a8;
 }
 
+[data-mod-tag=elemental] {
+  color: #72cac6;
+}
+
 [data-mod-tag=critical] {
   color: #509abd;
 }
