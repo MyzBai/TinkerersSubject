@@ -22,7 +22,25 @@
             "properties": {
                 "modList": {
                     "type": "array",
-                    "items": { "$ref": "#/definitions/mod" }
+                    "anyOf": [
+                        {
+                            "items": {
+                                "oneOf": [
+                                    { "$ref": "#/definitions/mod" },
+                                    {
+                                        "type": "string",
+                                        "oneOf": [
+                                            {
+                                                "description": "Base duration in seconds",
+                                                "enum": [ "+{#} Bleed Duration", "+{#} Burn Duration", "+{#} Poison Duration" ]
+                                            }, { "pattern": "^\\+\\{(\\d+)\\} (Bleed|Burn|Poison) Duration$" }
+                                        ],
+                                        "pattern": "^[^#]*$"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 }
             }
         },
@@ -283,7 +301,9 @@
                 { "enum": [ "{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
                 { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
-                { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
+                { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" },
+                { "enum": [ "+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison" ] }, { "pattern": "^\\+\\{(\\d+)\\}% Chance To (Bleed|Burn|Poison)$" },
+                { "enum": [ "+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack", "+{#} Maximum Poison Stack" ] }, { "pattern": "^\\+\\{(\\d+)\\} Maximum (Bleed|Burn|Poison) Stack$" }
             ],
             "pattern": "^[^#]*$"
         },

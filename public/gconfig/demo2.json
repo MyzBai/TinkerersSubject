@@ -9,7 +9,10 @@
             "+{100} Maximum Mana",
             "+{1} Mana Regeneration",
             "+{1} Gold Per Second",
-            "+{150}% Critical Hit Multiplier"
+            "+{150}% Critical Hit Multiplier",
+            "+{40}% Chance To Bleed",
+            "+{20} Bleed Duration",
+            "+{10} Maximum Bleed Stack"
         ]
     },
     "components": {
@@ -36,14 +39,14 @@
                          ]
                     },
                     {
-                        "name": "Super Attack",
+                        "name": "Slice Attack",
                         "levelReq": 2,
                         "attackSpeed": 0.5,
                         "manaCost": 3,
                         "baseDamageMultiplier": 250,
                         "mods": [
-                            "+{80}% Hit Chance",
-                            "{50}% More Damage"
+                            "+{60}% Hit Chance",
+                            "+{50}% Chance To Bleed"
                         ]
                     },
                     {

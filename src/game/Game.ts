@@ -14,6 +14,7 @@ import Home from "@src/Home";
 import { VisibilityObserver } from "@src/utils/Observers";
 import Component from "./components/Component";
 import { componentConfigs, loadComponent } from "./components/loader";
+import { Ailments } from "./Ailments";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -81,7 +82,9 @@ export default class Game {
     }
 
     async setup() {
-        this.player.setup();
+        await this.player.setup();
+        this.enemy.setup();
+
 
         if (!isLocalHost()) {
             this.gameLoop.start();

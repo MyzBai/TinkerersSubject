@@ -2,12 +2,11 @@ import { avg, clamp } from "@utils/helpers";
 import { StatModifier, StatModifierFlags, StatName, StatModifierValueType } from "../mods";
 import { calcBaseDamage, ConversionTable } from "./calcDamage";
 
-
+export type CalcMinMax = (min: number, max: number) => number;
 
 export interface Configuration {
     statModList: StatModifier[];
     flags: number;
-    calcMinMax: (min: number, max: number) => number;
     conversionTable?: ConversionTable;
 }
 
@@ -16,8 +15,7 @@ export function calcPlayerStats(statModList: StatModifier[]) {
 
     const config: Configuration = {
         statModList,
-        flags: StatModifierFlags.Attack,
-        calcMinMax: avg
+        flags: StatModifierFlags.Attack
     };
 
     //Hit Chance
@@ -40,10 +38,15 @@ export function calcPlayerStats(statModList: StatModifier[]) {
     // const critDamageMultiplier = 1 + (clampedCritChance * (critMulti - 1));
     const critDamageMultiplier = 1 + (clampedCritChance * critMulti);
 
-    const baseDamageResult = calcBaseDamage(config);
+    const baseDamageResult = calcBaseDamage(config, avg);
 
     const multiplier = baseDamageMultiplier * critDamageMultiplier;
     const dps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * multiplier;
+
+    config.flags |= StatModifierFlags.Ailment | StatModifierFlags.Bleed;
+    const bleedChance = calcModTotal('BleedChance', config);
+    const maxBleedStacks = calcModTotal('AilmentStack', config);
+    const bleedDuration = calcModTotal('Duration', config);
 
     return {
         hitChance: hitChance * 100,
@@ -60,7 +63,11 @@ export function calcPlayerStats(statModList: StatModifier[]) {
         maxPhysicalDamage: baseDamageResult.maxPhysicalDamage,
 
         goldPerSecond: calcModTotal('GoldPerSecond', config),
-        skillDurationMultiplier: calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }))
+        skillDurationMultiplier: calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill })),
+
+        bleedChance,
+        maxBleedStacks,
+        bleedDuration
     }
 }
 

@@ -1,3 +1,4 @@
+import { AilmentData, AilmentType } from "@src/game/Ailments";
 import type Statistics from "@src/game/Statistics";
 import type { CraftId } from "./gconfig";
 import type GConfig from "./gconfig";
@@ -13,6 +14,12 @@ export interface Save {
         index: number;
         health: number;
         dummyDamage: number;
+        ailments?: {
+            type: AilmentType;
+            instances: {
+                damageFac: number; time: number;
+            }[];
+        }[];
     };
     skills?: {
         attackSkillName: string;

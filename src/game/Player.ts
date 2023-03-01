@@ -21,7 +21,9 @@ export default class Player {
         maxMana: new Value(0),
         curMana: new Value(0),
         manaRegen: new Value(0),
-        skillDurationMultiplier: new Value(1)
+        skillDurationMultiplier: new Value(1),
+        maxBleedStacks: new Value(0),
+        bleedDuration: new Value(0)
     };
     private _attackProgressPct: number = 0;
     constructor(readonly game: Game) {
@@ -109,6 +111,8 @@ export default class Player {
                 this.stats.manaRegen.set(statsResult.manaRegen);
                 this.stats.attackManaCost.set(statsResult.attackManaCost);
                 this.stats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
+                this.stats.maxBleedStacks.set(statsResult.maxBleedStacks);
+                this.stats.bleedDuration.set(statsResult.bleedDuration);
                 this.playerStatsContainer.querySelectorAll('[data-stat]').forEach(x => {
                     const attr = x.getAttribute('data-stat') as keyof typeof statsResult;
                     const stat = statsResult[attr] as number;
@@ -170,6 +174,8 @@ export default class Player {
             this.game.statistics.statistics["Critical Hits"].add(1);
         }
         this.game.enemy.dealDamage(result.totalDamage);
+
+        this.game.enemy.applyAilments(result.ailments);
     }
 
     save(saveObj: Save) {

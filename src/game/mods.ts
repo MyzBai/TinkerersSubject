@@ -2,30 +2,10 @@ import type { Mod } from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types
-export type ModifierTag = 'Gold' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical';
+export type ModifierTag = 'Gold' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical' | 'Ailment' | 'Bleed' | 'Duration';
 export type StatModifierValueType = 'Base' | 'Inc' | 'More';
 //#region Mod Description
-export type ModDescription =
-    | '#% Increased Physical Damage'
-    | '#% Increased Elemental Damage'
-    | '#% More Physical Damage'
-    | '#% More Elemental Damage'
-    | '#% More Damage'
-    | 'Adds # To # Physical Damage'
-    | 'Adds # To # Elemental Damage'
-    | '+#% Hit Chance'
-    | '#% Increased Attack Speed'
-    | '#% More Attack Speed'
-    | '#% Increased Maximum Mana'
-    | '+# Maximum Mana'
-    | '+# Mana Regeneration'
-    | '+#% Critical Hit Chance'
-    | '+#% Critical Hit Multiplier'
-    | '+# Gold Per Second'
-    | '#% Increased Gold Per Second'
-    | '#% Increased Skill Duration'
-    ;
-
+export type ModDescription = typeof modTemplates[number]['desc'];
 //#endregion Mod Description
 
 //#region Stat Name
@@ -40,6 +20,8 @@ export type StatName =
     | 'ManaRegen'
     | 'MaxMana'
     | 'Gold'
+    | 'AilmentStack'
+    | 'BleedChance'
     | 'Duration';
 //#endregion Stat Name
 
@@ -60,14 +42,15 @@ export type GainAsStatName = 'ElementalGainAsPhysical' | 'ChaosGainAsElemental' 
 
 //#endregion Types
 
+interface ModTemplateStats {
+    readonly name: StatName;
+    readonly valueType: StatModifierValueType;
+    readonly flags?: number;
+};
 interface ModTemplate {
-    readonly desc: ModDescription;
-    readonly tags: ModifierTag[],
-    readonly stats: {
-        readonly name: StatName;
-        readonly valueType: StatModifierValueType;
-        readonly flags?: number;
-    }[];
+    readonly desc: string;
+    readonly tags: ReadonlyArray<ModifierTag>,
+    readonly stats: ReadonlyArray<ModTemplateStats>;
 }
 
 interface StatModifierParams {
@@ -86,10 +69,12 @@ export const StatModifierFlags = {
     Physical: 1 << 2,
     Elemental: 1 << 3,
     Chaos: 1 << 4,
-    Skill: 1 << 5
+    Skill: 1 << 5,
+    Ailment: 1 << 6,
+    Bleed: 1 << 7
 } as const;
 
-export const modTemplates: ModTemplate[] = [
+export const modTemplates: ReadonlyArray<ModTemplate> = [
     {
         desc: '#% Increased Physical Damage',
         tags: ['Physical'],
@@ -182,6 +167,21 @@ export const modTemplates: ModTemplate[] = [
         tags: ['Gold'],
         stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Skill }],
     },
+    {
+        desc: '+#% Chance To Bleed',
+        tags: ['Bleed', 'Physical'],
+        stats: [{ name: 'BleedChance', valueType: 'Base', flags: StatModifierFlags.Bleed }],
+    },
+    {
+        desc: '+# Bleed Duration',
+        tags: ['Duration', 'Bleed'],
+        stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Bleed }],
+    },
+    {
+        desc: '+# Maximum Bleed Stack',
+        tags: ['Bleed', 'Ailment'],
+        stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlags.Bleed }],
+    },
 ];
 
 export class Modifier {
@@ -195,26 +195,6 @@ export class Modifier {
         const parsedData = Modifier.parseText(text);
         this.template = parsedData.template;
         this.stats = parsedData.stats;
-
-        // const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
-        // const desc = text.replace(/{[^}]+}/g, '#') as ModDescription;
-        // if (!modTemplates.some(x => x.desc === desc)) {
-        //     throw Error('Failed to find mod template. Invalid mod description');
-        // }
-        // this.template = modTemplates.find(x => x.desc === desc)!;
-        // this.tags = this.template.tags;
-
-        // for (const statTemplate of this.template.stats) {
-        //     const groups = match[this.template.stats.indexOf(statTemplate)].groups;
-        //     if (!groups) {
-        //         throw Error();
-        //     }
-        //     const { v1, v2 } = groups;
-        //     const min = parseFloat(v1);
-        //     const max = parseFloat(v2) || min;
-        //     const value = min;
-        //     this.stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
-        // }
     }
 
     get tags() { return this.template.tags }
@@ -234,14 +214,13 @@ export class Modifier {
 
     static parseText(text: string) {
         const match = [...text.matchAll(/{(?<v1>\d+(\.\d+)?)(-(?<v2>\d+(\.\d+)?))?\}/g)];
-        const desc = text.replace(/{[^}]+}/g, '#') as ModDescription;
+        const desc = text.replace(/{[^}]+}/g, '#');
         const template = modTemplates.find(x => x.desc === desc);
         if (!template) {
-            throw Error('Failed to find mod template. Invalid mod description');
+            throw Error(`Failed to find mod template. Invalid mod description: ${text}`);
         }
         const stats: StatModifier[] = [];
-        for (const statTemplate of template.stats) {
-            const index = template.stats.indexOf(statTemplate);
+        for (const [index, statTemplate] of template.stats.entries()) {
             const matchValue = match[index];
             if (!matchValue || !matchValue.groups) {
                 throw Error('invalid modifier');
@@ -262,7 +241,7 @@ export class Modifier {
         let i = 0;
         return desc.replace(/#+/g, (x) => {
             const stat = stats[i++];
-            if(!stat){
+            if (!stat) {
                 throw Error('invalid mod description');
             }
             const value = stat.value.toFixed(x.length - 1) || '#';
