@@ -10,9 +10,7 @@
             "+{1} Mana Regeneration",
             "+{1} Gold Per Second",
             "+{150}% Critical Hit Multiplier",
-            "+{40}% Chance To Bleed",
-            "+{20} Bleed Duration",
-            "+{10} Maximum Bleed Stack"
+            "+{3} Bleed Duration",
         ]
     },
     "components": {

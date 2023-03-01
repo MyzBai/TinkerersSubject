@@ -86,6 +86,10 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental }]
     },
     {
+        desc: '#% Increased Bleed Damage',
+        tags: ['Bleed', 'Physical'],
+        stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
+    },
         desc: '#% More Physical Damage',
         tags: ['Physical'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical }]
@@ -96,6 +100,10 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Elemental }]
     },
     {
+        desc: '#% More Bleed Damage',
+        tags: ['Bleed', 'Physical'],
+        stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
+    },
         desc: '#% More Damage',
         tags: [],
         stats: [{ name: 'Damage', valueType: 'More' }]

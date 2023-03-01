@@ -21,6 +21,7 @@ export default class Statistics {
         'Total Damage': new Statistic(0),
         'Total Physical Damage': new Statistic(0),
         'Total Elemental Damage': new Statistic(0),
+        'Total Bleed Damage': new Statistic(0),
         'Prestige Count': new Statistic(0),
     } as const;
     private readonly page = querySelector('.p-game .p-statistics');
