@@ -138,16 +138,16 @@ class BleedHandler extends AilmentHandler {
 
     setup() {
         super.setup();
-        this.game.player.stats.bleedDuration.addListener('change', amount => {
+        this.game.statistics.statistics['Bleed Duration'].addListener('change', amount => {
             const pct = this.time / this.duration;
             this.duration = amount;
             this.time = this.duration * pct;
         });
-        this.game.player.stats.maxBleedStacks.addListener('change', amount => {
+        this.game.statistics.statistics['Maximum Bleed Stacks'].addListener('change', amount => {
             this.maxNumActiveInstances = amount;
         });
-        this.duration = this.game.player.stats.bleedDuration.get();
-        this.maxNumActiveInstances = this.game.player.stats.maxBleedStacks.get();
+        this.duration = this.game.statistics.statistics['Bleed Duration'].get();
+        this.maxNumActiveInstances = this.game.statistics.statistics['Maximum Bleed Stacks'].get();
     }
 
     updateDamage() {
@@ -176,16 +176,16 @@ class BurnHandler extends AilmentHandler{
 
     setup(): void {
         super.setup();
-        this.game.player.stats.burnDuration.addListener('change', amount => {
+        this.game.statistics.statistics['Burn Duration'].addListener('change', amount => {
             const pct = this.time / this.duration;
             this.duration = amount;
             this.time = this.duration * pct;
         });
-        this.game.player.stats.maxBurnStacks.addListener('change', amount => {
+        this.game.statistics.statistics['Maximum Burn Stacks'].addListener('change', amount => {
             this.maxNumActiveInstances = amount;
         });
-        this.duration = this.game.player.stats.burnDuration.get();
-        this.maxNumActiveInstances = this.game.player.stats.maxBurnStacks.get();
+        this.duration = this.game.statistics.statistics['Burn Duration'].get();
+        this.maxNumActiveInstances = this.game.statistics.statistics["Maximum Burn Stacks"].get();
     }
     updateDamage() {
         const config: Configuration = {

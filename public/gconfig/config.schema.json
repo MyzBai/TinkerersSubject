@@ -255,13 +255,6 @@
                             }
                         }
                     }
-                },
-                "prestige": {
-                    "type": "object",
-                    "required": [ "goldMultiplier" ],
-                    "properties": {
-                        "goldMultiplier": { "type": "integer", "default": 20, "description": "Each prestige will apply this multiplier to gold per second" }
-                    }
                 }
             }
         }
@@ -309,7 +302,6 @@
             "type": "string",
             "anyOf": [
                 { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
-                { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
                 { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
                 { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
                 { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },

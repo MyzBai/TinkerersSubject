@@ -90,7 +90,7 @@ export default class Home {
     }
 
     async tryLoadRecentSave() {
-        const save = await this.game.loadMostRecentSave();
+        const save = await this.game.getMostRecentSave();
         if (!save) {
             return false;
         }
@@ -167,7 +167,7 @@ export default class Home {
             }
             config.meta = saveObj.meta;
 
-            this.game.init(config, saveObj);
+            await this.game.init(config, saveObj);
 
 
             const navBtn = querySelector('header [data-target]');
@@ -175,6 +175,7 @@ export default class Home {
             navBtn.click();
             return true;
         } catch (e) {
+            console.error(`Failed to load "${entry.name}" at: ${entry.rawUrl}`);
             console.error(e);
         }
 

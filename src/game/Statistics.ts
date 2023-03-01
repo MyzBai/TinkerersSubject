@@ -1,111 +1,230 @@
 import type { Save } from "@src/types/save";
 import { querySelector } from "@src/utils/helpers";
+import { GenericModal } from "@src/webComponents/GenericModal";
 import Value from "@utils/Value";
+import { calcPlayerStats } from "./calc/calcMod";
 import type Game from "./Game";
 
+export type StatisticsList = [string, Statistics, boolean][];
+
+interface StatisticParams {
+    defaultValue?: number;
+    sticky?: boolean;
+    format?: 'none' | 'pct' | 'time';
+    decimals?: number;
+    save?: boolean;
+}
+
 export class Statistic extends Value {
-    readonly hidden: boolean;
-    constructor(defaultValue: number, hidden?: boolean) {
-        super(defaultValue);
-        this.hidden = hidden || false;
+    sticky: boolean;
+    readonly decimals: number;
+    readonly format: StatisticParams['format'];
+    readonly save: boolean;
+    constructor(args?: StatisticParams) {
+        super(args?.defaultValue || 0);
+        this.sticky = args?.sticky || false;
+        this.format = args?.format || 'none';
+        this.decimals = args?.decimals || 0;
+        this.save = args?.save || false;
     }
 }
 
 export default class Statistics {
     public readonly statistics = {
-        'Time Played': new Statistic(0),
-        'Gold Generated': new Statistic(0),
-        'Mana Generated': new Statistic(0),
-        'Hits': new Statistic(0),
-        'Critical Hits': new Statistic(0),
-        'Total Damage': new Statistic(0),
-        'Total Physical Damage': new Statistic(0),
-        'Total Elemental Damage': new Statistic(0),
-        'Total Bleed Damage': new Statistic(0),
-        'Total Burn Damage': new Statistic(0),
-        'Prestige Count': new Statistic(0),
+        'Level': new Statistic({ defaultValue: 1, sticky: true, save: true }),
+        'Gold': new Statistic({ defaultValue: 0, sticky: true, save: true }),
+        'Gold Per Second': new Statistic({ defaultValue: 0, sticky: true }),
+        'Dps': new Statistic({ sticky: true }),
+        'Hit Chance': new Statistic({ sticky: true, format: 'pct' }),
+        'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
+        //Crit
+        'Critical Hit Chance': new Statistic({ format: 'pct' }),
+        'Critical Hit Multiplier': new Statistic({ format: 'pct' }),
+        //Mana
+        'Maximum Mana': new Statistic(),
+        'Mana Regeneration': new Statistic(),
+        'Attack Mana Cost': new Statistic(),
+        'Current Mana': new Statistic({ save: false }),
+        //Bleed
+        'Bleed Chance': new Statistic({ format: 'pct' }),
+        'Bleed Dps': new Statistic(),
+        'Bleed Duration': new Statistic(),
+        'Maximum Bleed Stacks': new Statistic(),
+        //Burn
+        'Burn Chance': new Statistic({ format: 'pct' }),
+        'Burn Dps': new Statistic(),
+        'Burn Duration': new Statistic(),
+        'Maximum Burn Stacks': new Statistic(),
+
+        //Other
+        'Skill Duration Multiplier': new Statistic({ format: 'pct' }),
+
+        //Accumulation
+        'Time Played': new Statistic({ save: true, format: 'time' }),
+        'Gold Generated': new Statistic({ save: true }),
+        'Mana Generated': new Statistic({ save: true }),
+        'Hits': new Statistic({ save: true }),
+        'Critical Hits': new Statistic({ save: true }),
+        'Total Damage': new Statistic({ save: true }),
+        'Total Physical Damage': new Statistic({ save: true }),
+        'Total Elemental Damage': new Statistic({ save: true }),
+        'Total Bleed Damage': new Statistic({ save: true }),
+        'Total Burn Damage': new Statistic({ save: true }),
     } as const;
     private readonly page = querySelector('.p-game .p-statistics');
+    private readonly pageListContainer: HTMLElement;
+    private readonly sideListContainer: HTMLElement;
+    private statsUpdateId = -1;
     constructor(readonly game: Game) {
+        this.pageListContainer = querySelector('ul', this.page);
+        this.sideListContainer = querySelector('.s-stats', this.game.page);
+        this.createStatisticsElements();
+        this.createSideListItems();
 
+        game.player.modDB.onChange.listen(async () => {
+            return new Promise((resolve) => {
+                clearTimeout(this.statsUpdateId);
+                this.statsUpdateId = window.setTimeout(async () => {
+                    calcPlayerStats(this.game);
+                    resolve();
+                }, 1);
+            });
+        });
     }
 
     init() {
         this.game.onSave.listen(this.save.bind(this));
         Object.values(this.statistics).forEach(x => x.reset());
         if (this.game.saveObj.statistics) {
-            this.game.saveObj.statistics.forEach(({ name, value }) => {
-                this.statistics[name].set(value);
+            this.game.saveObj.statistics.forEach(({ name, value, sticky }) => {
+                const statistic: Statistic | undefined = this.statistics[name];
+                if (!statistic) {
+                    return;
+                }
+                statistic.set(value);
+                statistic.sticky = sticky;
             });
         }
         this.game.visiblityObserver.registerLoop(this.page, visible => {
             if (visible) {
-                this.updateStatisticsUI();
+                this.updatePageStatisticsUI();
             }
         }, { intervalMilliseconds: 1000 });
-        
-        this.createStatisticsElements();
-        this.updateStatisticsUI();
+
+        this.game.visiblityObserver.registerLoop(this.game.page, visible => {
+            if (visible) {
+                this.updateSideStatisticsUI();
+            }
+        });
+
+        this.statistics.Level.addListener('change', (level) => {
+            if (level >= this.game.enemy.maxIndex + 2 && this.game.config.meta.name === 'Demo') {
+                querySelector<GenericModal>('generic-modal').init({
+                    title: 'Congratulations! You beat the Demo!',
+                    body: `Thank you for playing. Please check out the links down in the footer. \nYour feedback would be highly appreciated.`,
+                    buttons: [{ label: 'Continue', type: 'confirm' }],
+                }).openModal();
+            }
+            this.updateSideStatisticsUI();
+        });
+        this.statistics.Gold.addListener('change', () => {
+            this.updateSideStatisticsUI();
+        });
+
+        this.statistics.Level.set(this.game.saveObj.player?.level || 1);
+        this.statistics.Gold.set(this.game.saveObj.player?.gold || 0);
+
+        calcPlayerStats(this.game);
+        this.updatePageStatisticsUI();
+        this.updateSideStatisticsUI();
     }
 
     private createStatisticsElements() {
         const elements: HTMLLIElement[] = [];
-        const createField = (key: string) => {
+        for (const [key, value] of Object.entries(this.statistics)) {
             const element = document.createElement('li');
-            element.classList.add('g-field', 'hidden');
-            const label = document.createElement('div');
-            element.appendChild(label);
-            const value = document.createElement('var');
-            element.appendChild(value);
-            label.textContent = key;
-            value.setAttribute('data-stat', key);
-            value.setAttribute('data-format-type', this.getFormatType(key as keyof typeof this.statistics));
-            return element;
-        }
-        for (const key of Object.keys(this.statistics)) {
-            const element = createField(key as string);
+            element.classList.add('g-field', 'g-list-item');
+            element.setAttribute('data-stat', key);
+            element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
+            element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
+            if (value.format === 'pct') {
+                element.insertAdjacentHTML('beforeend', '%');
+            }
+            element.addEventListener('click', () => {
+                value.sticky = !value.sticky;
+                this.updatePageStatisticsUI();
+                this.updateSideStatisticsUI();
+            });
             elements.push(element);
         }
-        querySelector('.p-statistics ul').replaceChildren(...elements);
+        this.pageListContainer.replaceChildren(...elements);
     }
 
-    private getFormatType(key: keyof typeof this.statistics) {
-        switch (key) {
-            case 'Time Played': return 'time';
-        }
-        return '';
-    }
-
-    private updateStatisticsUI() {
+    private createSideListItems() {
+        const elements: HTMLElement[] = [];
         for (const [key, value] of Object.entries(this.statistics)) {
-            const element = querySelector(`.p-statistics [data-stat="${key}"]`);
-            if (!element) {
-                continue;
+            const element = document.createElement('li');
+            element.classList.add('g-field');
+            element.setAttribute('data-stat', key);
+
+
+            element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
+            element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
+            if (value.format === 'pct') {
+                element.insertAdjacentHTML('beforeend', '%');
             }
-            const valueZero = value.get() === 0;
-            element.parentElement?.classList.toggle('hidden', valueZero);
-            if (valueZero) {
-                continue;
-            }
-            const type = element.getAttribute('data-format-type');
-            switch (type) {
-                case 'time':
-                    const date = new Date(0);
-                    date.setSeconds(value.get());
-                    const str = date.toISOString().substring(11, 19);
-                    element.textContent = str;
-                    break;
-                default:
-                    element.textContent = value.get().toFixed(0);
-            }
+            elements.push(element);
+        }
+        this.sideListContainer.replaceChildren(...elements);
+    }
+
+    private updatePageStatisticsUI() {
+        for (const [key, statistic] of Object.entries(this.statistics)) {
+            const element = querySelector(`li[data-stat="${key}"]`, this.pageListContainer);
+            element.classList.toggle('selected', statistic.sticky);
+            this.updateListItem(element, statistic);
         }
     }
+
+    private updateSideStatisticsUI() {
+        for (const [key, statistic] of Object.entries(this.statistics)) {
+            const element = querySelector(`li[data-stat="${key}"]`, this.sideListContainer);
+            element.classList.toggle('hidden', !statistic.sticky);
+            if (!statistic.sticky) {
+                continue;
+            }
+            this.updateListItem(element, statistic);
+        }
+    }
+
+    private updateListItem(element: HTMLElement, statistic: Statistic) {
+        const variableElement = querySelector('var', element);
+        const type = variableElement.getAttribute('data-format');
+        let value: number | string = statistic.get();
+        switch (type) {
+            case 'time':
+                const date = new Date(0);
+                date.setSeconds(value);
+                const str = date.toISOString().substring(11, 19);
+                value = str;
+                break;
+            case 'pct':
+                value *= 100;
+                break;
+            default:
+                value = value.toFixed(statistic.decimals)
+        }
+        variableElement.textContent = typeof value === 'number' ? value.toFixed(statistic.decimals) : value;
+    }
+
+
 
     save(saveObj: Save) {
         saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
             return {
                 name: key as keyof Statistics['statistics'],
-                value: value.get()
+                value: value.get(),
+                sticky: value.sticky
             }
         });
     }

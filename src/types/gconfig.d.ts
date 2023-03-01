@@ -104,10 +104,6 @@ export interface Achievements {
         modList?: Mod[];
     }[]
 }
-export interface Prestige {
-    goldMultiplier: number;
-    maxGoldMultiplier: number;
-}
 
 export type Mod = string;
 

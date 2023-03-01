@@ -51,5 +51,5 @@ export interface Save {
             startValue: number;
         }[];
     };
-    statistics?: { name: keyof Statistics['statistics'], value: number }[];
+    statistics?: { name: keyof Statistics['statistics'], value: number, sticky: boolean }[];
 }
