@@ -1,11 +1,11 @@
 import Component from "@src/game/components/Component";
 import type Game from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
-import type { CraftId, ItemMod } from "@src/types/gconfig";
+import type { ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
-import { CraftData, craftTemplates } from "./crafting";
+import { CraftData, CraftId, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
 
 type ItemsData = Required<Required<GConfig>['components']>['items'];
