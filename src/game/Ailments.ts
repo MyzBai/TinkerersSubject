@@ -1,10 +1,10 @@
-import { querySelector } from "@src/utils/helpers";
+import { lerp, querySelector } from "@src/utils/helpers";
 import { calcAilmentBaseDamage } from "./calc/calcDamage";
 import { Configuration } from "./calc/calcMod";
 import Game from "./Game";
 import { StatModifierFlags } from "./mods";
 
-export type AilmentType = 'Bleed';
+export type AilmentType = 'Bleed' | 'Burn';
 
 export interface AilmentData {
     type: AilmentType;
@@ -57,6 +57,8 @@ abstract class AilmentHandler {
 
     tick(dt: number) {
         if (this.instances.length === 0) {
+            this.game.gameLoop.unsubscribe(this.loopId);
+            this.removeElement();
             return;
         }
         this.time -= dt;
@@ -70,11 +72,11 @@ abstract class AilmentHandler {
                 this.instances.splice(i, 1);
             }
         }
+    }
 
-        if (this.instances.length === 0) {
-            this.game.gameLoop.unsubscribe(this.loopId);
-            this.removeElement();
-        }
+    reset(){
+        this.instances.splice(0);
+        this.tick(0);
     }
 
     protected createElement() {
@@ -167,6 +169,43 @@ class BleedHandler extends AilmentHandler {
     }
 }
 
+class BurnHandler extends AilmentHandler{
+    constructor(readonly game: Game){
+        super(game, 'Burn');
+    }
+
+    setup(): void {
+        super.setup();
+        this.game.player.stats.burnDuration.addListener('change', amount => {
+            const pct = this.time / this.duration;
+            this.duration = amount;
+            this.time = this.duration * pct;
+        });
+        this.game.player.stats.maxBurnStacks.addListener('change', amount => {
+            this.maxNumActiveInstances = amount;
+        });
+        this.duration = this.game.player.stats.burnDuration.get();
+        this.maxNumActiveInstances = this.game.player.stats.maxBurnStacks.get();
+    }
+    updateDamage() {
+        const config: Configuration = {
+            statModList: this.game.player.modDB.modList,
+            flags: StatModifierFlags.Burn | StatModifierFlags.Elemental | StatModifierFlags.Ailment
+        };
+        const { min, max } = calcAilmentBaseDamage('Elemental', config);
+        this.instances.forEach(x => x.damage = lerp(min, max, x.damageFac));
+        this.instances.sort((a, b) => b.damage - a.damage);
+    }
+
+    tick(dt: number): void {
+        const damage = this.calcDamage() * dt;
+        this.game.enemy.dealDamageOverTime(damage);
+        this.game.statistics.statistics['Total Burn Damage'].add(damage);
+        this.game.statistics.statistics['Total Elemental Damage'].add(damage);
+        super.tick(dt);
+    }
+}
+
 
 export class Ailments {
     readonly handlers: AilmentHandler[] = [];
@@ -174,6 +213,7 @@ export class Ailments {
     constructor(readonly game: Game) {
         this.combatPage = querySelector('.p-game .p-combat');
         this.handlers.push(new BleedHandler(game));
+        this.handlers.push(new BurnHandler(game));
     }
 
     setup() {
@@ -210,7 +250,7 @@ export class Ailments {
         }, { intervalMilliseconds: 1000 });
 
         this.handlers.forEach(x => {
-            const save = this.game.saveObj.enemy?.ailments?.find(x => x.type === x.type);
+            const save = this.game.saveObj.enemy?.ailments?.find(y => y.type === x.type);
             if (!save) {
                 return;
             }
@@ -222,10 +262,9 @@ export class Ailments {
         });
     }
 
-    clear() {
+    reset() {
         this.handlers.forEach(x => {
-            x.removeElement();
-            x.instances.splice(0);
+            x.reset();
         });
     }
 

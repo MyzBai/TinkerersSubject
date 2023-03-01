@@ -59,7 +59,7 @@ export default class Enemy {
         if (this.index === this.maxIndex + 1) {
             this.healthBar.textContent = 'Dummy (Cannot die)';
         }
-        this.ailments.clear();
+        this.ailments.reset();
     }
 
     dealDamage(amount: number) {

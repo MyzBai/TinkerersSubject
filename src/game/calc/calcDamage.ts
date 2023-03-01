@@ -6,7 +6,7 @@ import { AilmentData } from "../Ailments";
 type ConversionValues = Partial<Record<keyof typeof DamageTypeFlags | 'multi', number>>;
 export type ConversionTable = Partial<Record<keyof typeof DamageTypeFlags, ConversionValues>>;
 
-type DamageType = 'Physical' | 'Elemental' | 'Chaos';
+export type DamageType = 'Physical' | 'Elemental' | 'Chaos';
 type DamageFlag = number;
 export const DamageTypeFlags: Record<DamageType, DamageFlag> = {
     Physical: 1 << 0,
@@ -82,7 +82,15 @@ export function calcAttack(statModList: StatModifier[]) {
         config.flags = StatModifierFlags.Ailment | StatModifierFlags.Bleed | StatModifierFlags.Physical;
         const bleedChance = calcModTotal('BleedChance', config) / 100;
         if(bleedChance >= randomRange(0, 1)){
-            ailments.push({ damageFac: 1, type: 'Bleed' });
+            const damageFac = randomRange(0,1);
+            ailments.push({ damageFac, type: 'Bleed' });
+        }
+
+        config.flags = StatModifierFlags.Ailment | StatModifierFlags.Burn | StatModifierFlags.Elemental;
+        const burnChance = calcModTotal('BurnChance', config) / 100;
+        if(burnChance >= randomRange(0, 1)){
+            const damageFac = randomRange(0,1);
+            ailments.push({ damageFac, type: 'Burn' });
         }
     }
 

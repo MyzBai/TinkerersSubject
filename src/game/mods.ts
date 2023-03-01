@@ -2,7 +2,7 @@ import type { Mod } from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types
-export type ModifierTag = 'Gold' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical' | 'Ailment' | 'Bleed' | 'Duration';
+export type ModifierTag = 'Gold' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical' | 'Ailment' | 'Bleed' | 'Burn' | 'Duration';
 export type StatModifierValueType = 'Base' | 'Inc' | 'More';
 //#region Mod Description
 export type ModDescription = typeof modTemplates[number]['desc'];
@@ -22,6 +22,7 @@ export type StatName =
     | 'Gold'
     | 'AilmentStack'
     | 'BleedChance'
+    | 'BurnChance'
     | 'Duration';
 //#endregion Stat Name
 
@@ -71,7 +72,8 @@ export const StatModifierFlags = {
     Chaos: 1 << 4,
     Skill: 1 << 5,
     Ailment: 1 << 6,
-    Bleed: 1 << 7
+    Bleed: 1 << 7,
+    Burn: 1 << 8
 } as const;
 
 export const modTemplates: ReadonlyArray<ModTemplate> = [
@@ -90,6 +92,12 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         tags: ['Bleed', 'Physical'],
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
     },
+    {
+        desc: '#% Increased Burn Damage',
+        tags: ['Burn', 'Elemental'],
+        stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }],
+    },
+    {
         desc: '#% More Physical Damage',
         tags: ['Physical'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical }]
@@ -104,6 +112,12 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         tags: ['Bleed', 'Physical'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
     },
+    {
+        desc: '#% More Burn Damage',
+        tags: ['Burn', 'Elemental'],
+        stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }],
+    },
+    {
         desc: '#% More Damage',
         tags: [],
         stats: [{ name: 'Damage', valueType: 'More' }]
@@ -181,15 +195,30 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         stats: [{ name: 'BleedChance', valueType: 'Base', flags: StatModifierFlags.Bleed }],
     },
     {
+        desc: '+#% Chance To Burn',
+        tags: ['Burn', 'Elemental'],
+        stats: [{ name: 'BurnChance', valueType: 'Base', flags: StatModifierFlags.Burn }],
+    },
+    {
         desc: '+# Bleed Duration',
         tags: ['Duration', 'Bleed'],
         stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Bleed }],
+    },
+    {
+        desc: '+# Burn Duration',
+        tags: ['Duration', 'Burn'],
+        stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Burn }],
     },
     {
         desc: '+# Maximum Bleed Stack',
         tags: ['Bleed', 'Ailment'],
         stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlags.Bleed }],
     },
+    {
+        desc: '+# Maximum Burn Stack',
+        tags: ['Burn', 'Ailment'],
+        stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlags.Burn }],
+    }
 ];
 
 export class Modifier {

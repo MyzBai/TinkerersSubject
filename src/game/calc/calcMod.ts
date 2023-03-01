@@ -1,6 +1,6 @@
 import { avg, clamp } from "@utils/helpers";
 import { StatModifier, StatModifierFlags, StatName, StatModifierValueType } from "../mods";
-import { calcBaseDamage, ConversionTable } from "./calcDamage";
+import { calcAilmentBaseDamage, calcBaseDamage, ConversionTable } from "./calcDamage";
 
 export type CalcMinMax = (min: number, max: number) => number;
 
@@ -40,13 +40,47 @@ export function calcPlayerStats(statModList: StatModifier[]) {
 
     const baseDamageResult = calcBaseDamage(config, avg);
 
-    const multiplier = baseDamageMultiplier * critDamageMultiplier;
-    const dps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * multiplier;
 
-    config.flags |= StatModifierFlags.Ailment | StatModifierFlags.Bleed;
-    const bleedChance = calcModTotal('BleedChance', config);
-    const maxBleedStacks = calcModTotal('AilmentStack', config);
-    const bleedDuration = calcModTotal('Duration', config);
+    //bleed
+    let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
+    {
+        config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
+        bleedChance = calcModTotal('BleedChance', config) / 100;
+        maxBleedStacks = calcModTotal('AilmentStack', config);
+        bleedDuration = calcModTotal('Duration', config);
+        if (bleedChance > 0) {
+            const { min, max } = calcAilmentBaseDamage('Physical', config);
+            const baseDamage = avg(min, max);
+            const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
+            const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
+            bleedDps = baseDamage * maxStacks;
+        }
+    }
+
+    //burn
+    let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
+    {
+        config.flags = StatModifierFlags.Elemental | StatModifierFlags.Ailment | StatModifierFlags.Burn;
+        burnChance = calcModTotal('BurnChance', config) / 100;
+        maxBurnStacks = calcModTotal('AilmentStack', config);
+        burnDuration = calcModTotal('Duration', config);
+        if (burnChance > 0) {
+            const { min, max } = calcAilmentBaseDamage('Elemental', config);
+            const baseDamage = avg(min, max);
+            const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
+            const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
+            burnDps = baseDamage * maxStacks;
+        }
+    }
+
+
+    const multiplier = baseDamageMultiplier * critDamageMultiplier;
+    const ailmentDps = bleedDps + burnDps;
+    const dps = (baseDamageResult.totalBaseDamage + ailmentDps) * clampedHitChance * attackSpeed * multiplier;
+
+
+
+
 
     return {
         hitChance: hitChance * 100,
@@ -65,9 +99,13 @@ export function calcPlayerStats(statModList: StatModifier[]) {
         goldPerSecond: calcModTotal('GoldPerSecond', config),
         skillDurationMultiplier: calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill })),
 
-        bleedChance,
+        bleedChance: bleedChance * 100,
         maxBleedStacks,
-        bleedDuration
+        bleedDuration,
+
+        burnchance: burnChance * 100,
+        maxBurnStacks,
+        burnDuration
     }
 }
 

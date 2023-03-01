@@ -168,10 +168,10 @@
                                 "properties": {
                                     "id": {
                                         "enum": [
-                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
-                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana",
-                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana",
-                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana" ]
+                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed",
+                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed",
+                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed" ]
                                     },
                                     "levelReq": { "type": "integer", "minimum": 0 },
                                     "cost": { "type": "integer", "minimum": 0 }
@@ -222,15 +222,7 @@
                                         "levelReq": { "$ref": "#/definitions/levelReq" },
                                         "goldAmount": { "type": "integer" },
                                         "description": {
-                                            "type": "string",
-                                            "anyOf": [
-                                                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                                                { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
-                                                { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
-                                                { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
-                                                { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
-                                            ],
-                                            "pattern": "^[^#]*$"
+                                            "$ref": "#/definitions/tasks"
                                         }
                                     }
                                 }
@@ -249,17 +241,7 @@
                                 "required": [ "description" ],
                                 "properties": {
                                     "description": {
-                                        "type": "string",
-                                        "anyOf": [
-                                            { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
-                                            { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
-                                            { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                                            { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
-                                            { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
-                                            { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
-                                            { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
-                                        ],
-                                        "pattern": "^[^#]*$"
+                                        "$ref": "#/definitions/tasks"
                                     },
                                     "modList": {
                                         "type": "array",
@@ -302,8 +284,10 @@
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
                 { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
                 { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" },
-                { "enum": [ "+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison" ] }, { "pattern": "^\\+\\{(\\d+)\\}% Chance To (Bleed|Burn|Poison)$" },
-                { "enum": [ "+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack", "+{#} Maximum Poison Stack" ] }, { "pattern": "^\\+\\{(\\d+)\\} Maximum (Bleed|Burn|Poison) Stack$" }
+                { "enum": [ "+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
+                { "enum": [ "+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
+                { "enum": [ "{#}% Increased Bleed Damage", "{#}% Increased Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
+                { "enum": [ "{#}% More Bleed Damage", "{#}% More Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" }
             ],
             "pattern": "^[^#]*$"
         },
@@ -320,6 +304,19 @@
             "type": "integer",
             "default": 0,
             "minimum": 0
+        },
+        "tasks": {
+            "type": "string",
+            "anyOf": [
+                { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
+                { "enum": [ "Prestige {#}" ] }, { "pattern": "^Prestige \\{\\d+?\\}$" },
+                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
+                { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+            ],
+            "pattern": "^[^#]*$"
         }
     }
 }

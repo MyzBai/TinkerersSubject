@@ -23,7 +23,9 @@ export default class Player {
         manaRegen: new Value(0),
         skillDurationMultiplier: new Value(1),
         maxBleedStacks: new Value(0),
-        bleedDuration: new Value(0)
+        maxBurnStacks: new Value(0),
+        bleedDuration: new Value(0),
+        burnDuration: new Value(0),
     };
     private _attackProgressPct: number = 0;
     constructor(readonly game: Game) {
@@ -113,6 +115,8 @@ export default class Player {
                 this.stats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
                 this.stats.maxBleedStacks.set(statsResult.maxBleedStacks);
                 this.stats.bleedDuration.set(statsResult.bleedDuration);
+                this.stats.maxBurnStacks.set(statsResult.maxBurnStacks);
+                this.stats.burnDuration.set(statsResult.burnDuration);
                 this.playerStatsContainer.querySelectorAll('[data-stat]').forEach(x => {
                     const attr = x.getAttribute('data-stat') as keyof typeof statsResult;
                     const stat = statsResult[attr] as number;
