@@ -189,10 +189,14 @@ export default class Game {
             return false;
         }
 
-        this.init(config, saveObj);
+        try {
+            await this.init(config, saveObj);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
-    async loadMostRecentSave() {
+    async getMostRecentSave() {
         try {
             const map = await saveManager.load('Game');
             if (!map) {
