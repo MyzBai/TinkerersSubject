@@ -136,7 +136,7 @@ export default class Items extends Component {
         });
         const firstElement = elements.find(x => !x.classList.contains('hidden'));
         firstElement?.click();
-        if(!firstElement){
+        if (!firstElement) {
             this.activeCraftId = undefined;
         }
         this.updateCraftButton();
@@ -270,6 +270,8 @@ export class ItemModifier extends Modifier {
     }
 
     copy(): ItemModifier {
-        return new ItemModifier(this.itemModData, this.modGroup);
+        const copy = new ItemModifier(this.itemModData, this.modGroup);
+        copy.stats.forEach((v, i) => v.value = this.stats[i]?.value || v.min);
+        return copy;
     }
 }
