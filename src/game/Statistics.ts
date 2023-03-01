@@ -9,7 +9,7 @@ export type StatisticsList = [string, Statistics, boolean][];
 
 interface StatisticParams {
     defaultValue?: number;
-    checked?: boolean;
+    sticky?: boolean;
     format?: 'none' | 'pct' | 'time';
     decimals?: number;
     save?: boolean;
@@ -22,7 +22,7 @@ export class Statistic extends Value {
     readonly save: boolean;
     constructor(args?: StatisticParams) {
         super(args?.defaultValue || 0);
-        this.sticky = args?.checked || false;
+        this.sticky = args?.sticky || false;
         this.format = args?.format || 'none';
         this.decimals = args?.decimals || 0;
         this.save = args?.save || false;
@@ -31,12 +31,12 @@ export class Statistic extends Value {
 
 export default class Statistics {
     public readonly statistics = {
-        'Level': new Statistic({ defaultValue: 1, checked: true, save: true }),
-        'Gold': new Statistic({ defaultValue: 0, checked: true, save: true }),
-        'Gold Per Second': new Statistic({ defaultValue: 0, checked: true }),
-        'Dps': new Statistic({ checked: true }),
-        'Hit Chance': new Statistic({ checked: true, format: 'pct' }),
-        'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, checked: true }),
+        'Level': new Statistic({ defaultValue: 1, sticky: true, save: true }),
+        'Gold': new Statistic({ defaultValue: 0, sticky: true, save: true }),
+        'Gold Per Second': new Statistic({ defaultValue: 0, sticky: true }),
+        'Dps': new Statistic({ sticky: true }),
+        'Hit Chance': new Statistic({ sticky: true, format: 'pct' }),
+        'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true }),
         //Crit
         'Critical Hit Chance': new Statistic({ format: 'pct' }),
         'Critical Hit Multiplier': new Statistic({ format: 'pct' }),
@@ -96,10 +96,13 @@ export default class Statistics {
         this.game.onSave.listen(this.save.bind(this));
         Object.values(this.statistics).forEach(x => x.reset());
         if (this.game.saveObj.statistics) {
-            this.game.saveObj.statistics.forEach(({ name, value }) => {
-                if (this.statistics[name as keyof Statistics['statistics']]) {
-                    this.statistics[name as keyof Statistics['statistics']].set(value);
+            this.game.saveObj.statistics.forEach(({ name, value, sticky }) => {
+                const statistic: Statistic | undefined = this.statistics[name];
+                if (!statistic) {
+                    return;
                 }
+                statistic.set(value);
+                statistic.sticky = sticky;
             });
         }
         this.game.visiblityObserver.registerLoop(this.page, visible => {
@@ -164,7 +167,7 @@ export default class Statistics {
             element.classList.add('g-field');
             element.setAttribute('data-stat', key);
 
-      
+
             element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
             element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
             if (value.format === 'pct') {
@@ -217,10 +220,11 @@ export default class Statistics {
 
 
     save(saveObj: Save) {
-        saveObj.statistics = Object.entries(this.statistics).filter(x => x[1].save).map(([key, value]) => {
+        saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
             return {
                 name: key as keyof Statistics['statistics'],
-                value: value.get()
+                value: value.get(),
+                sticky: value.sticky
             }
         });
     }
