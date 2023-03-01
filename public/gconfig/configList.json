@@ -7,9 +7,9 @@
             "description": "This is a short configuration for demonstration purposes."
         },
         {
-            "name": "Demo 2",
+            "name": "Playground",
             "rawUrl": "public/gconfig/demo2.json",
-            "description": "This demo is currently in development. Changes may occur unexpectedly."
+            "description": "This configuration is just for testing purposes."
         }
     ]
 }
