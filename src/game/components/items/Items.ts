@@ -41,7 +41,7 @@ export default class Items extends Component {
         this.createCraftListItems(data.craftList);
         this.updateCraftList(this.presets.activePreset?.ids);
 
-        this.game.player.stats.gold.addListener('change', () => {
+        this.game.statistics.statistics.Gold.addListener('change', () => {
             if (this.page.classList.contains('hidden')) {
                 return;
             }
@@ -50,7 +50,7 @@ export default class Items extends Component {
             }
         });
 
-        game.player.stats.level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
+        game.statistics.statistics.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
         this.craftButton.addEventListener('click', () => this.performCraft());
     }
 
@@ -91,7 +91,7 @@ export default class Items extends Component {
 
     private createItems() {
         for (const itemData of this.data.itemList) {
-            this.game.player.stats.level.registerCallback(itemData.levelReq, () => {
+            this.game.statistics.statistics.Level.registerCallback(itemData.levelReq, () => {
                 const item = new Item(this, itemData.name);
                 this.items.push(item);
                 this.itemListContainer.appendChild(item.element);
@@ -117,7 +117,7 @@ export default class Items extends Component {
                 this.updateCraftButton();
             });
 
-            this.game.player.stats.level.registerCallback(levelReq, () => {
+            this.game.statistics.statistics.Level.registerCallback(levelReq, () => {
                 tr.setAttribute('data-enabled', '');
                 highlightHTMLElement(this.menuItem, 'click');
                 highlightHTMLElement(tr, 'mouseover');
@@ -145,7 +145,7 @@ export default class Items extends Component {
     private generateCraftData(): CraftData {
         return {
             itemModList: this.activeItem.mods,
-            modList: this.modLists.filter(x => x.levelReq <= this.game.player.stats.level.get())
+            modList: this.modLists.filter(x => x.levelReq <= this.game.statistics.statistics.Level.get())
         }
     }
 
@@ -156,7 +156,7 @@ export default class Items extends Component {
             }
             const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute('data-cost');
             const cost = Number(costAttr);
-            if (cost > this.game.player.stats.gold.get()) {
+            if (cost > this.game.statistics.statistics.Gold.get()) {
                 return 'Not Enough Gold';
             }
             const template = craftTemplates[this.activeCraftId];
@@ -190,7 +190,7 @@ export default class Items extends Component {
             return;
         }
         this.activeItem.mods = template.getItemMods(craftData);
-        this.game.player.stats.gold.subtract(cost);
+        this.game.statistics.statistics.Gold.subtract(cost);
 
         this.updateItemModList();
     }

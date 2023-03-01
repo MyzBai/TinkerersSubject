@@ -69,7 +69,7 @@ export default class CraftPresets {
         const modal = querySelector<HTMLDialogElement>('.p-game .p-items [data-preset-modal]');
 
         querySelector<HTMLInputElement>('input[data-name]', modal).value = this.activePreset?.name;
-        const filteredCraftList = this.items.data.craftList.filter(x => x.levelReq <= this.items.game.player.stats.level.get());
+        const filteredCraftList = this.items.data.craftList.filter(x => x.levelReq <= this.items.game.statistics.statistics.Level.get());
         const rows = [] as HTMLTableRowElement[];
         for (const craftData of filteredCraftList) {
             const label = this.items.craftDescToHtml(craftData.id);

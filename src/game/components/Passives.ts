@@ -28,7 +28,7 @@ export default class Passives extends Component {
                         this.updatePoints();
                         this.updatePassiveList();
                     });
-                    this.game.player.stats.level.registerCallback(passiveData.levelReq, () => {
+                    this.game.statistics.statistics.Level.registerCallback(passiveData.levelReq, () => {
                         passive.element.classList.remove('hidden');
                         highlightHTMLElement(this.menuItem, 'click');
                         highlightHTMLElement(passive.element, 'mouseover');
@@ -39,7 +39,7 @@ export default class Passives extends Component {
             }
         }
 
-        this.game.player.stats.level.addListener('change', () => {
+        this.game.statistics.statistics.Level.addListener('change', () => {
             this.updatePoints();
             this.updatePassiveList();
         });
@@ -51,7 +51,7 @@ export default class Passives extends Component {
     }
 
     get maxPoints() {
-        return this.data.pointsPerLevel * this.game.player.stats.level.get() - 1;
+        return this.data.pointsPerLevel * this.game.statistics.statistics.Level.get() - 1;
     }
     get curPoints() {
         return this.maxPoints - this.passives.filter(x => x.assigned).reduce((a, c) => a += c.data.points, 0);
@@ -95,7 +95,7 @@ class Passive {
 
         this.element = this.createElement();
         highlightHTMLElement(this.element, 'mouseover');
-        passives.game.player.stats.level.registerCallback(data.levelReq, () => {
+        passives.game.statistics.statistics.Level.registerCallback(data.levelReq, () => {
             this.element.classList.remove('hidden');
         });
 

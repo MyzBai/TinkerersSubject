@@ -1,4 +1,5 @@
 import { avg, clamp } from "@utils/helpers";
+import Game from "../Game";
 import { StatModifier, StatModifierFlags, StatName, StatModifierValueType } from "../mods";
 import { calcAilmentBaseDamage, calcBaseDamage, ConversionTable } from "./calcDamage";
 
@@ -11,30 +12,39 @@ export interface Configuration {
 }
 
 
-export function calcPlayerStats(statModList: StatModifier[]) {
+export function calcPlayerStats(game: Game) {
+    const player = game.player;
+    const statistics = game.statistics.statistics;
 
     const config: Configuration = {
-        statModList,
+        statModList: player.modDB.modList,
         flags: StatModifierFlags.Attack
     };
 
     //Hit Chance
     const hitChance = calcModTotal('HitChance', config) / 100;
+    statistics['Hit Chance'].set(hitChance);
     const clampedHitChance = clamp(hitChance, 0, 1);
 
     //Attack Speed
     const attackSpeed = calcModTotal('AttackSpeed', config);
+    statistics['Attack Speed'].set(hitChance);
     //Base Damage Multiplier
     const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config) / 100;
 
     //Mana
     const maxMana = calcModTotal('MaxMana', config);
+    statistics['Maximum Mana'].set(maxMana);
     const manaRegen = calcModTotal('ManaRegen', config);
+    statistics['Mana Regeneration'].set(manaRegen);
     const attackManaCost = calcModTotal('AttackManaCost', config);
+    statistics['Attack Mana Cost'].set(attackManaCost);
     //Crit
     const critChance = calcModTotal('CritChance', config) / 100;
+    statistics['Critical Hit Chance'].set(critChance);
     const clampedCritChance = clamp(critChance, 0, 1);
     const critMulti = Math.max(calcModTotal('CritMulti', config), 100) / 100;
+    statistics['Critical Hit Multiplier'].set(critMulti);
     // const critDamageMultiplier = 1 + (clampedCritChance * (critMulti - 1));
     const critDamageMultiplier = 1 + (clampedCritChance * critMulti);
 
@@ -55,6 +65,10 @@ export function calcPlayerStats(statModList: StatModifier[]) {
             const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
             bleedDps = baseDamage * maxStacks;
         }
+        statistics['Bleed Dps'].set(bleedDps);
+        statistics['Bleed Chance'].set(bleedChance);
+        statistics['Maximum Bleed Stacks'].set(maxBleedStacks);
+        statistics['Bleed Duration'].set(bleedDuration);
     }
 
     //burn
@@ -71,42 +85,23 @@ export function calcPlayerStats(statModList: StatModifier[]) {
             const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
             burnDps = baseDamage * maxStacks;
         }
+        statistics['Burn Dps'].set(burnDps);
+        statistics['Burn Chance'].set(burnChance);
+        statistics['Maximum Burn Stacks'].set(maxBurnStacks);
+        statistics['Burn Duration'].set(burnDuration);
     }
 
 
     const multiplier = baseDamageMultiplier * critDamageMultiplier;
     const ailmentDps = bleedDps + burnDps;
     const dps = (baseDamageResult.totalBaseDamage + ailmentDps) * clampedHitChance * attackSpeed * multiplier;
+    statistics['Dps'].set(dps);
 
+    const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
+    statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
 
-
-
-
-    return {
-        hitChance: hitChance * 100,
-        clampedHitChance: clampedHitChance * 100,
-        attackSpeed,
-        critChance: critChance * 100,
-        clampedCritChance: clampedCritChance * 100,
-        critMulti: critMulti * 100,
-        maxMana,
-        manaRegen,
-        attackManaCost,
-        dps,
-        minPhysicalDamage: baseDamageResult.minPhysicalDamage,
-        maxPhysicalDamage: baseDamageResult.maxPhysicalDamage,
-
-        goldPerSecond: calcModTotal('GoldPerSecond', config),
-        skillDurationMultiplier: calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill })),
-
-        bleedChance: bleedChance * 100,
-        maxBleedStacks,
-        bleedDuration,
-
-        burnchance: burnChance * 100,
-        maxBurnStacks,
-        burnDuration
-    }
+    const goldPerSecond = calcModTotal('GoldPerSecond', config);
+    statistics['Gold Per Second'].set(goldPerSecond);
 }
 
 

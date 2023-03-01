@@ -22,7 +22,7 @@ export default class Task {
 
     constructor(readonly game: Game, text: string) {
         this.taskValidators = [
-            [/^Reach Level {(\d+)}$/, this.game.player.stats.level],
+            [/^Reach Level {(\d+)}$/, this.game.statistics.statistics.Level],
             [/^Prestige {\d+}?$/, this.game.statistics.statistics["Prestige Count"]],
             [/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]],
             [/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]],

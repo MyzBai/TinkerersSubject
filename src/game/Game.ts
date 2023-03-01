@@ -14,7 +14,6 @@ import Home from "@src/Home";
 import { VisibilityObserver } from "@src/utils/Observers";
 import Component from "./components/Component";
 import { componentConfigs, loadComponent } from "./components/loader";
-import { Ailments } from "./Ailments";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -63,7 +62,6 @@ export default class Game {
         this.enemy.init();
         this.player.init();
         this.statistics.init();
-
         this.initComponents();
 
         this.gameLoop.subscribe(() => {
@@ -83,6 +81,7 @@ export default class Game {
 
     async setup() {
         await this.player.setup();
+        console.log('setup player');
         this.enemy.setup();
 
 
@@ -111,7 +110,7 @@ export default class Game {
             if (!data) {
                 continue;
             }
-            this.player.stats.level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
+            this.statistics.statistics.Level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
                 const component = loadComponent(this, key as ComponentName);
                 this.componentsList.push(component);
             });
@@ -133,11 +132,11 @@ export default class Game {
         Object.defineProperty(window, 'TS', {
             value: {
                 setLevel: (v: number) => {
-                    this.player.stats.level.set(v);
+                    this.statistics.statistics.Level.set(v);
                     this.enemy.setIndex(v - 1);
                     this.enemy.spawn();
                 },
-                setGold: (v: number) => this.player.stats.gold.set(v),
+                setGold: (v: number) => this.statistics.statistics.Gold.set(v),
                 save: () => {
                     this.save();
                 },
