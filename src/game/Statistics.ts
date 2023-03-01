@@ -97,7 +97,7 @@ export default class Statistics {
         Object.values(this.statistics).forEach(x => x.reset());
         if (this.game.saveObj.statistics) {
             this.game.saveObj.statistics.forEach(({ name, value }) => {
-                if(this.statistics[name as keyof Statistics['statistics']]){
+                if (this.statistics[name as keyof Statistics['statistics']]) {
                     this.statistics[name as keyof Statistics['statistics']].set(value);
                 }
             });
@@ -138,25 +138,20 @@ export default class Statistics {
 
     private createStatisticsElements() {
         const elements: HTMLLIElement[] = [];
-        const createField = (key: keyof typeof this.statistics, value: Statistic) => {
+        for (const [key, value] of Object.entries(this.statistics)) {
             const element = document.createElement('li');
             element.classList.add('g-field', 'g-list-item');
             element.setAttribute('data-stat', key);
             element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
-            element.insertAdjacentHTML('beforeend', `<var data-format></var>`);
+            element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
             if (value.format === 'pct') {
                 element.insertAdjacentHTML('beforeend', '%');
             }
             element.addEventListener('click', () => {
-                this.statistics[key].sticky = !this.statistics[key].sticky;
+                value.sticky = !value.sticky;
                 this.updatePageStatisticsUI();
                 this.updateSideStatisticsUI();
             });
-
-            return element;
-        }
-        for (const [key, value] of Object.entries(this.statistics)) {
-            const element = createField(key as keyof typeof this.statistics, value);
             elements.push(element);
         }
         this.pageListContainer.replaceChildren(...elements);
@@ -164,14 +159,18 @@ export default class Statistics {
 
     private createSideListItems() {
         const elements: HTMLElement[] = [];
-        for (const key of Object.keys(this.statistics)) {
+        for (const [key, value] of Object.entries(this.statistics)) {
             const element = document.createElement('li');
             element.classList.add('g-field');
             element.setAttribute('data-stat', key);
-            elements.push(element);
 
+      
             element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
-            element.insertAdjacentHTML('beforeend', `<var data-format></var>`);
+            element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
+            if (value.format === 'pct') {
+                element.insertAdjacentHTML('beforeend', '%');
+            }
+            elements.push(element);
         }
         this.sideListContainer.replaceChildren(...elements);
     }
