@@ -36,7 +36,7 @@ export default class Statistics {
         'Gold Per Second': new Statistic({ defaultValue: 0, sticky: true }),
         'Dps': new Statistic({ sticky: true }),
         'Hit Chance': new Statistic({ sticky: true, format: 'pct' }),
-        'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true }),
+        'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
         //Crit
         'Critical Hit Chance': new Statistic({ format: 'pct' }),
         'Critical Hit Multiplier': new Statistic({ format: 'pct' }),
