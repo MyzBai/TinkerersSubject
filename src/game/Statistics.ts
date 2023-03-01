@@ -1,5 +1,6 @@
 import type { Save } from "@src/types/save";
 import { querySelector } from "@src/utils/helpers";
+import { GenericModal } from "@src/webComponents/GenericModal";
 import Value from "@utils/Value";
 import { calcPlayerStats } from "./calc/calcMod";
 import type Game from "./Game";
@@ -69,7 +70,6 @@ export default class Statistics {
         'Total Elemental Damage': new Statistic({ save: true }),
         'Total Bleed Damage': new Statistic({ save: true }),
         'Total Burn Damage': new Statistic({ save: true }),
-        'Prestige Count': new Statistic({ save: true }),
     } as const;
     private readonly page = querySelector('.p-game .p-statistics');
     private readonly pageListContainer: HTMLElement;
@@ -90,8 +90,6 @@ export default class Statistics {
                 }, 1);
             });
         });
-
-
     }
 
     init() {
@@ -109,11 +107,21 @@ export default class Statistics {
         }, { intervalMilliseconds: 1000 });
 
         this.game.visiblityObserver.registerLoop(this.game.page, visible => {
-            if(visible){
+            if (visible) {
                 this.updateSideStatisticsUI();
             }
         });
 
+        this.statistics.Level.addListener('change', (level) => {
+            if (level >= this.game.enemy.maxIndex + 2 && this.game.config.meta.name === 'Demo') {
+                querySelector<GenericModal>('generic-modal').init({
+                    title: 'Congratulations! You beat the Demo!',
+                    body: `The game is still in early stages, please check out the links down in the footer. \nYour feedback would be highly appreciated.`,
+                    buttons: [{ label: 'Continue', type: 'confirm' }],
+                }).openModal();
+            }
+            this.updateSideStatisticsUI();
+        });
         this.statistics.Gold.addListener('change', () => {
             this.updateSideStatisticsUI();
         });
@@ -178,7 +186,7 @@ export default class Statistics {
         for (const [key, statistic] of Object.entries(this.statistics)) {
             const element = querySelector(`li[data-stat="${key}"]`, this.sideListContainer);
             element.classList.toggle('hidden', !statistic.sticky);
-            if(!statistic.sticky){
+            if (!statistic.sticky) {
                 continue;
             }
             this.updateListItem(element, statistic);

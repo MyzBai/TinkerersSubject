@@ -81,7 +81,6 @@ export default class Game {
 
     async setup() {
         await this.player.setup();
-        console.log('setup player');
         this.enemy.setup();
 
 
