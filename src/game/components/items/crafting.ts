@@ -37,6 +37,11 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Critical'),
         getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Critical').addMultiple(data.modList, generateReforgeModCount(1)).modList
     },
+    reforgeIncludeBleed: {
+        desc: 'Reforge the item with new random modifiers, including a [bleed] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Bleed'),
+        getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Bleed').addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
     reforgeHigherChanceSameMods:{
         desc: 'Reforge the item with a higher chance of receiving the same modifiers',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modList),
@@ -90,6 +95,11 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Critical'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Critical').modList
     },
+    addBleed: {
+        desc: 'Add a [bleed] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Bleed'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Bleed').modList
+    },
     removeRandom: {
         desc: 'Remove a random modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList),
@@ -119,6 +129,11 @@ export const craftTemplates = {
         desc: 'Remove a random modifier and add a new [critical] modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Critical').itemCanCraftModWithTag(data.itemModList, data.modList, 'Critical'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Critical').modList
+    },
+    removeRandomAddBleed: {
+        desc: 'Remove a random modifier and add a new [bleed] modifier',
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Bleed').itemCanCraftModWithTag(data.itemModList, data.modList, 'Bleed'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Bleed').modList
     }
 }
 
