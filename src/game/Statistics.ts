@@ -97,7 +97,9 @@ export default class Statistics {
         Object.values(this.statistics).forEach(x => x.reset());
         if (this.game.saveObj.statistics) {
             this.game.saveObj.statistics.forEach(({ name, value }) => {
-                this.statistics[name].set(value);
+                if(this.statistics[name as keyof Statistics['statistics']]){
+                    this.statistics[name as keyof Statistics['statistics']].set(value);
+                }
             });
         }
         this.game.visiblityObserver.registerLoop(this.page, visible => {
