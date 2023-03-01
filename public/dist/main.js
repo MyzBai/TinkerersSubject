@@ -9260,13 +9260,6 @@
                 }
               }
             }
-          },
-          prestige: {
-            type: "object",
-            required: ["goldMultiplier"],
-            properties: {
-              goldMultiplier: { type: "integer", default: 20, description: "Each prestige will apply this multiplier to gold per second" }
-            }
           }
         }
       }
@@ -9333,8 +9326,6 @@
         anyOf: [
           { enum: ["Reach Level {#}"] },
           { pattern: "^Reach Level \\{\\d+\\}$" },
-          { enum: ["Prestige {#}"] },
-          { pattern: "^Prestige \\{\\d+?\\}$" },
           { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}"] },
           { pattern: "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
           { enum: ["Generate Gold {#}"] },
@@ -9379,67 +9370,6 @@
           this.listeners.delete(key);
         }
       }
-    }
-  };
-
-  // src/utils/Value.ts
-  var Value = class {
-    constructor(defaultValue) {
-      this.defaultValue = defaultValue;
-      __publicField(this, "value");
-      __publicField(this, "listeners", /* @__PURE__ */ new Map([
-        ["change", new EventEmitter()],
-        ["set", new EventEmitter()],
-        ["add", new EventEmitter()],
-        ["subtract", new EventEmitter()]
-      ]));
-      this.value = defaultValue;
-    }
-    set(v) {
-      var _a, _b;
-      this.value = v;
-      (_a = this.listeners.get("set")) == null ? void 0 : _a.invoke(this.value);
-      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
-    }
-    get() {
-      return this.value;
-    }
-    add(v) {
-      var _a, _b;
-      this.value += v;
-      (_a = this.listeners.get("add")) == null ? void 0 : _a.invoke(this.value);
-      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
-    }
-    subtract(v) {
-      var _a, _b;
-      this.value -= v;
-      (_a = this.listeners.get("subtract")) == null ? void 0 : _a.invoke(this.value);
-      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
-    }
-    reset() {
-      this.value = this.defaultValue;
-      this.listeners.forEach((x) => x.removeAllListeners());
-    }
-    addListener(type, callback) {
-      var _a;
-      (_a = this.listeners.get(type)) == null ? void 0 : _a.listen(callback);
-    }
-    removeListener(type, callback) {
-      var _a;
-      (_a = this.listeners.get(type)) == null ? void 0 : _a.removeListener(callback);
-    }
-    registerCallback(targetValue, callback) {
-      if (targetValue <= this.value) {
-        callback(this.value);
-        return;
-      }
-      const listener = () => {
-        if (this.value >= targetValue) {
-          callback(this.value);
-          this.removeListener("change", listener);
-        }
-      };
-      this.addListener("change", listener);
     }
   };
 
@@ -9719,6 +9649,130 @@
     }
   };
 
+  // src/game/calc/calcMod.ts
+  function calcPlayerStats(game) {
+    const player = game.player;
+    const statistics = game.statistics.statistics;
+    const config = {
+      statModList: player.modDB.modList,
+      flags: StatModifierFlags.Attack
+    };
+    const hitChance = calcModTotal("HitChance", config) / 100;
+    statistics["Hit Chance"].set(hitChance);
+    const clampedHitChance = clamp(hitChance, 0, 1);
+    const attackSpeed = calcModTotal("AttackSpeed", config);
+    statistics["Attack Speed"].set(attackSpeed);
+    const maxMana = calcModTotal("MaxMana", config);
+    statistics["Maximum Mana"].set(maxMana);
+    const manaRegen = calcModTotal("ManaRegen", config);
+    statistics["Mana Regeneration"].set(manaRegen);
+    const attackManaCost = calcModTotal("AttackManaCost", config);
+    statistics["Attack Mana Cost"].set(attackManaCost);
+    const critChance = calcModTotal("CritChance", config) / 100;
+    statistics["Critical Hit Chance"].set(critChance);
+    const clampedCritChance = clamp(critChance, 0, 1);
+    const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
+    statistics["Critical Hit Multiplier"].set(critMulti);
+    const critDamageMultiplier = 1 + clampedCritChance * critMulti;
+    const baseDamageResult = calcBaseDamage(config, avg);
+    let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
+    {
+      config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
+      bleedChance = calcModTotal("BleedChance", config) / 100;
+      maxBleedStacks = calcModTotal("AilmentStack", config);
+      bleedDuration = calcModTotal("Duration", config);
+      if (bleedChance > 0) {
+        const { min, max } = calcAilmentBaseDamage("Physical", config);
+        const baseDamage = avg(min, max);
+        const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
+        const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
+        bleedDps = baseDamage * maxStacks;
+      }
+      statistics["Bleed Dps"].set(bleedDps);
+      statistics["Bleed Chance"].set(bleedChance);
+      statistics["Maximum Bleed Stacks"].set(maxBleedStacks);
+      statistics["Bleed Duration"].set(bleedDuration);
+    }
+    let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
+    {
+      config.flags = StatModifierFlags.Elemental | StatModifierFlags.Ailment | StatModifierFlags.Burn;
+      burnChance = calcModTotal("BurnChance", config) / 100;
+      maxBurnStacks = calcModTotal("AilmentStack", config);
+      burnDuration = calcModTotal("Duration", config);
+      if (burnChance > 0) {
+        const { min, max } = calcAilmentBaseDamage("Elemental", config);
+        const baseDamage = avg(min, max);
+        const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
+        const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
+        burnDps = baseDamage * maxStacks;
+      }
+      statistics["Burn Dps"].set(burnDps);
+      statistics["Burn Chance"].set(burnChance);
+      statistics["Maximum Burn Stacks"].set(maxBurnStacks);
+      statistics["Burn Duration"].set(burnDuration);
+    }
+    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
+    const multiplier = baseDamageMultiplier * critDamageMultiplier;
+    const ailmentDps = bleedDps + burnDps;
+    const dps = (baseDamageResult.totalBaseDamage + ailmentDps) * clampedHitChance * attackSpeed * multiplier;
+    statistics["Dps"].set(dps);
+    const skillDurationMultiplier = calcModIncMore("Duration", 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
+    statistics["Skill Duration Multiplier"].set(skillDurationMultiplier);
+    const goldPerSecond = calcModTotal("GoldPerSecond", config);
+    statistics["Gold Per Second"].set(goldPerSecond);
+  }
+  function calcModBase(modName, config) {
+    return calcModSum("Base", modName, config);
+  }
+  function calcModInc(modName, config) {
+    return Math.max(0, 1 + calcModSum("Inc", modName, config) / 100);
+  }
+  function calcModMore(modName, config) {
+    return Math.max(0, calcModSum("More", modName, config));
+  }
+  function calcModIncMore(modName, base, config) {
+    if (base <= 0)
+      return 0;
+    const inc = calcModInc(modName, config);
+    const more = calcModMore(modName, config);
+    return base * inc * more;
+  }
+  function calcModTotal(modName, config) {
+    const base = calcModBase(modName, config);
+    if (base === 0) {
+      return 0;
+    }
+    const inc = calcModInc(modName, config);
+    const more = calcModMore(modName, config);
+    return base * inc * more;
+  }
+  function calcModSum(valueType, name2, config) {
+    name2 = Array.isArray(name2) ? name2 : [name2];
+    let result = valueType === "More" ? 1 : 0;
+    const hasFlag = (a, b) => {
+      return (a & b) === b;
+    };
+    const filteredModList = config.statModList.filter((x) => {
+      if (!name2.includes(x.name)) {
+        return false;
+      }
+      if (x.valueType !== valueType)
+        return false;
+      if (!hasFlag(config.flags, x.flags || 0))
+        return false;
+      return true;
+    });
+    for (const mod of filteredModList) {
+      let value = mod.value;
+      if (valueType === "More") {
+        result *= 1 + value / 100;
+      } else {
+        result += value;
+      }
+    }
+    return Math.max(0, result);
+  }
+
   // src/game/calc/calcDamage.ts
   var DamageTypeFlags = {
     Physical: 1 << 0,
@@ -9884,153 +9938,12 @@
     return conversionTable;
   }
 
-  // src/game/calc/calcMod.ts
-  function calcPlayerStats(statModList) {
-    const config = {
-      statModList,
-      flags: StatModifierFlags.Attack
-    };
-    const hitChance = calcModTotal("HitChance", config) / 100;
-    const clampedHitChance = clamp(hitChance, 0, 1);
-    const attackSpeed = calcModTotal("AttackSpeed", config);
-    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
-    const maxMana = calcModTotal("MaxMana", config);
-    const manaRegen = calcModTotal("ManaRegen", config);
-    const attackManaCost = calcModTotal("AttackManaCost", config);
-    const critChance = calcModTotal("CritChance", config) / 100;
-    const clampedCritChance = clamp(critChance, 0, 1);
-    const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
-    const critDamageMultiplier = 1 + clampedCritChance * critMulti;
-    const baseDamageResult = calcBaseDamage(config, avg);
-    let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
-    {
-      config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
-      bleedChance = calcModTotal("BleedChance", config) / 100;
-      maxBleedStacks = calcModTotal("AilmentStack", config);
-      bleedDuration = calcModTotal("Duration", config);
-      if (bleedChance > 0) {
-        const { min, max } = calcAilmentBaseDamage("Physical", config);
-        const baseDamage = avg(min, max);
-        const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
-        const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
-        bleedDps = baseDamage * maxStacks;
-      }
-    }
-    let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
-    {
-      config.flags = StatModifierFlags.Elemental | StatModifierFlags.Ailment | StatModifierFlags.Burn;
-      burnChance = calcModTotal("BurnChance", config) / 100;
-      maxBurnStacks = calcModTotal("AilmentStack", config);
-      burnDuration = calcModTotal("Duration", config);
-      if (burnChance > 0) {
-        const { min, max } = calcAilmentBaseDamage("Elemental", config);
-        const baseDamage = avg(min, max);
-        const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
-        const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
-        burnDps = baseDamage * maxStacks;
-      }
-    }
-    const multiplier = baseDamageMultiplier * critDamageMultiplier;
-    const ailmentDps = bleedDps + burnDps;
-    const dps = (baseDamageResult.totalBaseDamage + ailmentDps) * clampedHitChance * attackSpeed * multiplier;
-    return {
-      hitChance: hitChance * 100,
-      clampedHitChance: clampedHitChance * 100,
-      attackSpeed,
-      critChance: critChance * 100,
-      clampedCritChance: clampedCritChance * 100,
-      critMulti: critMulti * 100,
-      maxMana,
-      manaRegen,
-      attackManaCost,
-      dps,
-      minPhysicalDamage: baseDamageResult.minPhysicalDamage,
-      maxPhysicalDamage: baseDamageResult.maxPhysicalDamage,
-      goldPerSecond: calcModTotal("GoldPerSecond", config),
-      skillDurationMultiplier: calcModIncMore("Duration", 1, Object.assign({}, config, { flags: StatModifierFlags.Skill })),
-      bleedChance: bleedChance * 100,
-      maxBleedStacks,
-      bleedDuration,
-      burnchance: burnChance * 100,
-      maxBurnStacks,
-      burnDuration
-    };
-  }
-  function calcModBase(modName, config) {
-    return calcModSum("Base", modName, config);
-  }
-  function calcModInc(modName, config) {
-    return Math.max(0, 1 + calcModSum("Inc", modName, config) / 100);
-  }
-  function calcModMore(modName, config) {
-    return Math.max(0, calcModSum("More", modName, config));
-  }
-  function calcModIncMore(modName, base, config) {
-    if (base <= 0)
-      return 0;
-    const inc = calcModInc(modName, config);
-    const more = calcModMore(modName, config);
-    return base * inc * more;
-  }
-  function calcModTotal(modName, config) {
-    const base = calcModBase(modName, config);
-    if (base === 0) {
-      return 0;
-    }
-    const inc = calcModInc(modName, config);
-    const more = calcModMore(modName, config);
-    return base * inc * more;
-  }
-  function calcModSum(valueType, name2, config) {
-    name2 = Array.isArray(name2) ? name2 : [name2];
-    let result = valueType === "More" ? 1 : 0;
-    const hasFlag = (a, b) => {
-      return (a & b) === b;
-    };
-    const filteredModList = config.statModList.filter((x) => {
-      if (!name2.includes(x.name)) {
-        return false;
-      }
-      if (x.valueType !== valueType)
-        return false;
-      if (!hasFlag(config.flags, x.flags || 0))
-        return false;
-      return true;
-    });
-    for (const mod of filteredModList) {
-      let value = mod.value;
-      if (valueType === "More") {
-        result *= 1 + value / 100;
-      } else {
-        result += value;
-      }
-    }
-    return Math.max(0, result);
-  }
-
   // src/game/Player.ts
   var Player = class {
     constructor(game) {
       this.game = game;
-      __publicField(this, "playerStatsContainer", querySelector(".p-game [data-player-stats]"));
       __publicField(this, "manaBar");
-      __publicField(this, "statsUpdateId", -1);
       __publicField(this, "modDB", new ModDB());
-      __publicField(this, "stats", {
-        level: new Value(1),
-        gold: new Value(0),
-        goldPerSecond: new Value(0),
-        attackSpeed: new Value(Number.MAX_VALUE),
-        attackManaCost: new Value(0),
-        maxMana: new Value(0),
-        curMana: new Value(0),
-        manaRegen: new Value(0),
-        skillDurationMultiplier: new Value(1),
-        maxBleedStacks: new Value(0),
-        maxBurnStacks: new Value(0),
-        bleedDuration: new Value(0),
-        burnDuration: new Value(0)
-      });
       __publicField(this, "_attackProgressPct", 0);
       this.manaBar = querySelector("[data-mana-bar]", this.game.page);
     }
@@ -10038,14 +9951,7 @@
       return this._attackProgressPct;
     }
     init() {
-      var _a, _b;
       this.modDB.clear();
-      this.modDB.onChange.listen(() => this.updateStats());
-      Object.values(this.stats).forEach((x) => x.reset());
-      this.stats.level.addListener("change", (x) => querySelector('[data-stat="level"]', this.playerStatsContainer).textContent = x.toFixed());
-      this.stats.gold.addListener("change", (x) => querySelector('[data-stat="gold"]', this.playerStatsContainer).textContent = x.toFixed());
-      this.stats.level.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.level) || 1);
-      this.stats.gold.set(((_b = this.game.saveObj.player) == null ? void 0 : _b.gold) || 0);
       if (this.game.config.player) {
         this.game.config.player.modList.forEach((x) => {
           this.modDB.add(new Modifier(x).stats, "Player");
@@ -10055,32 +9961,24 @@
         this.updateManaBar();
       });
       this.game.enemy.onDeath.listen(() => {
-        if (this.stats.level.get() <= this.game.enemy.maxIndex) {
-          this.stats.level.add(1);
-        } else {
-          if (this.game.config.meta.name === "Demo") {
-            querySelector("generic-modal").init({
-              title: "You win!",
-              body: "This is the end of this demo.",
-              buttons: [{ label: "Continue", type: "confirm" }]
-            }).openModal();
-          }
+        if (this.game.statistics.statistics.Level.get() <= this.game.enemy.maxIndex) {
+          this.game.statistics.statistics.Level.add(1);
         }
       });
-      this.stats.curMana.addListener("change", (curMana) => {
-        const maxMana = this.stats.maxMana.get();
+      this.game.statistics.statistics["Current Mana"].addListener("change", (curMana) => {
+        const maxMana = this.game.statistics.statistics["Maximum Mana"].get();
         if (curMana > maxMana) {
-          this.stats.curMana.set(maxMana);
+          this.game.statistics.statistics["Current Mana"].set(maxMana);
         }
       });
       this.game.gameLoop.subscribe(() => {
-        const amount = this.stats.goldPerSecond.get();
-        this.stats.gold.add(amount);
+        const amount = this.game.statistics.statistics["Gold Per Second"].get();
+        this.game.statistics.statistics.Gold.add(amount);
         this.game.statistics.statistics["Gold Generated"].add(amount);
       }, { intervalMilliseconds: 1e3 });
       this.game.gameLoop.subscribe((dt) => {
-        const manaRegen = this.stats.manaRegen.get() * dt;
-        this.stats.curMana.add(manaRegen);
+        const manaRegen = this.game.statistics.statistics["Mana Regeneration"].get() * dt;
+        this.game.statistics.statistics["Current Mana"].add(manaRegen);
         this.game.statistics.statistics["Mana Generated"].add(manaRegen);
       });
       this.game.onSave.listen(this.save.bind(this));
@@ -10088,47 +9986,19 @@
     }
     async setup() {
       var _a;
-      await this.updateStats();
-      this.stats.curMana.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.curMana) || this.stats.maxMana.get());
+      this.game.statistics.statistics["Current Mana"].set(((_a = this.game.saveObj.player) == null ? void 0 : _a.curMana) || this.game.statistics.statistics["Maximum Mana"].get());
       this.updateManaBar();
     }
-    updateStats() {
-      return new Promise((resolve) => {
-        clearTimeout(this.statsUpdateId);
-        this.statsUpdateId = window.setTimeout(async () => {
-          const statsResult = calcPlayerStats(this.modDB.modList);
-          this.stats.attackSpeed.set(statsResult.attackSpeed);
-          this.stats.goldPerSecond.set(statsResult.goldPerSecond);
-          this.stats.maxMana.set(statsResult.maxMana);
-          this.stats.manaRegen.set(statsResult.manaRegen);
-          this.stats.attackManaCost.set(statsResult.attackManaCost);
-          this.stats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
-          this.stats.maxBleedStacks.set(statsResult.maxBleedStacks);
-          this.stats.bleedDuration.set(statsResult.bleedDuration);
-          this.stats.maxBurnStacks.set(statsResult.maxBurnStacks);
-          this.stats.burnDuration.set(statsResult.burnDuration);
-          this.playerStatsContainer.querySelectorAll("[data-stat]").forEach((x) => {
-            const attr = x.getAttribute("data-stat");
-            const stat = statsResult[attr];
-            if (typeof stat === "number") {
-              const numDecimals = Number(x.getAttribute("data-digits") || 0);
-              x.textContent = stat.toFixed(numDecimals);
-            }
-          });
-          resolve(null);
-        }, 1);
-      });
-    }
     updateManaBar() {
-      if (this.stats.maxMana.get() <= 0) {
+      if (this.game.statistics.statistics["Maximum Mana"].get() <= 0) {
         return;
       }
-      const pct = this.stats.curMana.get() / this.stats.maxMana.get();
+      const pct = this.game.statistics.statistics["Current Mana"].get() / this.game.statistics.statistics["Maximum Mana"].get();
       this.manaBar.value = pct;
     }
     startAutoAttack() {
-      const calcWaitTime = () => 1 / this.stats.attackSpeed.get();
-      this.stats.attackSpeed.addListener("change", () => {
+      const calcWaitTime = () => 1 / this.game.statistics.statistics["Attack Speed"].get();
+      this.game.statistics.statistics["Attack Speed"].addListener("change", () => {
         waitTimeSeconds = calcWaitTime();
         time = waitTimeSeconds * this._attackProgressPct;
       });
@@ -10138,10 +10008,10 @@
         this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
         time += dt;
         if (time >= waitTimeSeconds) {
-          const curMana = this.stats.curMana.get();
-          const manaCost = this.stats.attackManaCost.get();
+          const curMana = this.game.statistics.statistics["Current Mana"].get();
+          const manaCost = this.game.statistics.statistics["Attack Mana Cost"].get();
           if (curMana > manaCost) {
-            this.stats.curMana.subtract(manaCost);
+            this.game.statistics.statistics["Current Mana"].subtract(manaCost);
             this.performAttack();
             waitTimeSeconds = calcWaitTime();
             time = 0;
@@ -10166,9 +10036,9 @@
     }
     save(saveObj) {
       saveObj.player = {
-        level: this.stats.level.get(),
-        gold: this.stats.gold.get(),
-        curMana: this.stats.curMana.get()
+        level: this.game.statistics.statistics.Level.get(),
+        gold: this.game.statistics.statistics.Gold.get(),
+        curMana: this.game.statistics.statistics["Current Mana"].get()
       };
     }
   };
@@ -10288,16 +10158,16 @@
     }
     setup() {
       super.setup();
-      this.game.player.stats.bleedDuration.addListener("change", (amount) => {
+      this.game.statistics.statistics["Bleed Duration"].addListener("change", (amount) => {
         const pct = this.time / this.duration;
         this.duration = amount;
         this.time = this.duration * pct;
       });
-      this.game.player.stats.maxBleedStacks.addListener("change", (amount) => {
+      this.game.statistics.statistics["Maximum Bleed Stacks"].addListener("change", (amount) => {
         this.maxNumActiveInstances = amount;
       });
-      this.duration = this.game.player.stats.bleedDuration.get();
-      this.maxNumActiveInstances = this.game.player.stats.maxBleedStacks.get();
+      this.duration = this.game.statistics.statistics["Bleed Duration"].get();
+      this.maxNumActiveInstances = this.game.statistics.statistics["Maximum Bleed Stacks"].get();
     }
     updateDamage() {
       const config = {
@@ -10323,16 +10193,16 @@
     }
     setup() {
       super.setup();
-      this.game.player.stats.burnDuration.addListener("change", (amount) => {
+      this.game.statistics.statistics["Burn Duration"].addListener("change", (amount) => {
         const pct = this.time / this.duration;
         this.duration = amount;
         this.time = this.duration * pct;
       });
-      this.game.player.stats.maxBurnStacks.addListener("change", (amount) => {
+      this.game.statistics.statistics["Maximum Burn Stacks"].addListener("change", (amount) => {
         this.maxNumActiveInstances = amount;
       });
-      this.duration = this.game.player.stats.burnDuration.get();
-      this.maxNumActiveInstances = this.game.player.stats.maxBurnStacks.get();
+      this.duration = this.game.statistics.statistics["Burn Duration"].get();
+      this.maxNumActiveInstances = this.game.statistics.statistics["Maximum Burn Stacks"].get();
     }
     updateDamage() {
       const config = {
@@ -10610,105 +10480,256 @@
     }
   };
 
+  // src/utils/Value.ts
+  var Value = class {
+    constructor(defaultValue) {
+      this.defaultValue = defaultValue;
+      __publicField(this, "value");
+      __publicField(this, "listeners", /* @__PURE__ */ new Map([
+        ["change", new EventEmitter()],
+        ["set", new EventEmitter()],
+        ["add", new EventEmitter()],
+        ["subtract", new EventEmitter()]
+      ]));
+      this.value = defaultValue;
+    }
+    set(v) {
+      var _a, _b;
+      this.value = v;
+      (_a = this.listeners.get("set")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    get() {
+      return this.value;
+    }
+    add(v) {
+      var _a, _b;
+      this.value += v;
+      (_a = this.listeners.get("add")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    subtract(v) {
+      var _a, _b;
+      this.value -= v;
+      (_a = this.listeners.get("subtract")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    reset() {
+      this.value = this.defaultValue;
+      this.listeners.forEach((x) => x.removeAllListeners());
+    }
+    addListener(type, callback) {
+      var _a;
+      (_a = this.listeners.get(type)) == null ? void 0 : _a.listen(callback);
+    }
+    removeListener(type, callback) {
+      var _a;
+      (_a = this.listeners.get(type)) == null ? void 0 : _a.removeListener(callback);
+    }
+    registerCallback(targetValue, callback) {
+      if (targetValue <= this.value) {
+        callback(this.value);
+        return;
+      }
+      const listener = () => {
+        if (this.value >= targetValue) {
+          callback(this.value);
+          this.removeListener("change", listener);
+        }
+      };
+      this.addListener("change", listener);
+    }
+  };
+
   // src/game/Statistics.ts
   var Statistic = class extends Value {
-    constructor(defaultValue, hidden) {
-      super(defaultValue);
-      __publicField(this, "hidden");
-      this.hidden = hidden || false;
+    constructor(args) {
+      super((args == null ? void 0 : args.defaultValue) || 0);
+      __publicField(this, "sticky");
+      __publicField(this, "decimals");
+      __publicField(this, "format");
+      __publicField(this, "save");
+      this.sticky = (args == null ? void 0 : args.sticky) || false;
+      this.format = (args == null ? void 0 : args.format) || "none";
+      this.decimals = (args == null ? void 0 : args.decimals) || 0;
+      this.save = (args == null ? void 0 : args.save) || false;
     }
   };
   var Statistics = class {
     constructor(game) {
       this.game = game;
       __publicField(this, "statistics", {
-        "Time Played": new Statistic(0),
-        "Gold Generated": new Statistic(0),
-        "Mana Generated": new Statistic(0),
-        "Hits": new Statistic(0),
-        "Critical Hits": new Statistic(0),
-        "Total Damage": new Statistic(0),
-        "Total Physical Damage": new Statistic(0),
-        "Total Elemental Damage": new Statistic(0),
-        "Total Bleed Damage": new Statistic(0),
-        "Total Burn Damage": new Statistic(0),
-        "Prestige Count": new Statistic(0)
+        "Level": new Statistic({ defaultValue: 1, sticky: true, save: true }),
+        "Gold": new Statistic({ defaultValue: 0, sticky: true, save: true }),
+        "Gold Per Second": new Statistic({ defaultValue: 0, sticky: true }),
+        "Dps": new Statistic({ sticky: true }),
+        "Hit Chance": new Statistic({ sticky: true, format: "pct" }),
+        "Attack Speed": new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
+        "Critical Hit Chance": new Statistic({ format: "pct" }),
+        "Critical Hit Multiplier": new Statistic({ format: "pct" }),
+        "Maximum Mana": new Statistic(),
+        "Mana Regeneration": new Statistic(),
+        "Attack Mana Cost": new Statistic(),
+        "Current Mana": new Statistic({ save: false }),
+        "Bleed Chance": new Statistic({ format: "pct" }),
+        "Bleed Dps": new Statistic(),
+        "Bleed Duration": new Statistic(),
+        "Maximum Bleed Stacks": new Statistic(),
+        "Burn Chance": new Statistic({ format: "pct" }),
+        "Burn Dps": new Statistic(),
+        "Burn Duration": new Statistic(),
+        "Maximum Burn Stacks": new Statistic(),
+        "Skill Duration Multiplier": new Statistic({ format: "pct" }),
+        "Time Played": new Statistic({ save: true, format: "time" }),
+        "Gold Generated": new Statistic({ save: true }),
+        "Mana Generated": new Statistic({ save: true }),
+        "Hits": new Statistic({ save: true }),
+        "Critical Hits": new Statistic({ save: true }),
+        "Total Damage": new Statistic({ save: true }),
+        "Total Physical Damage": new Statistic({ save: true }),
+        "Total Elemental Damage": new Statistic({ save: true }),
+        "Total Bleed Damage": new Statistic({ save: true }),
+        "Total Burn Damage": new Statistic({ save: true })
       });
       __publicField(this, "page", querySelector(".p-game .p-statistics"));
+      __publicField(this, "pageListContainer");
+      __publicField(this, "sideListContainer");
+      __publicField(this, "statsUpdateId", -1);
+      this.pageListContainer = querySelector("ul", this.page);
+      this.sideListContainer = querySelector(".s-stats", this.game.page);
+      this.createStatisticsElements();
+      this.createSideListItems();
+      game.player.modDB.onChange.listen(async () => {
+        return new Promise((resolve) => {
+          clearTimeout(this.statsUpdateId);
+          this.statsUpdateId = window.setTimeout(async () => {
+            calcPlayerStats(this.game);
+            resolve();
+          }, 1);
+        });
+      });
     }
     init() {
+      var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
       Object.values(this.statistics).forEach((x) => x.reset());
       if (this.game.saveObj.statistics) {
-        this.game.saveObj.statistics.forEach(({ name: name2, value }) => {
-          this.statistics[name2].set(value);
+        this.game.saveObj.statistics.forEach(({ name: name2, value, sticky }) => {
+          const statistic = this.statistics[name2];
+          if (!statistic) {
+            return;
+          }
+          statistic.set(value);
+          statistic.sticky = sticky;
         });
       }
       this.game.visiblityObserver.registerLoop(this.page, (visible) => {
         if (visible) {
-          this.updateStatisticsUI();
+          this.updatePageStatisticsUI();
         }
       }, { intervalMilliseconds: 1e3 });
-      this.createStatisticsElements();
-      this.updateStatisticsUI();
+      this.game.visiblityObserver.registerLoop(this.game.page, (visible) => {
+        if (visible) {
+          this.updateSideStatisticsUI();
+        }
+      });
+      this.statistics.Level.addListener("change", (level) => {
+        if (level >= this.game.enemy.maxIndex + 2 && this.game.config.meta.name === "Demo") {
+          querySelector("generic-modal").init({
+            title: "Congratulations! You beat the Demo!",
+            body: `Thank you for playing. Please check out the links down in the footer. 
+Your feedback would be highly appreciated.`,
+            buttons: [{ label: "Continue", type: "confirm" }]
+          }).openModal();
+        }
+        this.updateSideStatisticsUI();
+      });
+      this.statistics.Gold.addListener("change", () => {
+        this.updateSideStatisticsUI();
+      });
+      this.statistics.Level.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.level) || 1);
+      this.statistics.Gold.set(((_b = this.game.saveObj.player) == null ? void 0 : _b.gold) || 0);
+      calcPlayerStats(this.game);
+      this.updatePageStatisticsUI();
+      this.updateSideStatisticsUI();
     }
     createStatisticsElements() {
       const elements = [];
-      const createField = (key) => {
+      for (const [key, value] of Object.entries(this.statistics)) {
         const element = document.createElement("li");
-        element.classList.add("g-field", "hidden");
-        const label = document.createElement("div");
-        element.appendChild(label);
-        const value = document.createElement("var");
-        element.appendChild(value);
-        label.textContent = key;
-        value.setAttribute("data-stat", key);
-        value.setAttribute("data-format-type", this.getFormatType(key));
-        return element;
-      };
-      for (const key of Object.keys(this.statistics)) {
-        const element = createField(key);
+        element.classList.add("g-field", "g-list-item");
+        element.setAttribute("data-stat", key);
+        element.insertAdjacentHTML("beforeend", `<div>${key}</div>`);
+        element.insertAdjacentHTML("beforeend", `<var data-format="${value.format}"></var>`);
+        if (value.format === "pct") {
+          element.insertAdjacentHTML("beforeend", "%");
+        }
+        element.addEventListener("click", () => {
+          value.sticky = !value.sticky;
+          this.updatePageStatisticsUI();
+          this.updateSideStatisticsUI();
+        });
         elements.push(element);
       }
-      querySelector(".p-statistics ul").replaceChildren(...elements);
+      this.pageListContainer.replaceChildren(...elements);
     }
-    getFormatType(key) {
-      switch (key) {
-        case "Time Played":
-          return "time";
-      }
-      return "";
-    }
-    updateStatisticsUI() {
-      var _a;
+    createSideListItems() {
+      const elements = [];
       for (const [key, value] of Object.entries(this.statistics)) {
-        const element = querySelector(`.p-statistics [data-stat="${key}"]`);
-        if (!element) {
-          continue;
+        const element = document.createElement("li");
+        element.classList.add("g-field");
+        element.setAttribute("data-stat", key);
+        element.insertAdjacentHTML("beforeend", `<div>${key}</div>`);
+        element.insertAdjacentHTML("beforeend", `<var data-format="${value.format}"></var>`);
+        if (value.format === "pct") {
+          element.insertAdjacentHTML("beforeend", "%");
         }
-        const valueZero = value.get() === 0;
-        (_a = element.parentElement) == null ? void 0 : _a.classList.toggle("hidden", valueZero);
-        if (valueZero) {
-          continue;
-        }
-        const type = element.getAttribute("data-format-type");
-        switch (type) {
-          case "time":
-            const date = new Date(0);
-            date.setSeconds(value.get());
-            const str = date.toISOString().substring(11, 19);
-            element.textContent = str;
-            break;
-          default:
-            element.textContent = value.get().toFixed(0);
-        }
+        elements.push(element);
       }
+      this.sideListContainer.replaceChildren(...elements);
+    }
+    updatePageStatisticsUI() {
+      for (const [key, statistic] of Object.entries(this.statistics)) {
+        const element = querySelector(`li[data-stat="${key}"]`, this.pageListContainer);
+        element.classList.toggle("selected", statistic.sticky);
+        this.updateListItem(element, statistic);
+      }
+    }
+    updateSideStatisticsUI() {
+      for (const [key, statistic] of Object.entries(this.statistics)) {
+        const element = querySelector(`li[data-stat="${key}"]`, this.sideListContainer);
+        element.classList.toggle("hidden", !statistic.sticky);
+        if (!statistic.sticky) {
+          continue;
+        }
+        this.updateListItem(element, statistic);
+      }
+    }
+    updateListItem(element, statistic) {
+      const variableElement = querySelector("var", element);
+      const type = variableElement.getAttribute("data-format");
+      let value = statistic.get();
+      switch (type) {
+        case "time":
+          const date = new Date(0);
+          date.setSeconds(value);
+          const str = date.toISOString().substring(11, 19);
+          value = str;
+          break;
+        case "pct":
+          value *= 100;
+          break;
+        default:
+          value = value.toFixed(statistic.decimals);
+      }
+      variableElement.textContent = typeof value === "number" ? value.toFixed(statistic.decimals) : value;
     }
     save(saveObj) {
       saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
         return {
           name: key,
-          value: value.get()
+          value: value.get(),
+          sticky: value.sticky
         };
       });
     }
@@ -10860,7 +10881,7 @@
         });
         querySelector("[data-attack-skill-slot]", this.page).replaceChildren(this.attackSkillSlot.element);
         for (const skill of this.attackSkills) {
-          game.player.stats.level.registerCallback(skill.data.levelReq, () => {
+          game.statistics.statistics.Level.registerCallback(skill.data.levelReq, () => {
             this.addSkillListItem(skill, attackSkillListContainer);
           });
         }
@@ -10870,7 +10891,7 @@
         if (data.buffSkills) {
           this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new BuffSkill(this, x));
           for (const buffSkillData of data.buffSkills.skillSlots || []) {
-            game.player.stats.level.registerCallback(buffSkillData.levelReq, () => {
+            game.statistics.statistics.Level.registerCallback(buffSkillData.levelReq, () => {
               const slot = new BuffSkillSlot(this);
               slot.element.setAttribute("data-tab-target", "buff");
               slot.element.addEventListener("click", () => {
@@ -10884,7 +10905,7 @@
             });
           }
           for (const skill of this.buffSkills) {
-            game.player.stats.level.registerCallback(skill.data.levelReq, () => {
+            game.statistics.statistics.Level.registerCallback(skill.data.levelReq, () => {
               this.addSkillListItem(skill, buffSkillListContainer);
             });
           }
@@ -11126,7 +11147,7 @@
       return this.hasSkill && !this._running;
     }
     get canTrigger() {
-      return typeof this.skill !== "undefined" && !this.automate && !this._running && this.skills.game.player.stats.curMana.get() > this.skill.data.manaCost;
+      return typeof this.skill !== "undefined" && !this.automate && !this._running && this.skills.game.statistics.statistics["Current Mana"].get() > this.skill.data.manaCost;
     }
     get canAutomate() {
       return this.hasSkill;
@@ -11169,7 +11190,7 @@
       }
       const loopEval = (mana) => {
         if (!this._automate) {
-          this.skills.game.player.stats.curMana.removeListener("change", loopEval);
+          this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
           return;
         }
         if (!this.skill) {
@@ -11178,12 +11199,12 @@
         if (mana < this.skill.data.manaCost) {
           return;
         }
-        this.skills.game.player.stats.curMana.removeListener("change", loopEval);
-        this.player.stats.curMana.subtract(this.skill.data.manaCost);
+        this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
+        this.skills.game.statistics.statistics["Current Mana"].subtract(this.skill.data.manaCost);
         this.loop();
       };
-      this.skills.game.player.stats.curMana.addListener("change", loopEval);
-      loopEval(this.skills.game.player.stats.curMana.get());
+      this.skills.game.statistics.statistics["Current Mana"].addListener("change", loopEval);
+      loopEval(this.skills.game.statistics.statistics["Current Mana"].get());
     }
     loop() {
       if (!this.skill) {
@@ -11191,12 +11212,12 @@
       }
       const calcDuration = (multiplier) => {
         const baseDuration = this.skill.data.baseDuration;
-        return baseDuration * multiplier;
+        this._duration = baseDuration * multiplier;
       };
-      this._duration = calcDuration(this.skills.game.player.stats.skillDurationMultiplier.get());
+      calcDuration(this.skills.game.statistics.statistics["Skill Duration Multiplier"].get());
       this._time = this._time > 0 ? this._time : this._duration;
       this._running = true;
-      this.skills.game.player.stats.skillDurationMultiplier.addListener("change", calcDuration);
+      this.skills.game.statistics.statistics["Skill Duration Multiplier"].addListener("change", calcDuration);
       this.skill.applyModifiers();
       const loopId = this.skills.game.gameLoop.subscribe((dt) => {
         if (!this.skill) {
@@ -11205,7 +11226,7 @@
         if (this._time <= 0) {
           this._time = 0;
           this.skills.game.gameLoop.unsubscribe(loopId);
-          this.skills.game.player.stats.skillDurationMultiplier.removeListener("change", calcDuration);
+          this.skills.game.statistics.statistics["Skill Duration Multiplier"].removeListener("change", calcDuration);
           this.stop();
           return;
         }
@@ -11572,7 +11593,7 @@
       }
       const modal = querySelector(".p-game .p-items [data-preset-modal]");
       querySelector("input[data-name]", modal).value = (_a = this.activePreset) == null ? void 0 : _a.name;
-      const filteredCraftList = this.items.data.craftList.filter((x) => x.levelReq <= this.items.game.player.stats.level.get());
+      const filteredCraftList = this.items.data.craftList.filter((x) => x.levelReq <= this.items.game.statistics.statistics.Level.get());
       const rows = [];
       for (const craftData of filteredCraftList) {
         const label = this.items.craftDescToHtml(craftData.id);
@@ -11657,7 +11678,7 @@
       this.activeItem.element.click();
       this.createCraftListItems(data.craftList);
       this.updateCraftList((_a = this.presets.activePreset) == null ? void 0 : _a.ids);
-      this.game.player.stats.gold.addListener("change", () => {
+      this.game.statistics.statistics.Gold.addListener("change", () => {
         if (this.page.classList.contains("hidden")) {
           return;
         }
@@ -11665,7 +11686,7 @@
           this.updateCraftButton();
         }
       });
-      game.player.stats.level.addListener("change", () => {
+      game.statistics.statistics.Level.addListener("change", () => {
         var _a2;
         return this.updateCraftList((_a2 = this.presets.activePreset) == null ? void 0 : _a2.ids);
       });
@@ -11704,7 +11725,7 @@
     }
     createItems() {
       for (const itemData of this.data.itemList) {
-        this.game.player.stats.level.registerCallback(itemData.levelReq, () => {
+        this.game.statistics.statistics.Level.registerCallback(itemData.levelReq, () => {
           const item = new Item(this, itemData.name);
           this.items.push(item);
           this.itemListContainer.appendChild(item.element);
@@ -11729,7 +11750,7 @@
           this.activeCraftId = id;
           this.updateCraftButton();
         });
-        this.game.player.stats.level.registerCallback(levelReq, () => {
+        this.game.statistics.statistics.Level.registerCallback(levelReq, () => {
           tr.setAttribute("data-enabled", "");
           highlightHTMLElement(this.menuItem, "click");
           highlightHTMLElement(tr, "mouseover");
@@ -11755,7 +11776,7 @@
     generateCraftData() {
       return {
         itemModList: this.activeItem.mods,
-        modList: this.modLists.filter((x) => x.levelReq <= this.game.player.stats.level.get())
+        modList: this.modLists.filter((x) => x.levelReq <= this.game.statistics.statistics.Level.get())
       };
     }
     updateCraftButton() {
@@ -11765,7 +11786,7 @@
         }
         const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute("data-cost");
         const cost = Number(costAttr);
-        if (cost > this.game.player.stats.gold.get()) {
+        if (cost > this.game.statistics.statistics.Gold.get()) {
           return "Not Enough Gold";
         }
         const template = craftTemplates[this.activeCraftId];
@@ -11798,7 +11819,7 @@
         return;
       }
       this.activeItem.mods = template.getItemMods(craftData);
-      this.game.player.stats.gold.subtract(cost);
+      this.game.statistics.statistics.Gold.subtract(cost);
       this.updateItemModList();
     }
     craftDescToHtml(id) {
@@ -11877,7 +11898,12 @@
       this.modGroup = modGroup;
     }
     copy() {
-      return new ItemModifier(this.itemModData, this.modGroup);
+      const copy = new ItemModifier(this.itemModData, this.modGroup);
+      copy.stats.forEach((v, i) => {
+        var _a;
+        return v.value = ((_a = this.stats[i]) == null ? void 0 : _a.value) || v.min;
+      });
+      return copy;
     }
   };
 
@@ -11900,7 +11926,7 @@
               this.updatePoints();
               this.updatePassiveList();
             });
-            this.game.player.stats.level.registerCallback(passiveData.levelReq, () => {
+            this.game.statistics.statistics.Level.registerCallback(passiveData.levelReq, () => {
               passive.element.classList.remove("hidden");
               highlightHTMLElement(this.menuItem, "click");
               highlightHTMLElement(passive.element, "mouseover");
@@ -11910,7 +11936,7 @@
           querySelector(".s-passive-list table", this.page).append(...this.passives.map((x) => x.element));
         }
       }
-      this.game.player.stats.level.addListener("change", () => {
+      this.game.statistics.statistics.Level.addListener("change", () => {
         this.updatePoints();
         this.updatePassiveList();
       });
@@ -11919,7 +11945,7 @@
       this.updatePassiveList();
     }
     get maxPoints() {
-      return this.data.pointsPerLevel * this.game.player.stats.level.get() - 1;
+      return this.data.pointsPerLevel * this.game.statistics.statistics.Level.get() - 1;
     }
     get curPoints() {
       return this.maxPoints - this.passives.filter((x) => x.assigned).reduce((a, c) => a += c.data.points, 0);
@@ -11961,7 +11987,7 @@
       this.mod = new Modifier(data.mod);
       this.element = this.createElement();
       highlightHTMLElement(this.element, "mouseover");
-      passives.game.player.stats.level.registerCallback(data.levelReq, () => {
+      passives.game.statistics.statistics.Level.registerCallback(data.levelReq, () => {
         this.element.classList.remove("hidden");
       });
       const savedList = (_a = passives.game.saveObj.passives) == null ? void 0 : _a.list;
@@ -12008,8 +12034,7 @@
       __publicField(this, "validator");
       __publicField(this, "taskValidators", []);
       this.taskValidators = [
-        [/^Reach Level {(\d+)}$/, this.game.player.stats.level],
-        [/^Prestige {\d+}?$/, this.game.statistics.statistics["Prestige Count"]],
+        [/^Reach Level {(\d+)}$/, this.game.statistics.statistics.Level],
         [/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]],
         [/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]],
         [/^Deal Elemental Damage {(\d+)}$/, this.game.statistics.statistics["Total Elemental Damage"]],
@@ -12156,7 +12181,7 @@
       __publicField(this, "slots", []);
       __publicField(this, "missionsListContainer", querySelector("ul[data-mission-list]", this.page));
       for (const slotData of data.slots) {
-        game.player.stats.level.registerCallback(slotData.levelReq, () => {
+        game.statistics.statistics.Level.registerCallback(slotData.levelReq, () => {
           const slot = new MissionSlot(this, slotData.cost);
           this.slots.push(slot);
           this.missionsListContainer.appendChild(slot.element);
@@ -12199,7 +12224,7 @@
       __publicField(this, "completed", false);
       var _a;
       this._element = this.createElement();
-      missions.game.player.stats.gold.addListener("change", () => {
+      missions.game.statistics.statistics.Gold.addListener("change", () => {
         this.setNewButton();
       });
       const savedSlot = (_a = missions.game.saveObj.missions) == null ? void 0 : _a.missions.find((x) => x.index === missions.slots.length);
@@ -12254,7 +12279,7 @@
       buttonNew.insertAdjacentHTML("beforeend", "<span>New</span>");
       buttonNew.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost></span>`);
       buttonNew.addEventListener("click", () => {
-        this.missions.game.player.stats.gold.subtract(this.newMissionCost);
+        this.missions.game.statistics.statistics.Gold.subtract(this.newMissionCost);
         this.generateRandomMission();
       });
       this._element.appendChild(buttonClaim);
@@ -12270,14 +12295,14 @@
       if (!this._missionData) {
         return;
       }
-      this.missions.game.player.stats.gold.add(this._missionData.goldAmount);
+      this.missions.game.statistics.statistics.Gold.add(this._missionData.goldAmount);
       this.generateRandomMission();
       this.setClaimButton(false);
       this.completed = false;
     }
     generateRandomMission() {
       const missionDataArr = this.missions.data.missionLists.reduce((a, c) => {
-        const missionData = c.filter((x) => x.levelReq <= this.missions.game.player.stats.level.get()).sort((a2, b) => b.levelReq - a2.levelReq)[0];
+        const missionData = c.filter((x) => x.levelReq <= this.missions.game.statistics.statistics.Level.get()).sort((a2, b) => b.levelReq - a2.levelReq)[0];
         if (missionData) {
           a.push(missionData);
         }
@@ -12336,7 +12361,7 @@
       }
       const element = querySelector('[data-trigger="new"]', this._element);
       querySelector("[data-cost]", element).textContent = this.newMissionCost.toFixed();
-      element.disabled = this._task.completed || this.missions.game.player.stats.gold.get() < this.newMissionCost;
+      element.disabled = this._task.completed || this.missions.game.statistics.statistics.Gold.get() < this.newMissionCost;
     }
     createElement() {
       const li = document.createElement("li");
@@ -12349,11 +12374,11 @@
       button.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost>${this.unlockCost}</span>`);
       button.setAttribute("data-trigger", "buy");
       button.addEventListener("click", () => {
-        this.missions.game.player.stats.gold.subtract(this.unlockCost);
+        this.missions.game.statistics.statistics.Gold.subtract(this.unlockCost);
         this.unlock();
       });
       button.disabled = true;
-      this.missions.game.player.stats.gold.addListener("change", (amount) => {
+      this.missions.game.statistics.statistics.Gold.addListener("change", (amount) => {
         button.disabled = amount < this.unlockCost;
       });
       li.appendChild(label);
@@ -12513,7 +12538,7 @@
         if (!data) {
           continue;
         }
-        this.player.stats.level.registerCallback("levelReq" in data ? data.levelReq : 1, () => {
+        this.statistics.statistics.Level.registerCallback("levelReq" in data ? data.levelReq : 1, () => {
           const component = loadComponent(this, key);
           this.componentsList.push(component);
         });
@@ -12532,11 +12557,11 @@
       Object.defineProperty(window, "TS", {
         value: {
           setLevel: (v) => {
-            this.player.stats.level.set(v);
+            this.statistics.statistics.Level.set(v);
             this.enemy.setIndex(v - 1);
             this.enemy.spawn();
           },
-          setGold: (v) => this.player.stats.gold.set(v),
+          setGold: (v) => this.statistics.statistics.Gold.set(v),
           save: () => {
             this.save();
           },
@@ -12581,9 +12606,13 @@
         console.log("could not load", config.meta.id);
         return false;
       }
-      this.init(config, saveObj);
+      try {
+        await this.init(config, saveObj);
+      } catch (e) {
+        console.error(e);
+      }
     }
-    async loadMostRecentSave() {
+    async getMostRecentSave() {
       try {
         const map = await saveManager_default.load("Game");
         if (!map) {
@@ -12622,9 +12651,9 @@
         description: "This is a short configuration for demonstration purposes."
       },
       {
-        name: "Demo 2",
+        name: "Playground",
         rawUrl: "public/gconfig/demo2.json",
-        description: "This demo is currently in development. Changes may occur unexpectedly."
+        description: "This configuration is just for testing purposes."
       }
     ]
   };
@@ -12701,7 +12730,7 @@
       querySelector('.p-home > menu [data-type="new"]').click();
     }
     async tryLoadRecentSave() {
-      const save2 = await this.game.loadMostRecentSave();
+      const save2 = await this.game.getMostRecentSave();
       if (!save2) {
         return false;
       }
@@ -12777,12 +12806,13 @@
           };
         }
         config.meta = saveObj.meta;
-        this.game.init(config, saveObj);
+        await this.game.init(config, saveObj);
         const navBtn = querySelector("header [data-target]");
         navBtn.classList.remove("hidden");
         navBtn.click();
         return true;
       } catch (e) {
+        console.error(`Failed to load "${entry.name}" at: ${entry.rawUrl}`);
         console.error(e);
       }
     }

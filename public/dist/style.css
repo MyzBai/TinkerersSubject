@@ -293,6 +293,9 @@ generic-modal dialog form header {
   padding-bottom: 1em;
   text-align: center;
 }
+generic-modal dialog form [data-body] {
+  white-space: break-spaces;
+}
 generic-modal dialog form footer {
   padding-top: 1em;
 }
@@ -834,12 +837,34 @@ progress[value]::-webkit-progress-value {
 .p-game [data-main-view] .p-achievements .g-accordion .content {
   padding-left: 0.6em;
 }
-.p-game [data-main-view] .p-settings menu {
-  background-color: #0d1117;
-  margin-bottom: 0.3em;
+.p-game [data-main-view] .p-statistics {
+  min-height: 0;
+  display: grid;
+}
+.p-game [data-main-view] .p-statistics ul {
+  overflow-y: auto;
+}
+.p-game [data-main-view] .p-statistics ul li {
+  display: flex;
+  pointer-events: all;
+  border-bottom: 1px solid #333333;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  padding-left: 0.3em;
+  padding-right: 0.3em;
+}
+.p-game [data-main-view] .p-statistics ul li [data-label] {
+  flex: 1;
+}
+.p-game [data-main-view] .p-statistics ul li [data-stat] {
+  padding-left: 1em;
 }
 .p-game .s-stats {
   grid-area: right;
+}
+.p-game .s-stats li {
+  padding: 0.1em;
+  border-bottom: 1px solid #333333;
 }
 
 :root {
