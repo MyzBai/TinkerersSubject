@@ -549,15 +549,14 @@ progress[value]::-webkit-progress-value {
   grid-column: 2;
   min-height: 0;
 }
-.p-game [data-main-view] .p-combat {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-}
-.p-game [data-main-view] .p-combat ul {
-  display: flex;
-  flex-direction: column-reverse;
+.p-game [data-main-view] .p-combat ul li {
+  display: block;
   width: 100%;
-  border-top: 1px solid #333333;
+}
+.p-game [data-main-view] .p-combat ul progress {
+  display: block;
+  width: 100%;
+  height: 5px;
 }
 .p-game [data-main-view] .p-skills {
   display: grid;
@@ -712,6 +711,9 @@ progress[value]::-webkit-progress-value {
 }
 .p-game [data-main-view] .p-items .s-craft-container [data-craft-list] table tr td {
   padding: 0.3em;
+}
+.p-game [data-main-view] .p-items .s-craft-container [data-craft-list] table tr td:last-child {
+  text-align: right;
 }
 .p-game [data-main-view] .p-items .s-craft-container [data-craft-button] {
   align-self: center;

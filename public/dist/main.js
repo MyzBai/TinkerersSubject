@@ -9004,7 +9004,26 @@
         properties: {
           modList: {
             type: "array",
-            items: { $ref: "#/definitions/mod" }
+            anyOf: [
+              {
+                items: {
+                  oneOf: [
+                    { $ref: "#/definitions/mod" },
+                    {
+                      type: "string",
+                      oneOf: [
+                        {
+                          description: "Base duration in seconds",
+                          enum: ["+{#} Bleed Duration", "+{#} Burn Duration", "+{#} Poison Duration"]
+                        },
+                        { pattern: "^\\+\\{(\\d+)\\} (Bleed|Burn|Poison) Duration$" }
+                      ],
+                      pattern: "^[^#]*$"
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       },
@@ -9137,6 +9156,7 @@
                         "reforgeIncludeElemental",
                         "reforgeIncludeCritical",
                         "reforgeIncludeMana",
+                        "reforgeIncludeBleed",
                         "reforgeHigherChanceSameMods",
                         "reforgeLowerChanceSameMods",
                         "addRandom",
@@ -9144,15 +9164,18 @@
                         "addElemental",
                         "addCritical",
                         "addMana",
+                        "addBleed",
                         "removeRandom",
                         "removePhysical",
                         "removeElemental",
                         "removeCritical",
                         "removeMana",
+                        "removeBleed",
                         "removeRandomAddPhysical",
                         "removeRandomAddElemental",
                         "removeRandomAddCritical",
-                        "removeRandomAddMana"
+                        "removeRandomAddMana",
+                        "removeRandomAddBleed"
                       ]
                     },
                     levelReq: { type: "integer", minimum: 0 },
@@ -9204,20 +9227,7 @@
                       levelReq: { $ref: "#/definitions/levelReq" },
                       goldAmount: { type: "integer" },
                       description: {
-                        type: "string",
-                        anyOf: [
-                          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}"] },
-                          { pattern: "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                          { enum: ["Generate Gold {#}"] },
-                          { pattern: "^Generate Gold \\{\\d+\\}$" },
-                          { enum: ["Regenerate Mana {#}"] },
-                          { pattern: "^Regenerate Mana \\{\\d+\\}$" },
-                          { enum: ["Perform Hits {#}"] },
-                          { pattern: "^Perform Hits \\{\\d+\\}$" },
-                          { enum: ["Perform Critical Hits {#}"] },
-                          { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
-                        ],
-                        pattern: "^[^#]*$"
+                        $ref: "#/definitions/tasks"
                       }
                     }
                   }
@@ -9236,24 +9246,7 @@
                   required: ["description"],
                   properties: {
                     description: {
-                      type: "string",
-                      anyOf: [
-                        { enum: ["Reach Level {#}"] },
-                        { pattern: "^Reach Level \\{\\d+\\}$" },
-                        { enum: ["Prestige {#}"] },
-                        { pattern: "^Prestige \\{\\d+?\\}$" },
-                        { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}"] },
-                        { pattern: "^Deal( Physical| Elemental)? Damage \\{\\d+\\}$" },
-                        { enum: ["Generate Gold {#}"] },
-                        { pattern: "^Generate Gold \\{\\d+\\}$" },
-                        { enum: ["Regenerate Mana {#}"] },
-                        { pattern: "^Regenerate Mana \\{\\d+\\}$" },
-                        { enum: ["Perform Hits {#}"] },
-                        { pattern: "^Perform Hits \\{\\d+\\}$" },
-                        { enum: ["Perform Critical Hits {#}"] },
-                        { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
-                      ],
-                      pattern: "^[^#]*$"
+                      $ref: "#/definitions/tasks"
                     },
                     modList: {
                       type: "array",
@@ -9309,7 +9302,15 @@
           { enum: ["+{#} Gold Per Second"] },
           { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
           { enum: ["{#}% Increased Gold Per Second"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" }
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" },
+          { enum: ["+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
+          { enum: ["+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
+          { enum: ["{#}% Increased Bleed Damage", "{#}% Increased Burn Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
+          { enum: ["{#}% More Bleed Damage", "{#}% More Burn Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" }
         ],
         pattern: "^[^#]*$"
       },
@@ -9326,6 +9327,26 @@
         type: "integer",
         default: 0,
         minimum: 0
+      },
+      tasks: {
+        type: "string",
+        anyOf: [
+          { enum: ["Reach Level {#}"] },
+          { pattern: "^Reach Level \\{\\d+\\}$" },
+          { enum: ["Prestige {#}"] },
+          { pattern: "^Prestige \\{\\d+?\\}$" },
+          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}"] },
+          { pattern: "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
+          { enum: ["Generate Gold {#}"] },
+          { pattern: "^Generate Gold \\{\\d+\\}$" },
+          { enum: ["Regenerate Mana {#}"] },
+          { pattern: "^Regenerate Mana \\{\\d+\\}$" },
+          { enum: ["Perform Hits {#}"] },
+          { pattern: "^Perform Hits \\{\\d+\\}$" },
+          { enum: ["Perform Critical Hits {#}"] },
+          { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
+        ],
+        pattern: "^[^#]*$"
       }
     }
   };
@@ -9429,7 +9450,10 @@
     Physical: 1 << 2,
     Elemental: 1 << 3,
     Chaos: 1 << 4,
-    Skill: 1 << 5
+    Skill: 1 << 5,
+    Ailment: 1 << 6,
+    Bleed: 1 << 7,
+    Burn: 1 << 8
   };
   var modTemplates = [
     {
@@ -9443,6 +9467,16 @@
       stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental }]
     },
     {
+      desc: "#% Increased Bleed Damage",
+      tags: ["Bleed", "Physical"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }]
+    },
+    {
+      desc: "#% Increased Burn Damage",
+      tags: ["Burn", "Elemental"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }]
+    },
+    {
       desc: "#% More Physical Damage",
       tags: ["Physical"],
       stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Physical }]
@@ -9451,6 +9485,16 @@
       desc: "#% More Elemental Damage",
       tags: ["Elemental"],
       stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Elemental }]
+    },
+    {
+      desc: "#% More Bleed Damage",
+      tags: ["Bleed", "Physical"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }]
+    },
+    {
+      desc: "#% More Burn Damage",
+      tags: ["Burn", "Elemental"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }]
     },
     {
       desc: "#% More Damage",
@@ -9527,6 +9571,36 @@
       desc: "#% Increased Skill Duration",
       tags: ["Gold"],
       stats: [{ name: "Duration", valueType: "Inc", flags: StatModifierFlags.Skill }]
+    },
+    {
+      desc: "+#% Chance To Bleed",
+      tags: ["Bleed", "Physical"],
+      stats: [{ name: "BleedChance", valueType: "Base", flags: StatModifierFlags.Bleed }]
+    },
+    {
+      desc: "+#% Chance To Burn",
+      tags: ["Burn", "Elemental"],
+      stats: [{ name: "BurnChance", valueType: "Base", flags: StatModifierFlags.Burn }]
+    },
+    {
+      desc: "+# Bleed Duration",
+      tags: ["Duration", "Bleed"],
+      stats: [{ name: "Duration", valueType: "Base", flags: StatModifierFlags.Bleed }]
+    },
+    {
+      desc: "+# Burn Duration",
+      tags: ["Duration", "Burn"],
+      stats: [{ name: "Duration", valueType: "Base", flags: StatModifierFlags.Burn }]
+    },
+    {
+      desc: "+# Maximum Bleed Stack",
+      tags: ["Bleed", "Ailment"],
+      stats: [{ name: "AilmentStack", valueType: "Base", flags: StatModifierFlags.Bleed }]
+    },
+    {
+      desc: "+# Maximum Burn Stack",
+      tags: ["Burn", "Ailment"],
+      stats: [{ name: "AilmentStack", valueType: "Base", flags: StatModifierFlags.Burn }]
     }
   ];
   var Modifier = class {
@@ -9559,11 +9633,10 @@
       const desc = text.replace(/{[^}]+}/g, "#");
       const template = modTemplates.find((x) => x.desc === desc);
       if (!template) {
-        throw Error("Failed to find mod template. Invalid mod description");
+        throw Error(`Failed to find mod template. Invalid mod description: ${text}`);
       }
       const stats = [];
-      for (const statTemplate of template.stats) {
-        const index = template.stats.indexOf(statTemplate);
+      for (const [index, statTemplate] of template.stats.entries()) {
         const matchValue = match[index];
         if (!matchValue || !matchValue.groups) {
           throw Error("invalid modifier");
@@ -9670,8 +9743,7 @@
   function calcAttack(statModList) {
     const config = {
       statModList,
-      flags: StatModifierFlags.Attack,
-      calcMinMax: randomRange
+      flags: StatModifierFlags.Attack
     };
     const hitChance = calcModTotal("HitChance", config) / 100;
     const hitFac = randomRange(0, 1);
@@ -9680,7 +9752,7 @@
       return false;
     }
     config.flags = StatModifierFlags.Attack;
-    const baseDamage = calcBaseDamage(config);
+    const baseDamage = calcBaseDamage(config, randomRange);
     const critChance = Math.min(calcModTotal("CritChance", config), 100) / 100;
     const critFac = randomRange(0, 1);
     const crit = critChance >= critFac;
@@ -9693,15 +9765,31 @@
     const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
     const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
     const totalElementalDamage = baseDamage.elementalDamage * finalMultiplier;
+    const ailments = [];
+    {
+      config.flags = StatModifierFlags.Ailment | StatModifierFlags.Bleed | StatModifierFlags.Physical;
+      const bleedChance = calcModTotal("BleedChance", config) / 100;
+      if (bleedChance >= randomRange(0, 1)) {
+        const damageFac = randomRange(0, 1);
+        ailments.push({ damageFac, type: "Bleed" });
+      }
+      config.flags = StatModifierFlags.Ailment | StatModifierFlags.Burn | StatModifierFlags.Elemental;
+      const burnChance = calcModTotal("BurnChance", config) / 100;
+      if (burnChance >= randomRange(0, 1)) {
+        const damageFac = randomRange(0, 1);
+        ailments.push({ damageFac, type: "Burn" });
+      }
+    }
     return {
       hit,
       crit,
       totalDamage,
       totalPhysicalDamage,
-      totalElementalDamage
+      totalElementalDamage,
+      ailments
     };
   }
-  function calcBaseDamage(config) {
+  function calcBaseDamage(config, calcMinMax) {
     const conversionTable = generateConversionTable(config);
     const output = {
       totalBaseDamage: 0,
@@ -9722,7 +9810,7 @@
       const { min, max } = calcDamage(damageType, config, conversionTable);
       output[`min${damageType}Damage`] = min;
       output[`max${damageType}Damage`] = max;
-      const baseDamage = config.calcMinMax(min, max);
+      const baseDamage = calcMinMax(min, max);
       output[`${damageType.toLowerCase()}Damage`] = baseDamage;
       totalBaseDamage += baseDamage;
       config.flags &= ~bit;
@@ -9752,6 +9840,13 @@
     const min = Math.round(calcModIncMore(modNames, baseMin, config) + addMin);
     const max = Math.round(calcModIncMore(modNames, baseMax, config) + addMax);
     return { min, max };
+  }
+  function calcAilmentBaseDamage(damageType, config, typeFlags = 0) {
+    var _a;
+    const conversionTable = generateConversionTable(config);
+    const { min, max } = calcDamage(damageType, config, conversionTable, typeFlags);
+    const convMulti = ((_a = conversionTable[damageType]) == null ? void 0 : _a.multi) || 1;
+    return { min: min * convMulti, max: max * convMulti };
   }
   function generateConversionTable(config) {
     const conversionTable = {};
@@ -9793,8 +9888,7 @@
   function calcPlayerStats(statModList) {
     const config = {
       statModList,
-      flags: StatModifierFlags.Attack,
-      calcMinMax: avg
+      flags: StatModifierFlags.Attack
     };
     const hitChance = calcModTotal("HitChance", config) / 100;
     const clampedHitChance = clamp(hitChance, 0, 1);
@@ -9807,9 +9901,38 @@
     const clampedCritChance = clamp(critChance, 0, 1);
     const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
     const critDamageMultiplier = 1 + clampedCritChance * critMulti;
-    const baseDamageResult = calcBaseDamage(config);
+    const baseDamageResult = calcBaseDamage(config, avg);
+    let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
+    {
+      config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
+      bleedChance = calcModTotal("BleedChance", config) / 100;
+      maxBleedStacks = calcModTotal("AilmentStack", config);
+      bleedDuration = calcModTotal("Duration", config);
+      if (bleedChance > 0) {
+        const { min, max } = calcAilmentBaseDamage("Physical", config);
+        const baseDamage = avg(min, max);
+        const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
+        const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
+        bleedDps = baseDamage * maxStacks;
+      }
+    }
+    let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
+    {
+      config.flags = StatModifierFlags.Elemental | StatModifierFlags.Ailment | StatModifierFlags.Burn;
+      burnChance = calcModTotal("BurnChance", config) / 100;
+      maxBurnStacks = calcModTotal("AilmentStack", config);
+      burnDuration = calcModTotal("Duration", config);
+      if (burnChance > 0) {
+        const { min, max } = calcAilmentBaseDamage("Elemental", config);
+        const baseDamage = avg(min, max);
+        const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
+        const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
+        burnDps = baseDamage * maxStacks;
+      }
+    }
     const multiplier = baseDamageMultiplier * critDamageMultiplier;
-    const dps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * multiplier;
+    const ailmentDps = bleedDps + burnDps;
+    const dps = (baseDamageResult.totalBaseDamage + ailmentDps) * clampedHitChance * attackSpeed * multiplier;
     return {
       hitChance: hitChance * 100,
       clampedHitChance: clampedHitChance * 100,
@@ -9824,7 +9947,13 @@
       minPhysicalDamage: baseDamageResult.minPhysicalDamage,
       maxPhysicalDamage: baseDamageResult.maxPhysicalDamage,
       goldPerSecond: calcModTotal("GoldPerSecond", config),
-      skillDurationMultiplier: calcModIncMore("Duration", 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }))
+      skillDurationMultiplier: calcModIncMore("Duration", 1, Object.assign({}, config, { flags: StatModifierFlags.Skill })),
+      bleedChance: bleedChance * 100,
+      maxBleedStacks,
+      bleedDuration,
+      burnchance: burnChance * 100,
+      maxBurnStacks,
+      burnDuration
     };
   }
   function calcModBase(modName, config) {
@@ -9896,7 +10025,11 @@
         maxMana: new Value(0),
         curMana: new Value(0),
         manaRegen: new Value(0),
-        skillDurationMultiplier: new Value(1)
+        skillDurationMultiplier: new Value(1),
+        maxBleedStacks: new Value(0),
+        maxBurnStacks: new Value(0),
+        bleedDuration: new Value(0),
+        burnDuration: new Value(0)
       });
       __publicField(this, "_attackProgressPct", 0);
       this.manaBar = querySelector("[data-mana-bar]", this.game.page);
@@ -9970,6 +10103,10 @@
           this.stats.manaRegen.set(statsResult.manaRegen);
           this.stats.attackManaCost.set(statsResult.attackManaCost);
           this.stats.skillDurationMultiplier.set(statsResult.skillDurationMultiplier);
+          this.stats.maxBleedStacks.set(statsResult.maxBleedStacks);
+          this.stats.bleedDuration.set(statsResult.bleedDuration);
+          this.stats.maxBurnStacks.set(statsResult.maxBurnStacks);
+          this.stats.burnDuration.set(statsResult.burnDuration);
           this.playerStatsContainer.querySelectorAll("[data-stat]").forEach((x) => {
             const attr = x.getAttribute("data-stat");
             const stat = statsResult[attr];
@@ -10025,6 +10162,7 @@
         this.game.statistics.statistics["Critical Hits"].add(1);
       }
       this.game.enemy.dealDamage(result.totalDamage);
+      this.game.enemy.applyAilments(result.ailments);
     }
     save(saveObj) {
       saveObj.player = {
@@ -10035,15 +10173,264 @@
     }
   };
 
+  // src/game/Ailments.ts
+  var AilmentHandler = class {
+    constructor(game, type) {
+      this.game = game;
+      this.type = type;
+      __publicField(this, "instances", []);
+      __publicField(this, "loopId");
+      __publicField(this, "ailmentsListContainer");
+      __publicField(this, "element");
+      __publicField(this, "progressBar");
+      __publicField(this, "timeSpan");
+      __publicField(this, "countSpan");
+      __publicField(this, "time", 0);
+      __publicField(this, "duration", 0);
+      __publicField(this, "numActiveInstances", 0);
+      __publicField(this, "maxNumActiveInstances", 0);
+      this.ailmentsListContainer = querySelector(".p-combat [data-ailment-list]", game.page);
+    }
+    setup() {
+      this.removeElement();
+      this.instances.splice(0);
+    }
+    updateDamage() {
+    }
+    addAilment(ailment) {
+      if (this.instances.length === 0) {
+        this.loopId = this.game.player.game.gameLoop.subscribe((dt) => {
+          this.tick(dt);
+        });
+        this.createElement();
+      }
+      const instance = __spreadProps(__spreadValues({}, ailment), { damage: 0, time: this.duration });
+      this.instances.push(instance);
+      this.updateDamage();
+      this.time = this.duration;
+      this.numActiveInstances = Math.min(this.instances.length, this.maxNumActiveInstances);
+      this.updateElement();
+      this.updateProgressBar();
+      return instance;
+    }
+    tick(dt) {
+      if (this.instances.length === 0) {
+        this.game.gameLoop.unsubscribe(this.loopId);
+        this.removeElement();
+        return;
+      }
+      this.time -= dt;
+      for (let i = this.instances.length - 1; i >= 0; i--) {
+        const instance = this.instances[i];
+        if (!instance) {
+          throw Error();
+        }
+        instance.time -= dt;
+        if (instance.time <= 0) {
+          this.instances.splice(i, 1);
+        }
+      }
+    }
+    reset() {
+      this.instances.splice(0);
+      this.tick(0);
+    }
+    createElement() {
+      const li = document.createElement("li");
+      li.insertAdjacentHTML("beforeend", `<div data-label>${this.type} <span data-time></span>s (<span data-count></span>)</div>`);
+      this.progressBar = document.createElement("progress");
+      this.progressBar.max = 1;
+      this.progressBar.value = 0;
+      li.appendChild(this.progressBar);
+      this.element = li;
+      this.ailmentsListContainer.appendChild(li);
+      this.timeSpan = querySelector("[data-time]", li);
+      this.countSpan = querySelector("[data-count]", li);
+    }
+    removeElement() {
+      var _a;
+      (_a = this.element) == null ? void 0 : _a.remove();
+    }
+    updateElement() {
+      if (!this.timeSpan || !this.countSpan) {
+        return;
+      }
+      this.timeSpan.textContent = Math.ceil(this.time).toFixed();
+      this.countSpan.textContent = this.numActiveInstances.toFixed();
+    }
+    updateProgressBar() {
+      if (!this.progressBar) {
+        throw Error();
+      }
+      if (this.duration <= 0) {
+        throw Error("ailment has no duration");
+      }
+      this.progressBar.value = this.time / this.duration;
+    }
+    calcDamage() {
+      let damage = 0;
+      for (let i = 0; i < this.instances.length; i++) {
+        const instance = this.instances[i];
+        if (!instance) {
+          throw Error();
+        }
+        if (i < this.maxNumActiveInstances) {
+          damage += instance.damage;
+        }
+      }
+      return damage;
+    }
+  };
+  var BleedHandler = class extends AilmentHandler {
+    constructor(game) {
+      super(game, "Bleed");
+      this.game = game;
+    }
+    setup() {
+      super.setup();
+      this.game.player.stats.bleedDuration.addListener("change", (amount) => {
+        const pct = this.time / this.duration;
+        this.duration = amount;
+        this.time = this.duration * pct;
+      });
+      this.game.player.stats.maxBleedStacks.addListener("change", (amount) => {
+        this.maxNumActiveInstances = amount;
+      });
+      this.duration = this.game.player.stats.bleedDuration.get();
+      this.maxNumActiveInstances = this.game.player.stats.maxBleedStacks.get();
+    }
+    updateDamage() {
+      const config = {
+        statModList: this.game.player.modDB.modList,
+        flags: StatModifierFlags.Bleed | StatModifierFlags.Physical | StatModifierFlags.Ailment
+      };
+      const { min, max } = calcAilmentBaseDamage("Physical", config);
+      this.instances.forEach((x) => x.damage = (min + max) / 2 * x.damageFac);
+      this.instances.sort((a, b) => b.damage - a.damage);
+    }
+    tick(dt) {
+      const damage = this.calcDamage() * dt;
+      this.game.enemy.dealDamageOverTime(damage);
+      this.game.statistics.statistics["Total Bleed Damage"].add(damage);
+      this.game.statistics.statistics["Total Physical Damage"].add(damage);
+      super.tick(dt);
+    }
+  };
+  var BurnHandler = class extends AilmentHandler {
+    constructor(game) {
+      super(game, "Burn");
+      this.game = game;
+    }
+    setup() {
+      super.setup();
+      this.game.player.stats.burnDuration.addListener("change", (amount) => {
+        const pct = this.time / this.duration;
+        this.duration = amount;
+        this.time = this.duration * pct;
+      });
+      this.game.player.stats.maxBurnStacks.addListener("change", (amount) => {
+        this.maxNumActiveInstances = amount;
+      });
+      this.duration = this.game.player.stats.burnDuration.get();
+      this.maxNumActiveInstances = this.game.player.stats.maxBurnStacks.get();
+    }
+    updateDamage() {
+      const config = {
+        statModList: this.game.player.modDB.modList,
+        flags: StatModifierFlags.Burn | StatModifierFlags.Elemental | StatModifierFlags.Ailment
+      };
+      const { min, max } = calcAilmentBaseDamage("Elemental", config);
+      this.instances.forEach((x) => x.damage = lerp(min, max, x.damageFac));
+      this.instances.sort((a, b) => b.damage - a.damage);
+    }
+    tick(dt) {
+      const damage = this.calcDamage() * dt;
+      this.game.enemy.dealDamageOverTime(damage);
+      this.game.statistics.statistics["Total Burn Damage"].add(damage);
+      this.game.statistics.statistics["Total Elemental Damage"].add(damage);
+      super.tick(dt);
+    }
+  };
+  var Ailments = class {
+    constructor(game) {
+      this.game = game;
+      __publicField(this, "handlers", []);
+      __publicField(this, "combatPage");
+      this.combatPage = querySelector(".p-game .p-combat");
+      this.handlers.push(new BleedHandler(game));
+      this.handlers.push(new BurnHandler(game));
+    }
+    setup() {
+      this.handlers.forEach((x) => x.setup());
+      this.game.player.modDB.onChange.listen(() => {
+        this.handlers.forEach((x) => {
+          if (x.instances.length === 0) {
+            return;
+          }
+          x.updateDamage();
+        });
+      });
+      this.game.visiblityObserver.registerLoop(this.combatPage, (visible) => {
+        if (visible) {
+          for (const handler of this.handlers) {
+            if (handler.instances.length === 0) {
+              continue;
+            }
+            handler.updateProgressBar();
+          }
+        }
+      });
+      this.game.visiblityObserver.registerLoop(this.combatPage, (visible) => {
+        if (visible) {
+          for (const handler of this.handlers) {
+            if (handler.instances.length === 0) {
+              continue;
+            }
+            handler.updateElement();
+          }
+        }
+      }, { intervalMilliseconds: 1e3 });
+      this.handlers.forEach((x) => {
+        var _a, _b;
+        const save2 = (_b = (_a = this.game.saveObj.enemy) == null ? void 0 : _a.ailments) == null ? void 0 : _b.find((y) => y.type === x.type);
+        if (!save2) {
+          return;
+        }
+        for (const savedInstance of save2.instances) {
+          const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
+          instance.time = savedInstance.time;
+        }
+        x.time = Math.max(...save2.instances.map((x2) => x2.time).sort().reverse());
+      });
+    }
+    reset() {
+      this.handlers.forEach((x) => {
+        x.reset();
+      });
+    }
+    get(type) {
+      return this.handlers[type];
+    }
+    add(ailment) {
+      const handler = this.handlers.find((x) => x.type === ailment.type);
+      if (!handler) {
+        throw Error();
+      }
+      handler.addAilment(ailment);
+    }
+  };
+
   // src/game/Enemy.ts
   var Enemy = class {
     constructor(game) {
       this.game = game;
       __publicField(this, "onDeath", new EventEmitter());
+      __publicField(this, "ailments");
       __publicField(this, "_index");
       __publicField(this, "healthList", []);
       __publicField(this, "_health", 0);
       __publicField(this, "healthBar");
+      this.ailments = new Ailments(this.game);
       this._index = 0;
       this.healthBar = querySelector("[data-health-bar]", this.game.page);
     }
@@ -10075,6 +10462,9 @@
       this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
       this.updateHealthBar();
     }
+    setup() {
+      this.ailments.setup();
+    }
     setIndex(index) {
       this._index = index;
     }
@@ -10083,6 +10473,7 @@
       if (this.index === this.maxIndex + 1) {
         this.healthBar.textContent = "Dummy (Cannot die)";
       }
+      this.ailments.reset();
     }
     dealDamage(amount) {
       if (this.index === this.maxIndex + 1) {
@@ -10096,11 +10487,25 @@
         this.spawn();
       }
     }
+    dealDamageOverTime(damage) {
+      this.dealDamage(damage);
+    }
+    applyAilments(instances) {
+      for (const instance of instances) {
+        this.ailments.add(instance);
+      }
+    }
     save(saveObj) {
       saveObj.enemy = {
         index: this.index,
         health: this.health,
-        dummyDamage: 0
+        dummyDamage: 0,
+        ailments: this.ailments.handlers.map((x) => ({
+          type: x.type,
+          instances: x.instances.map(
+            (y) => ({ damageFac: y.damageFac, time: y.time })
+          )
+        }))
       };
     }
     updateHealthBar() {
@@ -10225,6 +10630,8 @@
         "Total Damage": new Statistic(0),
         "Total Physical Damage": new Statistic(0),
         "Total Elemental Damage": new Statistic(0),
+        "Total Bleed Damage": new Statistic(0),
+        "Total Burn Damage": new Statistic(0),
         "Prestige Count": new Statistic(0)
       });
       __publicField(this, "page", querySelector(".p-game .p-statistics"));
@@ -10308,7 +10715,7 @@
   };
 
   // src/webComponents/html/game.html
-  var game_default = '<main class="p-game hidden" data-tab-content="game">\n\n    <div class="s-home-button">\n        <button class="g-button" data-target="home">Home</button>\n    </div>\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <div class="s-components"></div>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n    </menu>\n    <div class="s-progress-bars">\n        <progress data-health-bar value="1" max="1"></progress>\n        <progress data-mana-bar value="1" max="1"></progress>\n    </div>\n    <div class="s-title">\n        <span data-config-name>Tinkerers Subject</span>\n    </div>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n    </div>\n\n    <aside class="s-stats" data-player-stats>\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n</main>';
+  var game_default = '<main class="p-game hidden" data-tab-content="game">\n\n    <div class="s-home-button">\n        <button class="g-button" data-target="home">Home</button>\n    </div>\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <div class="s-components"></div>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n    </menu>\n    <div class="s-progress-bars">\n        <progress data-health-bar value="1" max="1"></progress>\n        <progress data-mana-bar value="1" max="1"></progress>\n    </div>\n    <div class="s-title">\n        <span data-config-name>Tinkerers Subject</span>\n    </div>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <ul data-ailment-list></ul>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n    </div>\n\n    <aside class="s-stats" data-player-stats>\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n</main>';
 
   // src/utils/saveManager.ts
   var import_localforage = __toESM(require_localforage(), 1);
@@ -10413,6 +10820,7 @@
       __publicField(this, "_menuItem");
       this._page = querySelector(`.p-game .p-${name2}`);
       this._menuItem = querySelector(`.p-game [data-main-menu] [data-tab-target="${name2}"]`);
+      highlightHTMLElement(this._menuItem, "click");
     }
     get page() {
       return this._page;
@@ -10538,8 +10946,8 @@
       li.addEventListener("click", () => {
         this.selectSkillListItem(container, skill);
       });
+      highlightHTMLElement(this.menuItem, "click");
       highlightHTMLElement(li, "mouseover");
-      highlightHTMLElement(this.menuItem, "mouseover");
       container.appendChild(li);
     }
     showSkill(skill) {
@@ -10909,6 +11317,11 @@
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Critical"),
       getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Critical").addMultiple(data.modList, generateReforgeModCount(1)).modList
     },
+    reforgeIncludeBleed: {
+      desc: "Reforge the item with new random modifiers, including a [bleed] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Bleed"),
+      getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Bleed").addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
     reforgeHigherChanceSameMods: {
       desc: "Reforge the item with a higher chance of receiving the same modifiers",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modList),
@@ -10962,6 +11375,11 @@
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Critical"),
       getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Critical").modList
     },
+    addBleed: {
+      desc: "Add a [bleed] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Bleed"),
+      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Bleed").modList
+    },
     removeRandom: {
       desc: "Remove a random modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList),
@@ -10991,6 +11409,11 @@
       desc: "Remove a random modifier and add a new [critical] modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Critical").itemCanCraftModWithTag(data.itemModList, data.modList, "Critical"),
       getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Critical").modList
+    },
+    removeRandomAddBleed: {
+      desc: "Remove a random modifier and add a new [bleed] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Bleed").itemCanCraftModWithTag(data.itemModList, data.modList, "Bleed"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Bleed").modList
     }
   };
   var CraftValidator = class {
@@ -11317,10 +11740,17 @@
       (_a = rows[0]) == null ? void 0 : _a.click();
     }
     updateCraftList(ids = []) {
-      this.itemCraftTableContainer.querySelectorAll(`[data-enabled][data-id]`).forEach((x) => {
+      const elements = [...this.itemCraftTableContainer.querySelectorAll(`[data-enabled][data-id]`)];
+      elements.forEach((x) => {
         const id = x.getAttribute("data-id");
         x.classList.toggle("hidden", !ids.includes(id));
       });
+      const firstElement = elements.find((x) => !x.classList.contains("hidden"));
+      firstElement == null ? void 0 : firstElement.click();
+      if (!firstElement) {
+        this.activeCraftId = void 0;
+      }
+      this.updateCraftButton();
     }
     generateCraftData() {
       return {
@@ -11583,6 +12013,8 @@
         [/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]],
         [/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]],
         [/^Deal Elemental Damage {(\d+)}$/, this.game.statistics.statistics["Total Elemental Damage"]],
+        [/^Deal Bleed Damage {(\d+)}$/, this.game.statistics.statistics["Total Bleed Damage"]],
+        [/^Deal Burn Damage {(\d+)}$/, this.game.statistics.statistics["Total Burn Damage"]],
         [/^Perform Hits {(\d+)}$/, this.game.statistics.statistics.Hits],
         [/^Perform Critical Hits {(\d+)}$/, this.game.statistics.statistics["Critical Hits"]],
         [/^Generate Gold {(\d+)}$/, this.game.statistics.statistics["Gold Generated"]],
@@ -11991,6 +12423,12 @@
     menuItem.classList.add("g-list-item");
     menuItem.setAttribute("data-tab-target", key);
     menuContainer.appendChild(menuItem);
+    {
+      const keys = Object.keys(componentConfigs);
+      const sort = (a, b) => keys.indexOf(a) - keys.indexOf(b);
+      const sortedItems = [...menuContainer.children].sort((a, b) => sort(a.getAttribute("data-tab-target"), b.getAttribute("data-tab-target")));
+      menuContainer.replaceChildren(...sortedItems);
+    }
     const instance = new constr(game, game.config.components[key]);
     return instance;
   }
@@ -12050,7 +12488,8 @@
       await this.save();
     }
     async setup() {
-      this.player.setup();
+      await this.player.setup();
+      this.enemy.setup();
       if (!isLocalHost()) {
         this.gameLoop.start();
       }

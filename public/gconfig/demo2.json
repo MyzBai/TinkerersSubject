@@ -9,7 +9,11 @@
             "+{100} Maximum Mana",
             "+{1} Mana Regeneration",
             "+{1} Gold Per Second",
-            "+{150}% Critical Hit Multiplier"
+            "+{150}% Critical Hit Multiplier",
+            "+{3} Bleed Duration",
+            "+{5} Maximum Bleed Stack",
+            "+{10} Burn Duration",
+            "+{1} Maximum Burn Stack"
         ]
     },
     "components": {
@@ -27,23 +31,35 @@
                     {
                         "name": "Elemental Attack",
                         "levelReq": 1,
-                        "attackSpeed": 1,
+                        "attackSpeed": 0.7,
                         "manaCost": 3,
-                        "baseDamageMultiplier": 120,
+                        "baseDamageMultiplier": 200,
                         "mods": [ 
-                            "+{100}% Hit Chance",
+                            "+{80}% Hit Chance",
                             "{50}% More Elemental Damage"
                          ]
                     },
                     {
-                        "name": "Super Attack",
+                        "name": "Fire Attack",
+                        "levelReq": 1,
+                        "attackSpeed": 0.3,
+                        "manaCost": 10,
+                        "baseDamageMultiplier": 600,
+                        "mods": [ 
+                            "+{80}% Hit Chance",
+                            "+{10}% Chance To Burn",
+                            "{100}% More Burn Damage"
+                         ]
+                    },
+                    {
+                        "name": "Slice Attack",
                         "levelReq": 2,
                         "attackSpeed": 0.5,
                         "manaCost": 3,
                         "baseDamageMultiplier": 250,
                         "mods": [
-                            "+{80}% Hit Chance",
-                            "{50}% More Damage"
+                            "+{60}% Hit Chance",
+                            "+{50}% Chance To Bleed"
                         ]
                     },
                     {
@@ -139,7 +155,7 @@
                 [
                     { "weight": 100, "levelReq": 1, "mod": "Adds {1} To {3} Physical Damage" },
                     { "weight": 100, "levelReq": 2, "mod": "Adds {3-4} To {4-6} Physical Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "Adds {5-8} To {8-12} Physical Damage" }
+                    { "weight": 80, "levelReq": 5, "mod": "Adds {5-8} To {8-12} Physical Damage" }
                 ],
                 [
                     { "weight": 50, "levelReq": 1, "mod": "Adds {1} To {3} Elemental Damage" },
@@ -149,12 +165,32 @@
                 [
                     { "weight": 100, "levelReq": 1, "mod": "{30-40}% Increased Physical Damage" },
                     { "weight": 100, "levelReq": 3, "mod": "{40-60}% Increased Physical Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "{80-100}% Increased Physical Damage" }
+                    { "weight": 80, "levelReq": 5, "mod": "{80-100}% Increased Physical Damage" }
                 ],
                 [
                     { "weight": 50, "levelReq": 1, "mod": "{30-40}% Increased Elemental Damage" },
                     { "weight": 50, "levelReq": 3, "mod": "{40-60}% Increased Elemental Damage" },
-                    { "weight": 50, "levelReq": 5, "mod": "{80-100}% Increased Elemental Damage" }
+                    { "weight": 30, "levelReq": 5, "mod": "{80-100}% Increased Elemental Damage" }
+                ],
+                [
+                    { "weight": 50, "levelReq": 1, "mod": "+{5-7}% Chance To Bleed" },
+                    { "weight": 50, "levelReq": 3, "mod": "+{7-9}% Chance To Bleed" },
+                    { "weight": 50, "levelReq": 5, "mod": "+{10-12}% Chance To Bleed" }
+                ],
+                [
+                    { "weight": 50, "levelReq": 1, "mod": "+{5-7}% Chance To Burn" },
+                    { "weight": 50, "levelReq": 3, "mod": "+{7-9}% Chance To Burn" },
+                    { "weight": 50, "levelReq": 5, "mod": "+{10-12}% Chance To Burn" }
+                ],
+                [
+                    { "weight": 50, "levelReq": 1, "mod": "{30-40}% Increased Bleed Damage" },
+                    { "weight": 30, "levelReq": 3, "mod": "{40-60}% Increased Bleed Damage" },
+                    { "weight": 20, "levelReq": 5, "mod": "{80-100}% Increased Bleed Damage" }
+                ],
+                [
+                    { "weight": 50, "levelReq": 1, "mod": "{30-40}% Increased Burn Damage" },
+                    { "weight": 30, "levelReq": 3, "mod": "{40-60}% Increased Burn Damage" },
+                    { "weight": 20, "levelReq": 5, "mod": "{80-100}% Increased Burn Damage" }
                 ],
                 [
                     { "weight": 100, "levelReq": 1, "mod": "+{5-10}% Hit Chance" },
@@ -190,15 +226,15 @@
             "craftList": [
                 { "id": "reforge", "cost": 10, "levelReq": 1 },
                 { "id": "reforgeIncludePhysical", "cost": 50, "levelReq": 1 },
+                { "id": "reforgeIncludeBleed", "cost": 50, "levelReq": 1 },
                 { "id": "reforgeIncludeElemental", "cost": 50, "levelReq": 1 },
                 { "id": "reforgeIncludeCritical", "cost": 50, "levelReq": 3 },
-                { "id": "reforgeIncludeMana", "cost": 50, "levelReq": 3 },
 
                 { "id": "addRandom", "cost": 50, "levelReq": 1 },
                 { "id": "addPhysical", "cost": 100, "levelReq": 3 },
                 { "id": "addElemental", "cost": 100, "levelReq": 3 },
+                { "id": "addBleed", "cost": 100, "levelReq": 3 },
                 { "id": "addCritical", "cost": 100, "levelReq": 5 },
-                { "id": "addMana", "cost": 100, "levelReq": 5 },
                 { "id": "removeRandom", "cost": 50, "levelReq": 5 }
 
             ]
@@ -273,17 +309,7 @@
                     {
                         "levelReq": 1,
                         "points": 1,
-                        "mod": "+{5}% Hit Chance"
-                    },
-                    {
-                        "levelReq": 3,
-                        "points": 2,
-                        "mod": "+{15}% Hit Chance"
-                    },
-                    {
-                        "levelReq": 5,
-                        "points": 3,
-                        "mod": "+{20}% Hit Chance"
+                        "mod": "+{10}% Hit Chance"
                     }
                 ],
                 [
@@ -313,11 +339,6 @@
                         "levelReq": 3,
                         "points": 2,
                         "mod": "{50}% Increased Maximum Mana"
-                    },
-                    {
-                        "levelReq": 5,
-                        "points": 3,
-                        "mod": "{100}% Increased Maximum Mana"
                     }
                 ],
                 [
@@ -352,6 +373,57 @@
                         "levelReq": 5,
                         "points": 3,
                         "mod": "+{100}% Critical Hit Multiplier"
+                    }
+                ],
+                [
+                    {
+                        "levelReq": 1,
+                        "points": 1,
+                        "mod": "+{5}% Chance To Bleed"
+                    },
+                    {
+                        "levelReq": 3,
+                        "points": 2,
+                        "mod": "+{10}% Chance To Bleed"
+                    },
+                    {
+                        "levelReq": 5,
+                        "points": 3,
+                        "mod": "+{20}% Chance To Bleed"
+                    }
+                ],
+                [
+                    {
+                        "levelReq": 1,
+                        "points": 1,
+                        "mod": "{20}% More Bleed Damage"
+                    },
+                    {
+                        "levelReq": 3,
+                        "points": 2,
+                        "mod": "{30}% More Bleed Damage"
+                    },
+                    {
+                        "levelReq": 5,
+                        "points": 3,
+                        "mod": "{50}% More Bleed Damage"
+                    }
+                ],
+                [
+                    {
+                        "levelReq": 1,
+                        "points": 1,
+                        "mod": "{20}% More Burn Damage"
+                    },
+                    {
+                        "levelReq": 3,
+                        "points": 2,
+                        "mod": "{30}% More Burn Damage"
+                    },
+                    {
+                        "levelReq": 5,
+                        "points": 3,
+                        "mod": "{50}% More Burn Damage"
                     }
                 ]
             ]
@@ -402,6 +474,23 @@
                         "levelReq": 7,
                         "goldAmount": 200,
                         "description": "Deal Physical Damage {500000}"
+                    }
+                ],
+                [
+                    {
+                        "levelReq": 3,
+                        "goldAmount": 50,
+                        "description": "Deal Bleed Damage {500}"
+                    },
+                    {
+                        "levelReq": 5,
+                        "goldAmount": 100,
+                        "description": "Deal Bleed Damage {10000}"
+                    },
+                    {
+                        "levelReq": 7,
+                        "goldAmount": 200,
+                        "description": "Deal Bleed Damage {500000}"
                     }
                 ],
                 [
@@ -476,6 +565,8 @@
                 { "description": "Reach Level {10}" },
                 { "description": "Deal Physical Damage {2000000}", "modList": [ "{20}% More Physical Damage" ] },
                 { "description": "Deal Elemental Damage {2000000}", "modList": [ "{20}% More Elemental Damage" ] },
+                { "description": "Deal Bleed Damage {2000000}", "modList": [ "{20}% More Bleed Damage" ] },
+                { "description": "Deal Burn Damage {2000000}", "modList": [ "{20}% More Burn Damage" ] },
                 { "description": "Generate Gold {1500}", "modList": [ "+{1} Gold Per Second" ] },
                 { "description": "Perform Hits {1500}", "modList": [ "+{5}% Hit Chance" ] },
                 { "description": "Perform Critical Hits {1500}", "modList": [ "+{5}% Critical Hit Chance" ] },
