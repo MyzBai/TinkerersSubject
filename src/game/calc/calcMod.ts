@@ -28,9 +28,8 @@ export function calcPlayerStats(game: Game) {
 
     //Attack Speed
     const attackSpeed = calcModTotal('AttackSpeed', config);
-    statistics['Attack Speed'].set(hitChance);
-    //Base Damage Multiplier
-    const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config) / 100;
+    statistics['Attack Speed'].set(attackSpeed);
+
 
     //Mana
     const maxMana = calcModTotal('MaxMana', config);
@@ -91,6 +90,7 @@ export function calcPlayerStats(game: Game) {
         statistics['Burn Duration'].set(burnDuration);
     }
 
+    const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config) / 100;
 
     const multiplier = baseDamageMultiplier * critDamageMultiplier;
     const ailmentDps = bleedDps + burnDps;
