@@ -391,10 +391,10 @@ class BuffSkillSlot extends BaseSkillSlot {
         }
         const calcDuration = (multiplier: number) => {
             const baseDuration = (this.skill as BuffSkill).data.baseDuration;
-            return baseDuration * multiplier;
+            this._duration = baseDuration * multiplier;
         };
 
-        this._duration = calcDuration(this.skills.game.statistics.statistics["Skill Duration Multiplier"].get());
+        calcDuration(this.skills.game.statistics.statistics["Skill Duration Multiplier"].get());
         this._time = this._time > 0 ? this._time : this._duration;
         this._running = true;
         this.skills.game.statistics.statistics["Skill Duration Multiplier"].addListener('change', calcDuration);
