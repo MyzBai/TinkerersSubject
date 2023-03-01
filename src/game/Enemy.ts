@@ -1,15 +1,18 @@
 import type { Save } from "@src/types/save";
 import EventEmitter from "@src/utils/EventEmitter";
 import { clamp, querySelector } from "@src/utils/helpers";
+import { AilmentData, AilmentInstance, Ailments } from "./Ailments";
 import type Game from "./Game";
 
 export default class Enemy {
     readonly onDeath = new EventEmitter<Enemy>();
+    private readonly ailments: Ailments;
     private _index: number;
     private healthList: number[] = [];
     private _health = 0;
     private readonly healthBar: HTMLProgressElement;
     constructor(readonly game: Game) {
+        this.ailments = new Ailments(this.game);
         this._index = 0;
         this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]', this.game.page);
     }
@@ -35,12 +38,16 @@ export default class Enemy {
         this.game.gameLoop.subscribeAnim(() => {
             this.updateHealthBar();
         });
-        
+
         this.healthList = this.game.config.enemies.enemyList;
         this._index = this.game.saveObj.enemy?.index || 0;
         this.spawn();
         this.health = this.game.saveObj.enemy?.health || this.maxHealth;
         this.updateHealthBar();
+    }
+
+    setup() {
+        this.ailments.setup();
     }
 
     setIndex(index: number) {
@@ -52,6 +59,7 @@ export default class Enemy {
         if (this.index === this.maxIndex + 1) {
             this.healthBar.textContent = 'Dummy (Cannot die)';
         }
+        this.ailments.reset();
     }
 
     dealDamage(amount: number) {
@@ -68,11 +76,28 @@ export default class Enemy {
         }
     }
 
+    dealDamageOverTime(damage: number) {
+        this.dealDamage(damage);
+    }
+
+    applyAilments(instances: AilmentData[]) {
+        for (const instance of instances) {
+            this.ailments.add(instance);
+        }
+    }
+
     save(saveObj: Save) {
         saveObj.enemy = {
             index: this.index,
             health: this.health,
-            dummyDamage: 0
+            dummyDamage: 0,
+            ailments: this.ailments.handlers.map(x =>
+            ({
+                type: x.type,
+                instances: x.instances.map<Pick<AilmentInstance, 'damageFac' | 'time'>>(y =>
+                    ({ damageFac: y.damageFac, time: y.time })
+                )
+            }))
         }
     }
 

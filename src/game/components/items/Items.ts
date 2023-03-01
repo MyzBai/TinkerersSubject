@@ -1,11 +1,11 @@
 import Component from "@src/game/components/Component";
 import type Game from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
-import type { CraftId, ItemMod } from "@src/types/gconfig";
+import type { ItemMod } from "@src/types/gconfig";
 import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
-import { CraftData, craftTemplates } from "./crafting";
+import { CraftData, CraftId, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
 
 type ItemsData = Required<Required<GConfig>['components']>['items'];
@@ -129,10 +129,17 @@ export default class Items extends Component {
     }
 
     updateCraftList(ids: CraftId[] = []) {
-        this.itemCraftTableContainer.querySelectorAll(`[data-enabled][data-id]`).forEach(x => {
+        const elements = [...this.itemCraftTableContainer.querySelectorAll<HTMLElement>(`[data-enabled][data-id]`)];
+        elements.forEach(x => {
             const id = x.getAttribute('data-id') as CraftId;
             x.classList.toggle('hidden', !ids.includes(id));
         });
+        const firstElement = elements.find(x => !x.classList.contains('hidden'));
+        firstElement?.click();
+        if(!firstElement){
+            this.activeCraftId = undefined;
+        }
+        this.updateCraftButton();
     }
 
     private generateCraftData(): CraftData {

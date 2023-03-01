@@ -1,13 +1,14 @@
 import { StatModifier, StatModifierFlags, StatName } from "@game/mods";
-import { calcModBase, calcModIncMore, calcModTotal, Configuration } from "./calcMod";
+import { CalcMinMax, calcModBase, calcModIncMore, calcModTotal, Configuration } from "./calcMod";
 import { randomRange } from '@utils/helpers';
+import { AilmentData } from "../Ailments";
 
 type ConversionValues = Partial<Record<keyof typeof DamageTypeFlags | 'multi', number>>;
 export type ConversionTable = Partial<Record<keyof typeof DamageTypeFlags, ConversionValues>>;
 
-type DamageType = 'Physical' | 'Elemental' | 'Chaos';
+export type DamageType = 'Physical' | 'Elemental' | 'Chaos';
 type DamageFlag = number;
-const DamageTypeFlags: Record<DamageType, DamageFlag> = {
+export const DamageTypeFlags: Record<DamageType, DamageFlag> = {
     Physical: 1 << 0,
     Elemental: 1 << 1,
     Chaos: 1 << 2,
@@ -41,8 +42,7 @@ export function calcAttack(statModList: StatModifier[]) {
 
     const config: Configuration = {
         statModList,
-        flags: StatModifierFlags.Attack,
-        calcMinMax: randomRange
+        flags: StatModifierFlags.Attack
     };
 
     //Hit
@@ -54,7 +54,7 @@ export function calcAttack(statModList: StatModifier[]) {
     }
 
     config.flags = StatModifierFlags.Attack;
-    const baseDamage = calcBaseDamage(config);
+    const baseDamage = calcBaseDamage(config, randomRange);
 
 
     const critChance = Math.min(calcModTotal('CritChance', config), 100) / 100;
@@ -74,16 +74,37 @@ export function calcAttack(statModList: StatModifier[]) {
     const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
     const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
     const totalElementalDamage = baseDamage.elementalDamage * finalMultiplier;
+
+
+    const ailments: AilmentData[] = [];
+    //ailments
+    {
+        config.flags = StatModifierFlags.Ailment | StatModifierFlags.Bleed | StatModifierFlags.Physical;
+        const bleedChance = calcModTotal('BleedChance', config) / 100;
+        if(bleedChance >= randomRange(0, 1)){
+            const damageFac = randomRange(0,1);
+            ailments.push({ damageFac, type: 'Bleed' });
+        }
+
+        config.flags = StatModifierFlags.Ailment | StatModifierFlags.Burn | StatModifierFlags.Elemental;
+        const burnChance = calcModTotal('BurnChance', config) / 100;
+        if(burnChance >= randomRange(0, 1)){
+            const damageFac = randomRange(0,1);
+            ailments.push({ damageFac, type: 'Burn' });
+        }
+    }
+
     return {
         hit,
         crit,
         totalDamage,
         totalPhysicalDamage,
         totalElementalDamage,
+        ailments
     }
 }
 
-export function calcBaseDamage(config: Configuration) {
+export function calcBaseDamage(config: Configuration, calcMinMax: CalcMinMax) {
 
     const conversionTable = generateConversionTable(config);
     const output = {
@@ -107,12 +128,12 @@ export function calcBaseDamage(config: Configuration) {
         const { min, max } = calcDamage(damageType, config, conversionTable);
         output[`min${damageType}Damage`] = min;
         output[`max${damageType}Damage`] = max;
-        const baseDamage = config.calcMinMax(min, max);
+        const baseDamage = calcMinMax(min, max);
         output[`${damageType.toLowerCase()}Damage` as keyof typeof output] = baseDamage;
         totalBaseDamage += baseDamage;
         config.flags &= ~bit;
     }
-  
+
     output.totalBaseDamage = totalBaseDamage;
     return output;
 }
@@ -143,6 +164,13 @@ function calcDamage(damageType: DamageType, config: Configuration, conversionTab
     const min = Math.round(calcModIncMore(modNames as StatName[], baseMin, config) + addMin);
     const max = Math.round(calcModIncMore(modNames as StatName[], baseMax, config) + addMax);
     return { min, max };
+}
+
+export function calcAilmentBaseDamage(damageType: DamageType, config: Configuration, typeFlags = 0) {
+    const conversionTable = generateConversionTable(config);
+    const { min, max } = calcDamage(damageType, config, conversionTable, typeFlags);
+    const convMulti = conversionTable[damageType]?.multi || 1;
+    return { min: min * convMulti, max: max * convMulti }
 }
 
 

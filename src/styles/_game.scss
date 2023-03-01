@@ -73,14 +73,16 @@
         grid-column: 2;
         min-height: 0;
         .p-combat {
-            display: grid;
-            grid-template-rows: 1fr 1fr;
-
             ul {
-                display: flex;
-                flex-direction: column-reverse;
-                width: 100%;
-                border-top: 1px solid $color-border-highlight;
+                li {
+                    display: block;
+                    width: 100%;
+                }
+                progress {
+                    display: block;
+                    width: 100%;
+                    height: 5px;
+                }
             }
         }
 
@@ -94,7 +96,7 @@
                 padding-bottom: $padding-container;
                 padding-right: $padding-container;
 
-                .s-skill-slot{
+                .s-skill-slot {
                     display: block;
                     width: 100%;
 
@@ -112,7 +114,7 @@
                 ul {
                     margin-top: $padding-container;
                     min-height: 0;
-                    li.s-skill-slot.selected{
+                    li.s-skill-slot.selected {
                         pointer-events: all;
                         // &:hover{
                         //     background-color: $color-action-list-item-default-hover-bg;
@@ -180,7 +182,7 @@
                 padding-bottom: $padding-container;
                 border-bottom: 1px solid $color-border-highlight;
             }
-            .s-passive-list{
+            .s-passive-list {
                 overflow-y: auto;
                 table {
                     margin-top: $padding-container;
@@ -197,7 +199,7 @@
                     td {
                         padding: $padding-list-item;
                     }
-    
+
                     td:first-child {
                         text-align: left;
                     }
@@ -246,6 +248,10 @@
                             }
                             td {
                                 padding: 0.3em;
+
+                                &:last-child {
+                                    text-align: right;
+                                }
                             }
                         }
                     }
@@ -275,8 +281,8 @@
                 padding-right: $padding-container;
                 border-top: 1px solid $color-canvas-default;
                 padding-top: $padding-container;
-        
-                [data-preset-list]{
+
+                [data-preset-list] {
                     min-height: 0;
                     overflow-y: auto;
                 }
@@ -395,7 +401,6 @@
                 background-color: $color-canvas-default;
                 margin-bottom: $padding-container;
             }
-
         }
     }
     .s-stats {

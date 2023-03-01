@@ -133,8 +133,8 @@ export default class Skills extends Component {
         li.addEventListener('click', () => {
             this.selectSkillListItem(container, skill);
         });
+        highlightHTMLElement(this.menuItem, 'click');
         highlightHTMLElement(li, 'mouseover');
-        highlightHTMLElement(this.menuItem, 'mouseover');
         container.appendChild(li);
     }
 

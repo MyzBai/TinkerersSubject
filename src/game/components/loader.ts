@@ -73,7 +73,13 @@ export function loadComponent(game: Game, key: ComponentName) {
     menuItem.classList.add('g-list-item');
     menuItem.setAttribute('data-tab-target', key);
     menuContainer.appendChild(menuItem);
-
+    {
+        const keys = Object.keys(componentConfigs);
+        const sort = (a: ComponentName, b: ComponentName) => keys.indexOf(a) - keys.indexOf(b);
+        const sortedItems = [...menuContainer.children].sort((a, b) =>
+            sort(a.getAttribute('data-tab-target') as ComponentName, b.getAttribute('data-tab-target') as ComponentName));
+        menuContainer.replaceChildren(...sortedItems);
+    }
 
     //instance
     const instance = new constr(game, game.config.components[key]);
