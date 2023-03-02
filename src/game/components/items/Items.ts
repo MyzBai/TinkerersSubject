@@ -33,6 +33,11 @@ export default class Items extends Component {
         if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0]!.levelReq > data.levelReq) {
             throw Error('No items available! There must be at least 1 item available');
         }
+        data.craftList.forEach(x => {
+            if(!Object.keys(craftTemplates).includes(x.id)){
+                throw Error(`${x.id} is invalid`);
+            }
+        });
         this.createItems();
         this.activeItem = this.items[0]!;
         this.activeItem.element.click();
