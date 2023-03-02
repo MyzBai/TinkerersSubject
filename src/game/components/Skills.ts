@@ -226,7 +226,6 @@ export default class Skills extends Component {
             buffSkills: this.buffSkillSlots.filter(x => x.skill).map((x, index) => ({
                 index,
                 name: x.skill?.data.name || '',
-                active: x.running,
                 automate: x.automate,
                 time: x.time
             }))
@@ -442,7 +441,7 @@ class BuffSkillSlot extends BaseSkillSlot {
                 this.setSkill(skill);
                 this._time = savedSkillSlotData.time;
                 this._automate = savedSkillSlotData.automate;
-                if (savedSkillSlotData.active) {
+                if (this._automate) {
                     this.loop();
                 }
             }
