@@ -112,12 +112,12 @@ export const craftTemplates = {
     },
     removePhysical: {
         desc: 'Remove a [physical] modifier',
-        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList),
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, 'Physical'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Physical').modList
     },
     removeElemental: {
         desc: 'Remove an [elemental] modifier',
-        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList),
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, 'Elemental'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Elemental').modList
     },
     removeRandomAddRandom: {
