@@ -10069,9 +10069,11 @@
       __publicField(this, "countSpan");
       __publicField(this, "time", 0);
       __publicField(this, "duration", 0);
-      __publicField(this, "numActiveInstances", 0);
       __publicField(this, "maxNumActiveInstances", 0);
       this.ailmentsListContainer = querySelector(".p-combat [data-ailment-list]", game.page);
+    }
+    get numActiveInstances() {
+      return Math.min(this.instances.length, this.maxNumActiveInstances);
     }
     setup() {
       this.removeElement();
@@ -10090,7 +10092,6 @@
       this.instances.push(instance);
       this.updateDamage();
       this.time = this.duration;
-      this.numActiveInstances = Math.min(this.instances.length, this.maxNumActiveInstances);
       this.updateElement();
       this.updateProgressBar();
       return instance;
