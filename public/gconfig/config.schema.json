@@ -280,7 +280,8 @@
                 { "enum": [ "+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
                 { "enum": [ "+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
                 { "enum": [ "{#}% Increased Bleed Damage", "{#}% Increased Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
-                { "enum": [ "{#}% More Bleed Damage", "{#}% More Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" }
+                { "enum": [ "{#}% More Bleed Damage", "{#}% More Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
+                { "enum": [ "{#}% Increased Bleed Duration", "{#}% Increased Burn Duration" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
             ],
             "pattern": "^[^#]*$"
         },
