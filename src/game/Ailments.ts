@@ -164,6 +164,7 @@ class BleedHandler extends AilmentHandler {
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
         this.game.enemy.dealDamageOverTime(damage);
+        this.game.statistics.statistics['Total Damage'].add(damage);
         this.game.statistics.statistics['Total Bleed Damage'].add(damage);
         this.game.statistics.statistics['Total Physical Damage'].add(damage);
         super.tick(dt);
@@ -202,6 +203,7 @@ class BurnHandler extends AilmentHandler {
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
         this.game.enemy.dealDamageOverTime(damage);
+        this.game.statistics.statistics['Total Damage'].add(damage);
         this.game.statistics.statistics['Total Burn Damage'].add(damage);
         this.game.statistics.statistics['Total Elemental Damage'].add(damage);
         super.tick(dt);
