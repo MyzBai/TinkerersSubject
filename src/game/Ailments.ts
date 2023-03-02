@@ -26,11 +26,12 @@ abstract class AilmentHandler {
     protected countSpan?: HTMLSpanElement;
     time = 0;
     protected duration = 0;
-    protected numActiveInstances = 0;
     protected maxNumActiveInstances = 0;
     constructor(readonly game: Game, readonly type: AilmentType) {
         this.ailmentsListContainer = querySelector('.p-combat [data-ailment-list]', game.page);
     }
+
+    get numActiveInstances() { return Math.min(this.instances.length, this.maxNumActiveInstances); }
 
     setup() {
         this.removeElement();
@@ -49,7 +50,6 @@ abstract class AilmentHandler {
         this.instances.push(instance);
         this.updateDamage();
         this.time = this.duration;
-        this.numActiveInstances = Math.min(this.instances.length, this.maxNumActiveInstances);
         this.updateElement();
         this.updateProgressBar();
         return instance;
