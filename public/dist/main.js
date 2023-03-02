@@ -9303,7 +9303,9 @@
           { enum: ["{#}% Increased Bleed Damage", "{#}% Increased Burn Damage"] },
           { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
           { enum: ["{#}% More Bleed Damage", "{#}% More Burn Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" }
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
+          { enum: ["{#}% Increased Bleed Duration", "{#}% Increased Burn Duration"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
         ],
         pattern: "^[^#]*$"
       },
@@ -9397,16 +9399,6 @@
       stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental }]
     },
     {
-      desc: "#% Increased Bleed Damage",
-      tags: ["Bleed", "Physical"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }]
-    },
-    {
-      desc: "#% Increased Burn Damage",
-      tags: ["Burn", "Elemental"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }]
-    },
-    {
       desc: "#% More Physical Damage",
       tags: ["Physical"],
       stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Physical }]
@@ -9446,6 +9438,16 @@
         { name: "MinDamage", valueType: "Base", flags: StatModifierFlags.Elemental },
         { name: "MaxDamage", valueType: "Base", flags: StatModifierFlags.Elemental }
       ]
+    },
+    {
+      desc: "#% Increased Bleed Damage",
+      tags: ["Bleed", "Physical"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }]
+    },
+    {
+      desc: "#% Increased Burn Damage",
+      tags: ["Burn", "Elemental"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }]
     },
     {
       desc: "+#% Hit Chance",
@@ -9518,9 +9520,19 @@
       stats: [{ name: "Duration", valueType: "Base", flags: StatModifierFlags.Bleed }]
     },
     {
+      desc: "#% Increased Bleed Duration",
+      tags: ["Duration", "Bleed"],
+      stats: [{ name: "Duration", valueType: "Inc", flags: StatModifierFlags.Bleed }]
+    },
+    {
       desc: "+# Burn Duration",
       tags: ["Duration", "Burn"],
       stats: [{ name: "Duration", valueType: "Base", flags: StatModifierFlags.Burn }]
+    },
+    {
+      desc: "#% Increased Burn Duration",
+      tags: ["Duration", "Burn"],
+      stats: [{ name: "Duration", valueType: "Inc", flags: StatModifierFlags.Burn }]
     },
     {
       desc: "+# Maximum Bleed Stack",
@@ -10125,7 +10137,7 @@
       if (!this.timeSpan || !this.countSpan) {
         return;
       }
-      this.timeSpan.textContent = Math.ceil(this.time).toFixed();
+      this.timeSpan.textContent = this.time.toFixed();
       this.countSpan.textContent = this.numActiveInstances.toFixed();
     }
     updateProgressBar() {
@@ -10159,9 +10171,10 @@
     setup() {
       super.setup();
       this.game.statistics.statistics["Bleed Duration"].addListener("change", (amount) => {
-        const pct = this.time / this.duration;
+        const durationFac = amount / this.duration;
+        this.time *= durationFac;
+        this.instances.forEach((x) => x.time *= durationFac);
         this.duration = amount;
-        this.time = this.duration * pct;
       });
       this.game.statistics.statistics["Maximum Bleed Stacks"].addListener("change", (amount) => {
         this.maxNumActiveInstances = amount;
@@ -10194,9 +10207,10 @@
     setup() {
       super.setup();
       this.game.statistics.statistics["Burn Duration"].addListener("change", (amount) => {
-        const pct = this.time / this.duration;
+        const durationFac = amount / this.duration;
+        this.time *= durationFac;
+        this.instances.forEach((x) => x.time *= durationFac);
         this.duration = amount;
-        this.time = this.duration * pct;
       });
       this.game.statistics.statistics["Maximum Burn Stacks"].addListener("change", (amount) => {
         this.maxNumActiveInstances = amount;
@@ -10270,7 +10284,7 @@
           const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
           instance.time = savedInstance.time;
         }
-        x.time = Math.max(...save2.instances.map((x2) => x2.time).sort().reverse());
+        x.time = Math.max(0, ...save2.instances.map((x2) => x2.time).sort().reverse());
       });
     }
     reset() {
@@ -12651,9 +12665,9 @@ Your feedback would be highly appreciated.`,
         description: "This is a short configuration for demonstration purposes."
       },
       {
-        name: "Playground",
+        name: "Demo 2 Extended",
         rawUrl: "public/gconfig/demo2.json",
-        description: "This configuration is just for testing purposes."
+        description: "This demo introduces elemental damage and damage over time"
       }
     ]
   };
