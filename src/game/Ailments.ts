@@ -76,7 +76,7 @@ abstract class AilmentHandler {
 
     reset() {
         this.instances.splice(0);
-        this.tick(0);
+        this.removeElement();
     }
 
     protected createElement() {
@@ -256,11 +256,13 @@ export class Ailments {
             if (!save) {
                 return;
             }
+            let time = 0;
             for (const savedInstance of save.instances) {
                 const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
                 instance.time = savedInstance.time;
+                time = Math.max(time, savedInstance.time);
             }
-            x.time = Math.max(0, ...save.instances.map(x => x.time).sort().reverse());
+            x.time = time;
         });
     }
 
