@@ -168,10 +168,10 @@
                                 "properties": {
                                     "id": {
                                         "enum": [
-                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
-                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed",
-                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed",
-                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed" ]
+                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeIncludeBurn", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed", "addBurn",
+                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn",
+                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn" ]
                                     },
                                     "levelReq": { "type": "integer", "minimum": 0 },
                                     "cost": { "type": "integer", "minimum": 0 }

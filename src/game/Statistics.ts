@@ -42,6 +42,12 @@ export default class Statistics {
         'Dps': new Statistic({ sticky: true }),
         'Hit Chance': new Statistic({ sticky: true, format: 'pct' }),
         'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
+
+        //Attack
+        'Attack Dps': new Statistic(),
+        'Average Attack Damage': new Statistic(),
+        'Average Physical Attack Damage': new Statistic(),
+        'Average Elemental Attack Damage': new Statistic(),
         //Crit
         'Critical Hit Chance': new Statistic({ format: 'pct' }),
         'Critical Hit Multiplier': new Statistic({ format: 'pct' }),

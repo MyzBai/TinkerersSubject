@@ -53,9 +53,9 @@
                     {
                         "name": "Bleed Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.8,
-                        "manaCost": 5,
-                        "baseDamageMultiplier": 180,
+                        "attackSpeed": 0.3,
+                        "manaCost": 10,
+                        "baseDamageMultiplier": 200,
                         "mods": [
                             "+{60}% Hit Chance",
                             "+{10}% Chance To Bleed",
@@ -65,9 +65,9 @@
                     {
                         "name": "Burn Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.8,
-                        "manaCost": 5,
-                        "baseDamageMultiplier": 180,
+                        "attackSpeed": 0.3,
+                        "manaCost": 10,
+                        "baseDamageMultiplier": 200,
                         "mods": [
                             "+{60}% Hit Chance",
                             "+{10}% Chance To Burn",
@@ -250,14 +250,19 @@
             "craftList": [
                 { "id": "reforge", "cost": 10, "levelReq": 1 },
                 { "id": "reforgeIncludePhysical", "cost": 50, "levelReq": 1 },
-                { "id": "reforgeIncludeCritical", "cost": 50, "levelReq": 3 },
-                { "id": "reforgeIncludeMana", "cost": 50, "levelReq": 3 },
+                { "id": "reforgeIncludeElemental", "cost": 50, "levelReq": 3 },
+                { "id": "reforgeIncludeCritical", "cost": 50, "levelReq": 5 },
+                { "id": "reforgeIncludeMana", "cost": 50, "levelReq": 5 },
 
                 { "id": "addRandom", "cost": 50, "levelReq": 1 },
                 { "id": "addPhysical", "cost": 100, "levelReq": 3 },
+                { "id": "addElemental", "cost": 100, "levelReq": 3 },
                 { "id": "addCritical", "cost": 100, "levelReq": 5 },
                 { "id": "addMana", "cost": 100, "levelReq": 5 },
-                { "id": "removeRandom", "cost": 50, "levelReq": 5 }
+
+                { "id": "removeRandom", "cost": 50, "levelReq": 5 },
+                { "id": "removePhysical", "cost": 200, "levelReq": 7 },
+                { "id": "removeElemental", "cost": 200, "levelReq": 7 }
 
             ]
         },
