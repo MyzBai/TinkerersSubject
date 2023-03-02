@@ -20,12 +20,17 @@ export class Statistic extends Value {
     readonly decimals: number;
     readonly format: StatisticParams['format'];
     readonly save: boolean;
-    constructor(args?: StatisticParams) {
+    constructor(private readonly args?: StatisticParams) {
         super(args?.defaultValue || 0);
         this.sticky = args?.sticky || false;
         this.format = args?.format || 'none';
         this.decimals = args?.decimals || 0;
         this.save = args?.save || false;
+    }
+
+    reset(): void {
+        super.reset();
+        this.sticky = this.args?.sticky || false;
     }
 }
 
@@ -102,7 +107,7 @@ export default class Statistics {
                     return;
                 }
                 statistic.set(value);
-                statistic.sticky = sticky;
+                statistic.sticky = sticky || false;
             });
         }
         this.game.visiblityObserver.registerLoop(this.page, visible => {
