@@ -62,7 +62,7 @@ export function calcPlayerStats(game: Game) {
     //bleed
     let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
     {
-        config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
+        config.flags = StatModifierFlags.Physical | StatModifierFlags.Bleed;
         bleedChance = calcModTotal('BleedChance', config) / 100;
         maxBleedStacks = calcModTotal('AilmentStack', config);
         bleedDuration = calcModTotal('Duration', config);

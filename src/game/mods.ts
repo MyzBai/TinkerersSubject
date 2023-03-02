@@ -2,7 +2,7 @@ import type { Mod } from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types
-export type ModifierTag = 'Gold' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical' | 'Ailment' | 'Bleed' | 'Burn' | 'Duration';
+export type ModifierTag = 'Gold' | 'Damage' | 'Attack' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical' | 'Ailment' | 'Bleed' | 'Burn' | 'Duration' | 'Skill';
 export type StatModifierValueType = 'Base' | 'Inc' | 'More';
 //#region Mod Description
 export type ModDescription = typeof modTemplates[number]['desc'];
@@ -64,89 +64,90 @@ interface StatModifierParams {
     source?: string;
 }
 
-export const StatModifierFlags = {
-    None: 1 << 0,
-    Attack: 1 << 1,
-    Physical: 1 << 2,
-    Elemental: 1 << 3,
-    Chaos: 1 << 4,
-    Skill: 1 << 5,
-    Ailment: 1 << 6,
-    Bleed: 1 << 7,
-    Burn: 1 << 8
-} as const;
+export enum StatModifierFlags {
+    None = 0,
+    Attack = 1 << 0,
+    Physical = 1 << 1,
+    Elemental = 1 << 2,
+    Chaos = 1 << 3,
+    Skill = 1 << 4,
+    Bleed = 1 << 5,
+    Burn = 1 << 6,
+    Ailment = StatModifierFlags.Bleed | StatModifierFlags.Burn,
+    Damage = 1 << 7
+}
 
 export const modTemplates: ReadonlyArray<ModTemplate> = [
     {
         desc: '#% Increased Physical Damage',
-        tags: ['Physical'],
+        tags: ['Damage', 'Physical'],
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical }]
     },
     {
         desc: '#% Increased Elemental Damage',
-        tags: ['Elemental'],
+        tags: ['Damage', 'Elemental'],
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental }]
     },
     {
         desc: '#% More Physical Damage',
-        tags: ['Physical'],
+        tags: ['Damage', 'Physical'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical }]
     },
     {
         desc: '#% More Elemental Damage',
-        tags: ['Elemental'],
+        tags: ['Damage', 'Elemental'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Elemental }]
     },
     {
         desc: '#% More Bleed Damage',
-        tags: ['Bleed', 'Physical'],
+        tags: ['Damage', 'Bleed', 'Physical', 'Ailment'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
     },
     {
         desc: '#% More Burn Damage',
-        tags: ['Burn', 'Elemental'],
+        tags: ['Damage', 'Burn', 'Elemental', 'Ailment'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }],
     },
     {
         desc: '#% More Damage',
-        tags: [],
+        tags: ['Damage'],
         stats: [{ name: 'Damage', valueType: 'More' }]
     },
     {
         desc: 'Adds # To # Physical Damage',
-        tags: ['Physical'],
+        tags: ['Damage', 'Physical'],
         stats: [{ name: 'MinDamage', valueType: 'Base', flags: StatModifierFlags.Physical },
         { name: 'MaxDamage', valueType: 'Base', flags: StatModifierFlags.Physical }]
     },
     {
         desc: 'Adds # To # Elemental Damage',
-        tags: ['Elemental'],
+        tags: ['Damage', 'Elemental'],
         stats: [{ name: 'MinDamage', valueType: 'Base', flags: StatModifierFlags.Elemental },
         { name: 'MaxDamage', valueType: 'Base', flags: StatModifierFlags.Elemental }]
     },
     {
         desc: '#% Increased Bleed Damage',
-        tags: ['Bleed', 'Physical'],
+        tags: ['Damage', 'Bleed', 'Physical', 'Ailment'],
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
     },
     {
         desc: '#% Increased Burn Damage',
-        tags: ['Burn', 'Elemental'],
+        tags: ['Damage', 'Burn', 'Elemental', 'Ailment'],
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }],
     },
     {
         desc: '+#% Hit Chance',
-        tags: [],
+        tags: ['Attack'],
         stats: [{ name: 'HitChance', valueType: 'Base' }]
     },
     {
         desc: '#% Increased Attack Speed',
-        tags: ['Speed'],
+        tags: ['Attack', 'Speed'],
         stats: [{ name: 'AttackSpeed', valueType: 'Inc' }]
     },
     {
         desc: '#% More Attack Speed',
-        tags: ['Speed'],
+        tags: ['Attack', 'Speed'],
         stats: [{ name: 'AttackSpeed', valueType: 'More' }]
     },
     {
@@ -166,12 +167,12 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     },
     {
         desc: '+#% Critical Hit Chance',
-        tags: ['Critical'],
+        tags: ['Critical', 'Attack'],
         stats: [{ name: 'CritChance', valueType: 'Base' }]
     },
     {
         desc: '+#% Critical Hit Multiplier',
-        tags: ['Critical'],
+        tags: ['Critical', 'Attack'],
         stats: [{ name: 'CritMulti', valueType: 'Base' }]
     },
     {
@@ -186,37 +187,37 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     },
     {
         desc: '#% Increased Skill Duration',
-        tags: ['Gold'],
+        tags: ['Skill'],
         stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Skill }],
     },
     {
         desc: '+#% Chance To Bleed',
-        tags: ['Bleed', 'Physical'],
+        tags: ['Attack', 'Bleed', 'Physical', 'Ailment'],
         stats: [{ name: 'BleedChance', valueType: 'Base', flags: StatModifierFlags.Bleed }],
     },
     {
         desc: '+#% Chance To Burn',
-        tags: ['Burn', 'Elemental'],
+        tags: ['Attack', 'Burn', 'Elemental', 'Ailment'],
         stats: [{ name: 'BurnChance', valueType: 'Base', flags: StatModifierFlags.Burn }],
     },
     {
         desc: '+# Bleed Duration',
-        tags: ['Duration', 'Bleed'],
+        tags: ['Duration', 'Bleed', 'Ailment'],
         stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Bleed }],
     },
     {
         desc: '#% Increased Bleed Duration',
-        tags: ['Duration', 'Bleed'],
+        tags: ['Duration', 'Bleed', 'Ailment'],
         stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Bleed }],
     },
     {
         desc: '+# Burn Duration',
-        tags: ['Duration', 'Burn'],
+        tags: ['Duration', 'Burn', 'Ailment'],
         stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Burn }],
     },
     {
         desc: '#% Increased Burn Duration',
-        tags: ['Duration', 'Burn'],
+        tags: ['Duration', 'Burn', 'Ailment'],
         stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Burn }],
     },
     {
