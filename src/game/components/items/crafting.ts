@@ -42,7 +42,7 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Bleed'),
         getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Bleed').addMultiple(data.modList, generateReforgeModCount(1)).modList
     },
-    reforgeHigherChanceSameMods:{
+    reforgeHigherChanceSameMods: {
         desc: 'Reforge the item with a higher chance of receiving the same modifiers',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modList),
         getItemMods: (data: CraftData) => {
@@ -100,10 +100,25 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Bleed'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Bleed').modList
     },
+    addBurn: {
+        desc: 'Add a [burn] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Burn'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Burn').modList
+    },
     removeRandom: {
         desc: 'Remove a random modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().modList
+    },
+    removePhysical: {
+        desc: 'Remove a [physical] modifier',
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Physical').modList
+    },
+    removeElemental: {
+        desc: 'Remove an [elemental] modifier',
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Elemental').modList
     },
     removeRandomAddRandom: {
         desc: 'Remove a random modifier and add a new random modifier',
@@ -134,6 +149,11 @@ export const craftTemplates = {
         desc: 'Remove a random modifier and add a new [bleed] modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Bleed').itemCanCraftModWithTag(data.itemModList, data.modList, 'Bleed'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Bleed').modList
+    },
+    removeRandomAddBurn: {
+        desc: 'Remove a random modifier and add a new [burn] modifier',
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Burn').itemCanCraftModWithTag(data.itemModList, data.modList, 'Burn'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Burn').modList
     }
 }
 
@@ -205,6 +225,16 @@ class Crafter {
     removeRandom() {
         const randomIndex = this.randomRangeInt(0, this.modList.length);
         this.modList.splice(randomIndex, 1);
+        return this;
+    }
+    removeWithTag(tag: ModifierTag) {
+        const items = this.modList.filter(x => x.tags.includes(tag));
+        const randomIndex = this.randomRangeInt(0, items.length);
+        const itemToRemove = items[randomIndex];
+        if (!itemToRemove) {
+            throw Error(`no mod with tag ${tag} was found`);
+        }
+        this.modList = this.modList.filter(x => x !== itemToRemove);
         return this;
     }
 
