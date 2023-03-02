@@ -9157,6 +9157,7 @@
                         "reforgeIncludeCritical",
                         "reforgeIncludeMana",
                         "reforgeIncludeBleed",
+                        "reforgeIncludeBurn",
                         "reforgeHigherChanceSameMods",
                         "reforgeLowerChanceSameMods",
                         "addRandom",
@@ -9165,17 +9166,20 @@
                         "addCritical",
                         "addMana",
                         "addBleed",
+                        "addBurn",
                         "removeRandom",
                         "removePhysical",
                         "removeElemental",
                         "removeCritical",
                         "removeMana",
                         "removeBleed",
+                        "removeBurn",
                         "removeRandomAddPhysical",
                         "removeRandomAddElemental",
                         "removeRandomAddCritical",
                         "removeRandomAddMana",
-                        "removeRandomAddBleed"
+                        "removeRandomAddBleed",
+                        "removeRandomAddBurn"
                       ]
                     },
                     levelReq: { type: "integer", minimum: 0 },
@@ -9667,7 +9671,7 @@
     const statistics = game.statistics.statistics;
     const config = {
       statModList: player.modDB.modList,
-      flags: StatModifierFlags.Attack
+      flags: 0
     };
     const hitChance = calcModTotal("HitChance", config) / 100;
     statistics["Hit Chance"].set(hitChance);
@@ -9685,8 +9689,18 @@
     const clampedCritChance = clamp(critChance, 0, 1);
     const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
     statistics["Critical Hit Multiplier"].set(critMulti);
-    const critDamageMultiplier = 1 + clampedCritChance * critMulti;
-    const baseDamageResult = calcBaseDamage(config, avg);
+    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
+    let attackDps = 0;
+    {
+      config.flags = StatModifierFlags.Attack;
+      const baseDamageResult = calcBaseDamage(config, avg);
+      const critDamageMultiplier = 1 + clampedCritChance * critMulti;
+      attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier * baseDamageMultiplier;
+      statistics["Attack Dps"].set(attackDps);
+      statistics["Average Attack Damage"].set(baseDamageResult.totalBaseDamage);
+      statistics["Average Physical Attack Damage"].set(baseDamageResult.physicalDamage);
+      statistics["Average Elemental Attack Damage"].set(baseDamageResult.elementalDamage);
+    }
     let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
     {
       config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
@@ -9698,7 +9712,7 @@
         const baseDamage = avg(min, max);
         const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
         const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
-        bleedDps = baseDamage * maxStacks;
+        bleedDps = baseDamage * maxStacks * baseDamageMultiplier;
       }
       statistics["Bleed Dps"].set(bleedDps);
       statistics["Bleed Chance"].set(bleedChance);
@@ -9716,17 +9730,15 @@
         const baseDamage = avg(min, max);
         const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
         const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
-        burnDps = baseDamage * maxStacks;
+        burnDps = baseDamage * maxStacks * baseDamageMultiplier;
       }
       statistics["Burn Dps"].set(burnDps);
       statistics["Burn Chance"].set(burnChance);
       statistics["Maximum Burn Stacks"].set(maxBurnStacks);
       statistics["Burn Duration"].set(burnDuration);
     }
-    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
-    const multiplier = baseDamageMultiplier * critDamageMultiplier;
     const ailmentDps = bleedDps + burnDps;
-    const dps = (baseDamageResult.totalBaseDamage + ailmentDps) * clampedHitChance * attackSpeed * multiplier;
+    const dps = attackDps + ailmentDps;
     statistics["Dps"].set(dps);
     const skillDurationMultiplier = calcModIncMore("Duration", 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
     statistics["Skill Duration Multiplier"].set(skillDurationMultiplier);
@@ -10586,6 +10598,10 @@
         "Dps": new Statistic({ sticky: true }),
         "Hit Chance": new Statistic({ sticky: true, format: "pct" }),
         "Attack Speed": new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
+        "Attack Dps": new Statistic(),
+        "Average Attack Damage": new Statistic(),
+        "Average Physical Attack Damage": new Statistic(),
+        "Average Elemental Attack Damage": new Statistic(),
         "Critical Hit Chance": new Statistic({ format: "pct" }),
         "Critical Hit Multiplier": new Statistic({ format: "pct" }),
         "Maximum Mana": new Statistic(),
@@ -11422,10 +11438,25 @@ Your feedback would be highly appreciated.`,
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Bleed"),
       getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Bleed").modList
     },
+    addBurn: {
+      desc: "Add a [burn] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Burn"),
+      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Burn").modList
+    },
     removeRandom: {
       desc: "Remove a random modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList),
       getItemMods: (data) => new Crafter(data.itemModList).removeRandom().modList
+    },
+    removePhysical: {
+      desc: "Remove a [physical] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList),
+      getItemMods: (data) => new Crafter(data.itemModList).removeWithTag("Physical").modList
+    },
+    removeElemental: {
+      desc: "Remove an [elemental] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList),
+      getItemMods: (data) => new Crafter(data.itemModList).removeWithTag("Elemental").modList
     },
     removeRandomAddRandom: {
       desc: "Remove a random modifier and add a new random modifier",
@@ -11456,6 +11487,11 @@ Your feedback would be highly appreciated.`,
       desc: "Remove a random modifier and add a new [bleed] modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Bleed").itemCanCraftModWithTag(data.itemModList, data.modList, "Bleed"),
       getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Bleed").modList
+    },
+    removeRandomAddBurn: {
+      desc: "Remove a random modifier and add a new [burn] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Burn").itemCanCraftModWithTag(data.itemModList, data.modList, "Burn"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Burn").modList
     }
   };
   var CraftValidator = class {
@@ -11516,6 +11552,16 @@ Your feedback would be highly appreciated.`,
     removeRandom() {
       const randomIndex = this.randomRangeInt(0, this.modList.length);
       this.modList.splice(randomIndex, 1);
+      return this;
+    }
+    removeWithTag(tag) {
+      const items = this.modList.filter((x) => x.tags.includes(tag));
+      const randomIndex = this.randomRangeInt(0, items.length);
+      const itemToRemove = items[randomIndex];
+      if (!itemToRemove) {
+        throw Error(`no mod with tag ${tag} was found`);
+      }
+      this.modList = this.modList.filter((x) => x !== itemToRemove);
       return this;
     }
     generateMods(itemModList, filterMods = [], count) {
@@ -11694,6 +11740,11 @@ Your feedback would be highly appreciated.`,
       if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
         throw Error("No items available! There must be at least 1 item available");
       }
+      data.craftList.forEach((x) => {
+        if (!Object.keys(craftTemplates).includes(x.id)) {
+          throw Error(`${x.id} is invalid`);
+        }
+      });
       this.createItems();
       this.activeItem = this.items[0];
       this.activeItem.element.click();
