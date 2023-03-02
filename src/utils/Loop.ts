@@ -114,7 +114,7 @@ export default class Loop {
                 let ms = instance.options?.intervalMilliseconds || 0;
                 if (instance.time > ms) {
                     instance.callback(dt / 1000);
-                    instance.time -= ms || instance.time;
+                    instance.time = 0;
                 }
             });
             lastTime = now;
