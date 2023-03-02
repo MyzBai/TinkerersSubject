@@ -34,7 +34,6 @@ export default class Enemy {
 
     init() {
         this.game.onSave.listen(this.save.bind(this));
-        this.onDeath.removeAllListeners();
         this.game.gameLoop.subscribeAnim(() => {
             this.updateHealthBar();
         });
@@ -44,6 +43,10 @@ export default class Enemy {
         this.spawn();
         this.health = this.game.saveObj.enemy?.health || this.maxHealth;
         this.updateHealthBar();
+    }
+
+    reset() {
+        this.onDeath.removeAllListeners();
     }
 
     setup() {

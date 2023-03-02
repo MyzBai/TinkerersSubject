@@ -17,7 +17,7 @@ export default class Player {
     }
 
     init() {
-        this.modDB.clear();
+        this.game.onSave.listen(this.save.bind(this));
 
         if (this.game.config.player) {
             this.game.config.player.modList.forEach(x => {
@@ -54,15 +54,17 @@ export default class Player {
             this.game.statistics.statistics['Current Mana'].add(manaRegen);
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
+    }
 
-        this.game.onSave.listen(this.save.bind(this));
-
-        this.startAutoAttack();
+    reset(){
+        this.modDB.clear();
     }
 
     async setup() {
         this.game.statistics.statistics['Current Mana'].set(this.game.saveObj.player?.curMana || this.game.statistics.statistics['Maximum Mana'].get());
         this.updateManaBar();
+
+        this.startAutoAttack();
     }
 
     private updateManaBar() {

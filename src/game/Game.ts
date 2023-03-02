@@ -57,6 +57,9 @@ export default class Game {
         this._config = config;
         this._saveObj = saveObj;
 
+        this.player.reset();
+        this.enemy.reset();
+        this.statistics.reset();
         this.dispose();
 
         this.enemy.init();

@@ -105,7 +105,7 @@ export default class Statistics {
 
     init() {
         this.game.onSave.listen(this.save.bind(this));
-        Object.values(this.statistics).forEach(x => x.reset());
+
         if (this.game.saveObj.statistics) {
             this.game.saveObj.statistics.forEach(({ name, value, sticky }) => {
                 const statistic: Statistic | undefined = this.statistics[name];
@@ -148,6 +148,10 @@ export default class Statistics {
         calcPlayerStats(this.game);
         this.updatePageStatisticsUI();
         this.updateSideStatisticsUI();
+    }
+
+    reset(){
+        Object.values(this.statistics).forEach(x => x.reset());
     }
 
     private createStatisticsElements() {
