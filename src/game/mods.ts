@@ -10,7 +10,7 @@ export type ModDescription = typeof modTemplates[number]['desc'];
 
 //#region Stat Name
 export type StatName =
-    | 'GoldPerSecond'
+    | 'GoldGeneration'
     | DamageStatName
     | 'AttackManaCost'
     | 'AttackSpeed'
@@ -175,14 +175,14 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         stats: [{ name: 'CritMulti', valueType: 'Base' }]
     },
     {
-        desc: '+# Gold Per Second',
+        desc: '+# Gold Generation',
         tags: ['Gold'],
-        stats: [{ name: 'GoldPerSecond', valueType: 'Base' }],
+        stats: [{ name: 'GoldGeneration', valueType: 'Base' }],
     },
     {
-        desc: '#% Increased Gold Per Second',
+        desc: '#% Increased Gold Generation',
         tags: ['Gold'],
-        stats: [{ name: 'GoldPerSecond', valueType: 'Inc' }],
+        stats: [{ name: 'GoldGeneration', valueType: 'Inc' }],
     },
     {
         desc: '#% Increased Skill Duration',

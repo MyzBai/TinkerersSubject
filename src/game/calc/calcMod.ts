@@ -107,8 +107,8 @@ export function calcPlayerStats(game: Game) {
     const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
     statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
 
-    const goldPerSecond = calcModTotal('GoldPerSecond', config);
-    statistics['Gold Per Second'].set(goldPerSecond);
+    const goldGeneration = calcModTotal('GoldGeneration', config);
+    statistics['Gold Generation'].set(goldGeneration);
 }
 
 

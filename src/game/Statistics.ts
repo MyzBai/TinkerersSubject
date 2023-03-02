@@ -10,7 +10,7 @@ export type StatisticsList = [string, Statistics, boolean][];
 interface StatisticParams {
     defaultValue?: number;
     sticky?: boolean;
-    format?: 'none' | 'pct' | 'time';
+    format?: 'none' | 'pct' | 'time' | 'seconds';
     decimals?: number;
     save?: boolean;
 }
@@ -38,7 +38,7 @@ export default class Statistics {
     public readonly statistics = {
         'Level': new Statistic({ defaultValue: 1, sticky: true, save: true }),
         'Gold': new Statistic({ defaultValue: 0, sticky: true, save: true }),
-        'Gold Per Second': new Statistic({ defaultValue: 0, sticky: true }),
+        'Gold Generation': new Statistic({ defaultValue: 0, sticky: true, format: 'seconds' }),
         'Dps': new Statistic({ sticky: true }),
         'Hit Chance': new Statistic({ sticky: true, format: 'pct' }),
         'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
@@ -59,12 +59,12 @@ export default class Statistics {
         //Bleed
         'Bleed Chance': new Statistic({ format: 'pct' }),
         'Bleed Dps': new Statistic(),
-        'Bleed Duration': new Statistic(),
+        'Bleed Duration': new Statistic({format: 'seconds'}),
         'Maximum Bleed Stacks': new Statistic(),
         //Burn
         'Burn Chance': new Statistic({ format: 'pct' }),
         'Burn Dps': new Statistic(),
-        'Burn Duration': new Statistic(),
+        'Burn Duration': new Statistic({format: 'seconds'}),
         'Maximum Burn Stacks': new Statistic(),
 
         //Other
@@ -158,8 +158,11 @@ export default class Statistics {
             element.setAttribute('data-stat', key);
             element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
             element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
+            switch(value.format){
+                case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
+                case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
+            }
             if (value.format === 'pct') {
-                element.insertAdjacentHTML('beforeend', '%');
             }
             element.addEventListener('click', () => {
                 value.sticky = !value.sticky;

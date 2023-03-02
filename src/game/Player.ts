@@ -44,7 +44,7 @@ export default class Player {
         });
 
         this.game.gameLoop.subscribe(() => {
-            const amount = this.game.statistics.statistics['Gold Per Second'].get();
+            const amount = this.game.statistics.statistics['Gold Generation'].get();
             this.game.statistics.statistics.Gold.add(amount);
             this.game.statistics.statistics["Gold Generated"].add(amount);
         }, { intervalMilliseconds: 1000 });
