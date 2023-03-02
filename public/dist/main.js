@@ -10560,6 +10560,7 @@
   var Statistic = class extends Value {
     constructor(args) {
       super((args == null ? void 0 : args.defaultValue) || 0);
+      this.args = args;
       __publicField(this, "sticky");
       __publicField(this, "decimals");
       __publicField(this, "format");
@@ -10568,6 +10569,11 @@
       this.format = (args == null ? void 0 : args.format) || "none";
       this.decimals = (args == null ? void 0 : args.decimals) || 0;
       this.save = (args == null ? void 0 : args.save) || false;
+    }
+    reset() {
+      var _a;
+      super.reset();
+      this.sticky = ((_a = this.args) == null ? void 0 : _a.sticky) || false;
     }
   };
   var Statistics = class {
@@ -10635,7 +10641,7 @@
             return;
           }
           statistic.set(value);
-          statistic.sticky = sticky;
+          statistic.sticky = sticky || false;
         });
       }
       this.game.visiblityObserver.registerLoop(this.page, (visible) => {
