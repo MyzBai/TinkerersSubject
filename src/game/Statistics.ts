@@ -142,9 +142,10 @@ export default class Statistics {
             this.updateSideStatisticsUI();
         });
 
-        this.statistics.Level.set(this.game.saveObj.player?.level || 1);
-        this.statistics.Gold.set(this.game.saveObj.player?.gold || 0);
+        calcPlayerStats(this.game);
+    }
 
+    setup(){
         calcPlayerStats(this.game);
         this.updatePageStatisticsUI();
         this.updateSideStatisticsUI();
@@ -234,8 +235,6 @@ export default class Statistics {
         }
         variableElement.textContent = typeof value === 'number' ? value.toFixed(statistic.decimals) : value;
     }
-
-
 
     save(saveObj: Save) {
         saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
