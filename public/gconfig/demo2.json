@@ -53,19 +53,19 @@
                     {
                         "name": "Bleed Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.6,
+                        "attackSpeed": 0.35,
                         "manaCost": 10,
-                        "baseDamageMultiplier": 250,
+                        "baseDamageMultiplier": 300,
                         "mods": [
                             "+{60}% Hit Chance",
-                            "+{20}% Chance To Bleed",
+                            "+{30}% Chance To Bleed",
                             "{50}% More Bleed Damage"
                         ]
                     },
                     {
                         "name": "Burn Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.3,
+                        "attackSpeed": 0.2,
                         "manaCost": 20,
                         "baseDamageMultiplier": 500,
                         "mods": [
