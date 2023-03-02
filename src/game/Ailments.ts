@@ -74,7 +74,7 @@ abstract class AilmentHandler {
         }
     }
 
-    reset(){
+    reset() {
         this.instances.splice(0);
         this.tick(0);
     }
@@ -92,7 +92,8 @@ abstract class AilmentHandler {
 
         this.timeSpan = querySelector('[data-time]', li);
         this.countSpan = querySelector('[data-count]', li);
-    };
+    }
+
     removeElement() {
         this.element?.remove();
     }
@@ -101,9 +102,8 @@ abstract class AilmentHandler {
         if (!this.timeSpan || !this.countSpan) {
             return;
         }
-        this.timeSpan.textContent = Math.ceil(this.time).toFixed();
+        this.timeSpan.textContent = this.time.toFixed();
         this.countSpan.textContent = this.numActiveInstances.toFixed();
-        // console.log(this.time);
     }
     updateProgressBar() {
         if (!this.progressBar) {
@@ -139,9 +139,10 @@ class BleedHandler extends AilmentHandler {
     setup() {
         super.setup();
         this.game.statistics.statistics['Bleed Duration'].addListener('change', amount => {
-            const pct = this.time / this.duration;
+            const durationFac = amount / this.duration;
+            this.time *= durationFac;
+            this.instances.forEach(x => x.time *= durationFac);
             this.duration = amount;
-            this.time = this.duration * pct;
         });
         this.game.statistics.statistics['Maximum Bleed Stacks'].addListener('change', amount => {
             this.maxNumActiveInstances = amount;
@@ -169,17 +170,18 @@ class BleedHandler extends AilmentHandler {
     }
 }
 
-class BurnHandler extends AilmentHandler{
-    constructor(readonly game: Game){
+class BurnHandler extends AilmentHandler {
+    constructor(readonly game: Game) {
         super(game, 'Burn');
     }
 
     setup(): void {
         super.setup();
         this.game.statistics.statistics['Burn Duration'].addListener('change', amount => {
-            const pct = this.time / this.duration;
+            const durationFac = amount / this.duration;
+            this.time *= durationFac;
+            this.instances.forEach(x => x.time *= durationFac);
             this.duration = amount;
-            this.time = this.duration * pct;
         });
         this.game.statistics.statistics['Maximum Burn Stacks'].addListener('change', amount => {
             this.maxNumActiveInstances = amount;
@@ -258,7 +260,7 @@ export class Ailments {
                 const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
                 instance.time = savedInstance.time;
             }
-            x.time = Math.max(...save.instances.map(x => x.time).sort().reverse());
+            x.time = Math.max(0, ...save.instances.map(x => x.time).sort().reverse());
         });
     }
 

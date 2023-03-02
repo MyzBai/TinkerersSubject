@@ -1,3 +1,4 @@
 node_modules/
-.vscode/launch.json
+.vscode
 /public/dist
+**/*-test.json

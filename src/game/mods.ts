@@ -88,16 +88,6 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental }]
     },
     {
-        desc: '#% Increased Bleed Damage',
-        tags: ['Bleed', 'Physical'],
-        stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
-    },
-    {
-        desc: '#% Increased Burn Damage',
-        tags: ['Burn', 'Elemental'],
-        stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }],
-    },
-    {
         desc: '#% More Physical Damage',
         tags: ['Physical'],
         stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlags.Physical }]
@@ -133,6 +123,16 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         tags: ['Elemental'],
         stats: [{ name: 'MinDamage', valueType: 'Base', flags: StatModifierFlags.Elemental },
         { name: 'MaxDamage', valueType: 'Base', flags: StatModifierFlags.Elemental }]
+    },
+    {
+        desc: '#% Increased Bleed Damage',
+        tags: ['Bleed', 'Physical'],
+        stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }],
+    },
+    {
+        desc: '#% Increased Burn Damage',
+        tags: ['Burn', 'Elemental'],
+        stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }],
     },
     {
         desc: '+#% Hit Chance',
@@ -205,9 +205,19 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
         stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Bleed }],
     },
     {
+        desc: '#% Increased Bleed Duration',
+        tags: ['Duration', 'Bleed'],
+        stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Bleed }],
+    },
+    {
         desc: '+# Burn Duration',
         tags: ['Duration', 'Burn'],
         stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Burn }],
+    },
+    {
+        desc: '#% Increased Burn Duration',
+        tags: ['Duration', 'Burn'],
+        stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Burn }],
     },
     {
         desc: '+# Maximum Bleed Stack',
