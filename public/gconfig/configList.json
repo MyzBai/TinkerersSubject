@@ -1,14 +1,14 @@
 {
-    "$schema": "./configList.schema.json",
+    "$schema": "schemas/configList.schema.json",
     "list": [
         {
             "name": "Demo",
-            "rawUrl": "public/gconfig/demo.json",
+            "rawUrl": "public/gconfig/configs/demo.json",
             "description": "This is a short configuration for demonstration purposes."
         },
         {
             "name": "Demo 2 Extended",
-            "rawUrl": "public/gconfig/demo2.json",
+            "rawUrl": "public/gconfig/configs/demo2.json",
             "description": "This demo introduces elemental damage and damage over time"
         }
     ]
