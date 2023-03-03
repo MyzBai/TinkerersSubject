@@ -3,6 +3,33 @@
     "type": "object",
     "required": [ "enemies" ],
     "properties": {
+        "options": {
+            "type": "object",
+            "properties": {
+                "endPrompt": {
+                    "type": "object",
+                    "required": ["title", "body"],
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "maxLength": 32,
+                            "minLength": 3,
+                            "pattern": "^[A-Za-z 0-9]+$"
+                        },
+                        "body": {
+                            "type": "string",
+                            "maxLength": 512,
+                            "$ref": "#/definitions/defaultTextPattern"
+                        },
+                        "footer": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "$ref": "#/definitions/defaultTextPattern"
+                        }
+                    }
+                }
+            }
+        },
         "enemies": {
             "type": "object",
             "required": [ "enemyList" ],
@@ -310,6 +337,10 @@
                 { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
             ],
             "pattern": "^[^#]*$"
+        },
+        "defaultTextPattern": {
+            "type": "string",
+            "pattern": "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;'\\s]*$"
         }
     }
 }

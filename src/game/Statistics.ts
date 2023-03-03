@@ -128,16 +128,6 @@ export default class Statistics {
             }
         });
 
-        this.statistics.Level.addListener('change', (level) => {
-            if (level >= this.game.enemy.maxIndex + 2 && this.game.config.meta.name === 'Demo') {
-                querySelector<GenericModal>('generic-modal').init({
-                    title: 'Congratulations! You beat the Demo!',
-                    body: `Thank you for playing. Please check out the links down in the footer. \nYour feedback would be highly appreciated.`,
-                    buttons: [{ label: 'Continue', type: 'confirm' }],
-                }).openModal();
-            }
-            this.updateSideStatisticsUI();
-        });
         this.statistics.Gold.addListener('change', () => {
             this.updateSideStatisticsUI();
         });
