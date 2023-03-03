@@ -11,7 +11,8 @@
                 "passives": {"$ref": "passives.schema.json#/definitions/passives"},
                 "items": {"$ref": "items.schema.json#/definitions/items"},
                 "missions": {"$ref": "missions.schema.json#/definitions/missions"},
-                "achievements": {"$ref": "achievements.schema.json#/definitions/achievements"}
+                "achievements": {"$ref": "achievements.schema.json#/definitions/achievements"},
+                "companions": {"$ref": "companions.schema.json#/definitions/companions"}
             }
         }
     }

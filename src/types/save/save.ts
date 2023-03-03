@@ -1,4 +1,5 @@
 import type MetaConfig from "../gconfig/meta";
+import type CompanionsSave from "./companions";
 import type EnemySave from "./enemy";
 import type ItemsSave from "./itemsSave";
 import type MissionsSave from "./missions";
@@ -20,5 +21,6 @@ export default interface GameSave {
     passives?: PassivesSave;
     items?: ItemsSave;
     missions?: MissionsSave;
+    companions?: CompanionsSave;
 }
 
