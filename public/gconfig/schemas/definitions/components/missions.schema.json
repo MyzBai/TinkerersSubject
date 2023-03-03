@@ -1,0 +1,42 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "schemas/gconfig/definitions/components/missions.schema.json",
+    "type": "object",
+    "definitions": {
+        "missions": {
+            "type": "object",
+            "required": [ "levelReq", "slots", "missionLists" ],
+            "properties": {
+                "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
+                "goldCost": { "$ref": "../../gameConfig.schema.json#/definitions/goldCost" },
+                "slots": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
+                            "goldCost": { "$ref": "../../gameConfig.schema.json#/definitions/goldCost" }
+                        }
+                    }
+                },
+                "missionLists": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [ "levelReq", "goldAmount", "description" ],
+                            "properties": {
+                                "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
+                                "goldAmount": { "type": "integer" },
+                                "description": {
+                                    "$ref": "../tasks.schema.json#/definitions/tasks"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "schemas/gconfig/definitions/tasks.schema.json",
+    "type": "object",
+    "definitions": {
+        "tasks": {
+            "type": "string",
+            "anyOf": [
+                { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
+                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
+                { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+            ],
+            "pattern": "^[^#]*$"
+        }
+    }
+}
