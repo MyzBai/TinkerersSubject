@@ -8983,6 +8983,7 @@
   var gameConfig_schema_default = {
     $schema: "http://json-schema.org/draft-07/schema",
     $id: "schemas/gconfig/gameConfig.schema.json",
+    required: ["enemies"],
     type: "object",
     properties: {
       options: {
