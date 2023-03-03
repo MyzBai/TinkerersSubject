@@ -48,6 +48,8 @@ class Achievement {
         this.task = new Task(achievements.game, data.description);
         //always start from 0 because it's being calculated from saved statistics and thus no need to save any achievement progress
         this.task.startValue = 0;
+
+        this.tryCompletion();
     }
     get taskCompleted() { return this.task.completed; }
     tryCompletion() {
