@@ -168,10 +168,10 @@
                                 "properties": {
                                     "id": {
                                         "enum": [
-                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
-                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed",
-                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed",
-                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed" ]
+                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeIncludeBurn", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed", "addBurn",
+                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn",
+                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn" ]
                                     },
                                     "levelReq": { "type": "integer", "minimum": 0 },
                                     "cost": { "type": "integer", "minimum": 0 }
@@ -275,12 +275,13 @@
                 { "enum": [ "+{#} Maximum Mana" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
                 { "enum": [ "{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
                 { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
-                { "enum": [ "+{#} Gold Per Second" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
-                { "enum": [ "{#}% Increased Gold Per Second" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" },
+                { "enum": [ "+{#} Gold Generation" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Generation$" },
+                { "enum": [ "{#}% Increased Gold Generation" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Generation$" },
                 { "enum": [ "+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
                 { "enum": [ "+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
                 { "enum": [ "{#}% Increased Bleed Damage", "{#}% Increased Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
-                { "enum": [ "{#}% More Bleed Damage", "{#}% More Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" }
+                { "enum": [ "{#}% More Bleed Damage", "{#}% More Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
+                { "enum": [ "{#}% Increased Bleed Duration", "{#}% Increased Burn Duration" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
             ],
             "pattern": "^[^#]*$"
         },
