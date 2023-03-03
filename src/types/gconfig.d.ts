@@ -19,7 +19,11 @@ export interface Meta {
 }
 
 export interface Options {
-
+    endPrompt?: {
+        title: string;
+        body: string;
+        footer?: string;
+    }
 }
 export interface Player {
     modList: Mod[];

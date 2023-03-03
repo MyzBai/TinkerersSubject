@@ -14,6 +14,7 @@ import Home from "@src/Home";
 import { VisibilityObserver } from "@src/utils/Observers";
 import Component from "./components/Component";
 import { componentConfigs, loadComponent } from "./components/loader";
+import { GenericModal } from "@src/webComponents/GenericModal";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -90,7 +91,21 @@ export default class Game {
             this.save();
         }, { intervalMilliseconds: 1000 * 60 });
 
-
+        {
+            const endPrompt = config.options?.endPrompt;
+            if(endPrompt){
+                this.enemy.onDeath.listen(x => {
+                    if(x.index > x.maxIndex){
+                        querySelector<GenericModal>('generic-modal').init({
+                            title: endPrompt.title,
+                            body: endPrompt.body,
+                            footerText: endPrompt.footer,
+                            buttons: [{ label: 'Continue', type: 'confirm' }],
+                        }).openModal();
+                    }
+                });
+            }
+        }
     }
 
     setup() {

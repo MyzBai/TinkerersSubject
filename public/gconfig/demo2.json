@@ -1,5 +1,12 @@
 {
     "$schema": "./config.schema.json",
+    "options": {
+        "endPrompt": {
+            "title": "Well Done",
+            "body": "Thank you for playing. Please check out the links down in the footer. \nYour feedback would be highly appreciated.",
+            "footer": "Note: You can create your own configuration. Header over to github to find out more!"
+        }
+    },
     "enemies": {
         "enemyList": [ 100, 500, 1000, 8000, 30000, 100000, 500000, 700000, 800000, 1e6 ]
     },
@@ -65,8 +72,8 @@
                     {
                         "name": "Burn Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.2,
-                        "manaCost": 20,
+                        "attackSpeed": 0.25,
+                        "manaCost": 15,
                         "baseDamageMultiplier": 500,
                         "mods": [
                             "+{60}% Hit Chance",

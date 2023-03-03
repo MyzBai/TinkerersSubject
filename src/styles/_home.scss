@@ -40,7 +40,7 @@
             grid-template-columns: 1fr 1fr;
             width: 100%;
 
-            ul {
+            [data-entry-list] {
                 padding-top: $padding-container;
                 overflow-y: auto;
                 height: 100%;

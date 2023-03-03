@@ -82,7 +82,7 @@ export function calcPlayerStats(game: Game) {
     //burn
     let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
     {
-        config.flags = StatModifierFlags.Elemental | StatModifierFlags.Ailment | StatModifierFlags.Burn;
+        config.flags = StatModifierFlags.Elemental | StatModifierFlags.Burn;
         burnChance = calcModTotal('BurnChance', config) / 100;
         maxBurnStacks = calcModTotal('AilmentStack', config);
         burnDuration = calcModTotal('Duration', config);
