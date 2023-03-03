@@ -12117,6 +12117,12 @@ Your feedback would be highly appreciated.`,
   };
 
   // src/game/Task.ts
+  var Validator = class {
+    constructor(regex, value) {
+      this.regex = regex;
+      this.value = value;
+    }
+  };
   var Task = class {
     constructor(game, text) {
       this.game = game;
@@ -12126,30 +12132,31 @@ Your feedback would be highly appreciated.`,
       __publicField(this, "startValue");
       __publicField(this, "_targetValue");
       __publicField(this, "validator");
-      __publicField(this, "taskValidators", []);
+      __publicField(this, "taskValidators");
       this.taskValidators = [
-        [/^Reach Level {(\d+)}$/, this.game.statistics.statistics.Level],
-        [/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]],
-        [/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]],
-        [/^Deal Elemental Damage {(\d+)}$/, this.game.statistics.statistics["Total Elemental Damage"]],
-        [/^Deal Bleed Damage {(\d+)}$/, this.game.statistics.statistics["Total Bleed Damage"]],
-        [/^Deal Burn Damage {(\d+)}$/, this.game.statistics.statistics["Total Burn Damage"]],
-        [/^Perform Hits {(\d+)}$/, this.game.statistics.statistics.Hits],
-        [/^Perform Critical Hits {(\d+)}$/, this.game.statistics.statistics["Critical Hits"]],
-        [/^Generate Gold {(\d+)}$/, this.game.statistics.statistics["Gold Generated"]],
-        [/^Regenerate Mana {(\d+)}$/, this.game.statistics.statistics["Mana Generated"]]
+        new Validator(/^Reach Level {(\d+)}$/, this.game.statistics.statistics.Level),
+        new Validator(/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]),
+        new Validator(/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]),
+        new Validator(/^Deal Elemental Damage {(\d+)}$/, this.game.statistics.statistics["Total Elemental Damage"]),
+        new Validator(/^Deal Bleed Damage {(\d+)}$/, this.game.statistics.statistics["Total Bleed Damage"]),
+        new Validator(/^Deal Burn Damage {(\d+)}$/, this.game.statistics.statistics["Total Burn Damage"]),
+        new Validator(/^Perform Hits {(\d+)}$/, this.game.statistics.statistics.Hits),
+        new Validator(/^Perform Critical Hits {(\d+)}$/, this.game.statistics.statistics["Critical Hits"]),
+        new Validator(/^Generate Gold {(\d+)}$/, this.game.statistics.statistics["Gold Generated"]),
+        new Validator(/^Regenerate Mana {(\d+)}$/, this.game.statistics.statistics["Mana Generated"])
       ];
       this.text = text;
       this.description = text.replace(/[{}]*/g, "");
-      this.validator = this.taskValidators.find((x) => x[0].exec(text));
-      if (!this.validator) {
+      const validator = this.taskValidators.find((x) => x.regex.exec(text));
+      if (!validator) {
         throw Error(`Task.ts: ${text} is an invalid task string`);
       }
-      const match = this.validator[0].exec(text);
+      this.validator = validator;
+      const match = this.validator.regex.exec(text);
       if (!match[1]) {
         throw Error("invalid task validator");
       }
-      this.startValue = parseFloat((this.validator[1].get() - this.validator[1].defaultValue).toFixed());
+      this.startValue = parseFloat((this.validator.value.get() - this.validator.value.defaultValue).toFixed());
       this._targetValue = parseFloat(match[1]);
       const valueIndex = text.indexOf(`{${match[1]}}`);
       this.textData = {
@@ -12162,7 +12169,7 @@ Your feedback would be highly appreciated.`,
     }
     get value() {
       const endValue = this.startValue + this._targetValue;
-      const value = parseFloat(this.validator[1].get().toFixed());
+      const value = parseFloat(this.validator.value.get().toFixed());
       return remap(this.startValue, endValue, 0, this._targetValue, value);
     }
     get completed() {
