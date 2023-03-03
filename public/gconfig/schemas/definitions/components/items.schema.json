@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "schemas/gconfig/definitions/components/items.schema.json",
+    "type": "object",
+    "definitions": {
+        "items": {
+            "type": "object",
+            "required": [ "levelReq", "itemList", "craftList", "modLists" ],
+            "properties": {
+                "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
+                "itemList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": { "type": "string" },
+                            "levelReq": { "type": "integer", "minimum": 0 }
+                        }
+                    }
+                },
+                "craftList": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "required": [ "id", "levelReq", "cost" ],
+                        "properties": {
+                            "id": {
+                                "enum": [
+                                    "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeIncludeBurn", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                    "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed", "addBurn",
+                                    "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn",
+                                    "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn" ]
+                            },
+                            "levelReq": { "type": "integer", "minimum": 0 },
+                            "cost": { "type": "integer", "minimum": 0 }
+                        }
+                    }
+                },
+                "modLists": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [ "weight", "levelReq", "mod" ],
+                            "properties": {
+                                "weight": { "type": "integer", "minimum": 0 },
+                                "levelReq": { "type": "integer", "minimum": 0 },
+                                "mod": { "$ref": "../mods.schema.json#/definitions/mod" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

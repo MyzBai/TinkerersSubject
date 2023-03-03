@@ -8979,53 +8979,51 @@
   // src/utils/validateConfig.ts
   var import_ajv = __toESM(require_ajv(), 1);
 
-  // public/gconfig/config.schema.json
-  var config_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema#",
+  // public/gconfig/schemas/gameConfig.schema.json
+  var gameConfig_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/gameConfig.schema.json",
     type: "object",
-    required: ["enemies"],
     properties: {
       options: {
-        type: "object",
-        properties: {
-          endPrompt: {
-            type: "object",
-            required: ["title", "body"],
-            properties: {
-              title: {
-                type: "string",
-                maxLength: 32,
-                minLength: 3,
-                pattern: "^[A-Za-z 0-9]+$"
-              },
-              body: {
-                type: "string",
-                maxLength: 512,
-                $ref: "#/definitions/defaultTextPattern"
-              },
-              footer: {
-                type: "string",
-                maxLength: 128,
-                $ref: "#/definitions/defaultTextPattern"
-              }
-            }
-          }
-        }
+        $ref: "definitions/options.schema.json#/definitions/options"
       },
       enemies: {
-        type: "object",
-        required: ["enemyList"],
-        properties: {
-          enemyList: {
-            type: "array",
-            minItems: 1,
-            items: {
-              type: "integer",
-              minimum: 1
-            }
-          }
-        }
+        $ref: "definitions/enemies.schema.json#/definitions/enemies"
       },
+      player: {
+        $ref: "definitions/player.schema.json#/definitions/player"
+      }
+    },
+    definitions: {
+      name: {
+        type: "string",
+        pattern: "^[A-Za-z 0-9]{3,16}$"
+      },
+      text: {
+        type: "string",
+        maxLength: 2048,
+        pattern: "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;'\\s]*$"
+      },
+      levelReq: {
+        type: "integer",
+        default: 1,
+        minimum: 1
+      },
+      goldCost: {
+        type: "integer",
+        default: 0,
+        minimum: 0
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/player.schema.json
+  var player_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/player.schema.json",
+    type: "object",
+    definitions: {
       player: {
         type: "object",
         properties: {
@@ -9035,7 +9033,9 @@
               {
                 items: {
                   oneOf: [
-                    { $ref: "#/definitions/mod" },
+                    {
+                      $ref: "mods.schema.json#/definitions/mod"
+                    },
                     {
                       type: "string",
                       oneOf: [
@@ -9053,248 +9053,101 @@
             ]
           }
         }
-      },
-      components: {
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/enemies.schema.json
+  var enemies_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/enemies.schema.json",
+    type: "object",
+    definitions: {
+      enemies: {
         type: "object",
-        additionalProperties: false,
+        required: ["enemyList"],
         properties: {
-          skills: {
-            type: "object",
-            required: ["attackSkills"],
-            properties: {
-              attackSkills: {
-                type: "object",
-                required: ["skillList"],
-                properties: {
-                  skillList: {
-                    type: "array",
-                    minItems: 1,
-                    items: {
-                      type: "object",
-                      required: ["name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq"],
-                      properties: {
-                        name: { type: "string" },
-                        levelReq: { type: "integer", minimum: 1, default: 1, description: "Required player level\nNote - At least one skill must have a value of 1" },
-                        attackSpeed: { type: "number", minimum: 1e-3, maximum: 10, default: 1, description: "Number of attacks per second" },
-                        manaCost: { type: "integer", minimum: 0 },
-                        baseDamageMultiplier: { type: "integer", minimum: 1, default: 100, description: "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
-                        mods: {
-                          type: "array",
-                          items: { $ref: "#/definitions/mod" }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              buffSkills: {
-                type: "object",
-                required: ["skillList", "skillSlots"],
-                properties: {
-                  skillSlots: {
-                    type: "array",
-                    minItems: 1,
-                    items: {
-                      type: "object",
-                      required: ["levelReq"],
-                      properties: {
-                        levelReq: {
-                          type: "integer",
-                          minimum: 1
-                        }
-                      }
-                    }
-                  },
-                  skillList: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      required: ["name", "baseDuration", "manaCost", "levelReq"],
-                      properties: {
-                        name: { type: "string" },
-                        levelReq: { type: "number" },
-                        baseDuration: { type: "integer" },
-                        manaCost: { type: "integer" },
-                        mods: {
-                          type: "array",
-                          items: { $ref: "#/definitions/mod" }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+          enemyList: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "integer",
+              minimum: 1
             }
-          },
-          passives: {
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/options.schema.json
+  var options_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/options.schema.json",
+    type: "object",
+    definitions: {
+      options: {
+        type: "object",
+        properties: {
+          endPrompt: {
             type: "object",
-            required: ["pointsPerLevel", "passiveLists"],
+            required: ["title", "body"],
             properties: {
-              pointsPerLevel: {
-                type: "number",
-                minimum: 1e-3,
-                default: 1
+              title: {
+                type: "string",
+                maxLength: 32,
+                minLength: 3,
+                pattern: "^[A-Za-z 0-9]+$"
               },
-              passiveLists: {
-                type: "array",
-                minItems: 1,
-                items: {
-                  type: "array",
-                  minItems: 1,
-                  items: {
-                    type: "object",
-                    required: ["levelReq", "mod", "points"],
-                    properties: {
-                      levelReq: { $ref: "#/definitions/levelReq" },
-                      mod: { $ref: "#/definitions/mod" },
-                      points: { type: "integer", minimum: 1 }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          items: {
-            type: "object",
-            required: ["levelReq", "itemList", "craftList", "modLists"],
-            properties: {
-              levelReq: { $ref: "#/definitions/levelReq" },
-              itemList: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    name: { type: "string" },
-                    levelReq: { type: "integer", minimum: 0 }
-                  }
-                }
+              body: {
+                type: "string",
+                maxLength: 512,
+                $ref: "../gameConfig.schema.json#/definitions/text"
               },
-              craftList: {
-                type: "array",
-                minItems: 1,
-                items: {
-                  type: "object",
-                  required: ["id", "levelReq", "cost"],
-                  properties: {
-                    id: {
-                      enum: [
-                        "reforge",
-                        "reforgeIncludePhysical",
-                        "reforgeIncludeElemental",
-                        "reforgeIncludeCritical",
-                        "reforgeIncludeMana",
-                        "reforgeIncludeBleed",
-                        "reforgeIncludeBurn",
-                        "reforgeHigherChanceSameMods",
-                        "reforgeLowerChanceSameMods",
-                        "addRandom",
-                        "addPhysical",
-                        "addElemental",
-                        "addCritical",
-                        "addMana",
-                        "addBleed",
-                        "addBurn",
-                        "removeRandom",
-                        "removePhysical",
-                        "removeElemental",
-                        "removeCritical",
-                        "removeMana",
-                        "removeBleed",
-                        "removeBurn",
-                        "removeRandomAddPhysical",
-                        "removeRandomAddElemental",
-                        "removeRandomAddCritical",
-                        "removeRandomAddMana",
-                        "removeRandomAddBleed",
-                        "removeRandomAddBurn"
-                      ]
-                    },
-                    levelReq: { type: "integer", minimum: 0 },
-                    cost: { type: "integer", minimum: 0 }
-                  }
-                }
-              },
-              modLists: {
-                type: "array",
-                items: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    required: ["weight", "levelReq", "mod"],
-                    properties: {
-                      weight: { type: "integer", minimum: 0 },
-                      levelReq: { type: "integer", minimum: 0 },
-                      mod: { $ref: "#/definitions/mod" }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          missions: {
-            type: "object",
-            required: ["levelReq", "slots", "missionLists"],
-            properties: {
-              levelReq: { $ref: "#/definitions/levelReq" },
-              cost: { $ref: "#/definitions/cost" },
-              slots: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    levelReq: { $ref: "#/definitions/levelReq" },
-                    cost: { $ref: "#/definitions/cost" }
-                  }
-                }
-              },
-              missionLists: {
-                type: "array",
-                items: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    required: ["levelReq", "goldAmount", "description"],
-                    properties: {
-                      levelReq: { $ref: "#/definitions/levelReq" },
-                      goldAmount: { type: "integer" },
-                      description: {
-                        $ref: "#/definitions/tasks"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          achievements: {
-            type: "object",
-            required: ["list"],
-            properties: {
-              list: {
-                type: "array",
-                items: {
-                  type: "object",
-                  required: ["description"],
-                  properties: {
-                    description: {
-                      $ref: "#/definitions/tasks"
-                    },
-                    modList: {
-                      type: "array",
-                      minItems: 1,
-                      description: "Each mod will be applied upon completing the achievement",
-                      items: {
-                        $ref: "#/definitions/mod"
-                      }
-                    }
-                  }
-                }
+              footer: {
+                type: "string",
+                maxLength: 128,
+                $ref: "../gameConfig.schema.json#/definitions/text"
               }
             }
           }
         }
       }
-    },
+    }
+  };
+
+  // public/gconfig/schemas/definitions/tasks.schema.json
+  var tasks_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/tasks.schema.json",
+    type: "object",
+    definitions: {
+      tasks: {
+        type: "string",
+        anyOf: [
+          { enum: ["Reach Level {#}"] },
+          { pattern: "^Reach Level \\{\\d+\\}$" },
+          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}"] },
+          { pattern: "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
+          { enum: ["Generate Gold {#}"] },
+          { pattern: "^Generate Gold \\{\\d+\\}$" },
+          { enum: ["Regenerate Mana {#}"] },
+          { pattern: "^Regenerate Mana \\{\\d+\\}$" },
+          { enum: ["Perform Hits {#}"] },
+          { pattern: "^Perform Hits \\{\\d+\\}$" },
+          { enum: ["Perform Critical Hits {#}"] },
+          { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
+        ],
+        pattern: "^[^#]*$"
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/mods.schema.json
+  var mods_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/mods.schema.json",
+    type: "object",
     definitions: {
       mod: {
         type: "string",
@@ -9339,48 +9192,311 @@
           { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
         ],
         pattern: "^[^#]*$"
-      },
-      name: {
-        type: "string",
-        pattern: "^[A-Za-z 0-9]{3,16}$"
-      },
-      levelReq: {
-        type: "integer",
-        default: 1,
-        minimum: 1
-      },
-      cost: {
-        type: "integer",
-        default: 0,
-        minimum: 0
-      },
-      tasks: {
-        type: "string",
-        anyOf: [
-          { enum: ["Reach Level {#}"] },
-          { pattern: "^Reach Level \\{\\d+\\}$" },
-          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}"] },
-          { pattern: "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
-          { enum: ["Generate Gold {#}"] },
-          { pattern: "^Generate Gold \\{\\d+\\}$" },
-          { enum: ["Regenerate Mana {#}"] },
-          { pattern: "^Regenerate Mana \\{\\d+\\}$" },
-          { enum: ["Perform Hits {#}"] },
-          { pattern: "^Perform Hits \\{\\d+\\}$" },
-          { enum: ["Perform Critical Hits {#}"] },
-          { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
-        ],
-        pattern: "^[^#]*$"
-      },
-      defaultTextPattern: {
-        type: "string",
-        pattern: "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;'\\s]*$"
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/components.schema.json
+  var components_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/enemies.schema.json",
+    type: "object",
+    definitions: {
+      components: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          skills: { $ref: "components/skills.schema.json#/definitions/skills" },
+          passives: { $ref: "components/skills.schema.json#/definitions/passives" },
+          items: { $ref: "components/skills.schema.json#/definitions/items" },
+          missions: { $ref: "components/skills.schema.json#/definitions/missions" },
+          achievements: { $ref: "components/skills.schema.json#/definitions/achievements" }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/skills.schema.json
+  var skills_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/skills.schema.json",
+    type: "object",
+    definitions: {
+      skills: {
+        type: "object",
+        required: ["attackSkills"],
+        properties: {
+          attackSkills: {
+            type: "object",
+            required: ["skillList"],
+            properties: {
+              skillList: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "object",
+                  required: ["name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq"],
+                  properties: {
+                    name: { type: "string" },
+                    levelReq: { type: "integer", minimum: 1, default: 1, description: "Required player level\nNote - At least one skill must have a value of 1" },
+                    attackSpeed: { type: "number", minimum: 1e-3, maximum: 10, default: 1, description: "Number of attacks per second" },
+                    manaCost: { type: "integer", minimum: 0 },
+                    baseDamageMultiplier: { type: "integer", minimum: 1, default: 100, description: "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
+                    mods: {
+                      type: "array",
+                      items: { $ref: "mods.schema.json#/definitions/mod" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          buffSkills: {
+            type: "object",
+            required: ["skillList", "skillSlots"],
+            properties: {
+              skillSlots: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "object",
+                  required: ["levelReq"],
+                  properties: {
+                    levelReq: {
+                      type: "integer",
+                      minimum: 1
+                    }
+                  }
+                }
+              },
+              skillList: {
+                type: "array",
+                items: {
+                  type: "object",
+                  required: ["name", "baseDuration", "manaCost", "levelReq"],
+                  properties: {
+                    name: { type: "string" },
+                    levelReq: { type: "number" },
+                    baseDuration: { type: "integer" },
+                    manaCost: { type: "integer" },
+                    mods: {
+                      type: "array",
+                      items: { $ref: "mods.schema.json#/definitions/mod" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/passives.schema.json
+  var passives_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/passives.schema.json",
+    type: "object",
+    definitions: {
+      passives: {
+        type: "object",
+        required: ["pointsPerLevel", "passiveLists"],
+        properties: {
+          pointsPerLevel: {
+            type: "number",
+            minimum: 1e-3,
+            default: 1
+          },
+          passiveLists: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "array",
+              minItems: 1,
+              items: {
+                type: "object",
+                required: ["levelReq", "mod", "points"],
+                properties: {
+                  levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
+                  mod: { $ref: "../mods.schema.json#/definitions/mod" },
+                  points: { type: "integer", minimum: 1 }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/items.schema.json
+  var items_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/items.schema.json",
+    type: "object",
+    definitions: {
+      items: {
+        type: "object",
+        required: ["levelReq", "itemList", "craftList", "modLists"],
+        properties: {
+          levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
+          itemList: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                levelReq: { type: "integer", minimum: 0 }
+              }
+            }
+          },
+          craftList: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "object",
+              required: ["id", "levelReq", "cost"],
+              properties: {
+                id: {
+                  enum: [
+                    "reforge",
+                    "reforgeIncludePhysical",
+                    "reforgeIncludeElemental",
+                    "reforgeIncludeCritical",
+                    "reforgeIncludeMana",
+                    "reforgeIncludeBleed",
+                    "reforgeIncludeBurn",
+                    "reforgeHigherChanceSameMods",
+                    "reforgeLowerChanceSameMods",
+                    "addRandom",
+                    "addPhysical",
+                    "addElemental",
+                    "addCritical",
+                    "addMana",
+                    "addBleed",
+                    "addBurn",
+                    "removeRandom",
+                    "removePhysical",
+                    "removeElemental",
+                    "removeCritical",
+                    "removeMana",
+                    "removeBleed",
+                    "removeBurn",
+                    "removeRandomAddPhysical",
+                    "removeRandomAddElemental",
+                    "removeRandomAddCritical",
+                    "removeRandomAddMana",
+                    "removeRandomAddBleed",
+                    "removeRandomAddBurn"
+                  ]
+                },
+                levelReq: { type: "integer", minimum: 0 },
+                cost: { type: "integer", minimum: 0 }
+              }
+            }
+          },
+          modLists: {
+            type: "array",
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["weight", "levelReq", "mod"],
+                properties: {
+                  weight: { type: "integer", minimum: 0 },
+                  levelReq: { type: "integer", minimum: 0 },
+                  mod: { $ref: "../mods.schema.json#/definitions/mod" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/missions.schema.json
+  var missions_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/missions.schema.json",
+    type: "object",
+    definitions: {
+      missions: {
+        type: "object",
+        required: ["levelReq", "slots", "missionLists"],
+        properties: {
+          levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
+          goldCost: { $ref: "../../gameConfig.schema.json#/definitions/goldCost" },
+          slots: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
+                goldCost: { $ref: "../../gameConfig.schema.json#/definitions/goldCost" }
+              }
+            }
+          },
+          missionLists: {
+            type: "array",
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["levelReq", "goldAmount", "description"],
+                properties: {
+                  levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
+                  goldAmount: { type: "integer" },
+                  description: {
+                    $ref: "../tasks.schema.json#/definitions/tasks"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/achievements.schema.json
+  var achievements_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/achievements.schema.json",
+    type: "object",
+    definitions: {
+      achievements: {
+        type: "object",
+        required: ["list"],
+        properties: {
+          list: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["description"],
+              properties: {
+                description: {
+                  $ref: "../tasks.schema.json#/definitions/tasks"
+                },
+                modList: {
+                  type: "array",
+                  minItems: 1,
+                  description: "Each mod will be applied upon completing the achievement",
+                  items: {
+                    $ref: "../../gameConfig.schema.json#/definitions/mod"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   };
 
   // src/utils/validateConfig.ts
-  var validateConfig = new import_ajv.default().compile(config_schema_default);
+  var configValidator = new import_ajv.default({ schemas: [player_schema_default, enemies_schema_default, options_schema_default, tasks_schema_default, mods_schema_default, components_schema_default, skills_schema_default, passives_schema_default, items_schema_default, missions_schema_default, achievements_schema_default] }).compile(gameConfig_schema_default);
 
   // src/utils/EventEmitter.ts
   var EventEmitter = class {
@@ -12774,16 +12890,16 @@
 
   // public/gconfig/configList.json
   var configList_default = {
-    $schema: "./configList.schema.json",
+    $schema: "schemas/configList.schema.json",
     list: [
       {
         name: "Demo",
-        rawUrl: "public/gconfig/demo.json",
+        rawUrl: "public/gconfig/configs/demo.json",
         description: "This is a short configuration for demonstration purposes."
       },
       {
         name: "Demo 2 Extended",
-        rawUrl: "public/gconfig/demo2.json",
+        rawUrl: "public/gconfig/configs/demo2.json",
         description: "This demo introduces elemental damage and damage over time"
       }
     ]
@@ -12927,8 +13043,8 @@
     async tryStartGame(entry, saveObj) {
       try {
         const config = await (await fetch(entry.rawUrl)).json();
-        if (!validateConfig(config)) {
-          console.error(`${entry.name} is not valid`);
+        if (!configValidator(config)) {
+          console.error(`${entry.name} is not valid`, configValidator.errors);
           return false;
         }
         if (!saveObj) {

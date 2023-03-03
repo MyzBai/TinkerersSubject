@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "schemas/gconfig/definitions/mods.schema.json",
+    "type": "object",
+    "definitions": {
+        "mod": {
+            "type": "string",
+            "oneOf": [
+                { "enum": [ "Adds {#} To {#} Physical Damage", "Adds {#} To {#} Elemental Damage" ] }, { "pattern": "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% Increased Physical Damage", "{#}% Increased Elemental Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% More Physical Damage", "{#}% More Elemental Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% More Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
+                { "enum": [ "+{#}% Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$" },
+                { "enum": [ "{#}% Increased Attack Speed" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$" },
+                { "enum": [ "{#}% More Attack Speed" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Attack Speed$" },
+                { "enum": [ "+{#}% Critical Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$" },
+                { "enum": [ "+{#}% Critical Hit Multiplier" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$" },
+                { "enum": [ "+{#} Maximum Mana" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
+                { "enum": [ "{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
+                { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
+                { "enum": [ "+{#} Gold Generation" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Generation$" },
+                { "enum": [ "{#}% Increased Gold Generation" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Generation$" },
+                { "enum": [ "+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
+                { "enum": [ "+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
+                { "enum": [ "{#}% Increased Bleed Damage", "{#}% Increased Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
+                { "enum": [ "{#}% More Bleed Damage", "{#}% More Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
+                { "enum": [ "{#}% Increased Bleed Duration", "{#}% Increased Burn Duration" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
+            ],
+            "pattern": "^[^#]*$"
+        }
+    }
+}
