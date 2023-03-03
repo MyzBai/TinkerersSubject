@@ -12302,13 +12302,12 @@ Your feedback would be highly appreciated.`,
     save(saveObj) {
       saveObj.missions = (() => {
         const list = [];
-        this.slots.forEach((slot, i) => {
+        this.slots.forEach((slot) => {
           if (!slot.task) {
             return;
           }
           list.push({
             desc: slot.task.text,
-            index: i,
             startValue: slot.task.startValue
           });
         });
@@ -12324,17 +12323,11 @@ Your feedback would be highly appreciated.`,
       __publicField(this, "_missionData");
       __publicField(this, "_element");
       __publicField(this, "completed", false);
-      var _a;
       this._element = this.createElement();
       missions.game.statistics.statistics.Gold.addListener("change", () => {
-        this.setNewButton();
+        this.updateNewButton();
       });
-      const savedSlot = (_a = missions.game.saveObj.missions) == null ? void 0 : _a.missions.find((x) => x.index === missions.slots.length);
-      if (savedSlot) {
-        this._task = new Task(missions.game, savedSlot.desc);
-        this._task.startValue = savedSlot.startValue;
-        this.updateLabel();
-      }
+      this.tryLoad();
     }
     get element() {
       return this._element;
@@ -12360,14 +12353,11 @@ Your feedback would be highly appreciated.`,
       this.completed = true;
       highlightHTMLElement(this.missions.menuItem, "click");
       highlightHTMLElement(this.element, "mouseover");
-      this.setNewButton();
-      this.setClaimButton(true);
+      this.updateSlot();
     }
     unlock() {
-      if (this._task) {
-        return;
-      }
-      querySelector('[data-trigger="buy"]', this._element).remove();
+      var _a;
+      (_a = this._element.querySelector('[data-trigger="buy"]')) == null ? void 0 : _a.remove();
       const buttonClaim = document.createElement("button");
       buttonClaim.classList.add("g-button");
       buttonClaim.setAttribute("data-trigger", "claim");
@@ -12385,7 +12375,6 @@ Your feedback would be highly appreciated.`,
       });
       this._element.appendChild(buttonClaim);
       this._element.appendChild(buttonNew);
-      this.generateRandomMission();
     }
     claim() {
       if (!this._missionData) {
@@ -12393,7 +12382,6 @@ Your feedback would be highly appreciated.`,
       }
       this.missions.game.statistics.statistics.Gold.add(this._missionData.goldAmount);
       this.generateRandomMission();
-      this.setClaimButton(false);
       this.completed = false;
     }
     generateRandomMission() {
@@ -12418,12 +12406,15 @@ Your feedback would be highly appreciated.`,
         var _a;
         if ((_a = this._task) == null ? void 0 : _a.completed) {
           this.missions.game.gameLoop.unsubscribe(id);
-          this.setClaimButton(true);
+          this.updateSlot();
         }
       }, { intervalMilliseconds: 1e3 });
+      this.updateSlot();
+    }
+    updateSlot() {
       this.updateLabel();
-      this.setClaimButton(false);
-      this.setNewButton();
+      this.updateClaimButton();
+      this.updateNewButton();
     }
     updateLabel() {
       if (!this._task) {
@@ -12443,15 +12434,15 @@ Your feedback would be highly appreciated.`,
       varElement.insertAdjacentHTML("beforeend", `<span data-target-value>${this._task.textData.valueText}</span></var>`);
       label.replaceChildren(descElement, varElement);
     }
-    setClaimButton(enabled) {
-      if (!this._missionData) {
+    updateClaimButton() {
+      if (!this._missionData || !this._task) {
         return;
       }
       const element = querySelector('[data-trigger="claim"]', this._element);
       querySelector("[data-cost]", element).textContent = this._missionData.goldAmount.toFixed();
-      element.disabled = !enabled;
+      element.disabled = !this._task.completed;
     }
-    setNewButton() {
+    updateNewButton() {
       if (!this._missionData || !this._task) {
         return;
       }
@@ -12472,6 +12463,7 @@ Your feedback would be highly appreciated.`,
       button.addEventListener("click", () => {
         this.missions.game.statistics.statistics.Gold.subtract(this.unlockCost);
         this.unlock();
+        this.generateRandomMission();
       });
       button.disabled = true;
       this.missions.game.statistics.statistics.Gold.addListener("change", (amount) => {
@@ -12480,6 +12472,23 @@ Your feedback would be highly appreciated.`,
       li.appendChild(label);
       li.appendChild(button);
       return li;
+    }
+    tryLoad() {
+      var _a;
+      const savedMission = (_a = this.missions.game.saveObj.missions) == null ? void 0 : _a.missions[this.missions.slots.length];
+      if (!savedMission) {
+        return;
+      }
+      const missionData = this.missions.data.missionLists.flatMap((x) => x).find((x) => x.description === savedMission.desc);
+      if (!missionData) {
+        return;
+      }
+      this.unlock();
+      this._missionData = missionData;
+      this._task = new Task(this.missions.game, missionData.description);
+      this._task.startValue = savedMission.startValue;
+      this.tryCompletion();
+      this.updateSlot();
     }
   };
 
