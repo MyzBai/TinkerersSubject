@@ -8985,6 +8985,33 @@
     type: "object",
     required: ["enemies"],
     properties: {
+      options: {
+        type: "object",
+        properties: {
+          endPrompt: {
+            type: "object",
+            required: ["title", "body"],
+            properties: {
+              title: {
+                type: "string",
+                maxLength: 32,
+                minLength: 3,
+                pattern: "^[A-Za-z 0-9]+$"
+              },
+              body: {
+                type: "string",
+                maxLength: 512,
+                $ref: "#/definitions/defaultTextPattern"
+              },
+              footer: {
+                type: "string",
+                maxLength: 128,
+                $ref: "#/definitions/defaultTextPattern"
+              }
+            }
+          }
+        }
+      },
       enemies: {
         type: "object",
         required: ["enemyList"],
@@ -9344,6 +9371,10 @@
           { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
         ],
         pattern: "^[^#]*$"
+      },
+      defaultTextPattern: {
+        type: "string",
+        pattern: "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;'\\s]*$"
       }
     }
   };
@@ -9723,7 +9754,7 @@
     }
     let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
     {
-      config.flags = 4 /* Elemental */ | 96 /* Ailment */ | 64 /* Burn */;
+      config.flags = 4 /* Elemental */ | 64 /* Burn */;
       burnChance = calcModTotal("BurnChance", config) / 100;
       maxBurnStacks = calcModTotal("AilmentStack", config);
       burnDuration = calcModTotal("Duration", config);
@@ -10681,17 +10712,6 @@
         if (visible) {
           this.updateSideStatisticsUI();
         }
-      });
-      this.statistics.Level.addListener("change", (level) => {
-        if (level >= this.game.enemy.maxIndex + 2 && this.game.config.meta.name === "Demo") {
-          querySelector("generic-modal").init({
-            title: "Congratulations! You beat the Demo!",
-            body: `Thank you for playing. Please check out the links down in the footer. 
-Your feedback would be highly appreciated.`,
-            buttons: [{ label: "Continue", type: "confirm" }]
-          }).openModal();
-        }
-        this.updateSideStatisticsUI();
       });
       this.statistics.Gold.addListener("change", () => {
         this.updateSideStatisticsUI();
@@ -12600,6 +12620,7 @@ Your feedback would be highly appreciated.`,
       return this._saveObj;
     }
     async init(config, saveObj) {
+      var _a;
       this._config = config;
       this._saveObj = saveObj;
       querySelector("[data-config-name]", this.page).textContent = this._config.meta.name;
@@ -12622,6 +12643,21 @@ Your feedback would be highly appreciated.`,
       this.gameLoop.subscribe(() => {
         this.save();
       }, { intervalMilliseconds: 1e3 * 60 });
+      {
+        const endPrompt = (_a = config.options) == null ? void 0 : _a.endPrompt;
+        if (endPrompt) {
+          this.enemy.onDeath.listen((x) => {
+            if (x.index > x.maxIndex) {
+              querySelector("generic-modal").init({
+                title: endPrompt.title,
+                body: endPrompt.body,
+                footerText: endPrompt.footer,
+                buttons: [{ label: "Continue", type: "confirm" }]
+              }).openModal();
+            }
+          });
+        }
+      }
     }
     setup() {
       this.statistics.setup();

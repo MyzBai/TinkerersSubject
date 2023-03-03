@@ -1,5 +1,12 @@
 {
     "$schema": "./config.schema.json",
+    "options": {
+        "endPrompt": {
+            "title": "Well Done",
+            "body": "Thank you for playing. Please check out the links down in the footer. \nYour feedback would be highly appreciated.",
+            "footer": "Note: You can create your own configuration. Header over to github to find out more!"
+        }
+    },
     "enemies": {
         "enemyList": [ 100, 500, 1000, 8000, 30000, 100000, 500000, 700000, 800000, 1e6 ]
     },

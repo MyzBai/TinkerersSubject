@@ -457,15 +457,15 @@ progress[value]::-webkit-progress-value {
   grid-template-columns: 1fr 1fr;
   width: 100%;
 }
-.p-home .s-main .p-new ul,
-.p-home .s-main .p-saved ul {
+.p-home .s-main .p-new [data-entry-list],
+.p-home .s-main .p-saved [data-entry-list] {
   padding-top: 0.3em;
   overflow-y: auto;
   height: 100%;
   min-height: 0;
 }
-.p-home .s-main .p-new ul li,
-.p-home .s-main .p-saved ul li {
+.p-home .s-main .p-new [data-entry-list] li,
+.p-home .s-main .p-saved [data-entry-list] li {
   display: flex;
   justify-content: space-between;
   align-items: center;
