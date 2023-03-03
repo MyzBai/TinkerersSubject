@@ -1,18 +1,16 @@
-import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
-
-type PassivesData = Required<Required<GConfig>['components']>['passives'];
-type PassiveData = PassivesData['passiveLists'][number][number];
+import type PassivesConfig from "@src/types/gconfig/passives";
+import type { PassiveConfig } from "@src/types/gconfig/passives";
 
 export default class Passives extends Component {
 
     readonly passives: Passive[] = [];
     readonly passivesListContainer: HTMLElement;
-    constructor(readonly game: Game, readonly data: PassivesData) {
+    constructor(readonly game: Game, readonly data: PassivesConfig) {
         super(game, 'passives');
 
         this.passivesListContainer = querySelector('.s-passive-list table', this.page);
@@ -90,7 +88,7 @@ class Passive {
     private _assigned = false;
     readonly element: HTMLTableRowElement;
     readonly mod: Modifier;
-    constructor(readonly passives: Passives, readonly data: PassiveData, readonly index: number) {
+    constructor(readonly passives: Passives, readonly data: PassiveConfig, readonly index: number) {
         this.mod = new Modifier(data.mod);
 
         this.element = this.createElement();

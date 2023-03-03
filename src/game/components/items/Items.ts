@@ -1,16 +1,15 @@
 import Component from "@src/game/components/Component";
 import type Game from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
-import type { ItemMod } from "@src/types/gconfig";
-import type GConfig from "@src/types/gconfig";
+import type { ItemModConfig } from "@src/types/gconfig/items";
+import type ItemsConfig from "@src/types/gconfig/items";
 import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import { CraftData, CraftId, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
 
-type ItemsData = Required<Required<GConfig>['components']>['items'];
-type CraftDataList = ItemsData['craftList'];
-export type ModTables = { [K in keyof ItemsData['modLists']]: ItemModifier[] }
+
+export type ModTables = { [K in keyof ItemsConfig['modLists']]: ItemModifier[] }
 
 export default class Items extends Component {
     private readonly itemsPage = querySelector('.p-game .p-items');
@@ -24,7 +23,7 @@ export default class Items extends Component {
     private activeCraftId?: CraftId;
     readonly modLists: ItemModifier[];
     private presets: CraftPresets;
-    constructor(readonly game: Game, readonly data: ItemsData) {
+    constructor(readonly game: Game, readonly data: ItemsConfig) {
         super(game, 'items');
         this.presets = new CraftPresets(this);
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
@@ -34,7 +33,7 @@ export default class Items extends Component {
             throw Error('No items available! There must be at least 1 item available');
         }
         data.craftList.forEach(x => {
-            if(!Object.keys(craftTemplates).includes(x.id)){
+            if (!Object.keys(craftTemplates).includes(x.id)) {
                 throw Error(`${x.id} is invalid`);
             }
         });
@@ -106,7 +105,7 @@ export default class Items extends Component {
         }
     }
 
-    private createCraftListItems(craftDataList: CraftDataList) {
+    private createCraftListItems(craftDataList: ItemsConfig['craftList']) {
         const rows = [] as HTMLTableRowElement[];
         for (const craftData of craftDataList) {
             const { cost, id, levelReq } = craftData;
@@ -260,12 +259,12 @@ class Item {
 }
 
 export class ItemModifier extends Modifier {
-    private readonly itemModData: ItemMod;
+    private readonly itemModData: ItemModConfig;
     public readonly levelReq: number;
     public weight: number;
     readonly groupIndex: number;
-    readonly modGroup: ItemMod[];
-    constructor(itemModData: ItemMod, modGroup: ItemMod[]) {
+    readonly modGroup: ItemModConfig[];
+    constructor(itemModData: ItemModConfig, modGroup: ItemModConfig[]) {
         super(itemModData.mod);
         this.itemModData = itemModData;
         this.levelReq = itemModData.levelReq;

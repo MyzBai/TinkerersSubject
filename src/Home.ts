@@ -1,11 +1,11 @@
 import { generateTime, isLocalHost, querySelector, registerTabs } from "./utils/helpers";
-import type GConfig from "@src/types/gconfig";
+import type GConfig from "@src/types/gconfig/gameConfig";
 import { validateConfig } from "@src/utils/validateConfig";
 import Game from "@src/game/Game";
 import type { Save } from "@src/types/save";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
-import { GenericModal } from "./webComponents/GenericModal";
+import type { GenericModal } from "./webComponents/GenericModal";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];

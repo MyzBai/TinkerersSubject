@@ -1,7 +1,7 @@
 import { lerp, querySelector } from "@src/utils/helpers";
 import { calcAilmentBaseDamage } from "./calc/calcDamage";
-import { Configuration } from "./calc/calcMod";
-import Game from "./Game";
+import type { Configuration } from "./calc/calcMod";
+import type Game from "./Game";
 import { StatModifierFlags } from "./mods";
 
 export type AilmentType = 'Bleed' | 'Burn';

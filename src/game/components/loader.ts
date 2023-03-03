@@ -11,9 +11,10 @@ import itemsHtml from '@html/items.html';
 import missionsHtml from '@html/missions.html';
 import achievementsHtml from '@html/achievements.html';
 
-import Game from "../Game";
-import GConfig, { ComponentName } from "@src/types/gconfig";
+import type Game from "../Game";
 import { querySelector } from "@src/utils/helpers";
+import type ComponentsConfig from "@src/types/gconfig/components";
+import type { ComponentName } from "@src/types/gconfig/components";
 
 export interface ComponentConfig {
     html: string;
@@ -21,7 +22,7 @@ export interface ComponentConfig {
     label: string;
 }
 
-export const componentConfigs: Record<keyof Required<GConfig>['components'], ComponentConfig> = {
+export const componentConfigs: Record<keyof ComponentsConfig, ComponentConfig> = {
     skills: {
         constr: Skills,
         html: skillsHtml,
