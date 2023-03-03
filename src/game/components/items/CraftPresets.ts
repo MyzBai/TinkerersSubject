@@ -1,5 +1,5 @@
 import { querySelector } from "@src/utils/helpers";
-import type { CraftId } from "./crafting";
+import { CraftId } from "./crafting";
 import type Items from "./Items";
 
 export default class CraftPresets {

@@ -1,5 +1,4 @@
-import type { Options } from "./Loop";
-import type Loop from "./Loop";
+import Loop, { Options } from "./Loop";
 
 export type Callback = (visible: boolean, observer: IntersectionObserver) => void;
 export class VisibilityObserver {

@@ -1,20 +1,20 @@
 import { registerTabs, querySelector, isLocalHost } from "@utils/helpers";
 import Player from './Player';
 import Enemy from './Enemy';
+import type GConfig from "@src/types/gconfig";
 import Loop from "@utils/Loop";
 import Statistics from "./Statistics";
 import EventEmitter from "@src/utils/EventEmitter";
+import type { ComponentName } from "@src/types/gconfig";
 import gameHtml from '@html/game.html';
 import saveManager from "@src/utils/saveManager";
 import type { Save } from "@src/types/save";
-import type Home from "@src/Home";
+import Home from "@src/Home";
 
 import { VisibilityObserver } from "@src/utils/Observers";
-import type Component from "./components/Component";
+import Component from "./components/Component";
 import { componentConfigs, loadComponent } from "./components/loader";
-import type { GenericModal } from "@src/webComponents/GenericModal";
-import type GameConfig from "@src/types/gconfig/gameConfig";
-import type { ComponentName } from "@src/types/gconfig/components";
+import { GenericModal } from "@src/webComponents/GenericModal";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -25,7 +25,7 @@ export default class Game {
     readonly visiblityObserver: VisibilityObserver;
     readonly componentsList: Component[] = [];
     readonly onSave = new EventEmitter<Save>();
-    private _config: GameConfig | undefined;
+    private _config: GConfig | undefined;
     private _saveObj: Save | undefined;
     constructor(readonly home: Home) {
         this.page = new DOMParser().parseFromString(gameHtml, 'text/html').querySelector('.p-game')!;
@@ -54,7 +54,7 @@ export default class Game {
         return this._saveObj!;
     }
 
-    async init(config: GameConfig, saveObj: Save) {
+    async init(config: GConfig, saveObj: Save) {
         this._config = config;
         this._saveObj = saveObj;
 
@@ -187,7 +187,7 @@ export default class Game {
         await saveManager.save('Game', Object.fromEntries(map));
     }
 
-    async load(config: GameConfig) {
+    async load(config: GConfig) {
         const map = await saveManager.load('Game');
         if (!map) {
             return false;

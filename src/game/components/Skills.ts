@@ -1,12 +1,14 @@
-import type { AttackSkillConfig, BuffSkillConfig } from "@src/types/gconfig/skills";
-import type SkillsConfig from "@src/types/gconfig/skills";
-import type { Save } from "@src/types/save";
+import GConfig from "@src/types/gconfig";
+import { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector, registerTabs } from "@src/utils/helpers";
-import type Game from "../Game";
+import Game from "../Game";
 import { Modifier, StatModifier } from "../mods";
-import type Player from "../Player";
+import Player from "../Player";
 import Component from "./Component";
 
+type SkillsData = Required<Required<GConfig>['components']>['skills'];
+type AttackSkillData = SkillsData['attackSkills']['skillList'][number];
+type BuffSkillData = Required<SkillsData>['buffSkills']['skillList'][number];
 
 export default class Skills extends Component {
     activeSkillSlot: BaseSkillSlot;
@@ -15,7 +17,7 @@ export default class Skills extends Component {
     private readonly attackSkillSlot: AttackSkillSlot;
     readonly buffSkillSlots: BuffSkillSlot[] = [];
     readonly buffSkills: BuffSkill[] = [];
-    constructor(readonly game: Game, readonly data: SkillsConfig) {
+    constructor(readonly game: Game, readonly data: SkillsData) {
         super(game, 'skills');
         const attackSkillListContainer = querySelector('[data-attack-skill-list]', this.page);
         const buffSkillListContainer = querySelector('[data-buff-skill-list]', this.page);
@@ -449,7 +451,7 @@ class BuffSkillSlot extends BaseSkillSlot {
 
 abstract class BaseSkill {
     protected readonly _mods: Modifier[];
-    constructor(readonly skills: Skills, readonly data: AttackSkillConfig | BuffSkillConfig) {
+    constructor(readonly skills: Skills, readonly data: AttackSkillData | BuffSkillData) {
         this._mods = data.mods?.map(x => new Modifier(x)) || [];
     }
     get sourceName() {
@@ -467,7 +469,7 @@ abstract class BaseSkill {
 }
 
 class AttackSkill extends BaseSkill {
-    constructor(readonly skills: Skills, readonly data: AttackSkillConfig) {
+    constructor(readonly skills: Skills, readonly data: AttackSkillData) {
         super(skills, data);
     }
 
@@ -485,7 +487,7 @@ class AttackSkill extends BaseSkill {
 }
 
 class BuffSkill extends BaseSkill {
-    constructor(readonly skills: Skills, readonly data: BuffSkillConfig) {
+    constructor(readonly skills: Skills, readonly data: BuffSkillData) {
         super(skills, data);
     }
 }

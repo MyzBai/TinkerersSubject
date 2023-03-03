@@ -1,0 +1,346 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": [ "enemies" ],
+    "properties": {
+        "options": {
+            "type": "object",
+            "properties": {
+                "endPrompt": {
+                    "type": "object",
+                    "required": ["title", "body"],
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "maxLength": 32,
+                            "minLength": 3,
+                            "pattern": "^[A-Za-z 0-9]+$"
+                        },
+                        "body": {
+                            "type": "string",
+                            "maxLength": 512,
+                            "$ref": "#/definitions/defaultTextPattern"
+                        },
+                        "footer": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "$ref": "#/definitions/defaultTextPattern"
+                        }
+                    }
+                }
+            }
+        },
+        "enemies": {
+            "type": "object",
+            "required": [ "enemyList" ],
+            "properties": {
+                "enemyList": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                }
+            }
+        },
+        "player": {
+            "type": "object",
+            "properties": {
+                "modList": {
+                    "type": "array",
+                    "anyOf": [
+                        {
+                            "items": {
+                                "oneOf": [
+                                    { "$ref": "#/definitions/mod" },
+                                    {
+                                        "type": "string",
+                                        "oneOf": [
+                                            {
+                                                "description": "Base duration in seconds",
+                                                "enum": [ "+{#} Bleed Duration", "+{#} Burn Duration", "+{#} Poison Duration" ]
+                                            }, { "pattern": "^\\+\\{(\\d+)\\} (Bleed|Burn|Poison) Duration$" }
+                                        ],
+                                        "pattern": "^[^#]*$"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "components": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "skills": {
+                    "type": "object",
+                    "required": [ "attackSkills" ],
+                    "properties": {
+                        "attackSkills": {
+                            "type": "object",
+                            "required": [ "skillList" ],
+                            "properties": {
+                                "skillList": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                        "type": "object",
+                                        "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq" ],
+                                        "properties": {
+                                            "name": { "type": "string" },
+                                            "levelReq": { "type": "integer", "minimum": 1, "default": 1, "description": "Required player level\nNote - At least one skill must have a value of 1" },
+                                            "attackSpeed": { "type": "number", "minimum": 0.001, "maximum": 10, "default": 1, "description": "Number of attacks per second" },
+                                            "manaCost": { "type": "integer", "minimum": 0 },
+                                            "baseDamageMultiplier": { "type": "integer", "minimum": 1, "default": 100, "description": "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
+                                            "mods": {
+                                                "type": "array",
+                                                "items": { "$ref": "#/definitions/mod" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "buffSkills": {
+                            "type": "object",
+                            "required": [ "skillList", "skillSlots" ],
+                            "properties": {
+                                "skillSlots": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": {
+                                        "type": "object",
+                                        "required": [ "levelReq" ],
+                                        "properties": {
+                                            "levelReq": {
+                                                "type": "integer",
+                                                "minimum": 1
+                                            }
+                                        }
+                                    }
+                                },
+                                "skillList": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [ "name", "baseDuration", "manaCost", "levelReq" ],
+                                        "properties": {
+                                            "name": { "type": "string" },
+                                            "levelReq": { "type": "number" },
+                                            "baseDuration": { "type": "integer" },
+                                            "manaCost": { "type": "integer" },
+                                            "mods": {
+                                                "type": "array",
+                                                "items": { "$ref": "#/definitions/mod" }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "passives": {
+                    "type": "object",
+                    "required": [ "pointsPerLevel", "passiveLists" ],
+                    "properties": {
+                        "pointsPerLevel": {
+                            "type": "number",
+                            "minimum": 0.001,
+                            "default": 1
+                        },
+                        "passiveLists": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "object",
+                                    "required": [ "levelReq", "mod", "points" ],
+                                    "properties": {
+                                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                                        "mod": { "$ref": "#/definitions/mod" },
+                                        "points": { "type": "integer", "minimum": 1 }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "items": {
+                    "type": "object",
+                    "required": [ "levelReq", "itemList", "craftList", "modLists" ],
+                    "properties": {
+                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                        "itemList": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "levelReq": { "type": "integer", "minimum": 0 }
+                                }
+                            }
+                        },
+                        "craftList": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": [ "id", "levelReq", "cost" ],
+                                "properties": {
+                                    "id": {
+                                        "enum": [
+                                            "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeIncludeBurn", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                            "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed", "addBurn",
+                                            "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn",
+                                            "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn" ]
+                                    },
+                                    "levelReq": { "type": "integer", "minimum": 0 },
+                                    "cost": { "type": "integer", "minimum": 0 }
+                                }
+                            }
+                        },
+                        "modLists": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [ "weight", "levelReq", "mod" ],
+                                    "properties": {
+                                        "weight": { "type": "integer", "minimum": 0 },
+                                        "levelReq": { "type": "integer", "minimum": 0 },
+                                        "mod": { "$ref": "#/definitions/mod" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "missions": {
+                    "type": "object",
+                    "required": [ "levelReq", "slots", "missionLists" ],
+                    "properties": {
+                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                        "cost": { "$ref": "#/definitions/cost" },
+                        "slots": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "levelReq": { "$ref": "#/definitions/levelReq" },
+                                    "cost": { "$ref": "#/definitions/cost" }
+                                }
+                            }
+                        },
+                        "missionLists": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [ "levelReq", "goldAmount", "description" ],
+                                    "properties": {
+                                        "levelReq": { "$ref": "#/definitions/levelReq" },
+                                        "goldAmount": { "type": "integer" },
+                                        "description": {
+                                            "$ref": "#/definitions/tasks"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "achievements": {
+                    "type": "object",
+                    "required": [ "list" ],
+                    "properties": {
+                        "list": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [ "description" ],
+                                "properties": {
+                                    "description": {
+                                        "$ref": "#/definitions/tasks"
+                                    },
+                                    "modList": {
+                                        "type": "array",
+                                        "minItems": 1,
+                                        "description": "Each mod will be applied upon completing the achievement",
+                                        "items": {
+                                            "$ref": "#/definitions/mod"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "mod": {
+            "type": "string",
+            "oneOf": [
+                { "enum": [ "Adds {#} To {#} Physical Damage", "Adds {#} To {#} Elemental Damage" ] }, { "pattern": "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% Increased Physical Damage", "{#}% Increased Elemental Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% More Physical Damage", "{#}% More Elemental Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Physical|Elemental) Damage$" },
+                { "enum": [ "{#}% More Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
+                { "enum": [ "+{#}% Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$" },
+                { "enum": [ "{#}% Increased Attack Speed" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$" },
+                { "enum": [ "{#}% More Attack Speed" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Attack Speed$" },
+                { "enum": [ "+{#}% Critical Hit Chance" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$" },
+                { "enum": [ "+{#}% Critical Hit Multiplier" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$" },
+                { "enum": [ "+{#} Maximum Mana" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
+                { "enum": [ "{#}% Increased Maximum Mana" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
+                { "enum": [ "+{#} Mana Regeneration" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
+                { "enum": [ "+{#} Gold Generation" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Generation$" },
+                { "enum": [ "{#}% Increased Gold Generation" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Generation$" },
+                { "enum": [ "+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
+                { "enum": [ "+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack" ] }, { "pattern": "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
+                { "enum": [ "{#}% Increased Bleed Damage", "{#}% Increased Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
+                { "enum": [ "{#}% More Bleed Damage", "{#}% More Burn Damage" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
+                { "enum": [ "{#}% Increased Bleed Duration", "{#}% Increased Burn Duration" ] }, { "pattern": "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
+            ],
+            "pattern": "^[^#]*$"
+        },
+        "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z 0-9]{3,16}$"
+        },
+        "levelReq": {
+            "type": "integer",
+            "default": 1,
+            "minimum": 1
+        },
+        "cost": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0
+        },
+        "tasks": {
+            "type": "string",
+            "anyOf": [
+                { "enum": [ "Reach Level {#}" ] }, { "pattern": "^Reach Level \\{\\d+\\}$" },
+                { "enum": [ "Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}" ] }, { "pattern": "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
+                { "enum": [ "Generate Gold {#}" ] }, { "pattern": "^Generate Gold \\{\\d+\\}$" },
+                { "enum": [ "Regenerate Mana {#}" ] }, { "pattern": "^Regenerate Mana \\{\\d+\\}$" },
+                { "enum": [ "Perform Hits {#}" ] }, { "pattern": "^Perform Hits \\{\\d+\\}$" },
+                { "enum": [ "Perform Critical Hits {#}" ] }, { "pattern": "^Perform Critical Hits \\{\\d+\\}$" }
+            ],
+            "pattern": "^[^#]*$"
+        },
+        "defaultTextPattern": {
+            "type": "string",
+            "pattern": "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;'\\s]*$"
+        }
+    }
+}

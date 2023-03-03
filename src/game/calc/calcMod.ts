@@ -1,5 +1,5 @@
 import { avg, clamp } from "@utils/helpers";
-import type Game from "../Game";
+import Game from "../Game";
 import { StatModifier, StatModifierFlags, StatName, StatModifierValueType } from "../mods";
 import { calcAilmentBaseDamage, calcBaseDamage, ConversionTable } from "./calcDamage";
 

@@ -1,5 +1,6 @@
 import type { Save } from "@src/types/save";
 import { querySelector } from "@src/utils/helpers";
+import { GenericModal } from "@src/webComponents/GenericModal";
 import Value from "@utils/Value";
 import { calcPlayerStats } from "./calc/calcMod";
 import type Game from "./Game";
