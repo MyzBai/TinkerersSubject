@@ -72,8 +72,8 @@
                     {
                         "name": "Burn Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.2,
-                        "manaCost": 20,
+                        "attackSpeed": 0.25,
+                        "manaCost": 15,
                         "baseDamageMultiplier": 500,
                         "mods": [
                             "+{60}% Hit Chance",
