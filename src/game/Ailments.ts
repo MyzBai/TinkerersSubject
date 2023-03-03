@@ -76,7 +76,7 @@ abstract class AilmentHandler {
 
     reset() {
         this.instances.splice(0);
-        this.tick(0);
+        this.removeElement();
     }
 
     protected createElement() {
@@ -164,6 +164,7 @@ class BleedHandler extends AilmentHandler {
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
         this.game.enemy.dealDamageOverTime(damage);
+        this.game.statistics.statistics['Total Damage'].add(damage);
         this.game.statistics.statistics['Total Bleed Damage'].add(damage);
         this.game.statistics.statistics['Total Physical Damage'].add(damage);
         super.tick(dt);
@@ -202,6 +203,7 @@ class BurnHandler extends AilmentHandler {
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
         this.game.enemy.dealDamageOverTime(damage);
+        this.game.statistics.statistics['Total Damage'].add(damage);
         this.game.statistics.statistics['Total Burn Damage'].add(damage);
         this.game.statistics.statistics['Total Elemental Damage'].add(damage);
         super.tick(dt);
@@ -256,11 +258,13 @@ export class Ailments {
             if (!save) {
                 return;
             }
+            let time = 0;
             for (const savedInstance of save.instances) {
                 const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
                 instance.time = savedInstance.time;
+                time = Math.max(time, savedInstance.time);
             }
-            x.time = Math.max(0, ...save.instances.map(x => x.time).sort().reverse());
+            x.time = time;
         });
     }
 

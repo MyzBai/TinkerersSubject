@@ -65,7 +65,6 @@ class MissionSlot {
         });
         const savedSlot = missions.game.saveObj.missions?.missions.find(x => x.index === missions.slots.length);
         if (savedSlot) {
-            this.unlock();
             this._task = new Task(missions.game, savedSlot.desc);
             this._task.startValue = savedSlot.startValue;
             this.updateLabel();
@@ -118,12 +117,6 @@ class MissionSlot {
         this._element.appendChild(buttonNew);
 
         this.generateRandomMission();
-    }
-
-    load({ task, missionData }: { task: Task, missionData: MissionData }) {
-        this._task = task;
-        this._missionData = missionData;
-        this.tryCompletion();
     }
 
     private claim() {

@@ -57,45 +57,52 @@ export default class Game {
         this._config = config;
         this._saveObj = saveObj;
 
-        this.dispose();
+        querySelector('[data-config-name]', this.page).textContent = this._config.meta.name;
 
+        //Reset
+        this.onSave.removeAllListeners();
+        this.disposeComponents();
+        this.visiblityObserver.disconnectAll();
+        
+        this.gameLoop.reset();
+        this.player.reset();
+        this.enemy.reset();
+        this.statistics.reset();
+  
+
+        //Initialize
         this.enemy.init();
         this.player.init();
         this.statistics.init();
         this.initComponents();
 
+
+        //Setup
+        this.setup();
+
+        await this.save();
+
         this.gameLoop.subscribe(() => {
             this.statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
-
-        querySelector('[data-config-name]', this.page).textContent = this._config.meta.name;
 
         this.gameLoop.subscribe(() => {
             this.save();
         }, { intervalMilliseconds: 1000 * 60 });
 
-        await this.setup();
 
-        await this.save();
     }
 
-    async setup() {
-        await this.player.setup();
+    setup() {
+        this.statistics.setup();
         this.enemy.setup();
-
+        this.player.setup();
 
         if (!isLocalHost()) {
             this.gameLoop.start();
         }
         querySelector('[data-tab-target="combat"]', this.page).click();
         document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
-    }
-
-    async dispose() {
-        this.onSave.removeAllListeners();
-        this.gameLoop.reset();
-        this.disposeComponents();
-        this.visiblityObserver.disconnectAll();
     }
 
     private initComponents() {
@@ -130,18 +137,7 @@ export default class Game {
         }
         Object.defineProperty(window, 'TS', {
             value: {
-                setLevel: (v: number) => {
-                    this.statistics.statistics.Level.set(v);
-                    this.enemy.setIndex(v - 1);
-                    this.enemy.spawn();
-                },
-                setGold: (v: number) => this.statistics.statistics.Gold.set(v),
-                save: () => {
-                    this.save();
-                },
-                load: async () => {
-                    this.load(this.config);
-                }
+                game: this,
             }
         });
 

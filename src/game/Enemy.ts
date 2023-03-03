@@ -34,20 +34,23 @@ export default class Enemy {
 
     init() {
         this.game.onSave.listen(this.save.bind(this));
-        this.onDeath.removeAllListeners();
         this.game.gameLoop.subscribeAnim(() => {
             this.updateHealthBar();
         });
 
         this.healthList = this.game.config.enemies.enemyList;
         this._index = this.game.saveObj.enemy?.index || 0;
-        this.spawn();
-        this.health = this.game.saveObj.enemy?.health || this.maxHealth;
-        this.updateHealthBar();
     }
 
     setup() {
+        this.spawn();
+        this.health = this.game.saveObj.enemy?.health || this.maxHealth;
+        this.updateHealthBar();
         this.ailments.setup();
+    }
+
+    reset() {
+        this.onDeath.removeAllListeners();
     }
 
     setIndex(index: number) {

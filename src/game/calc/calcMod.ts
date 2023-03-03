@@ -62,7 +62,7 @@ export function calcPlayerStats(game: Game) {
     //bleed
     let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
     {
-        config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
+        config.flags = StatModifierFlags.Physical | StatModifierFlags.Bleed;
         bleedChance = calcModTotal('BleedChance', config) / 100;
         maxBleedStacks = calcModTotal('AilmentStack', config);
         bleedDuration = calcModTotal('Duration', config);
@@ -107,8 +107,8 @@ export function calcPlayerStats(game: Game) {
     const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
     statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
 
-    const goldPerSecond = calcModTotal('GoldPerSecond', config);
-    statistics['Gold Per Second'].set(goldPerSecond);
+    const goldGeneration = calcModTotal('GoldGeneration', config);
+    statistics['Gold Generation'].set(goldGeneration);
 }
 
 

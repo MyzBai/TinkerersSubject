@@ -78,7 +78,9 @@ export default class Loop {
         const loop = () => {
             this.loopId = window.setTimeout(() => {
                 let diff = performance.now() - now + remainder;
+                
                 now = performance.now();
+    
                 while (diff >= TARGET_FRAME_TIME) {
                     diff -= TARGET_FRAME_TIME;
 
@@ -90,6 +92,9 @@ export default class Loop {
                             instance.time -= ms || instance.time;
                         }
                     });
+                    if(diff > 2000){
+                        diff = 0;
+                    }
                 }
                 remainder = diff;
                 loop();
@@ -109,7 +114,7 @@ export default class Loop {
                 let ms = instance.options?.intervalMilliseconds || 0;
                 if (instance.time > ms) {
                     instance.callback(dt / 1000);
-                    instance.time -= ms || instance.time;
+                    instance.time = 0;
                 }
             });
             lastTime = now;
