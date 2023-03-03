@@ -8,7 +8,7 @@
             "Adds {1} To {3} Physical Damage",
             "+{100} Maximum Mana",
             "+{1} Mana Regeneration",
-            "+{1} Gold Generation",
+            "+{1} Gold Per Second",
             "+{150}% Critical Hit Multiplier"
         ]
     },
@@ -96,7 +96,7 @@
                         "baseDuration": 300,
                         "manaCost": 500,
                         "mods": [
-                            "{50}% Increased Gold Generation"
+                            "{50}% Increased Gold Per Second"
                         ]
                     }
                 ]
@@ -113,8 +113,8 @@
             ],
             "modLists": [
                 [
-                    { "weight": 10, "levelReq": 1, "mod": "+{1} Gold Generation" },
-                    { "weight": 5, "levelReq": 5, "mod": "+{2} Gold Generation" }
+                    { "weight": 10, "levelReq": 1, "mod": "+{1} Gold Per Second" },
+                    { "weight": 5, "levelReq": 5, "mod": "+{2} Gold Per Second" }
                 ],
                 [
                     { "weight": 100, "levelReq": 1, "mod": "Adds {1} To {3} Physical Damage" },
@@ -178,17 +178,17 @@
                     {
                         "levelReq": 1,
                         "points": 1,
-                        "mod": "+{1} Gold Generation"
+                        "mod": "+{1} Gold Per Second"
                     },
                     {
                         "levelReq": 3,
                         "points": 2,
-                        "mod": "+{2} Gold Generation"
+                        "mod": "+{2} Gold Per Second"
                     },
                     {
                         "levelReq": 5,
                         "points": 3,
-                        "mod": "+{3} Gold Generation"
+                        "mod": "+{3} Gold Per Second"
                     }
                 ],
                 [
@@ -392,7 +392,7 @@
             "list": [
                 { "description": "Reach Level {10}" },
                 { "description": "Deal Physical Damage {2000000}", "modList": [ "{20}% More Physical Damage" ] },
-                { "description": "Generate Gold {1500}", "modList": [ "+{1} Gold Generation" ] },
+                { "description": "Generate Gold {1500}", "modList": [ "+{1} Gold Per Second" ] },
                 { "description": "Perform Hits {1500}", "modList": [ "+{5}% Hit Chance" ] },
                 { "description": "Perform Critical Hits {1500}", "modList": [ "+{5}% Critical Hit Chance" ] },
                 { "description": "Regenerate Mana {10000}", "modList": [ "+{1} Mana Regeneration" ] }

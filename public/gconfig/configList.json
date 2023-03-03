@@ -7,9 +7,9 @@
             "description": "This is a short configuration for demonstration purposes."
         },
         {
-            "name": "Demo 2 Extended",
+            "name": "Playground",
             "rawUrl": "public/gconfig/demo2.json",
-            "description": "This demo introduces elemental damage and damage over time"
+            "description": "This configuration is just for testing purposes."
         }
     ]
 }

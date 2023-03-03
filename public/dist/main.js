@@ -9157,7 +9157,6 @@
                         "reforgeIncludeCritical",
                         "reforgeIncludeMana",
                         "reforgeIncludeBleed",
-                        "reforgeIncludeBurn",
                         "reforgeHigherChanceSameMods",
                         "reforgeLowerChanceSameMods",
                         "addRandom",
@@ -9166,20 +9165,17 @@
                         "addCritical",
                         "addMana",
                         "addBleed",
-                        "addBurn",
                         "removeRandom",
                         "removePhysical",
                         "removeElemental",
                         "removeCritical",
                         "removeMana",
                         "removeBleed",
-                        "removeBurn",
                         "removeRandomAddPhysical",
                         "removeRandomAddElemental",
                         "removeRandomAddCritical",
                         "removeRandomAddMana",
-                        "removeRandomAddBleed",
-                        "removeRandomAddBurn"
+                        "removeRandomAddBleed"
                       ]
                     },
                     levelReq: { type: "integer", minimum: 0 },
@@ -9296,10 +9292,10 @@
           { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
           { enum: ["+{#} Mana Regeneration"] },
           { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
-          { enum: ["+{#} Gold Generation"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Generation$" },
-          { enum: ["{#}% Increased Gold Generation"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Generation$" },
+          { enum: ["+{#} Gold Per Second"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Per Second$" },
+          { enum: ["{#}% Increased Gold Per Second"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Per Second$" },
           { enum: ["+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison"] },
           { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
           { enum: ["+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack"] },
@@ -9307,9 +9303,7 @@
           { enum: ["{#}% Increased Bleed Damage", "{#}% Increased Burn Damage"] },
           { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
           { enum: ["{#}% More Bleed Damage", "{#}% More Burn Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
-          { enum: ["{#}% Increased Bleed Duration", "{#}% Increased Burn Duration"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" }
         ],
         pattern: "^[^#]*$"
       },
@@ -9380,94 +9374,92 @@
   };
 
   // src/game/mods.ts
-  var StatModifierFlags = /* @__PURE__ */ ((StatModifierFlags2) => {
-    StatModifierFlags2[StatModifierFlags2["None"] = 0] = "None";
-    StatModifierFlags2[StatModifierFlags2["Attack"] = 1] = "Attack";
-    StatModifierFlags2[StatModifierFlags2["Physical"] = 2] = "Physical";
-    StatModifierFlags2[StatModifierFlags2["Elemental"] = 4] = "Elemental";
-    StatModifierFlags2[StatModifierFlags2["Chaos"] = 8] = "Chaos";
-    StatModifierFlags2[StatModifierFlags2["Skill"] = 16] = "Skill";
-    StatModifierFlags2[StatModifierFlags2["Bleed"] = 32] = "Bleed";
-    StatModifierFlags2[StatModifierFlags2["Burn"] = 64] = "Burn";
-    StatModifierFlags2[StatModifierFlags2["Ailment"] = 96] = "Ailment";
-    StatModifierFlags2[StatModifierFlags2["Damage"] = 128] = "Damage";
-    return StatModifierFlags2;
-  })(StatModifierFlags || {});
+  var StatModifierFlags = {
+    None: 1 << 0,
+    Attack: 1 << 1,
+    Physical: 1 << 2,
+    Elemental: 1 << 3,
+    Chaos: 1 << 4,
+    Skill: 1 << 5,
+    Ailment: 1 << 6,
+    Bleed: 1 << 7,
+    Burn: 1 << 8
+  };
   var modTemplates = [
     {
       desc: "#% Increased Physical Damage",
-      tags: ["Damage", "Physical"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 2 /* Physical */ }]
+      tags: ["Physical"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Physical }]
     },
     {
       desc: "#% Increased Elemental Damage",
-      tags: ["Damage", "Elemental"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 4 /* Elemental */ }]
+      tags: ["Elemental"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental }]
+    },
+    {
+      desc: "#% Increased Bleed Damage",
+      tags: ["Bleed", "Physical"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }]
+    },
+    {
+      desc: "#% Increased Burn Damage",
+      tags: ["Burn", "Elemental"],
+      stats: [{ name: "Damage", valueType: "Inc", flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }]
     },
     {
       desc: "#% More Physical Damage",
-      tags: ["Damage", "Physical"],
-      stats: [{ name: "Damage", valueType: "More", flags: 2 /* Physical */ }]
+      tags: ["Physical"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Physical }]
     },
     {
       desc: "#% More Elemental Damage",
-      tags: ["Damage", "Elemental"],
-      stats: [{ name: "Damage", valueType: "More", flags: 4 /* Elemental */ }]
+      tags: ["Elemental"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Elemental }]
     },
     {
       desc: "#% More Bleed Damage",
-      tags: ["Damage", "Bleed", "Physical", "Ailment"],
-      stats: [{ name: "Damage", valueType: "More", flags: 2 /* Physical */ | 32 /* Bleed */ }]
+      tags: ["Bleed", "Physical"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Physical | StatModifierFlags.Bleed }]
     },
     {
       desc: "#% More Burn Damage",
-      tags: ["Damage", "Burn", "Elemental", "Ailment"],
-      stats: [{ name: "Damage", valueType: "More", flags: 4 /* Elemental */ | 64 /* Burn */ }]
+      tags: ["Burn", "Elemental"],
+      stats: [{ name: "Damage", valueType: "More", flags: StatModifierFlags.Elemental | StatModifierFlags.Burn }]
     },
     {
       desc: "#% More Damage",
-      tags: ["Damage"],
+      tags: [],
       stats: [{ name: "Damage", valueType: "More" }]
     },
     {
       desc: "Adds # To # Physical Damage",
-      tags: ["Damage", "Physical"],
+      tags: ["Physical"],
       stats: [
-        { name: "MinDamage", valueType: "Base", flags: 2 /* Physical */ },
-        { name: "MaxDamage", valueType: "Base", flags: 2 /* Physical */ }
+        { name: "MinDamage", valueType: "Base", flags: StatModifierFlags.Physical },
+        { name: "MaxDamage", valueType: "Base", flags: StatModifierFlags.Physical }
       ]
     },
     {
       desc: "Adds # To # Elemental Damage",
-      tags: ["Damage", "Elemental"],
+      tags: ["Elemental"],
       stats: [
-        { name: "MinDamage", valueType: "Base", flags: 4 /* Elemental */ },
-        { name: "MaxDamage", valueType: "Base", flags: 4 /* Elemental */ }
+        { name: "MinDamage", valueType: "Base", flags: StatModifierFlags.Elemental },
+        { name: "MaxDamage", valueType: "Base", flags: StatModifierFlags.Elemental }
       ]
     },
     {
-      desc: "#% Increased Bleed Damage",
-      tags: ["Damage", "Bleed", "Physical", "Ailment"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 2 /* Physical */ | 32 /* Bleed */ }]
-    },
-    {
-      desc: "#% Increased Burn Damage",
-      tags: ["Damage", "Burn", "Elemental", "Ailment"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 4 /* Elemental */ | 64 /* Burn */ }]
-    },
-    {
       desc: "+#% Hit Chance",
-      tags: ["Attack"],
+      tags: [],
       stats: [{ name: "HitChance", valueType: "Base" }]
     },
     {
       desc: "#% Increased Attack Speed",
-      tags: ["Attack", "Speed"],
+      tags: ["Speed"],
       stats: [{ name: "AttackSpeed", valueType: "Inc" }]
     },
     {
       desc: "#% More Attack Speed",
-      tags: ["Attack", "Speed"],
+      tags: ["Speed"],
       stats: [{ name: "AttackSpeed", valueType: "More" }]
     },
     {
@@ -9487,68 +9479,58 @@
     },
     {
       desc: "+#% Critical Hit Chance",
-      tags: ["Critical", "Attack"],
+      tags: ["Critical"],
       stats: [{ name: "CritChance", valueType: "Base" }]
     },
     {
       desc: "+#% Critical Hit Multiplier",
-      tags: ["Critical", "Attack"],
+      tags: ["Critical"],
       stats: [{ name: "CritMulti", valueType: "Base" }]
     },
     {
-      desc: "+# Gold Generation",
+      desc: "+# Gold Per Second",
       tags: ["Gold"],
-      stats: [{ name: "GoldGeneration", valueType: "Base" }]
+      stats: [{ name: "GoldPerSecond", valueType: "Base" }]
     },
     {
-      desc: "#% Increased Gold Generation",
+      desc: "#% Increased Gold Per Second",
       tags: ["Gold"],
-      stats: [{ name: "GoldGeneration", valueType: "Inc" }]
+      stats: [{ name: "GoldPerSecond", valueType: "Inc" }]
     },
     {
       desc: "#% Increased Skill Duration",
-      tags: ["Skill"],
-      stats: [{ name: "Duration", valueType: "Inc", flags: 16 /* Skill */ }]
+      tags: ["Gold"],
+      stats: [{ name: "Duration", valueType: "Inc", flags: StatModifierFlags.Skill }]
     },
     {
       desc: "+#% Chance To Bleed",
-      tags: ["Attack", "Bleed", "Physical", "Ailment"],
-      stats: [{ name: "BleedChance", valueType: "Base", flags: 32 /* Bleed */ }]
+      tags: ["Bleed", "Physical"],
+      stats: [{ name: "BleedChance", valueType: "Base", flags: StatModifierFlags.Bleed }]
     },
     {
       desc: "+#% Chance To Burn",
-      tags: ["Attack", "Burn", "Elemental", "Ailment"],
-      stats: [{ name: "BurnChance", valueType: "Base", flags: 64 /* Burn */ }]
+      tags: ["Burn", "Elemental"],
+      stats: [{ name: "BurnChance", valueType: "Base", flags: StatModifierFlags.Burn }]
     },
     {
       desc: "+# Bleed Duration",
-      tags: ["Duration", "Bleed", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Base", flags: 32 /* Bleed */ }]
-    },
-    {
-      desc: "#% Increased Bleed Duration",
-      tags: ["Duration", "Bleed", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Inc", flags: 32 /* Bleed */ }]
+      tags: ["Duration", "Bleed"],
+      stats: [{ name: "Duration", valueType: "Base", flags: StatModifierFlags.Bleed }]
     },
     {
       desc: "+# Burn Duration",
-      tags: ["Duration", "Burn", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Base", flags: 64 /* Burn */ }]
-    },
-    {
-      desc: "#% Increased Burn Duration",
-      tags: ["Duration", "Burn", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Inc", flags: 64 /* Burn */ }]
+      tags: ["Duration", "Burn"],
+      stats: [{ name: "Duration", valueType: "Base", flags: StatModifierFlags.Burn }]
     },
     {
       desc: "+# Maximum Bleed Stack",
       tags: ["Bleed", "Ailment"],
-      stats: [{ name: "AilmentStack", valueType: "Base", flags: 32 /* Bleed */ }]
+      stats: [{ name: "AilmentStack", valueType: "Base", flags: StatModifierFlags.Bleed }]
     },
     {
       desc: "+# Maximum Burn Stack",
       tags: ["Burn", "Ailment"],
-      stats: [{ name: "AilmentStack", valueType: "Base", flags: 64 /* Burn */ }]
+      stats: [{ name: "AilmentStack", valueType: "Base", flags: StatModifierFlags.Burn }]
     }
   ];
   var Modifier = class {
@@ -9673,7 +9655,7 @@
     const statistics = game.statistics.statistics;
     const config = {
       statModList: player.modDB.modList,
-      flags: 0
+      flags: StatModifierFlags.Attack
     };
     const hitChance = calcModTotal("HitChance", config) / 100;
     statistics["Hit Chance"].set(hitChance);
@@ -9691,21 +9673,11 @@
     const clampedCritChance = clamp(critChance, 0, 1);
     const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
     statistics["Critical Hit Multiplier"].set(critMulti);
-    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
-    let attackDps = 0;
-    {
-      config.flags = 1 /* Attack */;
-      const baseDamageResult = calcBaseDamage(config, avg);
-      const critDamageMultiplier = 1 + clampedCritChance * critMulti;
-      attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier * baseDamageMultiplier;
-      statistics["Attack Dps"].set(attackDps);
-      statistics["Average Attack Damage"].set(baseDamageResult.totalBaseDamage);
-      statistics["Average Physical Attack Damage"].set(baseDamageResult.physicalDamage);
-      statistics["Average Elemental Attack Damage"].set(baseDamageResult.elementalDamage);
-    }
+    const critDamageMultiplier = 1 + clampedCritChance * critMulti;
+    const baseDamageResult = calcBaseDamage(config, avg);
     let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
     {
-      config.flags = 2 /* Physical */ | 32 /* Bleed */;
+      config.flags = StatModifierFlags.Physical | StatModifierFlags.Ailment | StatModifierFlags.Bleed;
       bleedChance = calcModTotal("BleedChance", config) / 100;
       maxBleedStacks = calcModTotal("AilmentStack", config);
       bleedDuration = calcModTotal("Duration", config);
@@ -9714,7 +9686,7 @@
         const baseDamage = avg(min, max);
         const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
         const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
-        bleedDps = baseDamage * maxStacks * baseDamageMultiplier;
+        bleedDps = baseDamage * maxStacks;
       }
       statistics["Bleed Dps"].set(bleedDps);
       statistics["Bleed Chance"].set(bleedChance);
@@ -9723,7 +9695,7 @@
     }
     let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
     {
-      config.flags = 4 /* Elemental */ | 96 /* Ailment */ | 64 /* Burn */;
+      config.flags = StatModifierFlags.Elemental | StatModifierFlags.Ailment | StatModifierFlags.Burn;
       burnChance = calcModTotal("BurnChance", config) / 100;
       maxBurnStacks = calcModTotal("AilmentStack", config);
       burnDuration = calcModTotal("Duration", config);
@@ -9732,20 +9704,22 @@
         const baseDamage = avg(min, max);
         const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
         const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
-        burnDps = baseDamage * maxStacks * baseDamageMultiplier;
+        burnDps = baseDamage * maxStacks;
       }
       statistics["Burn Dps"].set(burnDps);
       statistics["Burn Chance"].set(burnChance);
       statistics["Maximum Burn Stacks"].set(maxBurnStacks);
       statistics["Burn Duration"].set(burnDuration);
     }
+    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
+    const multiplier = baseDamageMultiplier * critDamageMultiplier;
     const ailmentDps = bleedDps + burnDps;
-    const dps = attackDps + ailmentDps;
+    const dps = (baseDamageResult.totalBaseDamage + ailmentDps) * clampedHitChance * attackSpeed * multiplier;
     statistics["Dps"].set(dps);
-    const skillDurationMultiplier = calcModIncMore("Duration", 1, Object.assign({}, config, { flags: 16 /* Skill */ }));
+    const skillDurationMultiplier = calcModIncMore("Duration", 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
     statistics["Skill Duration Multiplier"].set(skillDurationMultiplier);
-    const goldGeneration = calcModTotal("GoldGeneration", config);
-    statistics["Gold Generation"].set(goldGeneration);
+    const goldPerSecond = calcModTotal("GoldPerSecond", config);
+    statistics["Gold Per Second"].set(goldPerSecond);
   }
   function calcModBase(modName, config) {
     return calcModSum("Base", modName, config);
@@ -9823,7 +9797,7 @@
   function calcAttack(statModList) {
     const config = {
       statModList,
-      flags: 1 /* Attack */
+      flags: StatModifierFlags.Attack
     };
     const hitChance = calcModTotal("HitChance", config) / 100;
     const hitFac = randomRange(0, 1);
@@ -9831,7 +9805,7 @@
     if (!hit) {
       return false;
     }
-    config.flags = 1 /* Attack */;
+    config.flags = StatModifierFlags.Attack;
     const baseDamage = calcBaseDamage(config, randomRange);
     const critChance = Math.min(calcModTotal("CritChance", config), 100) / 100;
     const critFac = randomRange(0, 1);
@@ -9847,13 +9821,13 @@
     const totalElementalDamage = baseDamage.elementalDamage * finalMultiplier;
     const ailments = [];
     {
-      config.flags = 96 /* Ailment */ | 32 /* Bleed */ | 2 /* Physical */;
+      config.flags = StatModifierFlags.Ailment | StatModifierFlags.Bleed | StatModifierFlags.Physical;
       const bleedChance = calcModTotal("BleedChance", config) / 100;
       if (bleedChance >= randomRange(0, 1)) {
         const damageFac = randomRange(0, 1);
         ailments.push({ damageFac, type: "Bleed" });
       }
-      config.flags = 96 /* Ailment */ | 64 /* Burn */ | 4 /* Elemental */;
+      config.flags = StatModifierFlags.Ailment | StatModifierFlags.Burn | StatModifierFlags.Elemental;
       const burnChance = calcModTotal("BurnChance", config) / 100;
       if (burnChance >= randomRange(0, 1)) {
         const damageFac = randomRange(0, 1);
@@ -9977,7 +9951,7 @@
       return this._attackProgressPct;
     }
     init() {
-      this.game.onSave.listen(this.save.bind(this));
+      this.modDB.clear();
       if (this.game.config.player) {
         this.game.config.player.modList.forEach((x) => {
           this.modDB.add(new Modifier(x).stats, "Player");
@@ -9998,7 +9972,7 @@
         }
       });
       this.game.gameLoop.subscribe(() => {
-        const amount = this.game.statistics.statistics["Gold Generation"].get();
+        const amount = this.game.statistics.statistics["Gold Per Second"].get();
         this.game.statistics.statistics.Gold.add(amount);
         this.game.statistics.statistics["Gold Generated"].add(amount);
       }, { intervalMilliseconds: 1e3 });
@@ -10007,15 +9981,13 @@
         this.game.statistics.statistics["Current Mana"].add(manaRegen);
         this.game.statistics.statistics["Mana Generated"].add(manaRegen);
       });
-    }
-    reset() {
-      this.modDB.clear();
+      this.game.onSave.listen(this.save.bind(this));
+      this.startAutoAttack();
     }
     async setup() {
       var _a;
       this.game.statistics.statistics["Current Mana"].set(((_a = this.game.saveObj.player) == null ? void 0 : _a.curMana) || this.game.statistics.statistics["Maximum Mana"].get());
       this.updateManaBar();
-      this.startAutoAttack();
     }
     updateManaBar() {
       if (this.game.statistics.statistics["Maximum Mana"].get() <= 0) {
@@ -10085,11 +10057,9 @@
       __publicField(this, "countSpan");
       __publicField(this, "time", 0);
       __publicField(this, "duration", 0);
+      __publicField(this, "numActiveInstances", 0);
       __publicField(this, "maxNumActiveInstances", 0);
       this.ailmentsListContainer = querySelector(".p-combat [data-ailment-list]", game.page);
-    }
-    get numActiveInstances() {
-      return Math.min(this.instances.length, this.maxNumActiveInstances);
     }
     setup() {
       this.removeElement();
@@ -10108,6 +10078,7 @@
       this.instances.push(instance);
       this.updateDamage();
       this.time = this.duration;
+      this.numActiveInstances = Math.min(this.instances.length, this.maxNumActiveInstances);
       this.updateElement();
       this.updateProgressBar();
       return instance;
@@ -10132,7 +10103,7 @@
     }
     reset() {
       this.instances.splice(0);
-      this.removeElement();
+      this.tick(0);
     }
     createElement() {
       const li = document.createElement("li");
@@ -10154,7 +10125,7 @@
       if (!this.timeSpan || !this.countSpan) {
         return;
       }
-      this.timeSpan.textContent = this.time.toFixed();
+      this.timeSpan.textContent = Math.ceil(this.time).toFixed();
       this.countSpan.textContent = this.numActiveInstances.toFixed();
     }
     updateProgressBar() {
@@ -10188,10 +10159,9 @@
     setup() {
       super.setup();
       this.game.statistics.statistics["Bleed Duration"].addListener("change", (amount) => {
-        const durationFac = amount / this.duration;
-        this.time *= durationFac;
-        this.instances.forEach((x) => x.time *= durationFac);
+        const pct = this.time / this.duration;
         this.duration = amount;
+        this.time = this.duration * pct;
       });
       this.game.statistics.statistics["Maximum Bleed Stacks"].addListener("change", (amount) => {
         this.maxNumActiveInstances = amount;
@@ -10202,7 +10172,7 @@
     updateDamage() {
       const config = {
         statModList: this.game.player.modDB.modList,
-        flags: 32 /* Bleed */ | 2 /* Physical */ | 96 /* Ailment */
+        flags: StatModifierFlags.Bleed | StatModifierFlags.Physical | StatModifierFlags.Ailment
       };
       const { min, max } = calcAilmentBaseDamage("Physical", config);
       this.instances.forEach((x) => x.damage = (min + max) / 2 * x.damageFac);
@@ -10211,7 +10181,6 @@
     tick(dt) {
       const damage = this.calcDamage() * dt;
       this.game.enemy.dealDamageOverTime(damage);
-      this.game.statistics.statistics["Total Damage"].add(damage);
       this.game.statistics.statistics["Total Bleed Damage"].add(damage);
       this.game.statistics.statistics["Total Physical Damage"].add(damage);
       super.tick(dt);
@@ -10225,10 +10194,9 @@
     setup() {
       super.setup();
       this.game.statistics.statistics["Burn Duration"].addListener("change", (amount) => {
-        const durationFac = amount / this.duration;
-        this.time *= durationFac;
-        this.instances.forEach((x) => x.time *= durationFac);
+        const pct = this.time / this.duration;
         this.duration = amount;
+        this.time = this.duration * pct;
       });
       this.game.statistics.statistics["Maximum Burn Stacks"].addListener("change", (amount) => {
         this.maxNumActiveInstances = amount;
@@ -10239,7 +10207,7 @@
     updateDamage() {
       const config = {
         statModList: this.game.player.modDB.modList,
-        flags: 64 /* Burn */ | 4 /* Elemental */ | 96 /* Ailment */
+        flags: StatModifierFlags.Burn | StatModifierFlags.Elemental | StatModifierFlags.Ailment
       };
       const { min, max } = calcAilmentBaseDamage("Elemental", config);
       this.instances.forEach((x) => x.damage = lerp(min, max, x.damageFac));
@@ -10248,7 +10216,6 @@
     tick(dt) {
       const damage = this.calcDamage() * dt;
       this.game.enemy.dealDamageOverTime(damage);
-      this.game.statistics.statistics["Total Damage"].add(damage);
       this.game.statistics.statistics["Total Burn Damage"].add(damage);
       this.game.statistics.statistics["Total Elemental Damage"].add(damage);
       super.tick(dt);
@@ -10299,13 +10266,11 @@
         if (!save2) {
           return;
         }
-        let time = 0;
         for (const savedInstance of save2.instances) {
           const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
           instance.time = savedInstance.time;
-          time = Math.max(time, savedInstance.time);
         }
-        x.time = time;
+        x.time = Math.max(...save2.instances.map((x2) => x2.time).sort().reverse());
       });
     }
     reset() {
@@ -10355,23 +10320,20 @@
       this._health = clamp(v, 0, this.maxHealth);
     }
     init() {
-      var _a;
+      var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
+      this.onDeath.removeAllListeners();
       this.game.gameLoop.subscribeAnim(() => {
         this.updateHealthBar();
       });
       this.healthList = this.game.config.enemies.enemyList;
       this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
+      this.spawn();
+      this.health = ((_b = this.game.saveObj.enemy) == null ? void 0 : _b.health) || this.maxHealth;
+      this.updateHealthBar();
     }
     setup() {
-      var _a;
-      this.spawn();
-      this.health = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.health) || this.maxHealth;
-      this.updateHealthBar();
       this.ailments.setup();
-    }
-    reset() {
-      this.onDeath.removeAllListeners();
     }
     setIndex(index) {
       this._index = index;
@@ -10489,9 +10451,6 @@
                 instance.time -= ms || instance.time;
               }
             });
-            if (diff > 2e3) {
-              diff = 0;
-            }
           }
           remainder = diff;
           loop();
@@ -10511,7 +10470,7 @@
           let ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
           if (instance.time > ms) {
             instance.callback(dt / 1e3);
-            instance.time = 0;
+            instance.time -= ms || instance.time;
           }
         });
         lastTime = now;
@@ -10586,7 +10545,6 @@
   var Statistic = class extends Value {
     constructor(args) {
       super((args == null ? void 0 : args.defaultValue) || 0);
-      this.args = args;
       __publicField(this, "sticky");
       __publicField(this, "decimals");
       __publicField(this, "format");
@@ -10596,11 +10554,6 @@
       this.decimals = (args == null ? void 0 : args.decimals) || 0;
       this.save = (args == null ? void 0 : args.save) || false;
     }
-    reset() {
-      var _a;
-      super.reset();
-      this.sticky = ((_a = this.args) == null ? void 0 : _a.sticky) || false;
-    }
   };
   var Statistics = class {
     constructor(game) {
@@ -10608,14 +10561,10 @@
       __publicField(this, "statistics", {
         "Level": new Statistic({ defaultValue: 1, sticky: true, save: true }),
         "Gold": new Statistic({ defaultValue: 0, sticky: true, save: true }),
-        "Gold Generation": new Statistic({ defaultValue: 0, sticky: true, format: "seconds" }),
+        "Gold Per Second": new Statistic({ defaultValue: 0, sticky: true }),
         "Dps": new Statistic({ sticky: true }),
         "Hit Chance": new Statistic({ sticky: true, format: "pct" }),
         "Attack Speed": new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
-        "Attack Dps": new Statistic(),
-        "Average Attack Damage": new Statistic(),
-        "Average Physical Attack Damage": new Statistic(),
-        "Average Elemental Attack Damage": new Statistic(),
         "Critical Hit Chance": new Statistic({ format: "pct" }),
         "Critical Hit Multiplier": new Statistic({ format: "pct" }),
         "Maximum Mana": new Statistic(),
@@ -10624,11 +10573,11 @@
         "Current Mana": new Statistic({ save: false }),
         "Bleed Chance": new Statistic({ format: "pct" }),
         "Bleed Dps": new Statistic(),
-        "Bleed Duration": new Statistic({ format: "seconds" }),
+        "Bleed Duration": new Statistic(),
         "Maximum Bleed Stacks": new Statistic(),
         "Burn Chance": new Statistic({ format: "pct" }),
         "Burn Dps": new Statistic(),
-        "Burn Duration": new Statistic({ format: "seconds" }),
+        "Burn Duration": new Statistic(),
         "Maximum Burn Stacks": new Statistic(),
         "Skill Duration Multiplier": new Statistic({ format: "pct" }),
         "Time Played": new Statistic({ save: true, format: "time" }),
@@ -10661,7 +10610,9 @@
       });
     }
     init() {
+      var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
+      Object.values(this.statistics).forEach((x) => x.reset());
       if (this.game.saveObj.statistics) {
         this.game.saveObj.statistics.forEach(({ name: name2, value, sticky }) => {
           const statistic = this.statistics[name2];
@@ -10669,7 +10620,7 @@
             return;
           }
           statistic.set(value);
-          statistic.sticky = sticky || false;
+          statistic.sticky = sticky;
         });
       }
       this.game.visiblityObserver.registerLoop(this.page, (visible) => {
@@ -10696,15 +10647,11 @@ Your feedback would be highly appreciated.`,
       this.statistics.Gold.addListener("change", () => {
         this.updateSideStatisticsUI();
       });
-      calcPlayerStats(this.game);
-    }
-    setup() {
+      this.statistics.Level.set(((_a = this.game.saveObj.player) == null ? void 0 : _a.level) || 1);
+      this.statistics.Gold.set(((_b = this.game.saveObj.player) == null ? void 0 : _b.gold) || 0);
       calcPlayerStats(this.game);
       this.updatePageStatisticsUI();
       this.updateSideStatisticsUI();
-    }
-    reset() {
-      Object.values(this.statistics).forEach((x) => x.reset());
     }
     createStatisticsElements() {
       const elements = [];
@@ -10714,15 +10661,8 @@ Your feedback would be highly appreciated.`,
         element.setAttribute("data-stat", key);
         element.insertAdjacentHTML("beforeend", `<div>${key}</div>`);
         element.insertAdjacentHTML("beforeend", `<var data-format="${value.format}"></var>`);
-        switch (value.format) {
-          case "pct":
-            element.insertAdjacentHTML("beforeend", "%");
-            break;
-          case "seconds":
-            element.insertAdjacentHTML("beforeend", "s");
-            break;
-        }
         if (value.format === "pct") {
+          element.insertAdjacentHTML("beforeend", "%");
         }
         element.addEventListener("click", () => {
           value.sticky = !value.sticky;
@@ -10796,7 +10736,7 @@ Your feedback would be highly appreciated.`,
   };
 
   // src/webComponents/html/game.html
-  var game_default = '<main class="p-game hidden" data-tab-content="game">\n\n    <div class="s-home-button">\n        <button class="g-button" data-target="home">Home</button>\n    </div>\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <div class="s-components"></div>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n    </menu>\n    <div class="s-progress-bars">\n        <progress data-health-bar value="1" max="1"></progress>\n        <progress data-mana-bar value="1" max="1"></progress>\n    </div>\n    <div class="s-title">\n        <span data-config-name>Tinkerers Subject</span>\n    </div>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <ul data-ailment-list></ul>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n    </div>\n\n    <aside class="s-stats" data-player-stats>\n        <ul></ul>\n    </aside>\n</main>';
+  var game_default = '<main class="p-game hidden" data-tab-content="game">\n\n    <div class="s-home-button">\n        <button class="g-button" data-target="home">Home</button>\n    </div>\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <div class="s-components"></div>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n    </menu>\n    <div class="s-progress-bars">\n        <progress data-health-bar value="1" max="1"></progress>\n        <progress data-mana-bar value="1" max="1"></progress>\n    </div>\n    <div class="s-title">\n        <span data-config-name>Tinkerers Subject</span>\n    </div>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <ul data-ailment-list></ul>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n    </div>\n\n    <aside class="s-stats" data-player-stats>\n        <ul>\n            <li class="g-field">\n                <div>Level</div>\n                <var data-stat="level">1</var>\n            </li>\n            <li class="g-field">\n                <div>Gold</div>\n                <var data-stat="gold">0</var>\n            </li>\n            <li class="g-field">\n                <div>Gold Per Second</div>\n                <var data-stat="goldPerSecond">0</var>\n            </li>\n            <li class="g-field">\n                <div>Dps</div>\n                <var data-stat="dps">0</var>\n            </li>\n            <li class="g-field">\n                <div>Hit Chance</div>\n                <div><var data-stat="hitChance"></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Attack Speed</div>\n                <var data-stat="attackSpeed" data-digits="2"></var>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Chance</div>\n                <div><var data-stat="critChance" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Critical Hit Multiplier</div>\n                <div><var data-stat="critMulti" data-pct></var><span>%</span></div>\n            </li>\n            <li class="g-field">\n                <div>Mana</div>\n                <var data-stat="maxMana"></var>\n            </li>\n            <li class="g-field">\n                <div>Mana Regeneration</div>\n                <var data-stat="manaRegen"></var>\n            </li>\n        </ul>\n    </aside>\n</main>';
 
   // src/utils/saveManager.ts
   var import_localforage = __toESM(require_localforage(), 1);
@@ -11107,6 +11047,7 @@ Your feedback would be highly appreciated.`,
           return {
             index,
             name: ((_a2 = x.skill) == null ? void 0 : _a2.data.name) || "",
+            active: x.running,
             automate: x.automate,
             time: x.time
           };
@@ -11316,7 +11257,7 @@ Your feedback would be highly appreciated.`,
           this.setSkill(skill);
           this._time = savedSkillSlotData.time;
           this._automate = savedSkillSlotData.automate;
-          if (this._automate) {
+          if (savedSkillSlotData.active) {
             this.loop();
           }
         }
@@ -11460,25 +11401,10 @@ Your feedback would be highly appreciated.`,
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Bleed"),
       getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Bleed").modList
     },
-    addBurn: {
-      desc: "Add a [burn] modifier",
-      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Burn"),
-      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Burn").modList
-    },
     removeRandom: {
       desc: "Remove a random modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList),
       getItemMods: (data) => new Crafter(data.itemModList).removeRandom().modList
-    },
-    removePhysical: {
-      desc: "Remove a [physical] modifier",
-      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, "Physical"),
-      getItemMods: (data) => new Crafter(data.itemModList).removeWithTag("Physical").modList
-    },
-    removeElemental: {
-      desc: "Remove an [elemental] modifier",
-      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, "Elemental"),
-      getItemMods: (data) => new Crafter(data.itemModList).removeWithTag("Elemental").modList
     },
     removeRandomAddRandom: {
       desc: "Remove a random modifier and add a new random modifier",
@@ -11509,11 +11435,6 @@ Your feedback would be highly appreciated.`,
       desc: "Remove a random modifier and add a new [bleed] modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Bleed").itemCanCraftModWithTag(data.itemModList, data.modList, "Bleed"),
       getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Bleed").modList
-    },
-    removeRandomAddBurn: {
-      desc: "Remove a random modifier and add a new [burn] modifier",
-      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Burn").itemCanCraftModWithTag(data.itemModList, data.modList, "Burn"),
-      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Burn").modList
     }
   };
   var CraftValidator = class {
@@ -11574,16 +11495,6 @@ Your feedback would be highly appreciated.`,
     removeRandom() {
       const randomIndex = this.randomRangeInt(0, this.modList.length);
       this.modList.splice(randomIndex, 1);
-      return this;
-    }
-    removeWithTag(tag) {
-      const items = this.modList.filter((x) => x.tags.includes(tag));
-      const randomIndex = this.randomRangeInt(0, items.length);
-      const itemToRemove = items[randomIndex];
-      if (!itemToRemove) {
-        throw Error(`no mod with tag ${tag} was found`);
-      }
-      this.modList = this.modList.filter((x) => x !== itemToRemove);
       return this;
     }
     generateMods(itemModList, filterMods = [], count) {
@@ -11762,11 +11673,6 @@ Your feedback would be highly appreciated.`,
       if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0].levelReq > data.levelReq) {
         throw Error("No items available! There must be at least 1 item available");
       }
-      data.craftList.forEach((x) => {
-        if (!Object.keys(craftTemplates).includes(x.id)) {
-          throw Error(`${x.id} is invalid`);
-        }
-      });
       this.createItems();
       this.activeItem = this.items[0];
       this.activeItem.element.click();
@@ -12207,7 +12113,6 @@ Your feedback would be highly appreciated.`,
       this.element = this.createElement();
       this.task = new Task(achievements.game, data.description);
       this.task.startValue = 0;
-      this.tryCompletion();
     }
     get taskCompleted() {
       return this.task.completed;
@@ -12324,6 +12229,7 @@ Your feedback would be highly appreciated.`,
       });
       const savedSlot = (_a = missions.game.saveObj.missions) == null ? void 0 : _a.missions.find((x) => x.index === missions.slots.length);
       if (savedSlot) {
+        this.unlock();
         this._task = new Task(missions.game, savedSlot.desc);
         this._task.startValue = savedSlot.startValue;
         this.updateLabel();
@@ -12379,6 +12285,11 @@ Your feedback would be highly appreciated.`,
       this._element.appendChild(buttonClaim);
       this._element.appendChild(buttonNew);
       this.generateRandomMission();
+    }
+    load({ task, missionData }) {
+      this._task = task;
+      this._missionData = missionData;
+      this.tryCompletion();
     }
     claim() {
       if (!this._missionData) {
@@ -12586,36 +12497,35 @@ Your feedback would be highly appreciated.`,
     async init(config, saveObj) {
       this._config = config;
       this._saveObj = saveObj;
-      querySelector("[data-config-name]", this.page).textContent = this._config.meta.name;
-      this.onSave.removeAllListeners();
-      this.disposeComponents();
-      this.visiblityObserver.disconnectAll();
-      this.gameLoop.reset();
-      this.player.reset();
-      this.enemy.reset();
-      this.statistics.reset();
+      this.dispose();
       this.enemy.init();
       this.player.init();
       this.statistics.init();
       this.initComponents();
-      this.setup();
-      await this.save();
       this.gameLoop.subscribe(() => {
         this.statistics.statistics["Time Played"].add(1);
       }, { intervalMilliseconds: 1e3 });
+      querySelector("[data-config-name]", this.page).textContent = this._config.meta.name;
       this.gameLoop.subscribe(() => {
         this.save();
       }, { intervalMilliseconds: 1e3 * 60 });
+      await this.setup();
+      await this.save();
     }
-    setup() {
-      this.statistics.setup();
+    async setup() {
+      await this.player.setup();
       this.enemy.setup();
-      this.player.setup();
       if (!isLocalHost()) {
         this.gameLoop.start();
       }
       querySelector('[data-tab-target="combat"]', this.page).click();
       document.querySelectorAll("[data-highlight-notification]").forEach((x) => x.removeAttribute("data-highlight-notification"));
+    }
+    async dispose() {
+      this.onSave.removeAllListeners();
+      this.gameLoop.reset();
+      this.disposeComponents();
+      this.visiblityObserver.disconnectAll();
     }
     initComponents() {
       const menuContainer = querySelector("[data-main-menu] .s-components", this.page);
@@ -12646,7 +12556,18 @@ Your feedback would be highly appreciated.`,
       }
       Object.defineProperty(window, "TS", {
         value: {
-          game: this
+          setLevel: (v) => {
+            this.statistics.statistics.Level.set(v);
+            this.enemy.setIndex(v - 1);
+            this.enemy.spawn();
+          },
+          setGold: (v) => this.statistics.statistics.Gold.set(v),
+          save: () => {
+            this.save();
+          },
+          load: async () => {
+            this.load(this.config);
+          }
         }
       });
       console.log("Press Space to toggle GameLoop");
@@ -12730,9 +12651,9 @@ Your feedback would be highly appreciated.`,
         description: "This is a short configuration for demonstration purposes."
       },
       {
-        name: "Demo 2 Extended",
+        name: "Playground",
         rawUrl: "public/gconfig/demo2.json",
-        description: "This demo introduces elemental damage and damage over time"
+        description: "This configuration is just for testing purposes."
       }
     ]
   };
