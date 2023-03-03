@@ -1,7 +1,7 @@
 import { StatModifier, StatModifierFlags, StatName } from "@game/mods";
 import { CalcMinMax, calcModBase, calcModIncMore, calcModTotal, Configuration } from "./calcMod";
 import { randomRange } from '@utils/helpers';
-import { AilmentData } from "../Ailments";
+import type { AilmentData } from "../Ailments";
 
 type ConversionValues = Partial<Record<keyof typeof DamageTypeFlags | 'multi', number>>;
 export type ConversionTable = Partial<Record<keyof typeof DamageTypeFlags, ConversionValues>>;

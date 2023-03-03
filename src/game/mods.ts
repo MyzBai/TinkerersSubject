@@ -1,4 +1,3 @@
-import type { Mod } from "@src/types/gconfig";
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types
@@ -233,10 +232,10 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
 ];
 
 export class Modifier {
-    readonly text: Mod;
+    readonly text: string;
     readonly template: ModTemplate;
     readonly stats: StatModifier[] = [];
-    constructor(text: Mod) {
+    constructor(text: string) {
 
         this.text = text;
 

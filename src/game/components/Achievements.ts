@@ -1,16 +1,16 @@
-import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
 import Task from "../Task";
+import type AchievementsConfig from "@src/types/gconfig/achievements";
+import type { AchievementConfig } from "@src/types/gconfig/achievements";
 
-type AchievementData = Required<Required<GConfig>['components']>['achievements'];
 
 export default class Achievements extends Component {
     readonly achievements: Achievement[] = [];
-    constructor(readonly game: Game, readonly data: AchievementData) {
+    constructor(readonly game: Game, readonly data: AchievementsConfig) {
         super(game, 'achievements');
 
         for (const achievementData of data.list) {
@@ -43,7 +43,7 @@ class Achievement {
     readonly task: Task;
     readonly element: HTMLElement;
     private completed = false;
-    constructor(readonly achievements: Achievements, readonly data: AchievementData['list'][number]) {
+    constructor(readonly achievements: Achievements, readonly data: AchievementConfig) {
         this.element = this.createElement();
         this.task = new Task(achievements.game, data.description);
         //always start from 0 because it's being calculated from saved statistics and thus no need to save any achievement progress

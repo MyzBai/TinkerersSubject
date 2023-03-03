@@ -1,11 +1,11 @@
 import { generateTime, isLocalHost, querySelector, registerTabs } from "./utils/helpers";
-import type GConfig from "@src/types/gconfig";
-import { validateConfig } from "@src/utils/validateConfig";
+import type GConfig from "@src/types/gconfig/gameConfig";
+import { configValidator } from "@src/utils/validateConfig";
 import Game from "@src/game/Game";
 import type { Save } from "@src/types/save";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
-import { GenericModal } from "./webComponents/GenericModal";
+import type { GenericModal } from "./webComponents/GenericModal";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
@@ -155,8 +155,8 @@ export default class Home {
     private async tryStartGame(entry: GConfig['meta'], saveObj?: Save) {
         try {
             const config = await (await fetch(entry.rawUrl)).json() as GConfig;
-            if (!validateConfig(config)) {
-                console.error(`${entry.name} is not valid`);
+            if (!configValidator(config)) {
+                console.error(`${entry.name} is not valid`, configValidator.errors);
                 return false;
             }
 

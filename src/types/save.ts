@@ -1,10 +1,10 @@
-import { AilmentType } from "@src/game/Ailments";
-import { CraftId } from "@src/game/components/items/crafting";
+import type { AilmentType } from "@src/game/Ailments";
+import type { CraftId } from "@src/game/components/items/crafting";
 import type Statistics from "@src/game/Statistics";
-import type GConfig from "./gconfig";
+import type GConfiguration from "./gconfig/gameConfig";
 
 export interface Save {
-    meta: GConfig['meta'];
+    meta: GConfiguration['meta'];
     player?: {
         level: number;
         gold: number;

@@ -1,17 +1,16 @@
-import type GConfig from "@src/types/gconfig";
 import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import Task from "../Task";
+import type MissionsConfig from "@src/types/gconfig/missions";
+import type { MissionConfig } from "@src/types/gconfig/missions";
 
-type MissionsData = Required<Required<GConfig>['components']>['missions'];
-type MissionData = MissionsData['missionLists'][number][number];
 
 export default class Missions extends Component {
     readonly slots: MissionSlot[] = [];
     private readonly missionsListContainer = querySelector<HTMLUListElement>('ul[data-mission-list]', this.page);
-    constructor(readonly game: Game, readonly data: MissionsData) {
+    constructor(readonly game: Game, readonly data: MissionsConfig) {
         super(game, 'missions');
 
         for (const slotData of data.slots) {
@@ -54,7 +53,7 @@ export default class Missions extends Component {
 
 class MissionSlot {
     private _task: Task | undefined;
-    private _missionData: MissionData | undefined;
+    private _missionData: MissionConfig | undefined;
     private _element: HTMLLIElement;
     private completed = false;
     constructor(readonly missions: Missions, readonly unlockCost: number) {
