@@ -8,7 +8,7 @@
             "Adds {1} To {3} Physical Damage",
             "+{100} Maximum Mana",
             "+{1} Mana Regeneration",
-            "+{1} Gold Per Second",
+            "+{1} Gold Generation",
             "+{150}% Critical Hit Multiplier",
             "+{5} Bleed Duration",
             "+{5} Maximum Bleed Stack",
@@ -53,21 +53,21 @@
                     {
                         "name": "Bleed Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.3,
+                        "attackSpeed": 0.35,
                         "manaCost": 10,
-                        "baseDamageMultiplier": 200,
+                        "baseDamageMultiplier": 300,
                         "mods": [
                             "+{60}% Hit Chance",
-                            "+{10}% Chance To Bleed",
+                            "+{30}% Chance To Bleed",
                             "{50}% More Bleed Damage"
                         ]
                     },
                     {
                         "name": "Burn Attack",
                         "levelReq": 3,
-                        "attackSpeed": 0.3,
-                        "manaCost": 10,
-                        "baseDamageMultiplier": 200,
+                        "attackSpeed": 0.2,
+                        "manaCost": 20,
+                        "baseDamageMultiplier": 500,
                         "mods": [
                             "+{60}% Hit Chance",
                             "+{10}% Chance To Burn",
@@ -163,8 +163,8 @@
             ],
             "modLists": [
                 [
-                    { "weight": 10, "levelReq": 1, "mod": "+{1} Gold Per Second" },
-                    { "weight": 5, "levelReq": 5, "mod": "+{2} Gold Per Second" }
+                    { "weight": 10, "levelReq": 1, "mod": "+{1} Gold Generation" },
+                    { "weight": 5, "levelReq": 5, "mod": "+{2} Gold Generation" }
                 ],
                 [
                     { "weight": 100, "levelReq": 1, "mod": "Adds {1} To {3} Physical Damage" },
@@ -273,7 +273,7 @@
                     {
                         "levelReq": 1,
                         "points": 2,
-                        "mod": "+{2} Gold Per Second"
+                        "mod": "+{2} Gold Generation"
                     }
                 ],
                 [
@@ -562,7 +562,7 @@
                 { "description": "Deal Elemental Damage {2000000}", "modList": [ "{20}% More Elemental Damage" ] },
                 { "description": "Deal Bleed Damage {2000000}", "modList": [ "{20}% More Bleed Damage" ] },
                 { "description": "Deal Burn Damage {2000000}", "modList": [ "{20}% More Burn Damage" ] },
-                { "description": "Generate Gold {1500}", "modList": [ "+{1} Gold Per Second" ] },
+                { "description": "Generate Gold {1500}", "modList": [ "+{1} Gold Generation" ] },
                 { "description": "Perform Hits {1500}", "modList": [ "+{5}% Hit Chance" ] },
                 { "description": "Perform Critical Hits {1500}", "modList": [ "+{5}% Critical Hit Chance" ] },
                 { "description": "Regenerate Mana {10000}", "modList": [ "+{1} Mana Regeneration" ] }
