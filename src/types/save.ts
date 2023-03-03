@@ -45,7 +45,6 @@ export interface Save {
     };
     missions?: {
         missions: {
-            index: number;
             desc: string;
             startValue: number;
         }[];

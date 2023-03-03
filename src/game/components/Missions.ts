@@ -37,13 +37,12 @@ export default class Missions extends Component {
 
         saveObj.missions = (() => {
             const list: Required<Save>['missions']['missions'] = [];
-            this.slots.forEach((slot, i) => {
+            this.slots.forEach((slot) => {
                 if (!slot.task) {
                     return;
                 }
                 list.push({
                     desc: slot.task.text,
-                    index: i,
                     startValue: slot.task.startValue
                 });
             });
@@ -61,14 +60,9 @@ class MissionSlot {
     constructor(readonly missions: Missions, readonly unlockCost: number) {
         this._element = this.createElement();
         missions.game.statistics.statistics.Gold.addListener('change', () => {
-            this.setNewButton();
+            this.updateNewButton();
         });
-        const savedSlot = missions.game.saveObj.missions?.missions.find(x => x.index === missions.slots.length);
-        if (savedSlot) {
-            this._task = new Task(missions.game, savedSlot.desc);
-            this._task.startValue = savedSlot.startValue;
-            this.updateLabel();
-        }
+        this.tryLoad();
     }
     get element() {
         return this._element;
@@ -85,16 +79,12 @@ class MissionSlot {
         this.completed = true;
         highlightHTMLElement(this.missions.menuItem, 'click');
         highlightHTMLElement(this.element, 'mouseover');
-        this.setNewButton();
-        this.setClaimButton(true);
+        this.updateSlot();
     }
 
-    unlock() {
-        if (this._task) {
-            return;
-        }
+    private unlock() {
 
-        querySelector<HTMLButtonElement>('[data-trigger="buy"]', this._element).remove();
+        this._element.querySelector('[data-trigger="buy"]')?.remove();
 
         const buttonClaim = document.createElement('button');
         buttonClaim.classList.add('g-button');
@@ -115,21 +105,18 @@ class MissionSlot {
 
         this._element.appendChild(buttonClaim);
         this._element.appendChild(buttonNew);
-
-        this.generateRandomMission();
     }
 
     private claim() {
         if (!this._missionData) {
             return;
         }
-        this.missions.game.statistics.statistics.Gold.add(this._missionData.goldAmount)
+        this.missions.game.statistics.statistics.Gold.add(this._missionData.goldAmount);
         this.generateRandomMission();
-        this.setClaimButton(false);
         this.completed = false;
     }
 
-    generateRandomMission() {
+    private generateRandomMission() {
 
         const missionDataArr = this.missions.data.missionLists.reduce((a, c) => {
             const missionData = c.filter(x => x.levelReq <= this.missions.game.statistics.statistics.Level.get()).sort((a, b) => b.levelReq - a.levelReq)[0];
@@ -152,13 +139,17 @@ class MissionSlot {
         const id = this.missions.game.gameLoop.subscribe(() => {
             if (this._task?.completed) {
                 this.missions.game.gameLoop.unsubscribe(id);
-                this.setClaimButton(true);
+                this.updateSlot();
             }
         }, { intervalMilliseconds: 1000 });
 
+        this.updateSlot();
+    }
+
+    private updateSlot(){
         this.updateLabel();
-        this.setClaimButton(false);
-        this.setNewButton();
+        this.updateClaimButton();
+        this.updateNewButton();
     }
 
     updateLabel() {
@@ -182,16 +173,16 @@ class MissionSlot {
         label.replaceChildren(descElement, varElement);
     }
 
-    private setClaimButton(enabled: boolean) {
-        if (!this._missionData) {
+    private updateClaimButton() {
+        if (!this._missionData || !this._task) {
             return;
         }
         const element = querySelector<HTMLButtonElement>('[data-trigger="claim"]', this._element);
         querySelector('[data-cost]', element).textContent = this._missionData.goldAmount.toFixed();
-        element.disabled = !enabled;
+        element.disabled = !this._task.completed;
     }
 
-    private setNewButton() {
+    private updateNewButton() {
         if (!this._missionData || !this._task) {
             return;
         }
@@ -214,6 +205,7 @@ class MissionSlot {
         button.addEventListener('click', () => {
             this.missions.game.statistics.statistics.Gold.subtract(this.unlockCost);
             this.unlock();
+            this.generateRandomMission();
         });
         button.disabled = true;
         this.missions.game.statistics.statistics.Gold.addListener('change', amount => {
@@ -223,5 +215,22 @@ class MissionSlot {
         li.appendChild(label);
         li.appendChild(button);
         return li;
+    }
+
+    private tryLoad() {
+        const savedMission = this.missions.game.saveObj.missions?.missions[this.missions.slots.length];
+        if (!savedMission) {
+            return;
+        }
+        const missionData = this.missions.data.missionLists.flatMap(x => x).find(x => x.description === savedMission.desc);
+        if (!missionData) {
+            return;
+        }
+        this.unlock();
+        this._missionData = missionData;
+        this._task = new Task(this.missions.game, missionData.description);
+        this._task.startValue = savedMission.startValue;
+        this.tryCompletion();
+        this.updateSlot();
     }
 }
