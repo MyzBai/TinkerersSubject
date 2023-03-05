@@ -148,10 +148,10 @@ export default class Game {
     }
 
     private disposeComponents() {
-        for (const componentData of this.componentsList) {
-            querySelector(`[data-main-menu] [data-tab-target="${componentData.name}"]`, this.page).remove();
-            querySelector(`[data-main-view] [data-tab-content="${componentData.name}"]`, this.page).remove();
-        }
+        Object.keys(componentConfigs).forEach(x => {
+            this.page.querySelector(`[data-main-menu] [data-tab-target="${x}"]`)?.remove();
+            this.page.querySelector(`[data-main-view] [data-tab-content="${x}"]`)?.remove();
+        });
         this.componentsList.splice(0);
     }
 
