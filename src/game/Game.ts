@@ -70,9 +70,8 @@ export default class Game {
             this.statistics.init();
             this.initComponents();
         } catch (e) {
-            console.error('Failed to initialize the game');
             this.reset();
-            return;
+            throw new Error('Failed to initialize the game');
         }
 
 
