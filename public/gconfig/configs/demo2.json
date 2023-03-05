@@ -246,9 +246,9 @@
                         },
                         {
                             "name": "Damage II",
-                            "baseDuration": 50,
+                            "baseDuration": 30,
                             "manaCost": 25,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "{50}% More Damage"
                             ]
@@ -257,7 +257,7 @@
                             "name": "Damage III",
                             "baseDuration": 20,
                             "manaCost": 25,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "{100}% More Damage"
                             ]
@@ -268,7 +268,7 @@
                             "name": "Bleed",
                             "levelReq": 1,
                             "baseDuration": 30,
-                            "manaCost": 20,
+                            "manaCost": 10,
                             "mods": [
                                 "+{10}% Chance To Bleed",
                                 "{30}% More Bleed Damage"
@@ -278,7 +278,7 @@
                             "name": "Bleed II",
                             "baseDuration": 30,
                             "manaCost": 25,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "+{15}% Chance To Bleed",
                                 "{50}% More Bleed Damage"
@@ -288,7 +288,7 @@
                             "name": "Bleed III",
                             "baseDuration": 30,
                             "manaCost": 25,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "+{20}% Chance To Bleed",
                                 "{100}% More Bleed Damage"
@@ -310,7 +310,7 @@
                             "name": "Burn II",
                             "baseDuration": 30,
                             "manaCost": 30,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "+{10}% Chance To Burn",
                                 "{100}% More Burn Damage"
@@ -320,7 +320,7 @@
                             "name": "Burn III",
                             "baseDuration": 30,
                             "manaCost": 30,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "+{10}% Chance To Burn",
                                 "{200}% More Burn Damage"
@@ -350,7 +350,7 @@
                             "name": "Attack Speed III",
                             "baseDuration": 60,
                             "manaCost": 100,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "{50}% More Attack Speed"
                             ]
@@ -371,7 +371,7 @@
                             "name": "Critical Strike II",
                             "baseDuration": 60,
                             "manaCost": 30,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "+{20}% Critical Hit Chance",
                                 "+{150}% Critical Hit Multiplier"
@@ -381,7 +381,7 @@
                             "name": "Critical Strike III",
                             "baseDuration": 60,
                             "manaCost": 50,
-                            "triggerCountReq": 20,
+                            "triggerCountReq": 10,
                             "mods": [
                                 "+{25}% Critical Hit Chance",
                                 "+{300}% Critical Hit Multiplier"
@@ -663,7 +663,7 @@
                     {
                         "levelReq": 3,
                         "goldAmount": 50,
-                        "description": "Deal Damage {500}"
+                        "description": "Deal Damage {1000}"
                     },
                     {
                         "levelReq": 5,
@@ -680,7 +680,7 @@
                     {
                         "levelReq": 3,
                         "goldAmount": 50,
-                        "description": "Deal Physical Damage {500}"
+                        "description": "Deal Physical Damage {1000}"
                     },
                     {
                         "levelReq": 5,
@@ -697,7 +697,7 @@
                     {
                         "levelReq": 3,
                         "goldAmount": 50,
-                        "description": "Deal Elemental Damage {500}"
+                        "description": "Deal Elemental Damage {1000}"
                     },
                     {
                         "levelReq": 5,
@@ -708,6 +708,40 @@
                         "levelReq": 7,
                         "goldAmount": 200,
                         "description": "Deal Elemental Damage {500000}"
+                    }
+                ],
+                [
+                    {
+                        "levelReq": 3,
+                        "goldAmount": 50,
+                        "description": "Deal Bleed Damage {1000}"
+                    },
+                    {
+                        "levelReq": 5,
+                        "goldAmount": 100,
+                        "description": "Deal Bleed Damage {10000}"
+                    },
+                    {
+                        "levelReq": 7,
+                        "goldAmount": 200,
+                        "description": "Deal Bleed Damage {500000}"
+                    }
+                ],
+                [
+                    {
+                        "levelReq": 3,
+                        "goldAmount": 50,
+                        "description": "Deal Burn Damage {1000}"
+                    },
+                    {
+                        "levelReq": 5,
+                        "goldAmount": 100,
+                        "description": "Deal Burn Damage {10000}"
+                    },
+                    {
+                        "levelReq": 7,
+                        "goldAmount": 500,
+                        "description": "Deal Burn Damage {500000}"
                     }
                 ],
                 [
@@ -756,40 +790,6 @@
                         "levelReq": 7,
                         "goldAmount": 500,
                         "description": "Regenerate Mana {1000}"
-                    }
-                ],
-                [
-                    {
-                        "levelReq": 3,
-                        "goldAmount": 50,
-                        "description": "Deal Bleed Damage {500}"
-                    },
-                    {
-                        "levelReq": 5,
-                        "goldAmount": 100,
-                        "description": "Deal Bleed Damage {10000}"
-                    },
-                    {
-                        "levelReq": 7,
-                        "goldAmount": 500,
-                        "description": "Deal Bleed Damage {500000}"
-                    }
-                ],
-                [
-                    {
-                        "levelReq": 3,
-                        "goldAmount": 50,
-                        "description": "Deal Burn Damage {500}"
-                    },
-                    {
-                        "levelReq": 5,
-                        "goldAmount": 100,
-                        "description": "Deal Burn Damage {10000}"
-                    },
-                    {
-                        "levelReq": 7,
-                        "goldAmount": 500,
-                        "description": "Deal Burn Damage {500000}"
                     }
                 ]
             ]
