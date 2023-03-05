@@ -234,54 +234,160 @@
                     }
                 ],
                 "skillList": [
-                    {
-                        "name": "Damage",
-                        "levelReq": 1,
-                        "baseDuration": 30,
-                        "manaCost": 20,
-                        "mods": [
-                            "{30}% More Damage"
-                        ]
-                    },
-                    {
-                        "name": "Bleed",
-                        "levelReq": 1,
-                        "baseDuration": 30,
-                        "manaCost": 20,
-                        "mods": [
-                            "+{10}% Chance To Bleed",
-                            "{30}% More Bleed Damage"
-                        ]
-                    },
-                    {
-                        "name": "Burn",
-                        "levelReq": 1,
-                        "baseDuration": 30,
-                        "manaCost": 20,
-                        "mods": [
-                            "+{10}% Chance To Burn",
-                            "{30}% More Burn Damage"
-                        ]
-                    },
-                    {
-                        "name": "Attack Speed",
-                        "levelReq": 1,
-                        "baseDuration": 60,
-                        "manaCost": 50,
-                        "mods": [
-                            "{30}% More Attack Speed"
-                        ]
-                    },
-                    {
-                        "name": "Critical Strike",
-                        "levelReq": 1,
-                        "baseDuration": 30,
-                        "manaCost": 30,
-                        "mods": [
-                            "+{20}% Critical Hit Chance",
-                            "+{100}% Critical Hit Multiplier"
-                        ]
-                    }
+                    [
+                        {
+                            "name": "Damage",
+                            "levelReq": 1,
+                            "baseDuration": 30,
+                            "manaCost": 20,
+                            "mods": [
+                                "{30}% More Damage"
+                            ]
+                        },
+                        {
+                            "name": "Damage II",
+                            "baseDuration": 50,
+                            "manaCost": 25,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "{50}% More Damage"
+                            ]
+                        },
+                        {
+                            "name": "Damage III",
+                            "baseDuration": 20,
+                            "manaCost": 25,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "{100}% More Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Bleed",
+                            "levelReq": 1,
+                            "baseDuration": 30,
+                            "manaCost": 20,
+                            "mods": [
+                                "+{10}% Chance To Bleed",
+                                "{30}% More Bleed Damage"
+                            ]
+                        },
+                        {
+                            "name": "Bleed II",
+                            "baseDuration": 30,
+                            "manaCost": 25,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "+{15}% Chance To Bleed",
+                                "{50}% More Bleed Damage"
+                            ]
+                        },
+                        {
+                            "name": "Bleed III",
+                            "baseDuration": 30,
+                            "manaCost": 25,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "+{20}% Chance To Bleed",
+                                "{100}% More Bleed Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Burn",
+                            "levelReq": 1,
+                            "baseDuration": 30,
+                            "manaCost": 30,
+                            "mods": [
+                                "+{5}% Chance To Burn",
+                                "{50}% More Burn Damage"
+                            ]
+                        },
+                        {
+                            "name": "Burn II",
+                            "baseDuration": 30,
+                            "manaCost": 30,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "+{10}% Chance To Burn",
+                                "{100}% More Burn Damage"
+                            ]
+                        },
+                        {
+                            "name": "Burn III",
+                            "baseDuration": 30,
+                            "manaCost": 30,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "+{10}% Chance To Burn",
+                                "{200}% More Burn Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Attack Speed",
+                            "levelReq": 1,
+                            "baseDuration": 60,
+                            "manaCost": 50,
+                            "mods": [
+                                "{20}% More Attack Speed"
+                            ]
+                        },
+                        {
+                            "name": "Attack Speed II",
+                            "baseDuration": 60,
+                            "manaCost": 75,
+                            "triggerCountReq": 10,
+                            "mods": [
+                                "{30}% More Attack Speed"
+                            ]
+                        },
+                        {
+                            "name": "Attack Speed III",
+                            "baseDuration": 60,
+                            "manaCost": 100,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "{50}% More Attack Speed"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Critical Strike",
+                            "levelReq": 1,
+                            "baseDuration": 30,
+                            "manaCost": 30,
+                            "mods": [
+                                "+{20}% Critical Hit Chance",
+                                "+{100}% Critical Hit Multiplier"
+                            ]
+                        },
+                        {
+                            "name": "Critical Strike II",
+                            "baseDuration": 60,
+                            "manaCost": 30,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "+{20}% Critical Hit Chance",
+                                "+{150}% Critical Hit Multiplier"
+                            ]
+                        },
+                        {
+                            "name": "Critical Strike III",
+                            "baseDuration": 60,
+                            "manaCost": 50,
+                            "triggerCountReq": 20,
+                            "mods": [
+                                "+{25}% Critical Hit Chance",
+                                "+{300}% Critical Hit Multiplier"
+                            ]
+                        }
+                    ]
                 ]
             }
         },
