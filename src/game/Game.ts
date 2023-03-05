@@ -61,21 +61,19 @@ export default class Game {
         querySelector('[data-config-name]', this.page).textContent = this._config.meta.name;
 
         //Reset
-        this.onSave.removeAllListeners();
-        this.disposeComponents();
-        this.visiblityObserver.disconnectAll();
-        
-        this.gameLoop.reset();
-        this.player.reset();
-        this.enemy.reset();
-        this.statistics.reset();
-  
+        this.reset();
 
         //Initialize
-        this.enemy.init();
-        this.player.init();
-        this.statistics.init();
-        this.initComponents();
+        try {
+            this.enemy.init();
+            this.player.init();
+            this.statistics.init();
+            this.initComponents();
+        } catch (e) {
+            console.error('Failed to initialize the game');
+            this.reset();
+            return;
+        }
 
 
         //Setup
@@ -108,7 +106,18 @@ export default class Game {
         }
     }
 
-    setup() {
+    private reset(){
+        this.onSave.removeAllListeners();
+        this.disposeComponents();
+        this.visiblityObserver.disconnectAll();
+        
+        this.gameLoop.reset();
+        this.player.reset();
+        this.enemy.reset();
+        this.statistics.reset();
+    }
+
+    private setup() {
         this.statistics.setup();
         this.enemy.setup();
         this.player.setup();

@@ -66,7 +66,7 @@ export function loadComponent(game: Game, key: ComponentName) {
     if (!page || !(page instanceof HTMLElement)) {
         throw Error(`invalid html of component: ${name}`);
     }
-    mainView.appendChild(page);
+
 
     //menu item
     const menuItem = document.createElement('li');
@@ -84,6 +84,8 @@ export function loadComponent(game: Game, key: ComponentName) {
 
     //instance
     const instance = new constr(game, game.config.components[key]);
+
+    mainView.appendChild(page);
 
     return instance;
 }
