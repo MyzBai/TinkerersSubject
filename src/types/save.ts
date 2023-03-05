@@ -28,7 +28,7 @@ export interface Save {
         };
         attackSkillList: {
             name: string;
-            rankProgressList: number[];
+            rankProgress: number;
         }[];
         buffSkillSlotList: {
             name: string;
@@ -40,7 +40,7 @@ export interface Save {
         }[];
         buffSkillList: {
             name: string;
-            rankProgressList: number[];
+            rankProgress: number;
         }[];
     };
     passives?: {

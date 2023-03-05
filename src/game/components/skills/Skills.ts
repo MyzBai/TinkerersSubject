@@ -126,10 +126,7 @@ export default class Skills extends Component {
                 rankIndex: this.attackSkillSlot.skill.ranks.indexOf(this.attackSkillSlot.skill.rank),
             },
             attackSkillList: this.attackSkills.reduce<Required<Save>['skills']['attackSkillList']>((a, c) => {
-                const name = c.name;
-                const rankProgressList = c.ranks.map(x => x.rankProgress);
-                const item: typeof a[number] = { name, rankProgressList };
-                a.push(item);
+                a.push(...c.ranks.map(x => ({ name: x.config.name, rankProgress: x.rankProgress })).filter(x => x.rankProgress > 0));
                 return a;
             }, []),
             buffSkillSlotList: this.buffSkillSlots.reduce<Required<Save>['skills']['buffSkillSlotList']>((a, c) => {
@@ -144,7 +141,7 @@ export default class Skills extends Component {
                 return a;
             }, []),
             buffSkillList: this.buffSkills.reduce<Required<Save>['skills']['buffSkillList']>((a, c) => {
-                a.push({ name: c.name, rankProgressList: c.ranks.map(x => x.rankProgress) });
+                a.push(...c.ranks.map(x => ({ name: x.config.name, rankProgress: x.rankProgress })).filter(x => x.rankProgress > 0));
                 return a;
             }, [])
         }
@@ -219,9 +216,8 @@ export class AttackSkill extends Skill {
     constructor(skills: Skills, configs: AttackSkillConfig | AttackSkillConfig[]) {
         super();
         configs = Array.isArray(configs) ? configs : [configs];
-        const name = configs[0]!.name;
         for (const config of configs) {
-            const rankProgress = skills.game.saveObj.skills?.attackSkillList.find(x => x.name === name)?.rankProgressList[configs.indexOf(config)] || 0;
+            const rankProgress = skills.game.saveObj.skills?.attackSkillList.find(x => x.name === config.name)?.rankProgress || 0;
             const mods = config.mods?.map(x => new Modifier(x)) || [];
             const rank = new Rank(config, { current: rankProgress, target: config.attackCountReq || 0 }, mods);
             this.ranks.push(rank);
@@ -238,7 +234,7 @@ export class BuffSkill extends Skill {
         super();
         configs = Array.isArray(configs) ? configs : [configs];
         for (const config of configs) {
-            const rankProgress = skills.game.saveObj.skills?.buffSkillList.find(x => x.name === config.name)?.rankProgressList[configs.indexOf(config)] || 0;
+            const rankProgress = skills.game.saveObj.skills?.buffSkillList.find(x => x.name === config.name)?.rankProgress || 0;
             const mods = config.mods?.map(x => new Modifier(x)) || [];
             this.ranks.push(new Rank(config, { current: rankProgress, target: config.triggerCountReq || 0 }, mods));
         }
