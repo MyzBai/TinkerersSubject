@@ -16,11 +16,5 @@ export default abstract class Component {
     get page() { return this._page; }
     get menuItem() { return this._menuItem; }
 
-    dispose() {
-        this.page.remove();
-        this.page.replaceChildren(); //dom events would cause memory leak without this
-        this.menuItem.remove();
-        // console.log(`${this.name} was disposed`);
-    }
     abstract save(saveObj: Save): void;
 }

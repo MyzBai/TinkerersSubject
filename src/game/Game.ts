@@ -91,9 +91,9 @@ export default class Game {
 
         {
             const endPrompt = config.options?.endPrompt;
-            if(endPrompt){
+            if (endPrompt) {
                 this.enemy.onDeath.listen(x => {
-                    if(x.index > x.maxIndex){
+                    if (x.index > x.maxIndex) {
                         querySelector<GenericModal>('generic-modal').init({
                             title: endPrompt.title,
                             body: endPrompt.body,
@@ -106,11 +106,11 @@ export default class Game {
         }
     }
 
-    private reset(){
+    private reset() {
         this.onSave.removeAllListeners();
         this.disposeComponents();
         this.visiblityObserver.disconnectAll();
-        
+
         this.gameLoop.reset();
         this.player.reset();
         this.enemy.reset();
@@ -150,7 +150,8 @@ export default class Game {
 
     private disposeComponents() {
         for (const componentData of this.componentsList) {
-            componentData.dispose();
+            querySelector(`[data-main-menu] [data-tab-target="${componentData.name}"]`, this.page).remove();
+            querySelector(`[data-main-view] [data-tab-content="${componentData.name}"]`, this.page).remove();
         }
         this.componentsList.splice(0);
     }
