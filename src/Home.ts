@@ -18,6 +18,17 @@ export default class Home {
         this.game = new Game(this);
         this.setupEventListeners();
         this.init();
+
+        window.TS = {
+            deleteAllSaves: async () => {
+                const saves = await this.getEntries('saved');
+                for (const id of saves.map(x => x.id)) {
+                    await this.game.deleteSave(id);
+                }
+            },
+            game: this.game
+        }
+
     }
     private setupEventListeners() {
 

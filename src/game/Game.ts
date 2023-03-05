@@ -156,15 +156,6 @@ export default class Game {
     }
 
     private setupDevHelpers() {
-        if ('TS' in window) {
-            return;
-        }
-        Object.defineProperty(window, 'TS', {
-            value: {
-                game: this,
-            }
-        });
-
         console.log('Press Space to toggle GameLoop');
         document.body.addEventListener('keydown', x => {
             if (x.code === 'Space') {
