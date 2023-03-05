@@ -1,4 +1,4 @@
-import Skills from "./Skills";
+import Skills from "./skills/Skills";
 import Items from "./items/Items";
 import type Component from "./Component";
 import Passives from "./Passives";

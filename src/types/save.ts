@@ -22,12 +22,24 @@ export interface Save {
         }[];
     };
     skills?: {
-        attackSkillName: string;
-        buffSkills: {
+        attackSkillSlot: {
+            name: string;
+            rankIndex: number;
+        };
+        attackSkillList: {
+            name: string;
+            rankProgressList: number[];
+        }[];
+        buffSkillSlotList: {
             name: string;
             index: number;
             time: number;
             automate: boolean;
+            rankIndex: number;
+        }[];
+        buffSkillList: {
+            name: string;
+            rankProgressList: number[];
         }[];
     };
     passives?: {

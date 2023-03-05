@@ -1,5 +1,5 @@
 {
-    "$schema": "./config.schema.json",
+    "$schema": "../schemas/gameConfig.schema.json",
     "options": {
         "endPrompt": {
             "title": "Well Done",
@@ -35,64 +35,190 @@
                         "baseDamageMultiplier": 100,
                         "mods": [ "+{100}% Hit Chance" ]
                     },
-                    {
-                        "name": "Physical Attack",
-                        "levelReq": 2,
-                        "attackSpeed": 0.5,
-                        "manaCost": 3,
-                        "baseDamageMultiplier": 250,
-                        "mods": [
-                            "+{80}% Hit Chance",
-                            "{50}% More Physical Damage"
-                        ]
-                    },
-                    {
-                        "name": "Elemental Attack",
-                        "levelReq": 2,
-                        "attackSpeed": 0.5,
-                        "manaCost": 3,
-                        "baseDamageMultiplier": 250,
-                        "mods": [
-                            "+{80}% Hit Chance",
-                            "{50}% More Elemental Damage"
-                        ]
-                    },
-                    {
-                        "name": "Bleed Attack",
-                        "levelReq": 3,
-                        "attackSpeed": 0.35,
-                        "manaCost": 10,
-                        "baseDamageMultiplier": 300,
-                        "mods": [
-                            "+{60}% Hit Chance",
-                            "+{30}% Chance To Bleed",
-                            "{50}% More Bleed Damage"
-                        ]
-                    },
-                    {
-                        "name": "Burn Attack",
-                        "levelReq": 3,
-                        "attackSpeed": 0.25,
-                        "manaCost": 15,
-                        "baseDamageMultiplier": 500,
-                        "mods": [
-                            "+{60}% Hit Chance",
-                            "+{10}% Chance To Burn",
-                            "{50}% More Burn Damage"
-                        ]
-                    },
-                    {
-                        "name": "Critical Attack",
-                        "levelReq": 3,
-                        "attackSpeed": 1.2,
-                        "manaCost": 5,
-                        "baseDamageMultiplier": 180,
-                        "mods": [
-                            "+{60}% Hit Chance",
-                            "+{25}% Critical Hit Chance",
-                            "+{80}% Critical Hit Multiplier"
-                        ]
-                    }
+                    [
+                        {
+                            "name": "Physical Attack",
+                            "levelReq": 2,
+                            "attackSpeed": 0.5,
+                            "manaCost": 3,
+                            "baseDamageMultiplier": 250,
+                            "mods": [
+                                "+{80}% Hit Chance",
+                                "{50}% More Physical Damage"
+                            ]
+                        },
+                        {
+                            "name": "Physical Attack II",
+                            "attackSpeed": 0.6,
+                            "manaCost": 5,
+                            "baseDamageMultiplier": 300,
+                            "attackCountReq": 200,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "{80}% More Physical Damage"
+                            ]
+                        },
+                        {
+                            "name": "Physical Attack III",
+                            "attackSpeed": 0.7,
+                            "manaCost": 8,
+                            "baseDamageMultiplier": 350,
+                            "attackCountReq": 500,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "{100}% More Physical Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Elemental Attack",
+                            "levelReq": 2,
+                            "attackSpeed": 0.5,
+                            "manaCost": 3,
+                            "baseDamageMultiplier": 250,
+                            "mods": [
+                                "+{80}% Hit Chance",
+                                "{50}% More Elemental Damage"
+                            ]
+                        },
+                        {
+                            "name": "Elemental Attack II",
+                            "attackSpeed": 0.6,
+                            "manaCost": 5,
+                            "baseDamageMultiplier": 300,
+                            "attackCountReq": 200,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "{80}% More Elemental Damage"
+                            ]
+                        },
+                        {
+                            "name": "Elemental Attack III",
+                            "attackSpeed": 0.7,
+                            "manaCost": 8,
+                            "baseDamageMultiplier": 350,
+                            "attackCountReq": 500,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "{100}% More Elemental Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Bleed Attack",
+                            "levelReq": 3,
+                            "attackSpeed": 0.35,
+                            "manaCost": 10,
+                            "baseDamageMultiplier": 300,
+                            "mods": [
+                                "+{80}% Hit Chance",
+                                "+{20}% Chance To Bleed",
+                                "{50}% More Bleed Damage"
+                            ]
+                        },
+                        {
+                            "name": "Bleed Attack II",
+                            "attackSpeed": 0.4,
+                            "manaCost": 12,
+                            "baseDamageMultiplier": 300,
+                            "attackCountReq": 50,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "+{30}% Chance To Bleed",
+                                "{80}% More Bleed Damage"
+                            ]
+                        },
+                        {
+                            "name": "Bleed Attack III",
+                            "attackSpeed": 0.5,
+                            "manaCost": 13,
+                            "baseDamageMultiplier": 350,
+                            "attackCountReq": 100,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "+{35}% Chance To Bleed",
+                                "{100}% More Bleed Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Burn Attack",
+                            "levelReq": 3,
+                            "attackSpeed": 0.35,
+                            "manaCost": 10,
+                            "baseDamageMultiplier": 300,
+                            "mods": [
+                                "+{80}% Hit Chance",
+                                "+{20}% Chance To Burn",
+                                "{50}% More Burn Damage"
+                            ]
+                        },
+                        {
+                            "name": "Burn Attack II",
+                            "attackSpeed": 0.4,
+                            "manaCost": 12,
+                            "baseDamageMultiplier": 300,
+                            "attackCountReq": 50,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "+{30}% Chance To Burn",
+                                "{80}% More Burn Damage"
+                            ]
+                        },
+                        {
+                            "name": "Burn Attack III",
+                            "attackSpeed": 0.5,
+                            "manaCost": 13,
+                            "baseDamageMultiplier": 350,
+                            "attackCountReq": 100,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "+{35}% Chance To Burn",
+                                "{100}% More Burn Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Critical Attack",
+                            "levelReq": 3,
+                            "attackSpeed": 1.2,
+                            "manaCost": 5,
+                            "baseDamageMultiplier": 180,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "+{25}% Critical Hit Chance",
+                                "+{80}% Critical Hit Multiplier"
+                            ]
+                        },
+                        {
+                            "name": "Critical Attack II",
+                            "attackSpeed": 1.3,
+                            "manaCost": 6,
+                            "baseDamageMultiplier": 200,
+                            "attackCountReq": 200,
+                            "mods": [
+                                "+{60}% Hit Chance",
+                                "+{25}% Critical Hit Chance",
+                                "+{100}% Critical Hit Multiplier"
+                            ]
+                        },
+                        {
+                            "name": "Critical Attack III",
+                            "attackSpeed": 1.5,
+                            "manaCost": 7,
+                            "baseDamageMultiplier": 200,
+                            "attackCountReq": 500,
+                            "mods": [
+                                "+{40}% Hit Chance",
+                                "+{30}% Critical Hit Chance",
+                                "+{200}% Critical Hit Multiplier"
+                            ]
+                        }
+                    ]
                 ]
             },
             "buffSkills": {
