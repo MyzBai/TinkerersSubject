@@ -24,7 +24,7 @@
         "text": {
             "type": "string",
             "maxLength": 2048,
-            "pattern": "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;'\\s]*$"
+            "pattern": "^[A-Za-z 0-9 .,!*\\[\\]()/=%&{}?\\-:;'\\s]*$"
         },
         "levelReq": {
             "type": "integer",
