@@ -91,8 +91,8 @@ export default class Game {
         {
             const endPrompt = config.options?.endPrompt;
             if (endPrompt) {
-                this.enemy.onDeath.listen(x => {
-                    if (x.index > x.maxIndex) {
+                this.statistics.statistics.Level.addListener('change', level => {
+                    if (level >= this.enemy.maxIndex + 1) {
                         querySelector<GenericModal>('generic-modal').init({
                             title: endPrompt.title,
                             body: endPrompt.body,
