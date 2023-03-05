@@ -170,12 +170,13 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         }
         this.skills.game.statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
         this.loop();
+        return true;
     }
 
     toggleAutomate() {
         this._automate = !this._automate;
         if (this._automate && !this._running) {
-            this.trigger();
+            this.tryTriggerLoop();
         }
     }
 
@@ -184,24 +185,17 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         if (!this.skill) {
             return;
         }
-        const loopEval = (mana: number) => {
+        const loopEval = () => {
             if (!this._automate) {
                 this.skills.game.statistics.statistics["Current Mana"].removeListener('change', loopEval);
                 return;
             }
-            if (!this.skill) {
-                return;
+            if (this.trigger()) {
+                this.skills.game.statistics.statistics["Current Mana"].removeListener('change', loopEval);
             }
-            if (mana < (this.skill.rank.config.manaCost || 0)) {
-                return;
-            }
-
-            this.skills.game.statistics.statistics["Current Mana"].removeListener('change', loopEval);
-
-            this.trigger();
         };
         this.skills.game.statistics.statistics["Current Mana"].addListener('change', loopEval);
-        loopEval(this.skills.game.statistics.statistics["Current Mana"].get());
+        loopEval();
     }
     //Loop
     loop() {
