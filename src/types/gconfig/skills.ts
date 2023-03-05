@@ -11,10 +11,11 @@ export default interface SkillsConfig {
 export interface AttackSkillConfig{
     name: string;
     attackSpeed: number;
-    manaCost: number;
+    manaCost?: number;
     baseDamageMultiplier: number;
-    levelReq: number;
+    levelReq?: number;
     mods?: string[];
+    attackCountReq?: number;
 }
 
 export interface BuffSkillSlotConfig{
@@ -23,7 +24,8 @@ export interface BuffSkillSlotConfig{
 export interface BuffSkillConfig{
     name: string;
     baseDuration: number;
-    manaCost: number;
-    levelReq: number;
+    manaCost?: number;
+    levelReq?: number;
     mods?: string[];
+    triggerCountReq?: number;
 }

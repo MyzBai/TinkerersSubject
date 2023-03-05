@@ -12,4 +12,4 @@ import itemsSchema from '@public/gconfig/schemas/definitions/components/items.sc
 import missionsSchema from '@public/gconfig/schemas/definitions/components/missions.schema.json';
 import achievementsSchema from '@public/gconfig/schemas/definitions/components/achievements.schema.json';
 
-export const configValidator = new Ajv({ schemas: [playerSchema, enemiesSchema, optionsSchema, tasksSchema, modsSchema, componentsSchema, skillsSchema, passivesSchema, itemsSchema, missionsSchema, achievementsSchema] }).compile(gameConfigSchema);
+export const configValidator = new Ajv({ strictTuples: false, schemas: [playerSchema, enemiesSchema, optionsSchema, tasksSchema, modsSchema, componentsSchema, skillsSchema, passivesSchema, itemsSchema, missionsSchema, achievementsSchema] }).compile(gameConfigSchema);

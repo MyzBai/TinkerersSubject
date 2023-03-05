@@ -9,7 +9,7 @@
         {
             "name": "Demo 2 Extended",
             "rawUrl": "public/gconfig/configs/demo2.json",
-            "description": "This demo introduces elemental damage and damage over time"
+            "description": "This demo extends the Demo with some new features. \n\n* Elemental Damage\n* Damage over time\n* Skill Ranks"
         }
     ]
 }

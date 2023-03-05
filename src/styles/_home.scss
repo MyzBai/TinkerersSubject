@@ -38,6 +38,7 @@
         .p-saved {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: $padding-container;
             width: 100%;
 
             [data-entry-list] {
@@ -59,9 +60,12 @@
                 padding-top: $padding-container;
                 [data-title] {
                     padding: $padding-list-item;
+                    border-bottom: 1px solid $color-border-highlight;
                 }
                 [data-desc] {
                     padding: $padding-container;
+                    text-align: left;
+                    white-space: break-spaces;
                 }
             }
         }
