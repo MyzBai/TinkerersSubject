@@ -35,6 +35,7 @@ export interface Save {
             index: number;
             time: number;
             automate: boolean;
+            running: boolean;
             rankIndex: number;
         }[];
         buffSkillList: {

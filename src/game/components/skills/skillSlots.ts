@@ -123,8 +123,6 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         this.progressBar = querySelector<HTMLProgressElement>('progress', this.element);
         this.setSkill(undefined);
 
-
-
         const savedSkillSlotData = skills.game.saveObj.skills?.buffSkillSlotList.find(x => x.index === skills.buffSkillSlots.length);
         if (savedSkillSlotData) {
             const skill = skills.buffSkills.find(x => x.firstRank!.config.name === savedSkillSlotData.name);
@@ -132,8 +130,10 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
                 this.setSkill(skill);
                 this._time = savedSkillSlotData.time;
                 this._automate = savedSkillSlotData.automate;
-                if (this._automate) {
+                if (savedSkillSlotData.running) {
                     this.loop();
+                } else {
+                    this.tryTriggerLoop();
                 }
             }
         }
@@ -149,6 +149,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     get sufficientMana() { return this.skills.game.statistics.statistics["Current Mana"].get() > (this.skill?.rank.config.manaCost || 0); }
     get automate() { return this._automate; }
     get time() { return this._time; }
+    get running() { return this._running; }
 
     get skill() { return this._skill; }
 
@@ -248,6 +249,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         if (this._automate) {
             this.tryTriggerLoop();
         }
+
         if (this === this.skills.activeSkillSlot) {
             this.skills.skillViewer.updateView();
         }

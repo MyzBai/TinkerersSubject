@@ -136,11 +136,11 @@ export default class Skills extends Component {
                 if (!c.skill) {
                     return a;
                 }
-                const { automate, time } = c;
+                const { automate, time, running } = c;
                 const name = c.skill?.name;
                 const index = this.buffSkillSlots.indexOf(c);
                 const rankIndex = c.skill.ranks.indexOf(c.skill.rank);
-                a.push({ automate, index, name, rankIndex, time });
+                a.push({ automate, index, name, rankIndex, time, running });
                 return a;
             }, []),
             buffSkillList: this.buffSkills.reduce<Required<Save>['skills']['buffSkillList']>((a, c) => {
