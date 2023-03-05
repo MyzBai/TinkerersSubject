@@ -34,6 +34,7 @@
                                                 },
                                                 {
                                                     "type": "object",
+                                                    "required": [ "attackCountReq" ],
                                                     "properties": {
                                                         "attackCountReq": {
                                                             "type": "integer",
@@ -90,6 +91,7 @@
                                                 },
                                                 {
                                                     "type": "object",
+                                                    "required": [ "triggerCountReq" ],
                                                     "properties": {
                                                         "triggerCountReq": {
                                                             "type": "integer",
