@@ -64,7 +64,7 @@ export default class Items extends Component {
     save(saveObj: GameSave) {
         saveObj.items = {
             items: this.items.reduce<Required<GameSave>['items']['items']>((a, c) => {
-                a.push({ name: c.name, modList: c.mods.map(x => ({ text: x.text, values: x.stats.map(x => x.value) })) });
+                a.push({ name: c.name, modList: c.mods.map(x => ({ text: x.templateDesc, values: x.stats.map(x => x.value) })) });
                 return a;
             }, []),
             craftPresets: this.presets.presets.reduce<Required<GameSave>['items']['craftPresets']>((a, c) => {
@@ -239,33 +239,31 @@ class Item {
             if (!savedItem) {
                 return;
             }
-            if (savedItem) {
-                const mods = savedItem.modList?.reduce<ItemModifier[]>((a, c) => {
-                    if (c?.text && c.values) {
-                        const mod = this.items.modLists.find(x => x.templateDesc === c.text)?.copy();
-                        if (!mod) {
-                            return a;
-                        }
-                        if (c.values.length !== mod.stats.length || c.values.some(x => typeof x !== 'number')) {
-                            mod.stats.forEach(x => x.value = x.min);
-                            a.push(mod);
-                            return a;
-                        }
-
-                        c.values.forEach((x, i) => {
-                            if (!x || typeof x !== 'number') {
-                                return;
-                            }
-                            const stat = mod.stats[i]!;
-                            stat.value = x;
-                        });
+            const mods = savedItem.modList?.reduce<ItemModifier[]>((a, c) => {
+                if (c?.text && c.values) {
+                    const mod = this.items.modLists.find(x => x.templateDesc === c.text)?.copy();
+                    if (!mod) {
+                        return a;
+                    }
+                    if (c.values.length !== mod.stats.length || c.values.some(x => typeof x !== 'number')) {
+                        mod.stats.forEach(x => x.value = x.min);
                         a.push(mod);
                         return a;
                     }
+
+                    c.values.forEach((x, i) => {
+                        if (!x || typeof x !== 'number') {
+                            return;
+                        }
+                        const stat = mod.stats[i]!;
+                        stat.value = x;
+                    });
+                    a.push(mod);
                     return a;
-                }, []) || [];
-                this.mods = mods;
-            }
+                }
+                return a;
+            }, []) || [];
+            this.mods = mods;
         } catch (e) {
             throw Error('failed loading items');
         }
