@@ -13,7 +13,9 @@
 body {
     display: grid;
     grid-template-rows: 1fr auto;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(auto, 70vw);
+    justify-content: center;
+    margin: 0 auto;
     height: 100vh;
     min-height: 100vh;
     max-height: 100vh;
@@ -22,26 +24,14 @@ body {
     font-size: min(1rem, 1.7vw, 3vh);
     background-color: $color-canvas-default;
     color: $color-fg-default;
-    margin: 0 auto;
-    width: 80%;
 }
 
-@media (max-width: 1600px) {
-    :root {
-        // font-size: 11px;
-    }
+@media only screen and (max-width: 1000px) {
     body {
         margin: 0;
-        width: 100vw;
+        grid-template-columns: 100vw;
     }
 }
-
-// @media only screen and (min-width: 1921px) {
-//     body {
-//         margin: 0 auto;
-//         width: 70%;
-//     }
-// }
 
 header.s-main-header {
     display: grid;
