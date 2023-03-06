@@ -8900,9 +8900,9 @@
       ms
     };
   }
-  function highlightHTMLElement(element, trigger) {
+  function highlightHTMLElement(element, trigger, force = false) {
     const attr = "data-highlight-notification";
-    if (element.classList.contains("selected")) {
+    if (element.classList.contains("selected") && !force) {
       return;
     }
     element.setAttribute(attr, "");
@@ -8913,75 +8913,12 @@
     element.addEventListener(trigger, listener);
   }
 
-  // src/webComponents/GenericModal.ts
-  var GenericModal = class extends HTMLElement {
-    constructor() {
-      super();
-      __publicField(this, "modal");
-      this.innerHTML = `
-        <dialog>
-            <form method="dialog">
-                <header>
-                    <h3>Title</h3>
-                </header>
-                <div data-body></div>
-                <footer></footer>
-            </form>
-            <div class="backdrop"></div>
-        </dialog>`;
-      this.modal = querySelector("dialog", this);
-      querySelector(".backdrop").addEventListener("mousedown", () => this.closeModal());
-      this.classList.add("hidden");
-    }
-    connectedCallback() {
-      if (this.hasAttribute("data-open")) {
-        this.openModal();
-      }
-    }
-    init(args) {
-      querySelector("header h3", this.modal).textContent = args.title || "";
-      if (typeof args.body === "string") {
-        querySelector("[data-body]", this.modal).innerHTML = args.body;
-      } else {
-        querySelector("[data-body]", this.modal).replaceChildren(args.body);
-      }
-      const buttons = [];
-      for (const buttonData of args.buttons) {
-        const button = document.createElement("button");
-        button.classList.add("g-button");
-        button.setAttribute("type", "submit");
-        const role = buttonData.type;
-        button.setAttribute("data-role", role);
-        button.textContent = buttonData.label;
-        button.addEventListener("click", () => {
-          var _a;
-          (_a = args.callback) == null ? void 0 : _a.call(args, role === "confirm", buttonData.userData);
-        });
-        buttons.push(button);
-      }
-      querySelector("footer", this).replaceChildren(...buttons);
-      if (args.footerText) {
-        querySelector("footer", this).insertAdjacentHTML("beforeend", `<small>${args.footerText}</small>`);
-      }
-      return this;
-    }
-    openModal() {
-      this.modal.show();
-      this.classList.remove("hidden");
-    }
-    closeModal() {
-      this.modal.close();
-      this.classList.add("hidden");
-    }
-  };
-  customElements.define("generic-modal", GenericModal);
-
   // src/utils/validateConfig.ts
   var import_ajv = __toESM(require_ajv(), 1);
 
   // public/gconfig/schemas/gameConfig.schema.json
   var gameConfig_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
+    $schema: "http://json-schema.org/draft-07/schema#",
     $id: "schemas/gconfig/gameConfig.schema.json",
     required: ["enemies"],
     type: "object",
@@ -9007,7 +8944,7 @@
       text: {
         type: "string",
         maxLength: 2048,
-        pattern: "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;'\\s]*$"
+        pattern: "^[A-Za-z 0-9 .,!*\\[\\]()/=%&{}?\\-:;'\\s]*$"
       },
       levelReq: {
         type: "integer",
@@ -9101,7 +9038,7 @@
                 type: "string",
                 maxLength: 32,
                 minLength: 3,
-                pattern: "^[A-Za-z 0-9]+$"
+                pattern: "^[A-Za-z 0-9!]+$"
               },
               body: {
                 type: "string",
@@ -9238,19 +9175,37 @@
                 type: "array",
                 minItems: 1,
                 items: {
-                  type: "object",
-                  required: ["name", "attackSpeed", "manaCost", "baseDamageMultiplier", "levelReq"],
-                  properties: {
-                    name: { type: "string" },
-                    levelReq: { type: "integer", minimum: 1, default: 1, description: "Required player level\nNote - At least one skill must have a value of 1" },
-                    attackSpeed: { type: "number", minimum: 1e-3, maximum: 10, default: 1, description: "Number of attacks per second" },
-                    manaCost: { type: "integer", minimum: 0 },
-                    baseDamageMultiplier: { type: "integer", minimum: 1, default: 100, description: "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
-                    mods: {
+                  oneOf: [
+                    {
+                      $ref: "#/definitions/attackSkill"
+                    },
+                    {
                       type: "array",
-                      items: { $ref: "../mods.schema.json#/definitions/mod" }
+                      items: [
+                        {
+                          $ref: "#/definitions/attackSkill"
+                        }
+                      ],
+                      minItems: 1,
+                      additionalItems: {
+                        allOf: [
+                          {
+                            $ref: "#/definitions/attackSkill"
+                          },
+                          {
+                            type: "object",
+                            required: ["attackCountReq"],
+                            properties: {
+                              attackCountReq: {
+                                type: "integer",
+                                minimum: 0
+                              }
+                            }
+                          }
+                        ]
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -9275,22 +9230,71 @@
               },
               skillList: {
                 type: "array",
+                minItems: 1,
                 items: {
-                  type: "object",
-                  required: ["name", "baseDuration", "manaCost", "levelReq"],
-                  properties: {
-                    name: { type: "string" },
-                    levelReq: { type: "number" },
-                    baseDuration: { type: "integer" },
-                    manaCost: { type: "integer" },
-                    mods: {
+                  oneOf: [
+                    {
+                      $ref: "#/definitions/buffSkill"
+                    },
+                    {
                       type: "array",
-                      items: { $ref: "../mods.schema.json#/definitions/mod" }
+                      items: [
+                        {
+                          $ref: "#/definitions/buffSkill"
+                        }
+                      ],
+                      minItems: 1,
+                      additionalItems: {
+                        allOf: [
+                          {
+                            $ref: "#/definitions/buffSkill"
+                          },
+                          {
+                            type: "object",
+                            required: ["triggerCountReq"],
+                            properties: {
+                              triggerCountReq: {
+                                type: "integer",
+                                minimum: 0
+                              }
+                            }
+                          }
+                        ]
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
+          }
+        }
+      },
+      attackSkill: {
+        type: "object",
+        required: ["name", "attackSpeed", "manaCost", "baseDamageMultiplier"],
+        properties: {
+          name: { type: "string" },
+          levelReq: { type: "integer", minimum: 1, default: 1, description: "Required player level\nNote - At least one skill must have a value of 1" },
+          attackSpeed: { type: "number", minimum: 1e-3, maximum: 10, default: 1, description: "Number of attacks per second" },
+          manaCost: { type: "integer", minimum: 0 },
+          baseDamageMultiplier: { type: "integer", minimum: 1, default: 100, description: "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
+          mods: {
+            type: "array",
+            items: { $ref: "../mods.schema.json#/definitions/mod" }
+          }
+        }
+      },
+      buffSkill: {
+        type: "object",
+        required: ["name", "baseDuration"],
+        properties: {
+          name: { type: "string" },
+          levelReq: { type: "number" },
+          baseDuration: { type: "integer" },
+          manaCost: { type: "integer" },
+          mods: {
+            type: "array",
+            items: { $ref: "../mods.schema.json#/definitions/mod" }
           }
         }
       }
@@ -9500,7 +9504,7 @@
   };
 
   // src/utils/validateConfig.ts
-  var configValidator = new import_ajv.default({ schemas: [player_schema_default, enemies_schema_default, options_schema_default, tasks_schema_default, mods_schema_default, components_schema_default, skills_schema_default, passives_schema_default, items_schema_default, missions_schema_default, achievements_schema_default] }).compile(gameConfig_schema_default);
+  var configValidator = new import_ajv.default({ strictTuples: false, schemas: [player_schema_default, enemies_schema_default, options_schema_default, tasks_schema_default, mods_schema_default, components_schema_default, skills_schema_default, passives_schema_default, items_schema_default, missions_schema_default, achievements_schema_default] }).compile(gameConfig_schema_default);
 
   // src/utils/EventEmitter.ts
   var EventEmitter = class {
@@ -9842,13 +9846,12 @@
     const clampedCritChance = clamp(critChance, 0, 1);
     const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
     statistics["Critical Hit Multiplier"].set(critMulti);
-    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
     let attackDps = 0;
     {
       config.flags = 1 /* Attack */;
       const baseDamageResult = calcBaseDamage(config, avg);
       const critDamageMultiplier = 1 + clampedCritChance * critMulti;
-      attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier * baseDamageMultiplier;
+      attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier;
       statistics["Attack Dps"].set(attackDps);
       statistics["Average Attack Damage"].set(baseDamageResult.totalBaseDamage);
       statistics["Average Physical Attack Damage"].set(baseDamageResult.physicalDamage);
@@ -9865,7 +9868,7 @@
         const baseDamage = avg(min, max);
         const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
         const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
-        bleedDps = baseDamage * maxStacks * baseDamageMultiplier;
+        bleedDps = baseDamage * maxStacks;
       }
       statistics["Bleed Dps"].set(bleedDps);
       statistics["Bleed Chance"].set(bleedChance);
@@ -9883,7 +9886,7 @@
         const baseDamage = avg(min, max);
         const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
         const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
-        burnDps = baseDamage * maxStacks * baseDamageMultiplier;
+        burnDps = baseDamage * maxStacks;
       }
       statistics["Burn Dps"].set(burnDps);
       statistics["Burn Chance"].set(burnChance);
@@ -9991,8 +9994,7 @@
     if (crit) {
       critMultiplier = calcModTotal("CritMulti", config) / 100;
     }
-    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config);
-    const finalMultiplier = baseDamageMultiplier / 100 * critMultiplier;
+    const finalMultiplier = critMultiplier;
     const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
     const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
     const totalElementalDamage = baseDamage.elementalDamage * finalMultiplier;
@@ -10035,10 +10037,13 @@
       chaosDamage: 0
     };
     let totalBaseDamage = 0;
+    const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
     for (const damageType of Object.keys(DamageTypeFlags)) {
       const bit = StatModifierFlags[damageType];
       config.flags |= bit;
-      const { min, max } = calcDamage(damageType, config, conversionTable);
+      let { min, max } = calcDamage(damageType, config, conversionTable);
+      min *= baseDamageMultiplier;
+      max *= baseDamageMultiplier;
       output[`min${damageType}Damage`] = min;
       output[`max${damageType}Damage`] = max;
       const baseDamage = calcMinMax(min, max);
@@ -10075,8 +10080,11 @@
   function calcAilmentBaseDamage(damageType, config, typeFlags = 0) {
     var _a;
     const conversionTable = generateConversionTable(config);
-    const { min, max } = calcDamage(damageType, config, conversionTable, typeFlags);
+    let { min, max } = calcDamage(damageType, config, conversionTable, typeFlags);
     const convMulti = ((_a = conversionTable[damageType]) == null ? void 0 : _a.multi) || 1;
+    const baseDamageMultiplier = calcModTotal("BaseDamageMultiplier", config) / 100;
+    min *= baseDamageMultiplier;
+    max *= baseDamageMultiplier;
     return { min: min * convMulti, max: max * convMulti };
   }
   function generateConversionTable(config) {
@@ -11049,238 +11057,87 @@
     get menuItem() {
       return this._menuItem;
     }
-    dispose() {
-      this.page.remove();
-      this.page.replaceChildren();
-      this.menuItem.remove();
-    }
   };
 
-  // src/game/components/Skills.ts
-  var Skills = class extends Component {
-    constructor(game, data) {
-      super(game, "skills");
-      this.game = game;
-      this.data = data;
-      __publicField(this, "activeSkillSlot");
-      __publicField(this, "activeSkill");
-      __publicField(this, "attackSkills", []);
-      __publicField(this, "attackSkillSlot");
-      __publicField(this, "buffSkillSlots", []);
-      __publicField(this, "buffSkills", []);
-      const attackSkillListContainer = querySelector("[data-attack-skill-list]", this.page);
-      const buffSkillListContainer = querySelector("[data-buff-skill-list]", this.page);
-      {
-        this.attackSkills = [...this.data.attackSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new AttackSkill(this, x));
-        this.attackSkillSlot = new AttackSkillSlot(this);
-        this.activeSkillSlot = this.attackSkillSlot;
-        this.attackSkillSlot.element.setAttribute("data-tab-target", "attack");
-        this.attackSkillSlot.element.addEventListener("click", () => {
-          this.activeSkillSlot = this.attackSkillSlot;
-          this.selectSkillListItem(attackSkillListContainer, this.activeSkillSlot.skill);
-        });
-        querySelector("[data-attack-skill-slot]", this.page).replaceChildren(this.attackSkillSlot.element);
-        for (const skill of this.attackSkills) {
-          game.statistics.statistics.Level.registerCallback(skill.data.levelReq, () => {
-            this.addSkillListItem(skill, attackSkillListContainer);
-          });
-        }
-      }
-      {
-        const buffSkillSlotContainer = querySelector(".s-skill-slots [data-buff-skill-slots]", this.page);
-        if (data.buffSkills) {
-          this.buffSkills = [...data.buffSkills.skillList.sort((a, b) => a.levelReq - b.levelReq)].map((x) => new BuffSkill(this, x));
-          for (const buffSkillData of data.buffSkills.skillSlots || []) {
-            game.statistics.statistics.Level.registerCallback(buffSkillData.levelReq, () => {
-              const slot = new BuffSkillSlot(this);
-              slot.element.setAttribute("data-tab-target", "buff");
-              slot.element.addEventListener("click", () => {
-                this.activeSkillSlot = slot;
-                this.selectSkillListItem(buffSkillListContainer, this.activeSkillSlot.skill);
-              });
-              buffSkillSlotContainer.appendChild(slot.element);
-              this.buffSkillSlots.push(slot);
-              highlightHTMLElement(this.menuItem, "click");
-              highlightHTMLElement(slot.element, "mouseover");
-            });
-          }
-          for (const skill of this.buffSkills) {
-            game.statistics.statistics.Level.registerCallback(skill.data.levelReq, () => {
-              this.addSkillListItem(skill, buffSkillListContainer);
-            });
-          }
-        }
-      }
-      {
-        const skillInfoContainer = querySelector("[data-skill-info]", this.page);
-        querySelector("[data-enable]", skillInfoContainer).addEventListener("click", () => {
-          if (this.activeSkill) {
-            this.activeSkillSlot.setSkill(this.activeSkill);
-            this.showSkill(this.activeSkill);
-          }
-        });
-        const triggerButton = querySelector("[data-trigger]", skillInfoContainer);
-        const removeButton = querySelector("[data-remove]", skillInfoContainer);
-        const automateButton = querySelector("[data-automate]", skillInfoContainer);
-        removeButton.addEventListener("click", () => this.removeSkillFromSlot(this.activeSkillSlot));
-        triggerButton.addEventListener("click", () => this.triggerSkill(this.activeSkillSlot));
-        automateButton.addEventListener("click", () => this.toggleAutoMode(this.activeSkillSlot));
-        if (this.data.buffSkills) {
-          this.game.visiblityObserver.registerLoop(this.page, (visible) => {
-            if (visible) {
-              triggerButton.disabled = !this.activeSkillSlot.canTrigger;
-              removeButton.disabled = !this.activeSkillSlot.canRemove;
-            }
-          }, { intervalMilliseconds: 100 });
-        }
-      }
-      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
-        if (visible) {
-          this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
-          for (const buffSkillSlot of this.buffSkillSlots) {
-            buffSkillSlot.updateProgressBar();
-          }
-        }
-      });
-      registerTabs(querySelector(".s-skill-slots", this.page), querySelector(".s-skill-list"));
-      this.attackSkillSlot.element.click();
-    }
-    selectSkillListItem(container, skill) {
-      const skillInfoContainer = querySelector("[data-skill-info]");
-      skillInfoContainer.classList.toggle("hidden", container.childElementCount === 0);
-      if (skill) {
-        this.activeSkill = skill;
-        const listItem = container.querySelector(`[data-name="${skill.data.name}"]`);
-        container.querySelectorAll("[data-name]").forEach((x) => x.classList.toggle("selected", x === listItem));
-        listItem == null ? void 0 : listItem.click();
-        this.showSkill(skill);
-      } else {
-        const element = container.querySelector("[data-name]:first-child");
-        element == null ? void 0 : element.click();
-      }
-    }
-    addSkillListItem(skill, container) {
-      const li = document.createElement("li");
-      li.classList.add("g-list-item");
-      li.setAttribute("data-name", skill.data.name);
-      li.textContent = skill.data.name;
-      li.addEventListener("click", () => {
-        this.selectSkillListItem(container, skill);
-      });
-      highlightHTMLElement(this.menuItem, "click");
-      highlightHTMLElement(li, "mouseover");
-      container.appendChild(li);
-    }
-    showSkill(skill) {
-      const skillInfoContainer = querySelector("[data-skill-info]", this.page);
-      const createTableRow = (label, value) => {
-        const row = document.createElement("tr");
-        row.insertAdjacentHTML("beforeend", `<td>${label}</td>`);
-        row.insertAdjacentHTML("beforeend", `<td>${value}</td>`);
-        return row;
-      };
-      querySelector("header .title", skillInfoContainer).textContent = skill.data.name;
-      const table = querySelector("table", skillInfoContainer);
-      table.replaceChildren();
-      table.appendChild(createTableRow("Mana Cost", skill.data.manaCost.toFixed()));
-      if (skill instanceof AttackSkill) {
-        table.appendChild(createTableRow("Attack Speed", skill.data.attackSpeed.toFixed(2)));
-        table.appendChild(createTableRow("Base Damage", skill.data.baseDamageMultiplier.toFixed() + "%"));
-      } else if (skill instanceof BuffSkill) {
-        table.appendChild(createTableRow("Duration", skill.data.baseDuration.toFixed() + "s"));
-      }
-      if (skill.data.mods) {
-        const modElements = [];
-        for (const mod of skill.mods) {
-          const modElement = document.createElement("div");
-          modElement.classList.add("g-mod-desc");
-          modElement.textContent = mod.desc;
-          modElements.push(modElement);
-        }
-        querySelector(".s-mods", skillInfoContainer).replaceChildren(...modElements);
-      }
-      const enableButton = querySelector("[data-skill-info] [data-enable]", this.page);
-      const removeButton = querySelector("[data-skill-info] [data-remove]", this.page);
-      const triggerButton = querySelector("[data-skill-info] [data-trigger]", this.page);
-      const automateButton = querySelector("[data-skill-info] [data-automate]", this.page);
-      const hideExtraButtons = skill instanceof AttackSkill || this.activeSkillSlot.skill !== skill;
-      removeButton.classList.toggle("hidden", hideExtraButtons);
-      triggerButton.classList.toggle("hidden", hideExtraButtons);
-      automateButton.classList.toggle("hidden", hideExtraButtons);
-      enableButton.disabled = !this.activeSkillSlot.canEnable || [this.attackSkillSlot, ...this.buffSkillSlots].some((x) => x.skill === skill);
-      if (skill instanceof BuffSkill && this.activeSkillSlot instanceof BuffSkillSlot && this.activeSkillSlot.skill === skill) {
-        removeButton.disabled = !this.activeSkillSlot.canRemove;
-        triggerButton.disabled = !this.activeSkillSlot.canTrigger;
-        automateButton.disabled = !this.activeSkillSlot.canAutomate;
-        const automate = this.activeSkillSlot.automate;
-        automateButton.setAttribute("data-role", automate ? "confirm" : "cancel");
-      } else {
-        removeButton.disabled = true;
-        triggerButton.disabled = true;
-        automateButton.disabled = true;
-      }
-    }
-    triggerSkill(skillSlot) {
-      skillSlot.start();
-      if (skillSlot.skill) {
-        this.showSkill(skillSlot.skill);
-      }
-    }
-    removeSkillFromSlot(skillSlot) {
-      skillSlot.setSkill(void 0);
-      if (this.activeSkill) {
-        this.showSkill(this.activeSkill);
-      }
-    }
-    toggleAutoMode(skillSlot) {
-      skillSlot.toggleAutomate();
-      if (skillSlot.skill) {
-        this.showSkill(skillSlot.skill);
-      }
-    }
-    save(saveObj) {
-      var _a;
-      saveObj.skills = {
-        attackSkillName: ((_a = this.attackSkillSlot.skill) == null ? void 0 : _a.data.name) || "",
-        buffSkills: this.buffSkillSlots.filter((x) => x.skill).map((x, index) => {
-          var _a2;
-          return {
-            index,
-            name: ((_a2 = x.skill) == null ? void 0 : _a2.data.name) || "",
-            automate: x.automate,
-            time: x.time
-          };
-        })
-      };
-    }
-  };
-  var BaseSkillSlot = class {
-    constructor() {
+  // src/game/components/skills/skillSlots.ts
+  var AttackSkillSlot = class {
+    constructor(skills) {
+      this.skills = skills;
       __publicField(this, "element");
-      __publicField(this, "skill");
       __publicField(this, "progressBar");
+      __publicField(this, "_skill");
       this.element = this.createElement();
       this.progressBar = querySelector("progress", this.element);
+      this.rankProgressCallback = this.rankProgressCallback.bind(this);
+      querySelector("[data-attack-skill-slot]", skills.page).appendChild(this.element);
+      this._skill = skills.attackSkills[0];
+      const saveData = skills.game.saveObj.skills;
+      const savedAttackSkillName = saveData == null ? void 0 : saveData.attackSkillSlot.name;
+      const savedAttackSkill = skills.attackSkills.find((x) => x.name === savedAttackSkillName);
+      if (saveData) {
+        savedAttackSkill == null ? void 0 : savedAttackSkill.setRankByIndex(saveData.attackSkillSlot.rankIndex || 0);
+      }
+      this.setSkill(savedAttackSkill || skills.attackSkills[0]);
     }
-    setSkill(skill) {
-      this.skill = skill;
-      this.element.querySelector("[data-skill-name]").textContent = (skill == null ? void 0 : skill.data.name) || "[Empty Slot]";
-    }
-    get hasSkill() {
-      return typeof this.skill !== "undefined";
-    }
-    get canRemove() {
-      return this.hasSkill;
+    get canEnable() {
+      return true;
     }
     get canTrigger() {
       return false;
     }
-    get canEnable() {
+    get canRemove() {
       return false;
+    }
+    get canAutomate() {
+      return false;
+    }
+    get skill() {
+      return this._skill;
+    }
+    rankProgressCallback() {
+      if (!this.skill) {
+        return;
+      }
+      const nextRank = this.skill.getNextRank();
+      if (nextRank) {
+        nextRank.incrementProgress();
+        if (!this.skills.page.classList.contains("hidden") && this.skills.activeSkillSlot === this) {
+          this.skills.skillViewer.updateView();
+        }
+        if (nextRank.unlocked) {
+          this.skills.game.statistics.statistics["Hits"].removeListener("add", this.rankProgressCallback);
+          highlightHTMLElement(this.skills.menuItem, "click");
+          highlightHTMLElement(this.element, "mouseover", true);
+        }
+      }
+    }
+    setSkill(skill) {
+      this.removeModifiers();
+      this._skill = skill;
+      querySelector("[data-skill-name]", this.element).textContent = skill.rank.config.name || "unknown";
+      this.skills.game.statistics.statistics["Hits"].removeListener("add", this.rankProgressCallback);
+      const nextRank = skill.getNextRank();
+      if (nextRank) {
+        this.skills.game.statistics.statistics["Hits"].addListener("add", this.rankProgressCallback);
+      }
+      this.applyModifiers();
+    }
+    removeModifiers() {
+      this.skills.game.player.modDB.removeBySource(this._skill.sourceName);
+    }
+    applyModifiers() {
+      this.skills.game.player.modDB.add([new StatModifier({ name: "BaseDamageMultiplier", valueType: "Base", value: this._skill.rank.config.baseDamageMultiplier })], this._skill.sourceName);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackSpeed", valueType: "Base", value: this._skill.rank.config.attackSpeed })], this._skill.sourceName);
+      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackManaCost", valueType: "Base", value: this._skill.rank.config.manaCost || 0 })], this._skill.sourceName);
+      this.skills.game.player.modDB.add(this._skill.rank.mods.flatMap((x) => x.copy().stats), this._skill.sourceName);
+    }
+    updateProgressBar(attackProgressPct) {
+      this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
     }
     createElement() {
       const li = document.createElement("li");
       li.classList.add("s-skill-slot", "g-list-item");
+      li.setAttribute("data-tab-target", "attack");
       li.insertAdjacentHTML("beforeend", "<div data-skill-name></div>");
       {
         const progressBar = document.createElement("progress");
@@ -11291,133 +11148,126 @@
       return li;
     }
   };
-  var AttackSkillSlot = class extends BaseSkillSlot {
+  var BuffSkillSlot = class {
     constructor(skills) {
-      super();
       this.skills = skills;
-      this.tryLoad();
-    }
-    get canEnable() {
-      return true;
-    }
-    setSkill(skill) {
-      var _a;
-      (_a = this.skill) == null ? void 0 : _a.removeModifiers();
-      super.setSkill(skill);
-      skill.applyModifiers();
-    }
-    updateProgressBar(attackProgressPct) {
-      this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
-    }
-    tryLoad() {
-      if (this.skills.game.saveObj.skills) {
-        const name2 = this.skills.game.saveObj.skills.attackSkillName;
-        const savedSkill = this.skills.attackSkills.find((x) => x.data.name === name2);
-        if (savedSkill) {
-          this.setSkill(savedSkill);
-          return;
-        }
-      }
-      if (!this.skills.attackSkills[0]) {
-        throw Error("no attack skill available");
-      }
-      this.setSkill(this.skills.attackSkills[0]);
-    }
-  };
-  var BuffSkillSlot = class extends BaseSkillSlot {
-    constructor(skills) {
-      super();
-      this.skills = skills;
-      __publicField(this, "_running", false);
+      __publicField(this, "element");
+      __publicField(this, "progressBar");
+      __publicField(this, "_skill");
+      __publicField(this, "_automate", false);
       __publicField(this, "_time", 0);
       __publicField(this, "_duration", 0);
-      __publicField(this, "_automate", false);
-      __publicField(this, "player");
+      __publicField(this, "_running", false);
+      var _a;
+      this.element = this.createElement();
+      this.progressBar = querySelector("progress", this.element);
       this.setSkill(void 0);
-      this.player = skills.game.player;
-      this.tryLoad();
+      const savedSkillSlotData = (_a = skills.game.saveObj.skills) == null ? void 0 : _a.buffSkillSlotList.find((x) => x.index === skills.buffSkillSlots.length);
+      if (savedSkillSlotData) {
+        const skill = skills.buffSkills.find((x) => x.firstRank.config.name === savedSkillSlotData.name);
+        if (skill) {
+          this.setSkill(skill);
+          this._time = savedSkillSlotData.time;
+          this._automate = savedSkillSlotData.automate;
+          if (savedSkillSlotData.running) {
+            this.loop();
+          } else {
+            this.tryTriggerLoop();
+          }
+        }
+      }
       highlightHTMLElement(skills.menuItem, "click");
       highlightHTMLElement(this.element, "mouseover");
     }
     get canEnable() {
-      return !this.running;
-    }
-    get canRemove() {
-      return this.hasSkill && !this._running;
+      return !this._running;
     }
     get canTrigger() {
-      return typeof this.skill !== "undefined" && !this.automate && !this._running && this.skills.game.statistics.statistics["Current Mana"].get() > this.skill.data.manaCost;
+      return !!this._skill && !this._running && this.sufficientMana;
+    }
+    get canRemove() {
+      return !!this._skill && !this._running;
     }
     get canAutomate() {
-      return this.hasSkill;
+      return !!this._skill;
+    }
+    get sufficientMana() {
+      var _a;
+      return this.skills.game.statistics.statistics["Current Mana"].get() > (((_a = this.skill) == null ? void 0 : _a.rank.config.manaCost) || 0);
     }
     get automate() {
       return this._automate;
     }
-    set automate(v) {
-      this._automate = v;
-      if (this._automate && !this._running) {
-      }
+    get time() {
+      return this._time;
     }
     get running() {
       return this._running;
     }
-    get time() {
-      return this._time;
+    get skill() {
+      return this._skill;
+    }
+    setSkill(skill) {
+      this._skill = skill;
+      this._automate = false;
+      querySelector("[data-skill-name]", this.element).textContent = (skill == null ? void 0 : skill.rank.config.name) || "[Empty Slot]";
+    }
+    trigger() {
+      var _a;
+      if (!this._skill || !this.canTrigger) {
+        return;
+      }
+      const nextRank = (_a = this._skill) == null ? void 0 : _a.getNextRank();
+      if (nextRank) {
+        nextRank.incrementProgress();
+        if (!this.skills.page.classList.contains("hidden") && this.skills.activeSkillSlot === this) {
+          this.skills.skillViewer.updateView();
+        }
+        if (nextRank.unlocked) {
+          highlightHTMLElement(this.skills.menuItem, "click");
+          highlightHTMLElement(this.element, "mouseover", true);
+        }
+      }
+      this.skills.game.statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
+      this.loop();
+      return true;
     }
     toggleAutomate() {
       this._automate = !this._automate;
       if (this._automate && !this._running) {
-        this.start();
+        this.tryTriggerLoop();
       }
     }
-    setSkill(skill) {
-      var _a;
-      this.skill = skill;
-      this._automate = false;
-      querySelector("[data-skill-name]", this.element).textContent = ((_a = this.skill) == null ? void 0 : _a.data.name) || "[Empty Slot]";
-    }
-    updateProgressBar() {
-      if (!this._running) {
-        return;
-      }
-      this.progressBar.value = this._time / this._duration || 0;
-    }
-    start() {
+    tryTriggerLoop() {
       if (!this.skill) {
         return;
       }
-      const loopEval = (mana) => {
+      const loopEval = () => {
         if (!this._automate) {
           this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
           return;
         }
-        if (!this.skill) {
-          return;
+        if (this.trigger()) {
+          this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
         }
-        if (mana < this.skill.data.manaCost) {
-          return;
-        }
-        this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
-        this.skills.game.statistics.statistics["Current Mana"].subtract(this.skill.data.manaCost);
-        this.loop();
       };
       this.skills.game.statistics.statistics["Current Mana"].addListener("change", loopEval);
-      loopEval(this.skills.game.statistics.statistics["Current Mana"].get());
+      loopEval();
     }
     loop() {
       if (!this.skill) {
         return;
       }
       const calcDuration = (multiplier) => {
-        const baseDuration = this.skill.data.baseDuration;
+        var _a;
+        const baseDuration = ((_a = this.skill) == null ? void 0 : _a.rank.config.baseDuration) || 0;
         this._duration = baseDuration * multiplier;
       };
       calcDuration(this.skills.game.statistics.statistics["Skill Duration Multiplier"].get());
       this._time = this._time > 0 ? this._time : this._duration;
       this._running = true;
       this.skills.game.statistics.statistics["Skill Duration Multiplier"].addListener("change", calcDuration);
-      this.skill.applyModifiers();
+      this.applyModifiers();
       const loopId = this.skills.game.gameLoop.subscribe((dt) => {
         if (!this.skill) {
           return;
@@ -11434,76 +11284,403 @@
     }
     stop() {
       if (!this.skill) {
-        return;
+        throw Error();
       }
-      this._running = false;
-      this.player.modDB.removeBySource(this.skill.sourceName);
+      this.skills.game.player.modDB.removeBySource(this.skill.sourceName);
       this.progressBar.value = 0;
-      if (this === this.skills.activeSkillSlot) {
-        this.skills.showSkill(this.skill);
-      }
+      this._running = false;
       if (this._automate) {
-        this.start();
-        return;
+        this.tryTriggerLoop();
       }
-    }
-    tryLoad() {
-      var _a;
-      const savedSkillSlotData = (_a = this.skills.game.saveObj.skills) == null ? void 0 : _a.buffSkills.find((x) => x.index === this.skills.buffSkillSlots.length);
-      if (savedSkillSlotData) {
-        const skill = this.skills.buffSkills.find((x) => x.data.name === savedSkillSlotData.name);
-        if (skill) {
-          this.setSkill(skill);
-          this._time = savedSkillSlotData.time;
-          this._automate = savedSkillSlotData.automate;
-          if (this._automate) {
-            this.loop();
-          }
-        }
+      if (!this.skills.page.classList.contains("hidden") && this === this.skills.activeSkillSlot) {
+        this.skills.skillViewer.updateView();
       }
-    }
-  };
-  var BaseSkill = class {
-    constructor(skills, data) {
-      this.skills = skills;
-      this.data = data;
-      __publicField(this, "_mods");
-      var _a;
-      this._mods = ((_a = data.mods) == null ? void 0 : _a.map((x) => new Modifier(x))) || [];
-    }
-    get sourceName() {
-      return `Skill/${this.data.name || "[error]"}`;
-    }
-    get mods() {
-      return this._mods;
     }
     removeModifiers() {
-      this.skills.game.player.modDB.removeBySource(this.sourceName);
+      if (this._skill) {
+        this.skills.game.player.modDB.removeBySource(this._skill.sourceName);
+      }
     }
     applyModifiers() {
-      this.skills.game.player.modDB.add(this.mods.flatMap((x) => x.copy().stats), this.sourceName);
+      if (this._skill) {
+        this.skills.game.player.modDB.add(this._skill.rank.mods.flatMap((x) => x.copy().stats), this._skill.sourceName);
+      }
+    }
+    updateProgressBar() {
+      if (!this._running) {
+        return;
+      }
+      this.progressBar.value = this._time / this._duration || 0;
+    }
+    createElement() {
+      const li = document.createElement("li");
+      li.classList.add("s-skill-slot", "g-list-item");
+      li.setAttribute("data-tab-target", "buff");
+      li.insertAdjacentHTML("beforeend", "<div data-skill-name></div>");
+      {
+        const progressBar = document.createElement("progress");
+        progressBar.max = 1;
+        progressBar.value = 0;
+        li.appendChild(progressBar);
+      }
+      return li;
     }
   };
-  var AttackSkill = class extends BaseSkill {
-    constructor(skills, data) {
-      super(skills, data);
+
+  // src/game/components/skills/SkillViewer.ts
+  var SkillViewer = class {
+    constructor(skills) {
       this.skills = skills;
-      this.data = data;
+      __publicField(this, "container");
+      __publicField(this, "decrementRankButton");
+      __publicField(this, "incrementRankButton");
+      __publicField(this, "enableButton");
+      __publicField(this, "triggerButton");
+      __publicField(this, "automateButton");
+      __publicField(this, "removeButton");
+      __publicField(this, "rankProgress");
+      __publicField(this, "skillViewInfo", { rankIndex: 0 });
+      this.container = querySelector("[data-skill-info]", skills.page);
+      this.decrementRankButton = querySelector('header [data-type="decrement"]', this.container);
+      this.incrementRankButton = querySelector('header [data-type="increment"]', this.container);
+      this.enableButton = querySelector("[data-enable]", this.container);
+      this.triggerButton = querySelector("[data-trigger]", this.container);
+      this.automateButton = querySelector("[data-automate]", this.container);
+      this.removeButton = querySelector("[data-remove]", this.container);
+      this.decrementRankButton.addEventListener("click", () => {
+        this.createView(skills.activeSkill, this.skillViewInfo.rankIndex - 1);
+      });
+      this.incrementRankButton.addEventListener("click", () => {
+        this.createView(skills.activeSkill, this.skillViewInfo.rankIndex + 1);
+      });
+      this.enableButton.addEventListener("click", () => {
+        skills.activeSkill.setRankByIndex(this.skillViewInfo.rankIndex);
+        skills.activeSkillSlot.setSkill(skills.activeSkill);
+        this.createView(skills.activeSkill, this.skillViewInfo.rankIndex);
+      });
+      this.removeButton.addEventListener("click", () => {
+        if (skills.activeSkillSlot.canRemove) {
+          skills.activeSkillSlot.setSkill(void 0);
+          this.createView(skills.activeSkill, this.skillViewInfo.rankIndex);
+        }
+      });
+      this.triggerButton.addEventListener("click", () => {
+        if (skills.activeSkillSlot.canTrigger) {
+          skills.activeSkillSlot.trigger();
+          this.createView(skills.activeSkillSlot.skill, this.skillViewInfo.rankIndex);
+        }
+      });
+      this.automateButton.addEventListener("click", () => {
+        const skillSlot = skills.activeSkillSlot;
+        if (skillSlot instanceof BuffSkillSlot && skillSlot.skill) {
+          skillSlot.toggleAutomate();
+          this.createView(skillSlot.skill, this.skillViewInfo.rankIndex);
+        }
+      });
     }
-    applyModifiers() {
-      const source = `Skill/${this.data.name}`;
-      this.skills.game.player.modDB.removeBySource(source);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "BaseDamageMultiplier", valueType: "Base", value: this.data.baseDamageMultiplier })], this.sourceName);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackSpeed", valueType: "Base", value: this.data.attackSpeed })], this.sourceName);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackManaCost", valueType: "Base", value: this.data.manaCost })], this.sourceName);
-      this.mods.forEach((x) => this.skills.game.player.modDB.add(x.stats, this.sourceName));
+    createView(skill, rankIndex) {
+      rankIndex = typeof rankIndex === "number" ? rankIndex : skill.ranks.indexOf(skill.rank);
+      this.skillViewInfo.skill = skill;
+      this.skillViewInfo.rankIndex = rankIndex;
+      const rank = skill.ranks[rankIndex];
+      if (!rank) {
+        throw Error();
+      }
+      {
+        const header = querySelector("header", this.container);
+        querySelector(".title", header).textContent = rank.config.name;
+        if (skill.ranks.length === 1) {
+          this.decrementRankButton.style.visibility = "hidden";
+          this.incrementRankButton.style.visibility = "hidden";
+        } else {
+          this.decrementRankButton.style.visibility = "visible";
+          this.incrementRankButton.style.visibility = "visible";
+          this.decrementRankButton.disabled = rankIndex <= 0;
+          this.incrementRankButton.disabled = rankIndex >= skill.ranks.length - 1;
+        }
+        querySelector("header .title", this.container).textContent = rank.config.name;
+      }
+      {
+        const table = querySelector("table", this.container);
+        table.replaceChildren();
+        table.appendChild(this.createTableRow("Mana Cost", (rank.config.manaCost || 0).toFixed()));
+        if (skill instanceof AttackSkill) {
+          table.appendChild(this.createTableRow("Attack Speed", skill.ranks[rankIndex].config.attackSpeed.toFixed(2)));
+          table.appendChild(this.createTableRow("Base Damage", skill.ranks[rankIndex].config.baseDamageMultiplier.toFixed() + "%"));
+        } else if (skill instanceof BuffSkill) {
+          table.appendChild(this.createTableRow("Duration", skill.ranks[rankIndex].config.baseDuration.toFixed() + "s"));
+        }
+        this.rankProgress = void 0;
+        if (rankIndex > 0) {
+          let prefix = skill instanceof AttackSkill ? "Attacks" : "Triggers";
+          const rank2 = skill.ranks[rankIndex];
+          const target = rank2 == null ? void 0 : rank2.progress.target;
+          const row = this.createTableRow(
+            prefix,
+            `<var data-rank-progress></var>/<span>${target}</span>`
+          );
+          this.rankProgress = row.querySelector("[data-rank-progress]") || void 0;
+          table.appendChild(row);
+        }
+      }
+      if (rank.config.mods) {
+        const modElements = [];
+        for (const mod of rank.mods) {
+          const modElement = document.createElement("div");
+          modElement.classList.add("g-mod-desc");
+          modElement.textContent = mod.desc;
+          modElements.push(modElement);
+        }
+        querySelector(".s-mods", this.container).replaceChildren(...modElements);
+      }
+      this.updateView();
+    }
+    updateView() {
+      const { skill, rankIndex } = this.skillViewInfo;
+      const rank = skill == null ? void 0 : skill.ranks[rankIndex];
+      if (!rank) {
+        throw RangeError();
+      }
+      const hideExtraButtons = skill instanceof AttackSkill || this.skills.activeSkillSlot.skill !== skill;
+      this.removeButton.classList.toggle("hidden", hideExtraButtons);
+      this.triggerButton.classList.toggle("hidden", hideExtraButtons);
+      this.automateButton.classList.toggle("hidden", hideExtraButtons);
+      const sameSkillAndRank = this.skills.activeSkillSlot.skill === skill && this.skills.activeSkillSlot.skill.rank === rank;
+      const anotherAlreadyEnabled = [this.skills.attackSkillSlot, ...this.skills.buffSkillSlots].filter((x) => x !== this.skills.activeSkillSlot).some((x) => x.skill === skill);
+      const canEnable = this.skills.activeSkillSlot.canEnable && rank.unlocked && !sameSkillAndRank && !anotherAlreadyEnabled;
+      this.enableButton.disabled = !canEnable;
+      if (skill instanceof BuffSkill && this.skills.activeSkillSlot instanceof BuffSkillSlot && this.skills.activeSkillSlot.skill === skill) {
+        this.removeButton.disabled = !this.skills.activeSkillSlot.canRemove || !sameSkillAndRank;
+        this.triggerButton.disabled = !this.skills.activeSkillSlot.canTrigger || !sameSkillAndRank;
+        this.automateButton.disabled = !this.skills.activeSkillSlot.canAutomate;
+        this.automateButton.setAttribute("data-role", this.skills.activeSkillSlot.automate ? "confirm" : "cancel");
+      } else {
+        this.removeButton.disabled = true;
+        this.triggerButton.disabled = true;
+        this.automateButton.disabled = true;
+      }
+      if (this.rankProgress) {
+        this.rankProgress.textContent = Math.min(rank.progress.current, rank.progress.target).toFixed();
+      }
+    }
+    createTableRow(label, value) {
+      const row = document.createElement("tr");
+      row.insertAdjacentHTML("beforeend", `<td>${label}</td>`);
+      row.insertAdjacentHTML("beforeend", `<td>${value}</td>`);
+      return row;
     }
   };
-  var BuffSkill = class extends BaseSkill {
-    constructor(skills, data) {
-      super(skills, data);
-      this.skills = skills;
-      this.data = data;
+
+  // src/game/components/skills/Skills.ts
+  var Skills = class extends Component {
+    constructor(game, config) {
+      super(game, "skills");
+      this.game = game;
+      this.config = config;
+      __publicField(this, "activeSkill");
+      __publicField(this, "attackSkills");
+      __publicField(this, "buffSkills", []);
+      __publicField(this, "activeSkillSlot");
+      __publicField(this, "attackSkillSlot");
+      __publicField(this, "buffSkillSlots", []);
+      __publicField(this, "skillViewer");
+      this.skillViewer = new SkillViewer(this);
+      {
+        this.attackSkills = [...this.config.attackSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1))].map((x) => new AttackSkill(this, x));
+        Object.seal(this.attackSkills);
+        this.attackSkillSlot = new AttackSkillSlot(this);
+        this.activeSkillSlot = this.attackSkillSlot;
+        this.activeSkill = this.attackSkillSlot.skill;
+        const attackSkillListContainer = querySelector("[data-attack-skill-list]", this.page);
+        this.attackSkillSlot.element.addEventListener("click", () => {
+          this.activeSkillSlot = this.attackSkillSlot;
+          this.selectSkillListItem(this.attackSkillSlot.skill, attackSkillListContainer);
+          this.selectSkillListItemByName(this.attackSkillSlot.skill.firstRank.config.name, attackSkillListContainer);
+        });
+        for (const skill of this.attackSkills) {
+          this.game.statistics.statistics.Level.registerCallback(skill.rank.config.levelReq || 1, () => {
+            this.addSkillListItem(skill, attackSkillListContainer);
+          });
+        }
+      }
+      if (config.buffSkills) {
+        this.buffSkills = [...config.buffSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1)).map((x) => new BuffSkill(this, x))];
+        Object.seal(this.buffSkills);
+        const buffSkillSlotContainer = querySelector(".s-skill-slots [data-buff-skill-slots]", this.page);
+        const buffSkillListContainer = querySelector("[data-buff-skill-list]", this.page);
+        for (const buffSkillConfig of config.buffSkills.skillSlots) {
+          game.statistics.statistics.Level.registerCallback(buffSkillConfig.levelReq, () => {
+            const slot = new BuffSkillSlot(this);
+            slot.element.setAttribute("data-tab-target", "buff");
+            slot.element.addEventListener("click", () => {
+              this.activeSkillSlot = slot;
+              this.selectSkillListItem(this.activeSkillSlot.skill, buffSkillListContainer);
+            });
+            buffSkillSlotContainer.appendChild(slot.element);
+            this.buffSkillSlots.push(slot);
+          });
+        }
+        for (const skill of this.buffSkills) {
+          game.statistics.statistics.Level.registerCallback(skill.firstRank.config.levelReq || 1, () => {
+            this.addSkillListItem(skill, buffSkillListContainer);
+          });
+        }
+      }
+      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
+        if (visible) {
+          this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+          for (const buffSkillSlot of this.buffSkillSlots) {
+            buffSkillSlot.updateProgressBar();
+          }
+        }
+      });
+      this.game.visiblityObserver.register(this.page, (visible) => {
+        if (visible) {
+          this.skillViewer.updateView();
+        }
+      });
+      registerTabs(querySelector(".s-skill-slots", this.page), querySelector(".s-skill-list", this.page));
+      this.attackSkillSlot.element.click();
+    }
+    addSkillListItem(skill, container) {
+      const li = document.createElement("li");
+      li.classList.add("g-list-item");
+      li.setAttribute("data-name", skill.name || "unknown");
+      li.textContent = skill.name || "unknown";
+      li.addEventListener("click", () => {
+        this.selectSkillListItem(skill, container);
+      });
+      highlightHTMLElement(this.menuItem, "click");
+      highlightHTMLElement(li, "mouseover");
+      container.appendChild(li);
+    }
+    selectSkillListItem(skill, container) {
+      const skillInfoContainer = querySelector("[data-skill-info]");
+      skillInfoContainer.classList.toggle("hidden", container.childElementCount === 0);
+      if (skill) {
+        this.activeSkill = skill;
+        container.querySelectorAll("[data-name]").forEach((x) => x.classList.toggle("selected", x.getAttribute("data-name") === skill.firstRank.config.name));
+        this.skillViewer.createView(skill);
+      } else {
+        const element = container.querySelector("[data-name]:first-child");
+        element == null ? void 0 : element.click();
+      }
+    }
+    selectSkillListItemByName(name2, container) {
+      var _a;
+      (_a = container.querySelector(`[data-name="${name2}"]`)) == null ? void 0 : _a.click();
+    }
+    save(saveObj) {
+      var _a;
+      saveObj.skills = {
+        attackSkillSlot: {
+          name: ((_a = this.attackSkillSlot.skill.firstRank) == null ? void 0 : _a.config.name) || "unknown",
+          rankIndex: this.attackSkillSlot.skill.ranks.indexOf(this.attackSkillSlot.skill.rank)
+        },
+        attackSkillList: this.attackSkills.reduce((a, c) => {
+          a.push(...c.ranks.map((x) => ({ name: x.config.name, rankProgress: x.rankProgress })).filter((x) => x.rankProgress > 0));
+          return a;
+        }, []),
+        buffSkillSlotList: this.buffSkillSlots.reduce((a, c) => {
+          var _a2;
+          if (!c.skill) {
+            return a;
+          }
+          const { automate, time, running } = c;
+          const name2 = (_a2 = c.skill) == null ? void 0 : _a2.name;
+          const index = this.buffSkillSlots.indexOf(c);
+          const rankIndex = c.skill.ranks.indexOf(c.skill.rank);
+          a.push({ automate, index, name: name2, rankIndex, time, running });
+          return a;
+        }, []),
+        buffSkillList: this.buffSkills.reduce((a, c) => {
+          a.push(...c.ranks.map((x) => ({ name: x.config.name, rankProgress: x.rankProgress })).filter((x) => x.rankProgress > 0));
+          return a;
+        }, [])
+      };
+    }
+  };
+  var Rank = class {
+    constructor(config, progress, mods) {
+      this.config = config;
+      this.progress = progress;
+      this.mods = mods;
+      __publicField(this, "_unlocked");
+      this._unlocked = progress.current >= progress.target;
+    }
+    get unlocked() {
+      return this._unlocked;
+    }
+    get rankProgress() {
+      return this.progress.current;
+    }
+    incrementProgress() {
+      this.progress.current++;
+      this._unlocked = this.progress.current >= this.progress.target;
+    }
+  };
+  var Skill2 = class {
+    constructor() {
+      __publicField(this, "_rankIndex", 0);
+    }
+    get firstRank() {
+      return this.ranks[0];
+    }
+    get sourceName() {
+      return `Skill/${this.firstRank.config.name || "unknown"}`;
+    }
+    get name() {
+      return this.firstRank.config.name;
+    }
+    setRankByIndex(index) {
+      const rank = this.ranks[index];
+      this._rankIndex = index;
+      if (!rank) {
+        throw RangeError();
+      }
+      this.rank = rank;
+    }
+    getNextRank() {
+      return this.ranks[this._rankIndex + 1];
+    }
+    incrementRank() {
+      this._rankIndex++;
+      this.setRankByIndex(this._rankIndex);
+    }
+    decrementRank() {
+      this._rankIndex--;
+      this.setRankByIndex(this._rankIndex);
+    }
+  };
+  var AttackSkill = class extends Skill2 {
+    constructor(skills, configs) {
+      var _a, _b, _c;
+      super();
+      __publicField(this, "ranks", []);
+      __publicField(this, "rank");
+      configs = Array.isArray(configs) ? configs : [configs];
+      for (const config of configs) {
+        const rankProgress = ((_b = (_a = skills.game.saveObj.skills) == null ? void 0 : _a.attackSkillList.find((x) => x.name === config.name)) == null ? void 0 : _b.rankProgress) || 0;
+        const mods = ((_c = config.mods) == null ? void 0 : _c.map((x) => new Modifier(x))) || [];
+        const rank = new Rank(config, { current: rankProgress, target: config.attackCountReq || 0 }, mods);
+        this.ranks.push(rank);
+      }
+      this.rank = this.firstRank;
+    }
+  };
+  var BuffSkill = class extends Skill2 {
+    constructor(skills, configs) {
+      var _a, _b, _c;
+      super();
+      __publicField(this, "ranks", []);
+      __publicField(this, "rank");
+      configs = Array.isArray(configs) ? configs : [configs];
+      for (const config of configs) {
+        const rankProgress = ((_b = (_a = skills.game.saveObj.skills) == null ? void 0 : _a.buffSkillList.find((x) => x.name === config.name)) == null ? void 0 : _b.rankProgress) || 0;
+        const mods = ((_c = config.mods) == null ? void 0 : _c.map((x) => new Modifier(x))) || [];
+        this.ranks.push(new Rank(config, { current: rankProgress, target: config.triggerCountReq || 0 }, mods));
+      }
+      this.rank = this.firstRank;
     }
   };
 
@@ -11912,13 +12089,16 @@
       this.activeItem.element.click();
       this.createCraftListItems(data.craftList);
       this.updateCraftList((_a = this.presets.activePreset) == null ? void 0 : _a.ids);
+      this.game.visiblityObserver.register(this.page, (visible) => {
+        if (visible) {
+          this.updateCraftButton();
+        }
+      });
       this.game.statistics.statistics.Gold.addListener("change", () => {
         if (this.page.classList.contains("hidden")) {
           return;
         }
-        if (this.activeCraftId) {
-          this.updateCraftButton();
-        }
+        this.updateCraftButton();
       });
       game.statistics.statistics.Level.addListener("change", () => {
         var _a2;
@@ -12174,7 +12354,7 @@
         this.updatePoints();
         this.updatePassiveList();
       });
-      querySelector("[data-clear]", this.page).addEventListener("click", () => this.clearPassives());
+      querySelector("[data-reset]", this.page).addEventListener("click", () => this.resetPassives());
       this.updatePoints();
       this.updatePassiveList();
     }
@@ -12184,7 +12364,7 @@
     get curPoints() {
       return this.maxPoints - this.passives.filter((x) => x.assigned).reduce((a, c) => a += c.data.points, 0);
     }
-    clearPassives() {
+    resetPassives() {
       this.passives.forEach((x) => x.assigned = false);
       this.updatePassiveList();
       this.updatePoints();
@@ -12198,6 +12378,10 @@
       };
     }
     updatePoints() {
+      if (this.curPoints < 0) {
+        this.resetPassives();
+        console.warn("current passive points cannot go negative. passives have been reset");
+      }
       querySelector(".p-game .p-passives [data-cur-points]").textContent = this.curPoints.toFixed();
       querySelector(".p-game .p-passives [data-max-points]").textContent = this.maxPoints.toFixed();
     }
@@ -12619,24 +12803,25 @@
       if (!savedMission) {
         return;
       }
-      const missionData = this.missions.data.missionLists.flatMap((x) => x).find((x) => x.description === savedMission.desc);
-      if (!missionData) {
-        return;
-      }
       this.unlock();
-      this._missionData = missionData;
-      this._task = new Task(this.missions.game, missionData.description);
-      this._task.startValue = savedMission.startValue;
-      this.tryCompletion();
+      const missionData = this.missions.data.missionLists.flatMap((x) => x).find((x) => x.description === savedMission.desc);
+      if (missionData) {
+        this._missionData = missionData;
+        this._task = new Task(this.missions.game, missionData.description);
+        this._task.startValue = savedMission.startValue;
+        this.tryCompletion();
+      } else {
+        this.generateRandomMission();
+      }
       this.updateSlot();
     }
   };
 
   // src/webComponents/html/skills.html
-  var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <h3 class="title"></h3>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-remove>Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-attack-skill-list data-tab-content="attack"></ul>\n        <ul data-buff-skill-list data-tab-content="buff"></ul>\n    </div>\n\n</div>';
+  var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <button class="g-button" data-type="decrement" data-role="confirm"><</button>\n            <h3 class="title"></h3>\n            <button class="g-button" data-type="increment" data-role="confirm">></button>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-remove>Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-attack-skill-list data-tab-content="attack"></ul>\n        <ul data-buff-skill-list data-tab-content="buff"></ul>\n    </div>\n\n</div>';
 
   // src/webComponents/html/passives.html
-  var passives_default = '<div class="p-passives hidden" data-tab-content="passives">\n    <header>\n        <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>\n        <button class="g-button" data-clear>Clear</button>\n    </header>\n    <div class="s-passive-list">\n        <table>\n\n        </table>\n    </div>\n</div>';
+  var passives_default = '<div class="p-passives hidden" data-tab-content="passives">\n    <header>\n        <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>\n        <button class="g-button" data-reset>Reset</button>\n    </header>\n    <div class="s-passive-list">\n        <table> </table>\n    </div>\n</div>';
 
   // src/webComponents/html/items.html
   var items_default = '<div class="p-items hidden" data-tab-content="items">\n    <menu class="g-list-v" data-item-list></menu>\n    <ul data-mod-list></ul>\n    <div class="s-preset-container">\n        <menu class="g-list-h">\n            <button class="g-button" data-new>New</button>\n            <button class="g-button" data-edit>Edit</button>\n        </menu>\n        <menu class="g-list-v" data-preset-list></menu>\n    </div>\n    <div class="s-craft-container">\n        <div data-craft-list>\n            <table></table>\n        </div>\n        <button class="g-button" data-craft-button data-role="confirm">Craft</button>\n        <div data-craft-message></div>\n    </div>\n    <dialog data-modal data-preset-modal>\n        <form method="dialog">\n            <h2>Craft Preset</h2>\n            <input type="text" data-name>\n            <div class="g-list-v" data-craft-list>\n                <table>\n                    <thead>\n                        <tr>\n                            <td></td>\n                            <td>Level</td>\n                            <td>Cost</td>\n                        </tr>\n                    </thead>\n                    <tbody></tbody>\n                </table>\n            </div>\n            <footer>\n                <input class="g-button" type="submit" value="Apply" data-apply>\n                <input class="g-button" type="submit" value="Cancel" data-cancel>\n                <input class="g-button" type="submit" value="Delete" data-cancel data-delete>\n            </footer>\n        </form>\n    </dialog>\n</div>';
@@ -12703,6 +12888,43 @@
     return instance;
   }
 
+  // src/utils/alert.ts
+  function customAlert(opts) {
+    const element = document.createElement("div");
+    element.classList.add("g-alert-window");
+    element.innerHTML = `
+        <div class="s-content">
+            <header><h3></h3></header>
+            <div data-body></div>
+            <div class="s-buttons"></div>
+            <footer><small></small></footer>
+        </div>
+        <div class="backdrop"></div>`;
+    querySelector("header h3", element).innerText = opts.title || "";
+    querySelector("[data-body]", element).innerText = opts.body;
+    querySelector("footer small", element).innerText = opts.footerText || "";
+    querySelector(".backdrop", element).addEventListener("mousedown", () => {
+      element.remove();
+    });
+    const buttons = [];
+    for (const buttonData of opts.buttons || []) {
+      const button = document.createElement("button");
+      button.classList.add("g-button");
+      button.setAttribute("type", "submit");
+      const role = buttonData.type;
+      button.setAttribute("data-role", role);
+      button.textContent = buttonData.label;
+      button.addEventListener("click", () => {
+        var _a;
+        (_a = buttonData.callback) == null ? void 0 : _a.call(buttonData, buttonData.args);
+        element.remove();
+      });
+      buttons.push(button);
+    }
+    querySelector(".s-buttons", element).append(...buttons);
+    document.body.appendChild(element);
+  }
+
   // src/game/Game.ts
   var Game = class {
     constructor(home) {
@@ -12744,17 +12966,16 @@
       this._config = config;
       this._saveObj = saveObj;
       querySelector("[data-config-name]", this.page).textContent = this._config.meta.name;
-      this.onSave.removeAllListeners();
-      this.disposeComponents();
-      this.visiblityObserver.disconnectAll();
-      this.gameLoop.reset();
-      this.player.reset();
-      this.enemy.reset();
-      this.statistics.reset();
-      this.enemy.init();
-      this.player.init();
-      this.statistics.init();
-      this.initComponents();
+      this.reset();
+      try {
+        this.enemy.init();
+        this.player.init();
+        this.statistics.init();
+        this.initComponents();
+      } catch (e) {
+        this.reset();
+        throw new Error("Failed to initialize the game");
+      }
       this.setup();
       await this.save();
       this.gameLoop.subscribe(() => {
@@ -12766,18 +12987,27 @@
       {
         const endPrompt = (_a = config.options) == null ? void 0 : _a.endPrompt;
         if (endPrompt) {
-          this.enemy.onDeath.listen((x) => {
-            if (x.index > x.maxIndex) {
-              querySelector("generic-modal").init({
+          this.statistics.statistics.Level.addListener("change", (level) => {
+            if (level >= this.enemy.maxIndex + 1) {
+              customAlert({
                 title: endPrompt.title,
                 body: endPrompt.body,
                 footerText: endPrompt.footer,
                 buttons: [{ label: "Continue", type: "confirm" }]
-              }).openModal();
+              });
             }
           });
         }
       }
+    }
+    reset() {
+      this.onSave.removeAllListeners();
+      this.disposeComponents();
+      this.visiblityObserver.disconnectAll();
+      this.gameLoop.reset();
+      this.player.reset();
+      this.enemy.reset();
+      this.statistics.reset();
     }
     setup() {
       this.statistics.setup();
@@ -12807,20 +13037,14 @@
       }
     }
     disposeComponents() {
-      for (const componentData of this.componentsList) {
-        componentData.dispose();
-      }
+      Object.keys(componentConfigs).forEach((x) => {
+        var _a, _b;
+        (_a = this.page.querySelector(`[data-main-menu] [data-tab-target="${x}"]`)) == null ? void 0 : _a.remove();
+        (_b = this.page.querySelector(`[data-main-view] [data-tab-content="${x}"]`)) == null ? void 0 : _b.remove();
+      });
       this.componentsList.splice(0);
     }
     setupDevHelpers() {
-      if ("TS" in window) {
-        return;
-      }
-      Object.defineProperty(window, "TS", {
-        value: {
-          game: this
-        }
-      });
       console.log("Press Space to toggle GameLoop");
       document.body.addEventListener("keydown", (x) => {
         if (x.code === "Space") {
@@ -12904,7 +13128,7 @@
       {
         name: "Demo 2 Extended",
         rawUrl: "public/gconfig/configs/demo2.json",
-        description: "This demo introduces elemental damage and damage over time"
+        description: "This demo extends the Demo with some new features. \n\n* Elemental Damage\n* Damage over time\n* Skill Ranks"
       }
     ]
   };
@@ -12919,6 +13143,15 @@
       this.game = new Game(this);
       this.setupEventListeners();
       this.init();
+      window.TS = {
+        deleteAllSaves: async () => {
+          const saves = await this.createEntries("saved");
+          for (const id of saves.map((x) => x.id)) {
+            await this.game.deleteSave(id);
+          }
+        },
+        game: this.game
+      };
     }
     setupEventListeners() {
       querySelector('[data-target="game"]', this.page).addEventListener("click", () => {
@@ -12936,11 +13169,56 @@
       querySelector(".p-home .p-saved [data-entry-info] [data-start]").addEventListener("click", this.startSavedConfig.bind(this));
       querySelector(".p-home .p-saved [data-entry-info] [data-delete]").addEventListener("click", this.deleteSavedConfig.bind(this));
     }
-    startNewConfig() {
+    async startNewConfig() {
+      var _a;
       if (!this.activeEntry) {
         return;
       }
-      this.tryStartGame(this.activeEntry);
+      const map = await saveManager_default.load("Game");
+      const save2 = map ? (_a = Array.from(map).find(([_key, value]) => {
+        var _a2;
+        return value.meta.name === ((_a2 = this.activeEntry) == null ? void 0 : _a2.name);
+      })) == null ? void 0 : _a[1] : void 0;
+      if (save2) {
+        const startNewGame = () => {
+          this.activeEntry.id = crypto.randomUUID();
+          this.tryStartGame(this.activeEntry);
+        };
+        const overrideGame = () => {
+          this.activeEntry.id = save2.meta.id;
+          this.tryStartGame(this.activeEntry);
+        };
+        const continueGame = () => {
+          this.tryStartGame(this.activeEntry, save2);
+        };
+        customAlert({
+          title: "Configuration already exists",
+          body: "You already have a save with this configuration.\n\nNew - Start a new game with a new save file\nOverride - Start a new game and override save file\nContinue - Start from save file",
+          buttons: [
+            {
+              label: "New",
+              type: "confirm",
+              callback: startNewGame
+            },
+            {
+              label: "Override",
+              type: "confirm",
+              callback: overrideGame
+            },
+            {
+              label: "Continue",
+              type: "confirm",
+              callback: continueGame
+            },
+            {
+              label: "Cancel",
+              type: "cancel"
+            }
+          ]
+        });
+      } else {
+        this.tryStartGame(this.activeEntry);
+      }
     }
     async startSavedConfig() {
       if (!this.activeEntry) {
@@ -12957,24 +13235,20 @@
       return await this.tryStartGame(this.activeEntry, saveObj);
     }
     deleteSavedConfig() {
-      const modal = querySelector("body > generic-modal");
-      modal.init({
+      const deleteSave = async () => {
+        var _a;
+        if (!((_a = this.activeEntry) == null ? void 0 : _a.id)) {
+          return;
+        }
+        await this.game.deleteSave(this.activeEntry.id);
+        this.populateEntryList("saved");
+      };
+      customAlert({
         title: "Delete Save",
         body: "Are you sure?",
-        buttons: [{ label: "Yes", type: "confirm" }, { label: "No", type: "cancel" }],
-        footerText: "This will delete your save file permanently",
-        callback: async (confirm) => {
-          var _a;
-          if (confirm) {
-            if (!((_a = this.activeEntry) == null ? void 0 : _a.id)) {
-              return;
-            }
-            await this.game.deleteSave(this.activeEntry.id);
-            this.populateEntryList("saved");
-          }
-        }
+        buttons: [{ label: "Yes", type: "confirm", callback: deleteSave }, { label: "No", type: "cancel" }],
+        footerText: "This will delete your save file permanently"
       });
-      modal.openModal();
     }
     async init() {
       querySelector("header [data-target]").classList.add("hidden");
@@ -12995,7 +13269,7 @@
       const infoContainer = querySelector(`.p-home [data-entry-info]`, page);
       listContainer.classList.add("hidden");
       infoContainer.classList.add("hidden");
-      const entries = await this.getEntries(type);
+      const entries = await this.createEntries(type);
       const elements = this.createEntryListElements(entries, type);
       listContainer.replaceChildren(...elements);
       if (elements.length === 0) {
@@ -13067,10 +13341,10 @@
         console.error(e);
       }
     }
-    async getEntries(type) {
+    async createEntries(type) {
       switch (type) {
         case "new":
-          return configList_default.list.map((x) => __spreadProps(__spreadValues({}, x), { id: crypto.randomUUID(), createdAt: 0, lastSavedAt: 0 }));
+          return configList_default.list.map((x) => __spreadProps(__spreadValues({}, x), { id: "invalid", createdAt: 0, lastSavedAt: 0 }));
         case "saved":
           const map = await saveManager_default.load("Game");
           if (!map) {

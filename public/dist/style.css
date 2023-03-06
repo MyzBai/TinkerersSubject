@@ -1,5 +1,64 @@
 @charset "UTF-8";
 /*#region Global*/
+.g-alert-window {
+  position: fixed;
+  inset: 0;
+  min-height: 0;
+  top: 5em;
+  bottom: 5em;
+  z-index: 100;
+  margin: auto;
+  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: flex-start;
+}
+.g-alert-window .s-content {
+  background-color: #0d1117;
+  border: 1px solid #545b64;
+  min-height: 0;
+  min-width: 30%;
+  display: grid;
+  padding: 2em;
+}
+.g-alert-window .s-content header {
+  padding-bottom: 1em;
+  text-align: center;
+}
+.g-alert-window .s-content [data-body] {
+  white-space: break-spaces;
+  overflow-y: auto;
+  min-height: 0;
+  border-top: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  padding: 0.3em;
+}
+.g-alert-window .s-content .s-buttons {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 0.1em;
+  padding-top: 0.7em;
+}
+.g-alert-window .s-content .s-buttons button {
+  min-width: 3em;
+}
+.g-alert-window .s-content footer {
+  padding-top: 0.3em;
+}
+.g-alert-window .s-content footer small {
+  display: block;
+  font-size: 0.75em;
+  color: #8b949e;
+}
+.g-alert-window .backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  backdrop-filter: blur(1px);
+}
+
 .g-modal {
   display: grid;
   position: fixed;
@@ -97,7 +156,7 @@
   background-color: rgba(255, 255, 255, 0.0509803922);
 }
 .g-button:active {
-  background-color: #303030;
+  background-color: #154183;
 }
 .g-button.selected {
   background-color: rgba(255, 255, 255, 0.1019607843);
@@ -455,6 +514,7 @@ progress[value]::-webkit-progress-value {
 .p-home .s-main .p-saved {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 0.3em;
   width: 100%;
 }
 .p-home .s-main .p-new [data-entry-list],
@@ -480,10 +540,13 @@ progress[value]::-webkit-progress-value {
 .p-home .s-main .p-new [data-entry-info] [data-title],
 .p-home .s-main .p-saved [data-entry-info] [data-title] {
   padding: 0.3em;
+  border-bottom: 1px solid #333333;
 }
 .p-home .s-main .p-new [data-entry-info] [data-desc],
 .p-home .s-main .p-saved [data-entry-info] [data-desc] {
   padding: 0.3em;
+  text-align: left;
+  white-space: break-spaces;
 }
 
 .p-game {
@@ -599,8 +662,25 @@ progress[value]::-webkit-progress-value {
   padding-bottom: 0.3em;
 }
 .p-game [data-main-view] .p-skills .s-skill-info header {
-  text-align: center;
+  display: flex;
   padding-bottom: 0.3em;
+  text-align: center;
+  justify-content: space-between;
+}
+.p-game [data-main-view] .p-skills .s-skill-info header .title {
+  align-self: center;
+}
+.p-game [data-main-view] .p-skills .s-skill-info header [data-type] {
+  background-color: #1f6feb;
+  padding-left: 0.7em;
+  padding-right: 0.7em;
+  font-family: monospace;
+}
+.p-game [data-main-view] .p-skills .s-skill-info header [data-type]:hover {
+  background-color: #1a51a3;
+}
+.p-game [data-main-view] .p-skills .s-skill-info header [data-type]:active {
+  background-color: #154183;
 }
 .p-game [data-main-view] .p-skills .s-skill-info table {
   border-collapse: separate;

@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
         "list": {
@@ -13,8 +13,7 @@
                         "pattern": "^[A-Za-z 0-9]{3,}$"
                     },
                     "description": {
-                        "type": "string",
-                        "pattern": "^[A-Za-z 0-9 .,!\\[\\]()/=%&{}?\\-:;']*$"
+                        "$ref": "gameConfig.schema.json#/definitions/text"
                     },
                     "rawUrl": {
                         "type": "string",
