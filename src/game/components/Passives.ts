@@ -1,10 +1,10 @@
-import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import { Modifier } from "../mods";
 import type PassivesConfig from "@src/types/gconfig/passives";
 import type { PassiveConfig } from "@src/types/gconfig/passives";
+import type GameSave from "@src/types/save/save";
 
 export default class Passives extends Component {
 
@@ -61,17 +61,19 @@ export default class Passives extends Component {
         this.updatePoints();
     }
 
-    save(saveObj: Save): void {
+    save(saveObj: GameSave) {
         saveObj.passives = {
-            list: this.passives.filter(x => x.assigned).map((x) => ({
-                index: this.passives.indexOf(x),
-                desc: x.data.mod
-            }))
+            list: this.passives.reduce<Required<GameSave>['passives']['list']>((a, c) => {
+                if (c.assigned) {
+                    a.push({ desc: c.mod.templateDesc, index: c.index });
+                }
+                return a;
+            }, [])
         }
     }
 
     private updatePoints() {
-        if(this.curPoints < 0){
+        if (this.curPoints < 0) {
             this.resetPassives();
             console.warn('current passive points cannot go negative. passives have been reset');
         }
@@ -101,9 +103,9 @@ class Passive {
             this.element.classList.remove('hidden');
         });
 
-        const savedList = passives.game.saveObj.passives?.list;
+        const savedList = passives.game.saveObj?.passives?.list;
         if (savedList) {
-            const desc = savedList.find(x => x.index === index)?.desc;
+            const desc = savedList.find(x => x && x.index === index)?.desc;
             if (desc === data.mod && passives.curPoints >= data.points) {
                 this.assigned = true;
             }

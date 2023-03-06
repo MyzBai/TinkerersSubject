@@ -35,9 +35,11 @@ export default class CraftPresets {
         //preset modal delete button
         querySelector('[data-delete]', this.modal).addEventListener('click', () => this.deleteActivePreset());
 
-        if (items.game.saveObj.items?.craftPresets) {
+        if (items.game.saveObj?.items?.craftPresets) {
             for (const savedPreset of items.game.saveObj.items?.craftPresets) {
-                this.newPreset(savedPreset.name, savedPreset.ids);
+                if(savedPreset?.name && savedPreset.ids){
+                    this.newPreset(savedPreset.name, savedPreset.ids as CraftId[]);
+                }
             }
         } else {
             this.newPreset('Default', items.data.craftList.map(x => x.id));

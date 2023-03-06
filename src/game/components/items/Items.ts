@@ -3,7 +3,7 @@ import type Game from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
 import type { ItemModConfig } from "@src/types/gconfig/items";
 import type ItemsConfig from "@src/types/gconfig/items";
-import type { Save } from "@src/types/save";
+import type GameSave from "@src/types/save/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import { CraftData, CraftId, craftTemplates } from "./crafting";
 import CraftPresets from "./CraftPresets";
@@ -28,7 +28,6 @@ export default class Items extends Component {
         this.presets = new CraftPresets(this);
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
 
-
         if (data.itemList.length === 0 || data.itemList.sort((a, b) => a.levelReq - b.levelReq)[0]!.levelReq > data.levelReq) {
             throw Error('No items available! There must be at least 1 item available');
         }
@@ -46,7 +45,7 @@ export default class Items extends Component {
         this.updateCraftList(this.presets.activePreset?.ids);
 
         this.game.visiblityObserver.register(this.page, visible => {
-            if(visible){
+            if (visible) {
                 this.updateCraftButton();
             }
         })
@@ -62,20 +61,17 @@ export default class Items extends Component {
         this.craftButton.addEventListener('click', () => this.performCraft());
     }
 
-    save(saveObj: Save) {
+    save(saveObj: GameSave) {
         saveObj.items = {
-            items: this.items.map<Required<Save>['items']['items'][number]>(item => ({
-                name: item.name,
-                modList: item.mods.map(mod => ({
-                    text: mod.text,
-                    values: mod.stats.map(x => x.value)
-                }))
-            })),
-            craftPresets: this.presets.presets.map(preset => ({
-                name: preset.name,
-                ids: preset.ids
-            }))
-        }
+            items: this.items.reduce<Required<GameSave>['items']['items']>((a, c) => {
+                a.push({ name: c.name, modList: c.mods.map(x => ({ text: x.templateDesc, values: x.stats.map(x => x.value) })) });
+                return a;
+            }, []),
+            craftPresets: this.presets.presets.reduce<Required<GameSave>['items']['craftPresets']>((a, c) => {
+                a.push({ name: c.name, ids: c.ids });
+                return a;
+            }, [])
+        };
     }
 
     selectItem(item: Item) {
@@ -238,27 +234,40 @@ class Item {
     }
 
     private tryLoad() {
-        const savedItem = this.items.game.saveObj.items?.items?.find(x => x.name === this.name);
-        if (!savedItem) {
-            return;
-        }
-        if (savedItem) {
-            const mods = savedItem.modList.map(savedMod => {
-                const mod = this.items.modLists.find(x => x.text === savedMod.text)?.copy();
-                if (!mod || savedMod.values.length !== mod.stats.length) {
-                    console.error('invalid saved mod:', savedMod);
-                    return;
-                }
-                savedMod.values.forEach((v, i) => {
-                    const statMod = mod.stats[i];
-                    if (statMod) {
-                        statMod.value = v;
+        try {
+            const savedItem = this.items.game.saveObj?.items?.items?.find(x => x && x.name === this.name);
+            if (!savedItem) {
+                return;
+            }
+            const mods = savedItem.modList?.reduce<ItemModifier[]>((a, c) => {
+                if (c?.text && c.values) {
+                    const mod = this.items.modLists.find(x => x.templateDesc === c.text)?.copy();
+                    if (!mod) {
+                        return a;
                     }
-                });
-                return mod;
-            }).filter((x): x is ItemModifier => !!x);
+                    if (c.values.length !== mod.stats.length || c.values.some(x => typeof x !== 'number')) {
+                        mod.stats.forEach(x => x.value = x.min);
+                        a.push(mod);
+                        return a;
+                    }
+
+                    c.values.forEach((x, i) => {
+                        if (!x || typeof x !== 'number') {
+                            return;
+                        }
+                        const stat = mod.stats[i]!;
+                        stat.value = x;
+                    });
+                    a.push(mod);
+                    return a;
+                }
+                return a;
+            }, []) || [];
             this.mods = mods;
+        } catch (e) {
+            throw Error('failed loading items');
         }
+
     }
 }
 

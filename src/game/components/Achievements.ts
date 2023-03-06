@@ -1,4 +1,3 @@
-import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";

@@ -267,8 +267,8 @@ const generateReforgeModCount = (offset = 0) => {
     const REFORGE_WEIGHTS = [0, 0, 40, 50, 30, 20].slice(offset, 6);
     let sum = REFORGE_WEIGHTS.reduce((a, c) => a + c);
     const random = Math.random() * sum;
-    for (let i = 0; i < REFORGE_WEIGHTS.length; i++) {
-        sum -= REFORGE_WEIGHTS[i]!;
+    for (const [i, v] of REFORGE_WEIGHTS.entries()) {
+        sum -= v;
         if (sum <= random) {
             return i + 1;
         }

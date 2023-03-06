@@ -1,10 +1,10 @@
-import type { Save } from "@src/types/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
 import type Game from "../Game";
 import Task from "../Task";
 import type MissionsConfig from "@src/types/gconfig/missions";
 import type { MissionConfig } from "@src/types/gconfig/missions";
+import type GameSave from "@src/types/save/save";
 
 
 export default class Missions extends Component {
@@ -32,21 +32,15 @@ export default class Missions extends Component {
         querySelector('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
     }
 
-    save(saveObj: Save): void {
-
-        saveObj.missions = (() => {
-            const list: Required<Save>['missions']['missions'] = [];
-            this.slots.forEach((slot) => {
-                if (!slot.task) {
-                    return;
+    save(saveObj: GameSave): void {
+        saveObj.missions = {
+            missions: this.slots.reduce<Required<GameSave>['missions']['missions']>((a, c) => {
+                if (c.task) {
+                    a.push({ desc: c.task.text || '', startValue: c.task.startValue || 0 });
                 }
-                list.push({
-                    desc: slot.task.text,
-                    startValue: slot.task.startValue
-                });
-            });
-            return { missions: list };
-        })() as Save['missions'];
+                return a;
+            }, [])
+        }
     }
 
 }
@@ -217,17 +211,17 @@ class MissionSlot {
     }
 
     private tryLoad() {
-        const savedMission = this.missions.game.saveObj.missions?.missions[this.missions.slots.length];
+        const savedMission = this.missions.game.saveObj?.missions?.missions?.[this.missions.slots.length];
         if (!savedMission) {
             return;
         }
         this.unlock();
 
-        const missionData = this.missions.data.missionLists.flatMap(x => x).find(x => x.description === savedMission.desc);
+        const missionData = this.missions.data.missionLists.flatMap(x => x).find(x => savedMission.desc && x.description === savedMission.desc);
         if (missionData) {
             this._missionData = missionData;
             this._task = new Task(this.missions.game, missionData.description);
-            this._task.startValue = savedMission.startValue;
+            this._task.startValue = savedMission.startValue || 0;
             this.tryCompletion();
         } else {
             this.generateRandomMission();

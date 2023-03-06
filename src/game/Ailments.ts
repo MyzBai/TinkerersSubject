@@ -253,19 +253,8 @@ export class Ailments {
             }
         }, { intervalMilliseconds: 1000 });
 
-        this.handlers.forEach(x => {
-            const save = this.game.saveObj.enemy?.ailments?.find(y => y.type === x.type);
-            if (!save) {
-                return;
-            }
-            let time = 0;
-            for (const savedInstance of save.instances) {
-                const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
-                instance.time = savedInstance.time;
-                time = Math.max(time, savedInstance.time);
-            }
-            x.time = time;
-        });
+        this.tryLoad();
+
     }
 
     reset() {
@@ -283,5 +272,25 @@ export class Ailments {
             throw Error();
         }
         handler.addAilment(ailment);
+    }
+
+    private tryLoad() {
+        try {
+            this.handlers.forEach(x => {
+                const save = this.game.saveObj?.enemy?.ailments?.find(y => y && y.type === x.type);
+                if (!save) {
+                    return;
+                }
+                let time = 0;
+                for (const savedInstance of save.instances || []) {
+                    const instance = x.addAilment({ damageFac: savedInstance?.damageFac || 1, type: x.type });
+                    instance.time = savedInstance?.time || 0;
+                    time = Math.max(time, instance.time);
+                }
+                x.time = time;
+            });
+        } catch (e) {
+            throw Error('failed loading ailments');
+        }
     }
 }

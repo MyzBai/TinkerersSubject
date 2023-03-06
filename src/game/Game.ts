@@ -6,7 +6,6 @@ import Statistics from "./Statistics";
 import EventEmitter from "@src/utils/EventEmitter";
 import gameHtml from '@html/game.html';
 import saveManager from "@src/utils/saveManager";
-import type { Save } from "@src/types/save";
 import type Home from "@src/Home";
 
 import { VisibilityObserver } from "@src/utils/Observers";
@@ -15,6 +14,7 @@ import { componentConfigs, loadComponent } from "./components/loader";
 import type GameConfig from "@src/types/gconfig/gameConfig";
 import type { ComponentName } from "@src/types/gconfig/components";
 import customAlert from "@src/utils/alert";
+import type GameSave from "@src/types/save/save";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -24,11 +24,11 @@ export default class Game {
     readonly statistics: Statistics;
     readonly visiblityObserver: VisibilityObserver;
     readonly componentsList: Component[] = [];
-    readonly onSave = new EventEmitter<Save>();
+    readonly onSave = new EventEmitter<GameSave>();
     private _config: GameConfig | undefined;
-    private _saveObj: Save | undefined;
+    private _saveObj?: DeepPartial<GameSave>;
     constructor(readonly home: Home) {
-        this.page = new DOMParser().parseFromString(gameHtml, 'text/html').querySelector('.p-game')!;
+        this.page = querySelector('.p-game', new DOMParser().parseFromString(gameHtml, 'text/html').body);
         querySelector('.p-home').after(this.page);
         this.visiblityObserver = new VisibilityObserver(this.gameLoop);
         this.page = querySelector('.p-game');
@@ -48,15 +48,16 @@ export default class Game {
         registerTabs(querySelector('[data-main-menu]', this.page), querySelector('[data-main-view]', this.page));
     }
     get config() {
-        return this._config!;
+        return this._config;
     }
     get saveObj() {
-        return this._saveObj!;
+        return this._saveObj;
     }
 
-    async init(config: GameConfig, saveObj: Save) {
+    async init(config: GameConfig, saveObj?: GameSave) {
         this._config = config;
         this._saveObj = saveObj;
+
 
         querySelector('[data-config-name]', this.page).textContent = this._config.meta.name;
 
@@ -131,7 +132,7 @@ export default class Game {
     private initComponents() {
         const menuContainer = querySelector('[data-main-menu] .s-components', this.page);
         menuContainer.replaceChildren();
-        if (!this.config.components) {
+        if (!this.config?.components) {
             return;
         }
         for (const key of Object.keys(componentConfigs)) {
@@ -171,13 +172,15 @@ export default class Game {
     }
 
     async save() {
-        const map = await saveManager.load('Game') || new Map<string, Save>();
-        const saveObj = map.get(this.config.meta.id) as Save || { meta: { ...this.config.meta } };
+        if (!this.config) {
+            throw Error('missing configuration');
+        }
+        const map = await saveManager.load('Game') || new Map<string, GameSave>();
+        const saveObj = map.get(this.config.meta.id) as GameSave || { meta: { ...this.config.meta } };
         saveObj.meta.lastSavedAt = Date.now();
         this.player.save(saveObj);
         this.enemy.save(saveObj);
         this.statistics.save(saveObj);
-        // this.skills.save(saveObj);
 
         for (const componentData of this.componentsList) {
             componentData.save(saveObj);
@@ -227,7 +230,7 @@ export default class Game {
         }
     }
 
-    async hasSave(id: Save['meta']['id']) {
+    async hasSave(id: GameSave['meta']['id']) {
         const map = await saveManager.load('Game');
         if (!map) {
             return false;
