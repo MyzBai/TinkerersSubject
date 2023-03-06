@@ -36,7 +36,10 @@
             padding: $padding-container;
         }
         .s-buttons {
-            padding-top: $padding-container;
+            display: grid;
+            grid-auto-flow: column;
+            gap: 0.1em;
+            padding-top: 0.7em;
             button {
                 min-width: 3em;
             }
