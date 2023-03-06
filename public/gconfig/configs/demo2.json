@@ -4,11 +4,11 @@
         "endPrompt": {
             "title": "You completed the Demo!",
             "body": "The game is in early stages and your feedback would be highly appreciated. \nPlease check out the links down in the footer. \nThank you for playing.",
-            "footer": "Note: You can create your own configuration. Head over to github to find out more!"
+            "footer": "Note: You can create your own configuration. Header over to github to find out more!"
         }
     },
     "enemies": {
-        "enemyList": [ 100, 500, 1000, 8000, 50000, 150000, 500000, 700000, 1e6]
+        "enemyList": [ 100, 500, 1000, 8000, 30000, 100000, 500000, 700000, 800000, 1e6 ]
     },
     "player": {
         "modList": [
