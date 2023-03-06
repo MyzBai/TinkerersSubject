@@ -559,9 +559,9 @@
                         "mod": "+{10}% Hit Chance"
                     },
                     {
-                        "levelReq": 3,
-                        "points": 2,
-                        "mod": "+{20}% Hit Chance"
+                        "levelReq": 7,
+                        "points": 3,
+                        "mod": "+{30}% Hit Chance"
                     }
                 ],
                 [
