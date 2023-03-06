@@ -1,4 +1,4 @@
-import Skills from "./Skills";
+import Skills from "./skills/Skills";
 import Items from "./items/Items";
 import type Component from "./Component";
 import Passives from "./Passives";
@@ -59,6 +59,7 @@ export function loadComponent(game: Game, key: ComponentName) {
     const gamePage = querySelector('.p-game');
     const menuContainer = querySelector('[data-main-menu] .s-components', gamePage);
     const mainView = querySelector('[data-main-view]', gamePage);
+
     const { constr, html, label } = componentConfigs[key];
 
     //page
@@ -67,7 +68,6 @@ export function loadComponent(game: Game, key: ComponentName) {
         throw Error(`invalid html of component: ${name}`);
     }
     mainView.appendChild(page);
-
     //menu item
     const menuItem = document.createElement('li');
     menuItem.textContent = label;
@@ -84,6 +84,7 @@ export function loadComponent(game: Game, key: ComponentName) {
 
     //instance
     const instance = new constr(game, game.config.components[key]);
+
 
     return instance;
 }

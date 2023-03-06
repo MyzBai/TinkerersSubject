@@ -145,7 +145,7 @@ class MissionSlot {
         this.updateSlot();
     }
 
-    private updateSlot(){
+    private updateSlot() {
         this.updateLabel();
         this.updateClaimButton();
         this.updateNewButton();
@@ -221,15 +221,18 @@ class MissionSlot {
         if (!savedMission) {
             return;
         }
-        const missionData = this.missions.data.missionLists.flatMap(x => x).find(x => x.description === savedMission.desc);
-        if (!missionData) {
-            return;
-        }
         this.unlock();
-        this._missionData = missionData;
-        this._task = new Task(this.missions.game, missionData.description);
-        this._task.startValue = savedMission.startValue;
-        this.tryCompletion();
+
+        const missionData = this.missions.data.missionLists.flatMap(x => x).find(x => x.description === savedMission.desc);
+        if (missionData) {
+            this._missionData = missionData;
+            this._task = new Task(this.missions.game, missionData.description);
+            this._task.startValue = savedMission.startValue;
+            this.tryCompletion();
+        } else {
+            this.generateRandomMission();
+        }
+
         this.updateSlot();
     }
 }

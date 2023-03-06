@@ -14,7 +14,7 @@
                             "type": "string",
                             "maxLength": 32,
                             "minLength": 3,
-                            "pattern": "^[A-Za-z 0-9]+$"
+                            "pattern": "^[A-Za-z 0-9!]+$"
                         },
                         "body": {
                             "type": "string",

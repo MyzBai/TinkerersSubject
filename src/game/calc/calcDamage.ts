@@ -67,9 +67,8 @@ export function calcAttack(statModList: StatModifier[]) {
         critMultiplier = calcModTotal('CritMulti', config) / 100;
     }
 
-    const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config);
     //finalize
-    const finalMultiplier = (baseDamageMultiplier / 100) * critMultiplier;
+    const finalMultiplier = critMultiplier;
 
     const totalDamage = baseDamage.totalBaseDamage * finalMultiplier;
     const totalPhysicalDamage = baseDamage.physicalDamage * finalMultiplier;
@@ -81,15 +80,15 @@ export function calcAttack(statModList: StatModifier[]) {
     {
         config.flags = StatModifierFlags.Ailment | StatModifierFlags.Bleed | StatModifierFlags.Physical;
         const bleedChance = calcModTotal('BleedChance', config) / 100;
-        if(bleedChance >= randomRange(0, 1)){
-            const damageFac = randomRange(0,1);
+        if (bleedChance >= randomRange(0, 1)) {
+            const damageFac = randomRange(0, 1);
             ailments.push({ damageFac, type: 'Bleed' });
         }
 
         config.flags = StatModifierFlags.Ailment | StatModifierFlags.Burn | StatModifierFlags.Elemental;
         const burnChance = calcModTotal('BurnChance', config) / 100;
-        if(burnChance >= randomRange(0, 1)){
-            const damageFac = randomRange(0,1);
+        if (burnChance >= randomRange(0, 1)) {
+            const damageFac = randomRange(0, 1);
             ailments.push({ damageFac, type: 'Burn' });
         }
     }
@@ -121,11 +120,13 @@ export function calcBaseDamage(config: Configuration, calcMinMax: CalcMinMax) {
     };
 
     let totalBaseDamage = 0;
-
+    const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config) / 100;
     for (const damageType of Object.keys(DamageTypeFlags) as DamageType[]) {
         const bit = StatModifierFlags[damageType];
         config.flags |= bit
-        const { min, max } = calcDamage(damageType, config, conversionTable);
+        let { min, max } = calcDamage(damageType, config, conversionTable);
+        min *= baseDamageMultiplier;
+        max *= baseDamageMultiplier;
         output[`min${damageType}Damage`] = min;
         output[`max${damageType}Damage`] = max;
         const baseDamage = calcMinMax(min, max);
@@ -168,8 +169,11 @@ function calcDamage(damageType: DamageType, config: Configuration, conversionTab
 
 export function calcAilmentBaseDamage(damageType: DamageType, config: Configuration, typeFlags = 0) {
     const conversionTable = generateConversionTable(config);
-    const { min, max } = calcDamage(damageType, config, conversionTable, typeFlags);
+    let { min, max } = calcDamage(damageType, config, conversionTable, typeFlags);
     const convMulti = conversionTable[damageType]?.multi || 1;
+    const baseDamageMultiplier = calcModTotal('BaseDamageMultiplier', config) / 100;
+    min *= baseDamageMultiplier;
+    max *= baseDamageMultiplier;
     return { min: min * convMulti, max: max * convMulti }
 }
 

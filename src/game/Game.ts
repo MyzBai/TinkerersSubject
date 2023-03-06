@@ -12,9 +12,9 @@ import type Home from "@src/Home";
 import { VisibilityObserver } from "@src/utils/Observers";
 import type Component from "./components/Component";
 import { componentConfigs, loadComponent } from "./components/loader";
-import type { GenericModal } from "@src/webComponents/GenericModal";
 import type GameConfig from "@src/types/gconfig/gameConfig";
 import type { ComponentName } from "@src/types/gconfig/components";
+import customAlert from "@src/utils/alert";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -61,21 +61,18 @@ export default class Game {
         querySelector('[data-config-name]', this.page).textContent = this._config.meta.name;
 
         //Reset
-        this.onSave.removeAllListeners();
-        this.disposeComponents();
-        this.visiblityObserver.disconnectAll();
-        
-        this.gameLoop.reset();
-        this.player.reset();
-        this.enemy.reset();
-        this.statistics.reset();
-  
+        this.reset();
 
         //Initialize
-        this.enemy.init();
-        this.player.init();
-        this.statistics.init();
-        this.initComponents();
+        try {
+            this.enemy.init();
+            this.player.init();
+            this.statistics.init();
+            this.initComponents();
+        } catch (e) {
+            this.reset();
+            throw new Error('Failed to initialize the game');
+        }
 
 
         //Setup
@@ -93,22 +90,33 @@ export default class Game {
 
         {
             const endPrompt = config.options?.endPrompt;
-            if(endPrompt){
-                this.enemy.onDeath.listen(x => {
-                    if(x.index > x.maxIndex){
-                        querySelector<GenericModal>('generic-modal').init({
+            if (endPrompt) {
+                this.statistics.statistics.Level.addListener('change', level => {
+                    if (level >= this.enemy.maxIndex + 1) {
+                        customAlert({
                             title: endPrompt.title,
                             body: endPrompt.body,
                             footerText: endPrompt.footer,
-                            buttons: [{ label: 'Continue', type: 'confirm' }],
-                        }).openModal();
+                            buttons: [{ label: 'Continue', type: 'confirm' }]
+                        });
                     }
                 });
             }
         }
     }
 
-    setup() {
+    private reset() {
+        this.onSave.removeAllListeners();
+        this.disposeComponents();
+        this.visiblityObserver.disconnectAll();
+
+        this.gameLoop.reset();
+        this.player.reset();
+        this.enemy.reset();
+        this.statistics.reset();
+    }
+
+    private setup() {
         this.statistics.setup();
         this.enemy.setup();
         this.player.setup();
@@ -140,22 +148,14 @@ export default class Game {
     }
 
     private disposeComponents() {
-        for (const componentData of this.componentsList) {
-            componentData.dispose();
-        }
+        Object.keys(componentConfigs).forEach(x => {
+            this.page.querySelector(`[data-main-menu] [data-tab-target="${x}"]`)?.remove();
+            this.page.querySelector(`[data-main-view] [data-tab-content="${x}"]`)?.remove();
+        });
         this.componentsList.splice(0);
     }
 
     private setupDevHelpers() {
-        if ('TS' in window) {
-            return;
-        }
-        Object.defineProperty(window, 'TS', {
-            value: {
-                game: this,
-            }
-        });
-
         console.log('Press Space to toggle GameLoop');
         document.body.addEventListener('keydown', x => {
             if (x.code === 'Space') {

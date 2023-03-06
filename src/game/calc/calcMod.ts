@@ -44,14 +44,12 @@ export function calcPlayerStats(game: Game) {
     const critMulti = Math.max(calcModTotal('CritMulti', config), 100) / 100;
     statistics['Critical Hit Multiplier'].set(critMulti);
 
-    const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config) / 100;
-
     let attackDps = 0;
     {
         config.flags = StatModifierFlags.Attack;
         const baseDamageResult = calcBaseDamage(config, avg);
         const critDamageMultiplier = 1 + (clampedCritChance * critMulti);
-        attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier * baseDamageMultiplier;
+        attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier;
 
         statistics['Attack Dps'].set(attackDps);
         statistics['Average Attack Damage'].set(baseDamageResult.totalBaseDamage);
@@ -71,7 +69,7 @@ export function calcPlayerStats(game: Game) {
             const baseDamage = avg(min, max);
             const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
             const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
-            bleedDps = baseDamage * maxStacks * baseDamageMultiplier;
+            bleedDps = baseDamage * maxStacks;
         }
         statistics['Bleed Dps'].set(bleedDps);
         statistics['Bleed Chance'].set(bleedChance);
@@ -91,7 +89,7 @@ export function calcPlayerStats(game: Game) {
             const baseDamage = avg(min, max);
             const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
             const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
-            burnDps = baseDamage * maxStacks * baseDamageMultiplier;
+            burnDps = baseDamage * maxStacks;
         }
         statistics['Burn Dps'].set(burnDps);
         statistics['Burn Chance'].set(burnChance);

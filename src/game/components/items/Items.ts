@@ -45,13 +45,17 @@ export default class Items extends Component {
         this.createCraftListItems(data.craftList);
         this.updateCraftList(this.presets.activePreset?.ids);
 
+        this.game.visiblityObserver.register(this.page, visible => {
+            if(visible){
+                this.updateCraftButton();
+            }
+        })
+
         this.game.statistics.statistics.Gold.addListener('change', () => {
             if (this.page.classList.contains('hidden')) {
                 return;
             }
-            if (this.activeCraftId) {
-                this.updateCraftButton();
-            }
+            this.updateCraftButton();
         });
 
         game.statistics.statistics.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
