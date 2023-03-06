@@ -1,11 +1,9 @@
 import type { Save } from "@src/types/save";
-import EventEmitter from "@src/utils/EventEmitter";
 import { clamp, querySelector } from "@src/utils/helpers";
 import { AilmentData, AilmentInstance, Ailments } from "./Ailments";
 import type Game from "./Game";
 
 export default class Enemy {
-    readonly onDeath = new EventEmitter<Enemy>();
     private readonly ailments: Ailments;
     private _index: number;
     private healthList: number[] = [];
@@ -38,6 +36,11 @@ export default class Enemy {
             this.updateHealthBar();
         });
 
+        this.game.statistics.statistics.Level.addListener('change', level => {
+            this._index = clamp(level, 1, this.maxIndex + 1) - 1;
+            this.spawn();
+        });
+
         this.healthList = this.game.config.enemies.enemyList;
         this._index = this.game.saveObj.enemy?.index || 0;
     }
@@ -50,7 +53,7 @@ export default class Enemy {
     }
 
     reset() {
-        this.onDeath.removeAllListeners();
+
     }
 
     setIndex(index: number) {
@@ -74,8 +77,7 @@ export default class Enemy {
         if (this.health <= 0) {
             this.health = 0;
             this._index++;
-            this.onDeath.invoke(this);
-            this.spawn();
+            this.game.statistics.statistics.Level.add(1);
         }
     }
 

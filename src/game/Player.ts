@@ -29,13 +29,6 @@ export default class Player {
             this.updateManaBar();
         });
 
-        this.game.enemy.onDeath.listen(() => {
-            if (this.game.statistics.statistics.Level.get() <= this.game.enemy.maxIndex) {
-                // this.stats.level.set(this.game.enemy.index+1);
-                this.game.statistics.statistics.Level.add(1);
-            }
-        });
-
         this.game.statistics.statistics['Current Mana'].addListener('change', curMana => {
             const maxMana = this.game.statistics.statistics['Maximum Mana'].get();
             if (curMana > maxMana) {
