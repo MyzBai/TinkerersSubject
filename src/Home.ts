@@ -53,11 +53,45 @@ export default class Home {
         querySelector('.p-home .p-saved [data-entry-info] [data-delete]').addEventListener('click', this.deleteSavedConfig.bind(this));
     }
 
-    private startNewConfig() {
+    private async startNewConfig() {
         if (!this.activeEntry) {
             return;
         }
-        this.tryStartGame(this.activeEntry,);
+        //if save contains this, prompt user
+        const map = await saveManager.load('Game');
+        const save = map ? Array.from(map).find(([_key, value]) => value.meta.name === this.activeEntry?.name)?.[1] : undefined;
+        if (save) {
+            const startNewGame = () => {
+                this.activeEntry!.id = crypto.randomUUID();
+                this.tryStartGame(this.activeEntry!);
+            };
+            const overrideGame = () => {
+                this.activeEntry!.id = save.meta.id;
+                this.tryStartGame(this.activeEntry!);
+            };
+            const continueGame = () => {
+                this.tryStartGame(this.activeEntry!, save);
+            };
+            customAlert({
+                title: "Configuration already exists",
+                body: "You already have a save with this configuration.\n\nNew - Start a new game with a new save file\nOverride - Start a new game and override save file\nContinue - Start from save file",
+                buttons: [
+                    {
+                        label: 'New', type: 'confirm', callback: startNewGame
+                    },
+                    {
+                        label: 'Override', type: 'confirm', callback: overrideGame
+                    },
+                    {
+                        label: 'Continue', type: 'confirm', callback: continueGame
+                    },
+                    {
+                        label: 'Cancel', type: 'cancel'
+                    }]
+            });
+        } else {
+            this.tryStartGame(this.activeEntry);
+        }
     }
 
     private async startSavedConfig() {
@@ -76,20 +110,18 @@ export default class Home {
     }
 
     private deleteSavedConfig() {
+        const deleteSave = async () => {
+            if (!this.activeEntry?.id) {
+                return;
+            }
+            await this.game.deleteSave(this.activeEntry.id);
+            this.populateEntryList('saved');
+        };
         customAlert({
             title: 'Delete Save',
             body: 'Are you sure?',
-            buttons: [{ label: 'Yes', type: 'confirm' }, { label: 'No', type: 'cancel' }],
-            footerText: 'This will delete your save file permanently',
-            callback: async (confirm) => {
-                if (confirm) {
-                    if (!this.activeEntry?.id) {
-                        return;
-                    }
-                    await this.game.deleteSave(this.activeEntry.id);
-                    this.populateEntryList('saved');
-                }
-            }
+            buttons: [{ label: 'Yes', type: 'confirm', callback: deleteSave }, { label: 'No', type: 'cancel' }],
+            footerText: 'This will delete your save file permanently'
         });
     }
 
@@ -193,7 +225,7 @@ export default class Home {
     private async getEntries(type: EntryType): Promise<GConfig['meta'][]> {
         switch (type) {
             case 'new':
-                return configList.list.map(x => ({ ...x, id: crypto.randomUUID(), createdAt: 0, lastSavedAt: 0 }));
+                return configList.list.map(x => ({ ...x, id: '', createdAt: 0, lastSavedAt: 0 }));
             case 'saved':
                 const map = await saveManager.load('Game');
                 if (!map) {
