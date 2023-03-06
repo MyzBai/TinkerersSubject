@@ -9011,6 +9011,7 @@
           enemyList: {
             type: "array",
             minItems: 1,
+            description: "Each element represents a level. The length should be maxLevel - 1 because the enemy at maxLevel cannot be killed. E.g. [1] when killed increments the level to 2",
             items: {
               type: "integer",
               minimum: 1
@@ -10136,6 +10137,7 @@
       return this._attackProgressPct;
     }
     init() {
+      var _a;
       this.game.onSave.listen(this.save.bind(this));
       if (this.game.config.player) {
         this.game.config.player.modList.forEach((x) => {
@@ -10144,11 +10146,6 @@
       }
       this.game.gameLoop.subscribeAnim(() => {
         this.updateManaBar();
-      });
-      this.game.enemy.onDeath.listen(() => {
-        if (this.game.statistics.statistics.Level.get() <= this.game.enemy.maxIndex) {
-          this.game.statistics.statistics.Level.add(1);
-        }
       });
       this.game.statistics.statistics["Current Mana"].addListener("change", (curMana) => {
         const maxMana = this.game.statistics.statistics["Maximum Mana"].get();
@@ -10166,6 +10163,7 @@
         this.game.statistics.statistics["Current Mana"].add(manaRegen);
         this.game.statistics.statistics["Mana Generated"].add(manaRegen);
       });
+      this._attackProgressPct = ((_a = this.game.saveObj.player) == null ? void 0 : _a.attackTimePct) || 0;
     }
     reset() {
       this.modDB.clear();
@@ -10225,7 +10223,8 @@
       saveObj.player = {
         level: this.game.statistics.statistics.Level.get(),
         gold: this.game.statistics.statistics.Gold.get(),
-        curMana: this.game.statistics.statistics["Current Mana"].get()
+        curMana: this.game.statistics.statistics["Current Mana"].get(),
+        attackTimePct: this.attackProgressPct
       };
     }
   };
@@ -10488,7 +10487,6 @@
   var Enemy = class {
     constructor(game) {
       this.game = game;
-      __publicField(this, "onDeath", new EventEmitter());
       __publicField(this, "ailments");
       __publicField(this, "_index");
       __publicField(this, "healthList", []);
@@ -10519,6 +10517,10 @@
       this.game.gameLoop.subscribeAnim(() => {
         this.updateHealthBar();
       });
+      this.game.statistics.statistics.Level.addListener("change", (level) => {
+        this._index = clamp(level, 1, this.maxIndex + 1) - 1;
+        this.spawn();
+      });
       this.healthList = this.game.config.enemies.enemyList;
       this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
     }
@@ -10530,7 +10532,6 @@
       this.ailments.setup();
     }
     reset() {
-      this.onDeath.removeAllListeners();
     }
     setIndex(index) {
       this._index = index;
@@ -10550,8 +10551,7 @@
       if (this.health <= 0) {
         this.health = 0;
         this._index++;
-        this.onDeath.invoke(this);
-        this.spawn();
+        this.game.statistics.statistics.Level.add(1);
       }
     }
     dealDamageOverTime(damage) {
@@ -11115,9 +11115,9 @@
       this.removeModifiers();
       this._skill = skill;
       querySelector("[data-skill-name]", this.element).textContent = skill.rank.config.name || "unknown";
-      this.skills.game.statistics.statistics["Hits"].removeListener("add", this.rankProgressCallback);
       const nextRank = skill.getNextRank();
-      if (nextRank) {
+      this.skills.game.statistics.statistics["Hits"].removeListener("add", this.rankProgressCallback);
+      if (nextRank && !nextRank.unlocked) {
         this.skills.game.statistics.statistics["Hits"].addListener("add", this.rankProgressCallback);
       }
       this.applyModifiers();
