@@ -90,9 +90,9 @@ export function generateTime(startTime = 0) {
     };
 }
 
-export function highlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover') {
+export function highlightHTMLElement(element: HTMLElement, trigger: 'click' | 'mouseover', force = false) {
     const attr = 'data-highlight-notification';
-    if (element.classList.contains('selected')) {
+    if (element.classList.contains('selected') && !force) {
         return;
     }
     element.setAttribute(attr, '');
