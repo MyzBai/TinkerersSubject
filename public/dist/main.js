@@ -10137,7 +10137,7 @@
       return this._attackProgressPct;
     }
     init() {
-      var _a;
+      var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
       if (this.game.config.player) {
         this.game.config.player.modList.forEach((x) => {
@@ -10163,14 +10163,14 @@
         this.game.statistics.statistics["Current Mana"].add(manaRegen);
         this.game.statistics.statistics["Mana Generated"].add(manaRegen);
       });
-      this._attackProgressPct = ((_a = this.game.saveObj.player) == null ? void 0 : _a.attackTimePct) || 0;
+      this._attackProgressPct = ((_b = (_a = this.game.saveObj) == null ? void 0 : _a.player) == null ? void 0 : _b.attackTimePct) || 0;
     }
     reset() {
       this.modDB.clear();
     }
     async setup() {
-      var _a;
-      this.game.statistics.statistics["Current Mana"].set(((_a = this.game.saveObj.player) == null ? void 0 : _a.curMana) || this.game.statistics.statistics["Maximum Mana"].get());
+      var _a, _b;
+      this.game.statistics.statistics["Current Mana"].set(((_b = (_a = this.game.saveObj) == null ? void 0 : _a.player) == null ? void 0 : _b.curMana) || this.game.statistics.statistics["Maximum Mana"].get());
       this.updateManaBar();
       this.startAutoAttack();
     }
@@ -10451,20 +10451,7 @@
           }
         }
       }, { intervalMilliseconds: 1e3 });
-      this.handlers.forEach((x) => {
-        var _a, _b;
-        const save2 = (_b = (_a = this.game.saveObj.enemy) == null ? void 0 : _a.ailments) == null ? void 0 : _b.find((y) => y.type === x.type);
-        if (!save2) {
-          return;
-        }
-        let time = 0;
-        for (const savedInstance of save2.instances) {
-          const instance = x.addAilment({ damageFac: savedInstance.damageFac, type: x.type });
-          instance.time = savedInstance.time;
-          time = Math.max(time, savedInstance.time);
-        }
-        x.time = time;
-      });
+      this.tryLoad();
     }
     reset() {
       this.handlers.forEach((x) => {
@@ -10480,6 +10467,26 @@
         throw Error();
       }
       handler.addAilment(ailment);
+    }
+    tryLoad() {
+      try {
+        this.handlers.forEach((x) => {
+          var _a, _b, _c;
+          const save2 = (_c = (_b = (_a = this.game.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.ailments) == null ? void 0 : _c.find((y) => y && y.type === x.type);
+          if (!save2) {
+            return;
+          }
+          let time = 0;
+          for (const savedInstance of save2.instances || []) {
+            const instance = x.addAilment({ damageFac: (savedInstance == null ? void 0 : savedInstance.damageFac) || 1, type: x.type });
+            instance.time = (savedInstance == null ? void 0 : savedInstance.time) || 0;
+            time = Math.max(time, instance.time);
+          }
+          x.time = time;
+        });
+      } catch (e) {
+        throw Error("failed loading ailments");
+      }
     }
   };
 
@@ -10512,7 +10519,7 @@
       this._health = clamp(v, 0, this.maxHealth);
     }
     init() {
-      var _a;
+      var _a, _b;
       this.game.onSave.listen(this.save.bind(this));
       this.game.gameLoop.subscribeAnim(() => {
         this.updateHealthBar();
@@ -10522,12 +10529,12 @@
         this.spawn();
       });
       this.healthList = this.game.config.enemies.enemyList;
-      this._index = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.index) || 0;
+      this._index = ((_b = (_a = this.game.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.index) || 0;
     }
     setup() {
-      var _a;
+      var _a, _b;
       this.spawn();
-      this.health = ((_a = this.game.saveObj.enemy) == null ? void 0 : _a.health) || this.maxHealth;
+      this.health = ((_b = (_a = this.game.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.health) || this.maxHealth;
       this.updateHealthBar();
       this.ailments.setup();
     }
@@ -10567,12 +10574,10 @@
         index: this.index,
         health: this.health,
         dummyDamage: 0,
-        ailments: this.ailments.handlers.map((x) => ({
-          type: x.type,
-          instances: x.instances.map(
-            (y) => ({ damageFac: y.damageFac, time: y.time })
-          )
-        }))
+        ailments: this.ailments.handlers.reduce((a, c) => {
+          a == null ? void 0 : a.push({ type: c.type, instances: c.instances.map((x) => ({ time: x.time, damageFac: x.damageFac })) });
+          return a;
+        }, [])
       };
     }
     updateHealthBar() {
@@ -10820,17 +10825,21 @@
       });
     }
     init() {
+      var _a, _b, _c;
       this.game.onSave.listen(this.save.bind(this));
-      if (this.game.saveObj.statistics) {
-        this.game.saveObj.statistics.forEach(({ name: name2, value, sticky }) => {
-          const statistic = this.statistics[name2];
-          if (!statistic) {
-            return;
-          }
-          statistic.set(value);
-          statistic.sticky = sticky || false;
-        });
-      }
+      (_c = (_b = (_a = this.game.saveObj) == null ? void 0 : _a.statistics) == null ? void 0 : _b.statistics) == null ? void 0 : _c.forEach((x) => {
+        var _a2;
+        if (!x) {
+          return;
+        }
+        const key = x.name;
+        const statistic = (_a2 = Object.entries(this.statistics).find((x2) => x2[0] === key)) == null ? void 0 : _a2[1];
+        if (!statistic) {
+          return;
+        }
+        statistic.set(x.value || statistic.defaultValue);
+        statistic.sticky = x.sticky || false;
+      });
       this.game.visiblityObserver.registerLoop(this.page, (visible) => {
         if (visible) {
           this.updatePageStatisticsUI();
@@ -10933,13 +10942,12 @@
       variableElement.textContent = typeof value === "number" ? value.toFixed(statistic.decimals) : value;
     }
     save(saveObj) {
-      saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
-        return {
-          name: key,
-          value: value.get(),
-          sticky: value.sticky
-        };
-      });
+      saveObj.statistics = {
+        statistics: Object.entries(this.statistics).reduce((a, c) => {
+          a.push({ name: c[0], sticky: c[1].sticky, value: c[1].get() });
+          return a;
+        }, [])
+      };
     }
   };
 
@@ -11066,17 +11074,16 @@
       __publicField(this, "element");
       __publicField(this, "progressBar");
       __publicField(this, "_skill");
+      var _a, _b, _c;
       this.element = this.createElement();
       this.progressBar = querySelector("progress", this.element);
       this.rankProgressCallback = this.rankProgressCallback.bind(this);
       querySelector("[data-attack-skill-slot]", skills.page).appendChild(this.element);
       this._skill = skills.attackSkills[0];
-      const saveData = skills.game.saveObj.skills;
-      const savedAttackSkillName = saveData == null ? void 0 : saveData.attackSkillSlot.name;
-      const savedAttackSkill = skills.attackSkills.find((x) => x.name === savedAttackSkillName);
-      if (saveData) {
-        savedAttackSkill == null ? void 0 : savedAttackSkill.setRankByIndex(saveData.attackSkillSlot.rankIndex || 0);
-      }
+      const saveData = (_a = skills.game.saveObj) == null ? void 0 : _a.skills;
+      const savedAttackSkillName = (_b = saveData == null ? void 0 : saveData.attackSkillSlot) == null ? void 0 : _b.name;
+      const savedAttackSkill = savedAttackSkillName ? skills.attackSkills.find((x) => x.name === savedAttackSkillName) : void 0;
+      savedAttackSkill == null ? void 0 : savedAttackSkill.setRankByIndex(((_c = saveData == null ? void 0 : saveData.attackSkillSlot) == null ? void 0 : _c.rankIndex) || 0);
       this.setSkill(savedAttackSkill || skills.attackSkills[0]);
     }
     get canEnable() {
@@ -11158,17 +11165,17 @@
       __publicField(this, "_time", 0);
       __publicField(this, "_duration", 0);
       __publicField(this, "_running", false);
-      var _a;
+      var _a, _b, _c;
       this.element = this.createElement();
       this.progressBar = querySelector("progress", this.element);
       this.setSkill(void 0);
-      const savedSkillSlotData = (_a = skills.game.saveObj.skills) == null ? void 0 : _a.buffSkillSlotList.find((x) => x.index === skills.buffSkillSlots.length);
+      const savedSkillSlotData = (_c = (_b = (_a = skills.game.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.buffSkillSlotList) == null ? void 0 : _c.find((x) => x && x.index === skills.buffSkillSlots.length);
       if (savedSkillSlotData) {
         const skill = skills.buffSkills.find((x) => x.firstRank.config.name === savedSkillSlotData.name);
         if (skill) {
           this.setSkill(skill);
-          this._time = savedSkillSlotData.time;
-          this._automate = savedSkillSlotData.automate;
+          this._time = savedSkillSlotData.time || 0;
+          this._automate = savedSkillSlotData.automate || false;
           if (savedSkillSlotData.running) {
             this.loop();
           } else {
@@ -11655,14 +11662,14 @@
   };
   var AttackSkill = class extends Skill2 {
     constructor(skills, configs) {
-      var _a, _b, _c;
+      var _a, _b, _c, _d, _e;
       super();
       __publicField(this, "ranks", []);
       __publicField(this, "rank");
       configs = Array.isArray(configs) ? configs : [configs];
       for (const config of configs) {
-        const rankProgress = ((_b = (_a = skills.game.saveObj.skills) == null ? void 0 : _a.attackSkillList.find((x) => x.name === config.name)) == null ? void 0 : _b.rankProgress) || 0;
-        const mods = ((_c = config.mods) == null ? void 0 : _c.map((x) => new Modifier(x))) || [];
+        const rankProgress = ((_d = (_c = (_b = (_a = skills.game.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.attackSkillList) == null ? void 0 : _c.find((x) => x && x.name === config.name)) == null ? void 0 : _d.rankProgress) || 0;
+        const mods = ((_e = config.mods) == null ? void 0 : _e.map((x) => new Modifier(x))) || [];
         const rank = new Rank(config, { current: rankProgress, target: config.attackCountReq || 0 }, mods);
         this.ranks.push(rank);
       }
@@ -11671,14 +11678,14 @@
   };
   var BuffSkill = class extends Skill2 {
     constructor(skills, configs) {
-      var _a, _b, _c;
+      var _a, _b, _c, _d, _e;
       super();
       __publicField(this, "ranks", []);
       __publicField(this, "rank");
       configs = Array.isArray(configs) ? configs : [configs];
       for (const config of configs) {
-        const rankProgress = ((_b = (_a = skills.game.saveObj.skills) == null ? void 0 : _a.buffSkillList.find((x) => x.name === config.name)) == null ? void 0 : _b.rankProgress) || 0;
-        const mods = ((_c = config.mods) == null ? void 0 : _c.map((x) => new Modifier(x))) || [];
+        const rankProgress = ((_d = (_c = (_b = (_a = skills.game.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.buffSkillList) == null ? void 0 : _c.find((x) => x && x.name === config.name)) == null ? void 0 : _d.rankProgress) || 0;
+        const mods = ((_e = config.mods) == null ? void 0 : _e.map((x) => new Modifier(x))) || [];
         this.ranks.push(new Rank(config, { current: rankProgress, target: config.triggerCountReq || 0 }, mods));
       }
       this.rank = this.firstRank;
@@ -11931,8 +11938,8 @@
     const REFORGE_WEIGHTS = [0, 0, 40, 50, 30, 20].slice(offset, 6);
     let sum = REFORGE_WEIGHTS.reduce((a, c) => a + c);
     const random = Math.random() * sum;
-    for (let i = 0; i < REFORGE_WEIGHTS.length; i++) {
-      sum -= REFORGE_WEIGHTS[i];
+    for (const [i, v] of REFORGE_WEIGHTS.entries()) {
+      sum -= v;
       if (sum <= random) {
         return i + 1;
       }
@@ -11947,7 +11954,7 @@
       __publicField(this, "presets", []);
       __publicField(this, "activePreset");
       __publicField(this, "modal");
-      var _a, _b;
+      var _a, _b, _c;
       this.modal = querySelector(".p-game .p-items [data-preset-modal]", this.items.page);
       querySelector(".s-preset-container [data-new]", this.items.page).addEventListener("click", () => {
         const preset = this.newPreset();
@@ -11968,9 +11975,11 @@
         this.selectPreset(this.activePreset);
       });
       querySelector("[data-delete]", this.modal).addEventListener("click", () => this.deleteActivePreset());
-      if ((_a = items.game.saveObj.items) == null ? void 0 : _a.craftPresets) {
-        for (const savedPreset of (_b = items.game.saveObj.items) == null ? void 0 : _b.craftPresets) {
-          this.newPreset(savedPreset.name, savedPreset.ids);
+      if ((_b = (_a = items.game.saveObj) == null ? void 0 : _a.items) == null ? void 0 : _b.craftPresets) {
+        for (const savedPreset of (_c = items.game.saveObj.items) == null ? void 0 : _c.craftPresets) {
+          if ((savedPreset == null ? void 0 : savedPreset.name) && savedPreset.ids) {
+            this.newPreset(savedPreset.name, savedPreset.ids);
+          }
         }
       } else {
         this.newPreset("Default", items.data.craftList.map((x) => x.id));
@@ -12109,17 +12118,14 @@
     }
     save(saveObj) {
       saveObj.items = {
-        items: this.items.map((item) => ({
-          name: item.name,
-          modList: item.mods.map((mod) => ({
-            text: mod.text,
-            values: mod.stats.map((x) => x.value)
-          }))
-        })),
-        craftPresets: this.presets.presets.map((preset) => ({
-          name: preset.name,
-          ids: preset.ids
-        }))
+        items: this.items.reduce((a, c) => {
+          a.push({ name: c.name, modList: c.mods.map((x) => ({ text: x.templateDesc, values: x.stats.map((x2) => x2.value) })) });
+          return a;
+        }, []),
+        craftPresets: this.presets.presets.reduce((a, c) => {
+          a.push({ name: c.name, ids: c.ids });
+          return a;
+        }, [])
       };
     }
     selectItem(item) {
@@ -12273,28 +12279,39 @@
       return li;
     }
     tryLoad() {
-      var _a, _b;
-      const savedItem = (_b = (_a = this.items.game.saveObj.items) == null ? void 0 : _a.items) == null ? void 0 : _b.find((x) => x.name === this.name);
-      if (!savedItem) {
-        return;
-      }
-      if (savedItem) {
-        const mods = savedItem.modList.map((savedMod) => {
+      var _a, _b, _c, _d;
+      try {
+        const savedItem = (_c = (_b = (_a = this.items.game.saveObj) == null ? void 0 : _a.items) == null ? void 0 : _b.items) == null ? void 0 : _c.find((x) => x && x.name === this.name);
+        if (!savedItem) {
+          return;
+        }
+        const mods = ((_d = savedItem.modList) == null ? void 0 : _d.reduce((a, c) => {
           var _a2;
-          const mod = (_a2 = this.items.modLists.find((x) => x.text === savedMod.text)) == null ? void 0 : _a2.copy();
-          if (!mod || savedMod.values.length !== mod.stats.length) {
-            console.error("invalid saved mod:", savedMod);
-            return;
-          }
-          savedMod.values.forEach((v, i) => {
-            const statMod = mod.stats[i];
-            if (statMod) {
-              statMod.value = v;
+          if ((c == null ? void 0 : c.text) && c.values) {
+            const mod = (_a2 = this.items.modLists.find((x) => x.templateDesc === c.text)) == null ? void 0 : _a2.copy();
+            if (!mod) {
+              return a;
             }
-          });
-          return mod;
-        }).filter((x) => !!x);
+            if (c.values.length !== mod.stats.length || c.values.some((x) => typeof x !== "number")) {
+              mod.stats.forEach((x) => x.value = x.min);
+              a.push(mod);
+              return a;
+            }
+            c.values.forEach((x, i) => {
+              if (!x || typeof x !== "number") {
+                return;
+              }
+              const stat = mod.stats[i];
+              stat.value = x;
+            });
+            a.push(mod);
+            return a;
+          }
+          return a;
+        }, [])) || [];
         this.mods = mods;
+      } catch (e) {
+        throw Error("failed loading items");
       }
     }
   };
@@ -12372,10 +12389,12 @@
     }
     save(saveObj) {
       saveObj.passives = {
-        list: this.passives.filter((x) => x.assigned).map((x) => ({
-          index: this.passives.indexOf(x),
-          desc: x.data.mod
-        }))
+        list: this.passives.reduce((a, c) => {
+          if (c.assigned) {
+            a.push({ desc: c.mod.templateDesc, index: c.index });
+          }
+          return a;
+        }, [])
       };
     }
     updatePoints() {
@@ -12402,16 +12421,16 @@
       __publicField(this, "_assigned", false);
       __publicField(this, "element");
       __publicField(this, "mod");
-      var _a, _b;
+      var _a, _b, _c;
       this.mod = new Modifier(data.mod);
       this.element = this.createElement();
       highlightHTMLElement(this.element, "mouseover");
       passives.game.statistics.statistics.Level.registerCallback(data.levelReq, () => {
         this.element.classList.remove("hidden");
       });
-      const savedList = (_a = passives.game.saveObj.passives) == null ? void 0 : _a.list;
+      const savedList = (_b = (_a = passives.game.saveObj) == null ? void 0 : _a.passives) == null ? void 0 : _b.list;
       if (savedList) {
-        const desc = (_b = savedList.find((x) => x.index === index)) == null ? void 0 : _b.desc;
+        const desc = (_c = savedList.find((x) => x && x.index === index)) == null ? void 0 : _c.desc;
         if (desc === data.mod && passives.curPoints >= data.points) {
           this.assigned = true;
         }
@@ -12625,19 +12644,14 @@
       querySelector('.p-game > menu [data-tab-target="missions"]').classList.remove("hidden");
     }
     save(saveObj) {
-      saveObj.missions = (() => {
-        const list = [];
-        this.slots.forEach((slot) => {
-          if (!slot.task) {
-            return;
+      saveObj.missions = {
+        missions: this.slots.reduce((a, c) => {
+          if (c.task) {
+            a.push({ desc: c.task.text || "", startValue: c.task.startValue || 0 });
           }
-          list.push({
-            desc: slot.task.text,
-            startValue: slot.task.startValue
-          });
-        });
-        return { missions: list };
-      })();
+          return a;
+        }, [])
+      };
     }
   };
   var MissionSlot = class {
@@ -12799,17 +12813,17 @@
       return li;
     }
     tryLoad() {
-      var _a;
-      const savedMission = (_a = this.missions.game.saveObj.missions) == null ? void 0 : _a.missions[this.missions.slots.length];
+      var _a, _b, _c;
+      const savedMission = (_c = (_b = (_a = this.missions.game.saveObj) == null ? void 0 : _a.missions) == null ? void 0 : _b.missions) == null ? void 0 : _c[this.missions.slots.length];
       if (!savedMission) {
         return;
       }
       this.unlock();
-      const missionData = this.missions.data.missionLists.flatMap((x) => x).find((x) => x.description === savedMission.desc);
+      const missionData = this.missions.data.missionLists.flatMap((x) => x).find((x) => savedMission.desc && x.description === savedMission.desc);
       if (missionData) {
         this._missionData = missionData;
         this._task = new Task(this.missions.game, missionData.description);
-        this._task.startValue = savedMission.startValue;
+        this._task.startValue = savedMission.startValue || 0;
         this.tryCompletion();
       } else {
         this.generateRandomMission();
@@ -12862,9 +12876,6 @@
     }
   };
   function loadComponent(game, key) {
-    if (!game.config.components) {
-      throw Error();
-    }
     const gamePage = querySelector(".p-game");
     const menuContainer = querySelector("[data-main-menu] .s-components", gamePage);
     const mainView = querySelector("[data-main-view]", gamePage);
@@ -12940,7 +12951,7 @@
       __publicField(this, "onSave", new EventEmitter());
       __publicField(this, "_config");
       __publicField(this, "_saveObj");
-      this.page = new DOMParser().parseFromString(game_default, "text/html").querySelector(".p-game");
+      this.page = querySelector(".p-game", new DOMParser().parseFromString(game_default, "text/html").body);
       querySelector(".p-home").after(this.page);
       this.visiblityObserver = new VisibilityObserver(this.gameLoop);
       this.page = querySelector(".p-game");
@@ -13021,9 +13032,10 @@
       document.querySelectorAll("[data-highlight-notification]").forEach((x) => x.removeAttribute("data-highlight-notification"));
     }
     initComponents() {
+      var _a;
       const menuContainer = querySelector("[data-main-menu] .s-components", this.page);
       menuContainer.replaceChildren();
-      if (!this.config.components) {
+      if (!((_a = this.config) == null ? void 0 : _a.components)) {
         return;
       }
       for (const key of Object.keys(componentConfigs)) {
@@ -13060,6 +13072,9 @@
       });
     }
     async save() {
+      if (!this.config) {
+        throw Error("missing configuration");
+      }
       const map = await saveManager_default.load("Game") || /* @__PURE__ */ new Map();
       const saveObj = map.get(this.config.meta.id) || { meta: __spreadValues({}, this.config.meta) };
       saveObj.meta.lastSavedAt = Date.now();
@@ -13140,14 +13155,16 @@
     constructor() {
       __publicField(this, "page", querySelector(".p-home"));
       __publicField(this, "game");
-      __publicField(this, "activeEntry");
+      __publicField(this, "activeEntry", {});
       this.game = new Game(this);
       this.setupEventListeners();
-      this.init();
+      querySelector("header [data-target]").classList.add("hidden");
+      querySelector('.p-home > menu [data-type="new"]').click();
       window.TS = {
         deleteAllSaves: async () => {
           const saves = await this.createEntries("saved");
-          for (const id of saves.map((x) => x.id)) {
+          const ids = saves.map((x) => x.id ? x.id : void 0).filter((x) => typeof x === "string");
+          for (const id of ids) {
             await this.game.deleteSave(id);
           }
         },
@@ -13166,32 +13183,27 @@
         }
         this.populateEntryList(type);
       });
-      querySelector(".p-home .p-new [data-entry-info] [data-start]").addEventListener("click", this.startNewConfig.bind(this, this.activeEntry));
-      querySelector(".p-home .p-saved [data-entry-info] [data-start]").addEventListener("click", this.startSavedConfig.bind(this));
-      querySelector(".p-home .p-saved [data-entry-info] [data-delete]").addEventListener("click", this.deleteSavedConfig.bind(this));
+      querySelector(".p-home .p-new [data-entry-info] [data-start]").addEventListener("click", this.startNewConfigCallback.bind(this));
+      querySelector(".p-home .p-saved [data-entry-info] [data-start]").addEventListener("click", async () => {
+        const map = await saveManager_default.load("Game");
+        if (map && this.activeEntry.id) {
+          const save2 = map.get(this.activeEntry.id);
+          if (save2) {
+            await this.startSavedGame(save2);
+          }
+        }
+      });
+      querySelector(".p-home .p-saved [data-entry-info] [data-delete]").addEventListener("click", this.deleteSavedGame.bind(this));
     }
-    async startNewConfig() {
+    async startNewConfigCallback() {
       var _a;
-      if (!this.activeEntry) {
+      if (!this.activeEntry.name) {
+        console.error("no entry selected");
         return;
       }
       const map = await saveManager_default.load("Game");
-      const save2 = map ? (_a = Array.from(map).find(([_key, value]) => {
-        var _a2;
-        return value.meta.name === ((_a2 = this.activeEntry) == null ? void 0 : _a2.name);
-      })) == null ? void 0 : _a[1] : void 0;
-      if (save2) {
-        const startNewGame = () => {
-          this.activeEntry.id = crypto.randomUUID();
-          this.tryStartGame(this.activeEntry);
-        };
-        const overrideGame = () => {
-          this.activeEntry.id = save2.meta.id;
-          this.tryStartGame(this.activeEntry);
-        };
-        const continueGame = () => {
-          this.tryStartGame(this.activeEntry, save2);
-        };
+      const save2 = map ? (_a = Array.from(map).find(([_key, value]) => value.meta.name === this.activeEntry.name)) == null ? void 0 : _a[1] : void 0;
+      if (save2 && save2.meta) {
         customAlert({
           title: "Configuration already exists",
           body: "You already have a save with this configuration.\n\nNew - Start a new game with a new save file\nOverride - Start a new game and override save file\nContinue - Start from save file",
@@ -13199,17 +13211,17 @@
             {
               label: "New",
               type: "confirm",
-              callback: startNewGame
+              callback: this.startNewGame.bind(this, "new")
             },
             {
               label: "Override",
               type: "confirm",
-              callback: overrideGame
+              callback: this.startSavedGame.bind(this, save2, true)
             },
             {
               label: "Continue",
               type: "confirm",
-              callback: continueGame
+              callback: this.startSavedGame.bind(this, save2)
             },
             {
               label: "Cancel",
@@ -13218,31 +13230,15 @@
           ]
         });
       } else {
-        this.tryStartGame(this.activeEntry);
+        await this.startNewGame();
       }
     }
-    async startSavedConfig() {
-      if (!this.activeEntry) {
-        return;
-      }
-      const map = await saveManager_default.load("Game");
-      if (!map) {
-        return;
-      }
-      const saveObj = map.get(this.activeEntry.id);
-      if (!saveObj) {
-        return;
-      }
-      return await this.tryStartGame(this.activeEntry, saveObj);
-    }
-    deleteSavedConfig() {
+    deleteSavedGame() {
       const deleteSave = async () => {
-        var _a;
-        if (!((_a = this.activeEntry) == null ? void 0 : _a.id)) {
-          return;
+        if (this.activeEntry.id) {
+          await this.game.deleteSave(this.activeEntry.id);
+          this.populateEntryList("saved");
         }
-        await this.game.deleteSave(this.activeEntry.id);
-        this.populateEntryList("saved");
       };
       customAlert({
         title: "Delete Save",
@@ -13251,17 +13247,13 @@
         footerText: "This will delete your save file permanently"
       });
     }
-    async init() {
-      querySelector("header [data-target]").classList.add("hidden");
-      querySelector('.p-home > menu [data-type="new"]').click();
-    }
     async tryLoadRecentSave() {
       const save2 = await this.game.getMostRecentSave();
-      if (!save2) {
+      if (!save2 || !save2.meta) {
         return false;
       }
-      await this.tryStartGame(save2.meta, save2);
-      return;
+      this.activeEntry = __spreadValues({}, save2.meta);
+      await this.startSavedGame(save2);
     }
     async populateEntryList(type) {
       var _a;
@@ -13292,17 +13284,21 @@
     createEntryListElements(entries, type) {
       const elements = [];
       for (const entry of entries) {
+        const { name: name2, rawUrl } = entry;
+        if (!name2 || !rawUrl) {
+          throw Error("invalid entry");
+        }
         const li = document.createElement("li");
         li.classList.add("g-list-item");
         if (type === "new") {
-          const suffix = entry.rawUrl.startsWith("https") || !isLocalHost() ? "" : "(Local) ";
-          const label = suffix.concat(entry.name);
+          const suffix = rawUrl.startsWith("https") || !isLocalHost() ? "" : "(Local) ";
+          const label = suffix.concat(name2);
           li.insertAdjacentHTML("beforeend", `<span>${label}</span>`);
-        } else if (type === "saved") {
+        } else if (type === "saved" && "lastSavedAt" in entry) {
           const timeData = generateTime(entry.lastSavedAt);
           const timeSinceLastSaveText = `Last played: ${timeData.hours > 0 ? timeData.hours + "h " : ""}${timeData.mins}min`;
           li.insertAdjacentHTML("beforeend", `
-                <span>${entry.name}</span>
+                <span>${name2}</span>
                 <span data-type="date">${timeSinceLastSaveText}</span>`);
         }
         li.addEventListener("click", () => {
@@ -13315,47 +13311,82 @@
       return elements;
     }
     showEntry(entry, type) {
+      if (!entry.name) {
+        throw Error();
+      }
       const infoContainer = querySelector(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
       querySelector("[data-title]", infoContainer).textContent = entry.name;
       querySelector("[data-desc]", infoContainer).textContent = entry.description || "";
     }
-    async tryStartGame(entry, saveObj) {
+    async createEntries(type) {
       try {
-        const config = await (await fetch(entry.rawUrl)).json();
-        if (!configValidator(config)) {
-          console.error(`${entry.name} is not valid`, configValidator.errors);
-          return false;
+        if (type === "new") {
+          return configList_default.list.map((x) => __spreadProps(__spreadValues({}, x), { id: "" }));
         }
-        if (!saveObj) {
-          saveObj = {
-            meta: __spreadProps(__spreadValues({}, entry), { createdAt: Date.now() })
-          };
+        const map = await saveManager_default.load("Game");
+        if (!map) {
+          return [];
         }
-        config.meta = saveObj.meta;
+        return Array.from(map.values()).map((x) => x.meta).sort((a, b) => b.lastSavedAt - a.lastSavedAt);
+      } catch (e) {
+        throw Error("failed to create entries");
+      }
+    }
+    async startNewGame() {
+      const { name: name2, rawUrl } = this.activeEntry;
+      if (!name2 || !rawUrl) {
+        throw Error();
+      }
+      let entry = {
+        id: crypto.randomUUID(),
+        name: name2,
+        rawUrl,
+        createdAt: 0,
+        lastSavedAt: 0
+      };
+      await this.startGame(entry);
+    }
+    async startSavedGame(save2, override = false) {
+      const { name: name2, rawUrl } = this.activeEntry;
+      if (!name2 || !rawUrl) {
+        return;
+      }
+      const entry = {
+        id: save2.meta.id,
+        createdAt: override ? Date.now() : save2.meta.createdAt,
+        lastSavedAt: override ? save2.meta.createdAt : 0,
+        name: name2,
+        rawUrl
+      };
+      if (override) {
+        await this.game.deleteSave(entry.id);
+        await this.startGame(entry);
+      } else {
+        await this.startGame(entry, save2);
+      }
+    }
+    async getConfig(url) {
+      const config = await (await fetch(url)).json();
+      if (!configValidator(config)) {
+        console.error(`${config.meta.name} is not valid`, configValidator.errors);
+        return false;
+      }
+      return config;
+    }
+    async startGame(entry, saveObj) {
+      try {
+        const config = await this.getConfig(entry.rawUrl);
+        if (!config) {
+          return;
+        }
+        config.meta = entry;
         await this.game.init(config, saveObj);
         const navBtn = querySelector("header [data-target]");
         navBtn.classList.remove("hidden");
         navBtn.click();
-        return true;
       } catch (e) {
-        console.error(`Failed to load "${entry.name}" at: ${entry.rawUrl}`);
+        console.error(`Failed to load "${this.activeEntry.name}" at: ${this.activeEntry.rawUrl}`);
         console.error(e);
-      }
-    }
-    async createEntries(type) {
-      switch (type) {
-        case "new":
-          return configList_default.list.map((x) => __spreadProps(__spreadValues({}, x), { id: "invalid", createdAt: 0, lastSavedAt: 0 }));
-        case "saved":
-          const map = await saveManager_default.load("Game");
-          if (!map) {
-            return [];
-          }
-          try {
-            return Array.from(map.values()).map((x) => x.meta).sort((a, b) => b.lastSavedAt - a.lastSavedAt);
-          } catch (element) {
-            throw Error("failed to load save");
-          }
       }
     }
   };

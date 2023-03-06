@@ -962,16 +962,15 @@ progress[value]::-webkit-progress-value {
 }
 
 :root {
-  font-size: 19px;
+  font-size: 20px;
   font-family: serif;
 }
 
 body {
   display: grid;
   grid-template-rows: 1fr auto;
-  grid-template-columns: minmax(auto, 70vw);
+  grid-template-columns: clamp(70vw, 60em, 100vw);
   justify-content: center;
-  margin: 0 auto;
   height: 100vh;
   min-height: 100vh;
   max-height: 100vh;
@@ -982,12 +981,6 @@ body {
   color: #c9d1d9;
 }
 
-@media only screen and (max-width: 1000px) {
-  body {
-    margin: 0;
-    grid-template-columns: 100vw;
-  }
-}
 header.s-main-header {
   display: grid;
   grid-template-columns: auto 1fr auto;
