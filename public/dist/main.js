@@ -11247,8 +11247,9 @@
           this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
           return;
         }
-        if (this.trigger()) {
+        if (this.canTrigger) {
           this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
+          this.trigger();
         }
       };
       this.skills.game.statistics.statistics["Current Mana"].addListener("change", loopEval);
