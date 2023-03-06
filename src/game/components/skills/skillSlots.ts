@@ -56,9 +56,13 @@ export class AttackSkillSlot implements SkillSlot {
         const nextRank = this.skill.getNextRank();
         if (nextRank) {
             nextRank.incrementProgress();
-            this.skills.skillViewer.updateView();
+            if(!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this){
+                this.skills.skillViewer.updateView();
+            }
             if (nextRank.unlocked) {
                 this.skills.game.statistics.statistics['Hits'].removeListener('add', this.rankProgressCallback);
+                highlightHTMLElement(this.skills.menuItem, 'click');
+                highlightHTMLElement(this.element, 'mouseover');
             }
         }
     }
@@ -166,7 +170,13 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         const nextRank = this._skill?.getNextRank();
         if (nextRank) {
             nextRank.incrementProgress();
-            this.skills.skillViewer.updateView();
+            if(!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this){
+                this.skills.skillViewer.updateView();
+            }
+            if (nextRank.unlocked) {
+                highlightHTMLElement(this.skills.menuItem, 'click');
+                highlightHTMLElement(this.element, 'mouseover');
+            }
         }
         this.skills.game.statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
         this.loop();
@@ -244,7 +254,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             this.tryTriggerLoop();
         }
 
-        if (this === this.skills.activeSkillSlot) {
+        if (!this.skills.page.classList.contains('hidden') && this === this.skills.activeSkillSlot) {
             this.skills.skillViewer.updateView();
         }
     }

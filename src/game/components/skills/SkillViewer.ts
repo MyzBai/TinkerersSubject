@@ -122,8 +122,6 @@ export default class SkillViewer {
             }
             querySelector('.s-mods', this.container).replaceChildren(...modElements);
         }
-
-
         this.updateView();
 
     }
