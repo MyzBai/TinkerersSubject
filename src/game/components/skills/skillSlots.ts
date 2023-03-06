@@ -62,7 +62,7 @@ export class AttackSkillSlot implements SkillSlot {
             if (nextRank.unlocked) {
                 this.skills.game.statistics.statistics['Hits'].removeListener('add', this.rankProgressCallback);
                 highlightHTMLElement(this.skills.menuItem, 'click');
-                highlightHTMLElement(this.element, 'mouseover');
+                highlightHTMLElement(this.element, 'mouseover', true);
             }
         }
     }
@@ -175,7 +175,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             }
             if (nextRank.unlocked) {
                 highlightHTMLElement(this.skills.menuItem, 'click');
-                highlightHTMLElement(this.element, 'mouseover');
+                highlightHTMLElement(this.element, 'mouseover', true);
             }
         }
         this.skills.game.statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
