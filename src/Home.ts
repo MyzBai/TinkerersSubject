@@ -21,7 +21,7 @@ export default class Home {
 
         window.TS = {
             deleteAllSaves: async () => {
-                const saves = await this.getEntries('saved');
+                const saves = await this.createEntries('saved');
                 for (const id of saves.map(x => x.id)) {
                     await this.game.deleteSave(id);
                 }
@@ -145,7 +145,7 @@ export default class Home {
         const infoContainer = querySelector(`.p-home [data-entry-info]`, page);
         listContainer.classList.add('hidden');
         infoContainer.classList.add('hidden');
-        const entries = await this.getEntries(type);
+        const entries = await this.createEntries(type);
         const elements = this.createEntryListElements(entries, type);
         listContainer.replaceChildren(...elements);
         if (elements.length === 0) {
@@ -222,10 +222,10 @@ export default class Home {
 
     }
 
-    private async getEntries(type: EntryType): Promise<GConfig['meta'][]> {
+    private async createEntries(type: EntryType): Promise<GConfig['meta'][]> {
         switch (type) {
             case 'new':
-                return configList.list.map(x => ({ ...x, id: '', createdAt: 0, lastSavedAt: 0 }));
+                return configList.list.map(x => ({ ...x, id: 'invalid', createdAt: 0, lastSavedAt: 0 }));
             case 'saved':
                 const map = await saveManager.load('Game');
                 if (!map) {
