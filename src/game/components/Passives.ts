@@ -42,7 +42,7 @@ export default class Passives extends Component {
             this.updatePassiveList();
         });
 
-        querySelector('[data-clear]', this.page).addEventListener('click', () => this.clearPassives());
+        querySelector('[data-reset]', this.page).addEventListener('click', () => this.resetPassives());
 
         this.updatePoints();
         this.updatePassiveList();
@@ -55,7 +55,7 @@ export default class Passives extends Component {
         return this.maxPoints - this.passives.filter(x => x.assigned).reduce((a, c) => a += c.data.points, 0);
     }
 
-    private clearPassives() {
+    private resetPassives() {
         this.passives.forEach(x => x.assigned = false);
         this.updatePassiveList();
         this.updatePoints();
@@ -71,6 +71,10 @@ export default class Passives extends Component {
     }
 
     private updatePoints() {
+        if(this.curPoints < 0){
+            this.resetPassives();
+            console.warn('current passive points cannot go negative. passives have been reset');
+        }
         querySelector<HTMLSpanElement>('.p-game .p-passives [data-cur-points]').textContent = this.curPoints.toFixed();
         querySelector<HTMLSpanElement>('.p-game .p-passives [data-max-points]').textContent = this.maxPoints.toFixed();
     }
