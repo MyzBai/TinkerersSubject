@@ -85,6 +85,12 @@ export default class Skills extends Component {
             }
         });
 
+        this.game.visiblityObserver.register(this.page, visible => {
+            if(visible){
+                this.skillViewer.updateView();
+            }
+        });
+
         registerTabs(querySelector('.s-skill-slots', this.page), querySelector('.s-skill-list', this.page));
         this.attackSkillSlot.element.click();
     }
