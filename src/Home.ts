@@ -5,7 +5,7 @@ import Game from "@src/game/Game";
 import type { Save } from "@src/types/save";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
-import type { GenericModal } from "./webComponents/GenericModal";
+import customAlert from "./utils/alert";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
@@ -76,8 +76,7 @@ export default class Home {
     }
 
     private deleteSavedConfig() {
-        const modal = querySelector<GenericModal>('body > generic-modal');
-        modal.init({
+        customAlert({
             title: 'Delete Save',
             body: 'Are you sure?',
             buttons: [{ label: 'Yes', type: 'confirm' }, { label: 'No', type: 'cancel' }],
@@ -92,7 +91,6 @@ export default class Home {
                 }
             }
         });
-        modal.openModal();
     }
 
     async init() {

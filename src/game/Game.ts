@@ -12,9 +12,9 @@ import type Home from "@src/Home";
 import { VisibilityObserver } from "@src/utils/Observers";
 import type Component from "./components/Component";
 import { componentConfigs, loadComponent } from "./components/loader";
-import type { GenericModal } from "@src/webComponents/GenericModal";
 import type GameConfig from "@src/types/gconfig/gameConfig";
 import type { ComponentName } from "@src/types/gconfig/components";
+import customAlert from "@src/utils/alert";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -93,12 +93,12 @@ export default class Game {
             if (endPrompt) {
                 this.statistics.statistics.Level.addListener('change', level => {
                     if (level >= this.enemy.maxIndex + 1) {
-                        querySelector<GenericModal>('generic-modal').init({
+                        customAlert({
                             title: endPrompt.title,
                             body: endPrompt.body,
                             footerText: endPrompt.footer,
-                            buttons: [{ label: 'Continue', type: 'confirm' }],
-                        }).openModal();
+                            buttons: [{ label: 'Continue', type: 'confirm' }]
+                        });
                     }
                 });
             }

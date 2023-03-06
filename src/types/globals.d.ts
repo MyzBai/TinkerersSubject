@@ -7,6 +7,7 @@ declare module '*.html' {
 
 interface Window{
     TS: TS;
+    
 }
 
 interface TS {

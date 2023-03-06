@@ -1,4 +1,3 @@
-import './webComponents/GenericModal';
 import Home from './Home';
 
 window.addEventListener('DOMContentLoaded', () => {

@@ -2,6 +2,63 @@
 
 /*#region Global*/
 
+.g-alert-window {
+    position: fixed;
+    inset: 0;
+    min-height: 0;
+    top: 5em;
+    bottom: 5em;
+    z-index: 100;
+    margin: auto;
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: flex-start;
+    .s-content {
+        background-color: $color-canvas-default;
+        border: 1px solid $color-modal-border;
+        min-height: 0;
+        min-width: 30%;
+        display: grid;
+        padding: $padding-modal;
+        header {
+            padding-bottom: 1em;
+            text-align: center;
+        }
+        [data-body] {
+            white-space: break-spaces;
+            overflow-y: auto;
+            min-height: 0;
+            border-top: 1px solid $color-border-highlight;
+            border-bottom: 1px solid $color-border-highlight;
+            padding: $padding-container;
+        }
+        .s-buttons {
+            padding-top: $padding-container;
+            button {
+                min-width: 3em;
+            }
+        }
+        footer {
+            padding-top: $padding-container;
+            small {
+                display: block;
+                font-size: 0.75em;
+                color: $color-fg-muted;
+            }
+        }
+    }
+
+    .backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        backdrop-filter: blur(1px);
+    }
+}
+
 .g-modal {
     display: grid;
     position: fixed;
@@ -59,7 +116,7 @@
         padding: $padding-list-item;
         cursor: default;
         user-select: none;
-        *{
+        * {
             pointer-events: none;
         }
         &:hover {
@@ -116,7 +173,7 @@
         background-color: $color-global-button-bg-active;
     }
 
-    &.selected{
+    &.selected {
         background-color: $color-action-list-item-default-selected-bg;
         pointer-events: all;
     }
@@ -129,7 +186,7 @@
     }
     &[data-role="cancel"] {
         background-color: $color-button-cancel-bg;
-        &:hover{
+        &:hover {
             background-color: $color-button-cancel-hover-bg;
         }
     }
