@@ -9,6 +9,7 @@ export interface Save {
         level: number;
         gold: number;
         curMana: number;
+        attackTimePct: number;
     };
     enemy?: {
         index: number;

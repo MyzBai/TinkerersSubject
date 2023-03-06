@@ -54,9 +54,11 @@ export default class Player {
             this.game.statistics.statistics['Current Mana'].add(manaRegen);
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
+
+        this._attackProgressPct = this.game.saveObj.player?.attackTimePct || 0;
     }
 
-    reset(){
+    reset() {
         this.modDB.clear();
     }
 
@@ -122,7 +124,8 @@ export default class Player {
         saveObj.player = {
             level: this.game.statistics.statistics.Level.get(),
             gold: this.game.statistics.statistics.Gold.get(),
-            curMana: this.game.statistics.statistics['Current Mana'].get()
+            curMana: this.game.statistics.statistics['Current Mana'].get(),
+            attackTimePct: this.attackProgressPct
         };
     }
 }
