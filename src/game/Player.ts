@@ -29,13 +29,6 @@ export default class Player {
             this.updateManaBar();
         });
 
-        this.game.enemy.onDeath.listen(() => {
-            if (this.game.statistics.statistics.Level.get() <= this.game.enemy.maxIndex) {
-                // this.stats.level.set(this.game.enemy.index+1);
-                this.game.statistics.statistics.Level.add(1);
-            }
-        });
-
         this.game.statistics.statistics['Current Mana'].addListener('change', curMana => {
             const maxMana = this.game.statistics.statistics['Maximum Mana'].get();
             if (curMana > maxMana) {
@@ -54,9 +47,11 @@ export default class Player {
             this.game.statistics.statistics['Current Mana'].add(manaRegen);
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
+
+        this._attackProgressPct = this.game.saveObj.player?.attackTimePct || 0;
     }
 
-    reset(){
+    reset() {
         this.modDB.clear();
     }
 
@@ -122,7 +117,8 @@ export default class Player {
         saveObj.player = {
             level: this.game.statistics.statistics.Level.get(),
             gold: this.game.statistics.statistics.Gold.get(),
-            curMana: this.game.statistics.statistics['Current Mana'].get()
+            curMana: this.game.statistics.statistics['Current Mana'].get(),
+            attackTimePct: this.attackProgressPct
         };
     }
 }

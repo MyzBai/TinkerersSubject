@@ -4,9 +4,6 @@
     display: grid;
     grid-template-rows: auto auto 1fr;
     grid-template-columns: 1fr 1fr;
-    margin: 0 auto;
-    width: 70%;
-    // height: 60%;
     background-color: $color-canvas-inset;
     padding: $padding-container;
     min-height: 0;
@@ -54,18 +51,27 @@
                 }
             }
             [data-entry-info] {
-                display: grid;
-                grid-template-rows: auto 1fr auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
                 text-align: center;
+                min-height: 0;
                 padding-top: $padding-container;
                 [data-title] {
                     padding: $padding-list-item;
                     border-bottom: 1px solid $color-border-highlight;
+                    width: 100%;
                 }
                 [data-desc] {
                     padding: $padding-container;
+                    padding-bottom: 1em;
                     text-align: left;
                     white-space: break-spaces;
+                    overflow-y: auto;
+                }
+                [data-start], [data-delete]{
+                    min-width: 10em;
                 }
             }
         }

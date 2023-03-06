@@ -56,7 +56,7 @@ export class AttackSkillSlot implements SkillSlot {
         const nextRank = this.skill.getNextRank();
         if (nextRank) {
             nextRank.incrementProgress();
-            if(!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this){
+            if (!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this) {
                 this.skills.skillViewer.updateView();
             }
             if (nextRank.unlocked) {
@@ -73,9 +73,10 @@ export class AttackSkillSlot implements SkillSlot {
         this._skill = skill;
         querySelector('[data-skill-name]', this.element).textContent = skill.rank.config.name || 'unknown';
 
-        this.skills.game.statistics.statistics['Hits'].removeListener('add', this.rankProgressCallback);
         const nextRank = skill.getNextRank();
-        if (nextRank) {
+        this.skills.game.statistics.statistics['Hits'].removeListener('add', this.rankProgressCallback);
+
+        if (nextRank && !nextRank.unlocked) {
             this.skills.game.statistics.statistics['Hits'].addListener('add', this.rankProgressCallback);
         }
         this.applyModifiers();
@@ -170,7 +171,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         const nextRank = this._skill?.getNextRank();
         if (nextRank) {
             nextRank.incrementProgress();
-            if(!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this){
+            if (!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this) {
                 this.skills.skillViewer.updateView();
             }
             if (nextRank.unlocked) {
