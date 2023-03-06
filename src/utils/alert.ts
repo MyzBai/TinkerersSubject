@@ -1,13 +1,17 @@
 import { querySelector } from "./helpers";
 
 
-type ActionCallback = (confirm: Boolean, userData: any) => void;
+interface Button{
+    label: string;
+    type: 'confirm' | 'cancel';
+    callback?: (args?: any) => void;
+    args?: any;
+}
 interface AlertParams {
     title?: string;
     body: string;
-    buttons?: { type: 'confirm' | 'cancel', label: string, userData?: any }[]
+    buttons?: Button[]
     footerText?: string;
-    callback?: ActionCallback;
 }
 
 export default function customAlert(opts: AlertParams) {
@@ -39,7 +43,7 @@ export default function customAlert(opts: AlertParams) {
         button.setAttribute('data-role', role);
         button.textContent = buttonData.label;
         button.addEventListener('click', () => {
-            opts.callback?.(role === 'confirm', buttonData.userData);
+            buttonData.callback?.(buttonData.args);
             element.remove();
         });
         buttons.push(button);
