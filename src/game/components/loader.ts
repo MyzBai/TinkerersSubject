@@ -53,9 +53,6 @@ export const componentConfigs: Record<keyof ComponentsConfig, ComponentConfig> =
 
 
 export function loadComponent(game: Game, key: ComponentName) {
-    if (!game.config.components) {
-        throw Error();
-    }
     const gamePage = querySelector('.p-game');
     const menuContainer = querySelector('[data-main-menu] .s-components', gamePage);
     const mainView = querySelector('[data-main-view]', gamePage);
@@ -83,7 +80,7 @@ export function loadComponent(game: Game, key: ComponentName) {
     }
 
     //instance
-    const instance = new constr(game, game.config.components[key]);
+    const instance = new constr(game, game.config!.components![key]);
 
 
     return instance;

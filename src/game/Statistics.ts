@@ -1,4 +1,4 @@
-import type { Save } from "@src/types/save";
+import type GameSave from "@src/types/save/save";
 import { querySelector } from "@src/utils/helpers";
 import Value from "@utils/Value";
 import { calcPlayerStats } from "./calc/calcMod";
@@ -58,12 +58,12 @@ export default class Statistics {
         //Bleed
         'Bleed Chance': new Statistic({ format: 'pct' }),
         'Bleed Dps': new Statistic(),
-        'Bleed Duration': new Statistic({format: 'seconds'}),
+        'Bleed Duration': new Statistic({ format: 'seconds' }),
         'Maximum Bleed Stacks': new Statistic(),
         //Burn
         'Burn Chance': new Statistic({ format: 'pct' }),
         'Burn Dps': new Statistic(),
-        'Burn Duration': new Statistic({format: 'seconds'}),
+        'Burn Duration': new Statistic({ format: 'seconds' }),
         'Maximum Burn Stacks': new Statistic(),
 
         //Other
@@ -105,16 +105,18 @@ export default class Statistics {
     init() {
         this.game.onSave.listen(this.save.bind(this));
 
-        if (this.game.saveObj.statistics) {
-            this.game.saveObj.statistics.forEach(({ name, value, sticky }) => {
-                const statistic: Statistic | undefined = this.statistics[name];
-                if (!statistic) {
-                    return;
-                }
-                statistic.set(value);
-                statistic.sticky = sticky || false;
-            });
-        }
+        this.game.saveObj?.statistics?.statistics?.forEach(x => {
+            if (!x) {
+                return;
+            }
+            const key = x.name as keyof Statistics['statistics'] | undefined;
+            const statistic = Object.entries(this.statistics).find(x => x[0] === key)?.[1];
+            if (!statistic) {
+                return;
+            }
+            statistic.set(x.value || statistic.defaultValue);
+            statistic.sticky = x.sticky || false;
+        });
         this.game.visiblityObserver.registerLoop(this.page, visible => {
             if (visible) {
                 this.updatePageStatisticsUI();
@@ -134,13 +136,13 @@ export default class Statistics {
         calcPlayerStats(this.game);
     }
 
-    setup(){
+    setup() {
         calcPlayerStats(this.game);
         this.updatePageStatisticsUI();
         this.updateSideStatisticsUI();
     }
 
-    reset(){
+    reset() {
         Object.values(this.statistics).forEach(x => x.reset());
     }
 
@@ -152,7 +154,7 @@ export default class Statistics {
             element.setAttribute('data-stat', key);
             element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
             element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
-            switch(value.format){
+            switch (value.format) {
                 case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
                 case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
             }
@@ -225,13 +227,12 @@ export default class Statistics {
         variableElement.textContent = typeof value === 'number' ? value.toFixed(statistic.decimals) : value;
     }
 
-    save(saveObj: Save) {
-        saveObj.statistics = Object.entries(this.statistics).map(([key, value]) => {
-            return {
-                name: key as keyof Statistics['statistics'],
-                value: value.get(),
-                sticky: value.sticky
-            }
-        });
+    save(saveObj: GameSave) {
+        saveObj.statistics = {
+            statistics: Object.entries(this.statistics).reduce<Required<GameSave>['statistics']['statistics']>((a, c) => {
+                a.push({ name: c[0] as keyof Statistics['statistics'], sticky: c[1].sticky, value: c[1].get() });
+                return a;
+            }, [])
+        }
     }
 }

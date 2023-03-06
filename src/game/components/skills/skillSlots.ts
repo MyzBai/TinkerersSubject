@@ -33,12 +33,10 @@ export class AttackSkillSlot implements SkillSlot {
         querySelector('[data-attack-skill-slot]', skills.page).appendChild(this.element);
         this._skill = skills.attackSkills[0]!;
 
-        const saveData = skills.game.saveObj.skills;
-        const savedAttackSkillName = saveData?.attackSkillSlot.name;
-        const savedAttackSkill = skills.attackSkills.find(x => x.name === savedAttackSkillName);
-        if (saveData) {
-            savedAttackSkill?.setRankByIndex(saveData.attackSkillSlot.rankIndex || 0);
-        }
+        const saveData = skills.game.saveObj?.skills;
+        const savedAttackSkillName = saveData?.attackSkillSlot?.name;
+        const savedAttackSkill = savedAttackSkillName ? skills.attackSkills.find(x => x.name === savedAttackSkillName) : undefined;
+        savedAttackSkill?.setRankByIndex(saveData?.attackSkillSlot?.rankIndex || 0);
         this.setSkill(savedAttackSkill || skills.attackSkills[0]!);
 
     }
@@ -128,13 +126,13 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         this.progressBar = querySelector<HTMLProgressElement>('progress', this.element);
         this.setSkill(undefined);
 
-        const savedSkillSlotData = skills.game.saveObj.skills?.buffSkillSlotList.find(x => x.index === skills.buffSkillSlots.length);
+        const savedSkillSlotData = skills.game.saveObj?.skills?.buffSkillSlotList?.find(x => x && x.index === skills.buffSkillSlots.length);
         if (savedSkillSlotData) {
             const skill = skills.buffSkills.find(x => x.firstRank!.config.name === savedSkillSlotData.name);
             if (skill) {
                 this.setSkill(skill);
-                this._time = savedSkillSlotData.time;
-                this._automate = savedSkillSlotData.automate;
+                this._time = savedSkillSlotData.time || 0;
+                this._automate = savedSkillSlotData.automate || false;
                 if (savedSkillSlotData.running) {
                     this.loop();
                 } else {

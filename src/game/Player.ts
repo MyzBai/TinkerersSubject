@@ -2,7 +2,7 @@ import { ModDB, Modifier } from "./mods";
 import { calcAttack } from "./calc/calcDamage";
 import { invLerp, querySelector } from "@src/utils/helpers";
 import type Game from './Game';
-import type { Save } from '@src/types/save';
+import type GameSave from "@src/types/save/save";
 
 export default class Player {
     private readonly manaBar: HTMLProgressElement;
@@ -19,8 +19,8 @@ export default class Player {
     init() {
         this.game.onSave.listen(this.save.bind(this));
 
-        if (this.game.config.player) {
-            this.game.config.player.modList.forEach(x => {
+        if (this.game.config!.player) {
+            this.game.config!.player.modList.forEach(x => {
                 this.modDB.add(new Modifier(x).stats, 'Player');
             });
         }
@@ -48,7 +48,7 @@ export default class Player {
             this.game.statistics.statistics["Mana Generated"].add(manaRegen);
         });
 
-        this._attackProgressPct = this.game.saveObj.player?.attackTimePct || 0;
+        this._attackProgressPct = this.game.saveObj?.player?.attackTimePct || 0;
     }
 
     reset() {
@@ -56,7 +56,7 @@ export default class Player {
     }
 
     async setup() {
-        this.game.statistics.statistics['Current Mana'].set(this.game.saveObj.player?.curMana || this.game.statistics.statistics['Maximum Mana'].get());
+        this.game.statistics.statistics['Current Mana'].set(this.game.saveObj?.player?.curMana || this.game.statistics.statistics['Maximum Mana'].get());
         this.updateManaBar();
 
         this.startAutoAttack();
@@ -113,7 +113,7 @@ export default class Player {
         this.game.enemy.applyAilments(result.ailments);
     }
 
-    save(saveObj: Save) {
+    save(saveObj: GameSave) {
         saveObj.player = {
             level: this.game.statistics.statistics.Level.get(),
             gold: this.game.statistics.statistics.Gold.get(),
