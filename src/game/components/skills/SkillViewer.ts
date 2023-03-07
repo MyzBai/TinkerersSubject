@@ -1,4 +1,3 @@
-import { querySelector } from "@src/utils/helpers";
 import type Skills from "./Skills";
 import { AttackSkill, BuffSkill, Skill } from "./Skills";
 import { BuffSkillSlot, Triggerable } from "./skillSlots";
@@ -14,14 +13,14 @@ export default class SkillViewer {
     private rankProgress?: HTMLElement;
     private readonly skillViewInfo: { skill?: Skill, rankIndex: number } = { rankIndex: 0 };
     constructor(private readonly skills: Skills) {
-        this.container = querySelector('[data-skill-info]', skills.page);
+        this.container = skills.page.querySelectorForce('[data-skill-info]');
 
-        this.decrementRankButton = querySelector('header [data-type="decrement"]', this.container);
-        this.incrementRankButton = querySelector('header [data-type="increment"]', this.container);
-        this.enableButton = querySelector('[data-enable]', this.container);
-        this.triggerButton = querySelector('[data-trigger]', this.container);
-        this.automateButton = querySelector('[data-automate]', this.container);
-        this.removeButton = querySelector('[data-remove]', this.container);
+        this.decrementRankButton = this.container.querySelectorForce('header [data-type="decrement"]');
+        this.incrementRankButton = this.container.querySelectorForce('header [data-type="increment"]');
+        this.enableButton = this.container.querySelectorForce('[data-enable]');
+        this.triggerButton = this.container.querySelectorForce('[data-trigger]');
+        this.automateButton = this.container.querySelectorForce('[data-automate]');
+        this.removeButton = this.container.querySelectorForce('[data-remove]');
 
         this.decrementRankButton.addEventListener('click', () => {
             this.createView(skills.activeSkill!, this.skillViewInfo.rankIndex - 1);
@@ -68,8 +67,7 @@ export default class SkillViewer {
 
         //header
         {
-            const header = querySelector('header', this.container);
-            querySelector('.title', header).textContent = rank.config.name;
+            this.container.querySelectorForce('header .title').textContent = rank.config.name;
             if (skill.ranks.length === 1) {
                 this.decrementRankButton.style.visibility = 'hidden';
                 this.incrementRankButton.style.visibility = 'hidden';
@@ -79,13 +77,11 @@ export default class SkillViewer {
                 this.decrementRankButton.disabled = rankIndex <= 0;
                 this.incrementRankButton.disabled = rankIndex >= skill.ranks.length - 1;
             }
-
-            querySelector('header .title', this.container).textContent = rank.config.name;
         }
 
         //stats
         {
-            const table = querySelector('table', this.container);
+            const table = this.container.querySelectorForce('table');
             table.replaceChildren();
             table.appendChild(this.createTableRow('Mana Cost', (rank.config.manaCost || 0).toFixed()));
 
@@ -120,7 +116,7 @@ export default class SkillViewer {
                 modElement.textContent = mod.desc;
                 modElements.push(modElement);
             }
-            querySelector('.s-mods', this.container).replaceChildren(...modElements);
+            this.container.querySelectorForce('.s-mods').replaceChildren(...modElements);
         }
         this.updateView();
 

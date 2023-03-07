@@ -2,7 +2,8 @@ import type GameSave from "@src/types/save/save";
 import { querySelector } from "@src/utils/helpers";
 import Value from "@utils/Value";
 import { calcPlayerStats } from "./calc/calcMod";
-import type Game from "./Game";
+import Game from "./Game";
+import Player from "./Player";
 
 export type StatisticsList = [string, Statistics, boolean][];
 
@@ -33,7 +34,7 @@ export class Statistic extends Value {
     }
 }
 
-export default class Statistics {
+export class Statistics {
     public readonly statistics = {
         'Level': new Statistic({ defaultValue: 1, sticky: true, save: true }),
         'Gold': new Statistic({ defaultValue: 0, sticky: true, save: true }),
@@ -85,27 +86,19 @@ export default class Statistics {
     private readonly pageListContainer: HTMLElement;
     private readonly sideListContainer: HTMLElement;
     private statsUpdateId = -1;
-    constructor(readonly game: Game) {
-        this.pageListContainer = querySelector('ul', this.page);
-        this.sideListContainer = querySelector('.s-stats', this.game.page);
+    constructor() {
+        this.pageListContainer = this.page.querySelectorForce('ul');
+        this.sideListContainer = querySelector('.p-game .s-stats');
         this.createStatisticsElements();
         this.createSideListItems();
 
-        game.player.modDB.onChange.listen(async () => {
-            return new Promise((resolve) => {
-                clearTimeout(this.statsUpdateId);
-                this.statsUpdateId = window.setTimeout(async () => {
-                    calcPlayerStats(this.game);
-                    resolve();
-                }, 1);
-            });
-        });
+ 
     }
 
     init() {
-        this.game.onSave.listen(this.save.bind(this));
+        Game.onSave.listen(this.save.bind(this));
 
-        this.game.saveObj?.statistics?.statistics?.forEach(x => {
+        Game.saveObj?.statistics?.statistics?.forEach(x => {
             if (!x) {
                 return;
             }
@@ -117,27 +110,37 @@ export default class Statistics {
             statistic.set(x.value || statistic.defaultValue);
             statistic.sticky = x.sticky || false;
         });
-        this.game.visiblityObserver.registerLoop(this.page, visible => {
+        Game.visiblityObserver.registerLoop(this.page, visible => {
             if (visible) {
                 this.updatePageStatisticsUI();
             }
         }, { intervalMilliseconds: 1000 });
 
-        this.game.visiblityObserver.registerLoop(this.game.page, visible => {
+        Game.visiblityObserver.registerLoop(Game.page, visible => {
             if (visible) {
                 this.updateSideStatisticsUI();
             }
+        });
+
+        Player.modDB.onChange.listen(async () => {
+            return new Promise((resolve) => {
+                clearTimeout(this.statsUpdateId);
+                this.statsUpdateId = window.setTimeout(async () => {
+                    calcPlayerStats();
+                    resolve();
+                }, 1);
+            });
         });
 
         this.statistics.Gold.addListener('change', () => {
             this.updateSideStatisticsUI();
         });
 
-        calcPlayerStats(this.game);
+        calcPlayerStats();
     }
 
     setup() {
-        calcPlayerStats(this.game);
+        calcPlayerStats();
         this.updatePageStatisticsUI();
         this.updateSideStatisticsUI();
     }
@@ -190,7 +193,7 @@ export default class Statistics {
 
     private updatePageStatisticsUI() {
         for (const [key, statistic] of Object.entries(this.statistics)) {
-            const element = querySelector(`li[data-stat="${key}"]`, this.pageListContainer);
+            const element = this.pageListContainer.querySelectorForce<HTMLElement>(`li[data-stat="${key}"]`);
             element.classList.toggle('selected', statistic.sticky);
             this.updateListItem(element, statistic);
         }
@@ -198,7 +201,7 @@ export default class Statistics {
 
     private updateSideStatisticsUI() {
         for (const [key, statistic] of Object.entries(this.statistics)) {
-            const element = querySelector(`li[data-stat="${key}"]`, this.sideListContainer);
+            const element = this.sideListContainer.querySelectorForce<HTMLElement>(`li[data-stat="${key}"]`);
             element.classList.toggle('hidden', !statistic.sticky);
             if (!statistic.sticky) {
                 continue;
@@ -208,7 +211,7 @@ export default class Statistics {
     }
 
     private updateListItem(element: HTMLElement, statistic: Statistic) {
-        const variableElement = querySelector('var', element);
+        const variableElement = element.querySelectorForce('var');
         const type = variableElement.getAttribute('data-format');
         let value: number | string = statistic.get();
         switch (type) {
@@ -236,3 +239,5 @@ export default class Statistics {
         }
     }
 }
+
+export default new Statistics();

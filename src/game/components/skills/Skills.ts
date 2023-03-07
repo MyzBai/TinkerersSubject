@@ -2,8 +2,10 @@ import type { AttackSkillConfig, BuffSkillConfig } from "@src/types/gconfig/skil
 import type SkillsConfig from "@src/types/gconfig/skills";
 import type GameSave from "@src/types/save/save";
 import type SkillsSave from "@src/types/save/skills";
-import { highlightHTMLElement, querySelector, registerTabs } from "@src/utils/helpers";
-import type Game from "../../Game";
+import { highlightHTMLElement, registerTabs } from "@src/utils/helpers";
+import Game from "../../Game";
+import Player from '../../Player';
+import Statistics from '../../Statistics';
 import { Modifier } from "../../mods";
 import Component from "../Component";
 import { AttackSkillSlot, BuffSkillSlot, SkillSlot } from "./skillSlots";
@@ -27,18 +29,18 @@ export default class Skills extends Component {
     readonly buffSkillSlots: BuffSkillSlot[] = [];
 
     readonly skillViewer: SkillViewer;
-    constructor(readonly game: Game, readonly config: SkillsConfig) {
-        super(game, 'skills');
+    constructor(readonly config: SkillsConfig) {
+        super('skills');
         this.skillViewer = new SkillViewer(this);
         {
-            this.attackSkills = [...this.config.attackSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1))].map(x => new AttackSkill(this, x));
+            this.attackSkills = [...this.config.attackSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1))].map(x => new AttackSkill(x));
             Object.seal(this.attackSkills);
 
             this.attackSkillSlot = new AttackSkillSlot(this);
             this.activeSkillSlot = this.attackSkillSlot;
             this.activeSkill = this.attackSkillSlot.skill;
 
-            const attackSkillListContainer = querySelector('[data-attack-skill-list]', this.page);
+            const attackSkillListContainer = this.page.querySelectorForce<HTMLElement>('[data-attack-skill-list]');
             this.attackSkillSlot.element.addEventListener('click', () => {
                 this.activeSkillSlot = this.attackSkillSlot;
                 this.selectSkillListItem(this.attackSkillSlot.skill, attackSkillListContainer);
@@ -46,7 +48,7 @@ export default class Skills extends Component {
             });
 
             for (const skill of this.attackSkills) {
-                this.game.statistics.statistics.Level.registerCallback(skill.rank.config.levelReq || 1, () => {
+                Statistics.statistics.Level.registerCallback(skill.rank.config.levelReq || 1, () => {
                     this.addSkillListItem(skill, attackSkillListContainer);
                 });
             }
@@ -54,12 +56,12 @@ export default class Skills extends Component {
         }
 
         if (config.buffSkills) {
-            this.buffSkills = [...config.buffSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1)).map(x => new BuffSkill(this, x))];
+            this.buffSkills = [...config.buffSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1)).map(x => new BuffSkill(x))];
             Object.seal(this.buffSkills);
-            const buffSkillSlotContainer = querySelector('.s-skill-slots [data-buff-skill-slots]', this.page);
-            const buffSkillListContainer = querySelector('[data-buff-skill-list]', this.page);
+            const buffSkillSlotContainer = this.page.querySelectorForce('.s-skill-slots [data-buff-skill-slots]');
+            const buffSkillListContainer = this.page.querySelectorForce<HTMLElement>('[data-buff-skill-list]');
             for (const buffSkillConfig of config.buffSkills.skillSlots) {
-                game.statistics.statistics.Level.registerCallback(buffSkillConfig.levelReq, () => {
+                Statistics.statistics.Level.registerCallback(buffSkillConfig.levelReq, () => {
                     const slot = new BuffSkillSlot(this);
                     slot.element.setAttribute('data-tab-target', 'buff');
                     slot.element.addEventListener('click', () => {
@@ -72,28 +74,28 @@ export default class Skills extends Component {
             }
 
             for (const skill of this.buffSkills) {
-                game.statistics.statistics.Level.registerCallback(skill.firstRank.config.levelReq || 1, () => {
+                Statistics.statistics.Level.registerCallback(skill.firstRank.config.levelReq || 1, () => {
                     this.addSkillListItem(skill, buffSkillListContainer);
                 });
             }
         }
 
-        this.game.visiblityObserver.registerLoop(this.page, visible => {
+        Game.visiblityObserver.registerLoop(this.page, visible => {
             if (visible) {
-                this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+                this.attackSkillSlot.updateProgressBar(Player.attackProgressPct);
                 for (const buffSkillSlot of this.buffSkillSlots) {
                     buffSkillSlot.updateProgressBar();
                 }
             }
         });
 
-        this.game.visiblityObserver.register(this.page, visible => {
+        Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
                 this.skillViewer.updateView();
             }
         });
 
-        registerTabs(querySelector('.s-skill-slots', this.page), querySelector('.s-skill-list', this.page));
+        registerTabs(this.page.querySelectorForce('.s-skill-slots'), this.page.querySelectorForce('.s-skill-list'));
         this.attackSkillSlot.element.click();
     }
 
@@ -111,7 +113,7 @@ export default class Skills extends Component {
     }
 
     private selectSkillListItem(skill: Skill | undefined, container: HTMLElement) {
-        const skillInfoContainer = querySelector('[data-skill-info]');
+        const skillInfoContainer = this.page.querySelectorForce<HTMLElement>('[data-skill-info]');
         skillInfoContainer.classList.toggle('hidden', container.childElementCount === 0);
         if (skill) {
             this.activeSkill = skill;
@@ -221,11 +223,11 @@ export abstract class Skill {
 export class AttackSkill extends Skill {
     readonly ranks: Rank<AttackSkillConfig>[] = [];
     rank: Rank<AttackSkillConfig>;
-    constructor(skills: Skills, configs: AttackSkillConfig | AttackSkillConfig[]) {
+    constructor(configs: AttackSkillConfig | AttackSkillConfig[]) {
         super();
         configs = Array.isArray(configs) ? configs : [configs];
         for (const config of configs) {
-            const rankProgress = skills.game.saveObj?.skills?.attackSkillList?.find(x => x && x.name === config.name)?.rankProgress || 0;
+            const rankProgress = Game.saveObj?.skills?.attackSkillList?.find(x => x && x.name === config.name)?.rankProgress || 0;
             const mods = config.mods?.map(x => new Modifier(x)) || [];
             const rank = new Rank(config, { current: rankProgress, target: config.attackCountReq || 0 }, mods);
             this.ranks.push(rank);
@@ -238,11 +240,11 @@ export class BuffSkill extends Skill {
     readonly ranks: Rank<BuffSkillConfig>[] = [];
     rank: Rank<BuffSkillConfig>;
 
-    constructor(skills: Skills, configs: BuffSkillConfig | BuffSkillConfig[]) {
+    constructor(configs: BuffSkillConfig | BuffSkillConfig[]) {
         super();
         configs = Array.isArray(configs) ? configs : [configs];
         for (const config of configs) {
-            const rankProgress = skills.game.saveObj?.skills?.buffSkillList?.find(x => x && x.name === config.name)?.rankProgress || 0;
+            const rankProgress = Game.saveObj?.skills?.buffSkillList?.find(x => x && x.name === config.name)?.rankProgress || 0;
             const mods = config.mods?.map(x => new Modifier(x)) || [];
             this.ranks.push(new Rank(config, { current: rankProgress, target: config.triggerCountReq || 0 }, mods));
         }

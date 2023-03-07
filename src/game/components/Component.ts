@@ -1,12 +1,11 @@
 import type ComponentsConfig from "@src/types/gconfig/components";
 import type GameSave from "@src/types/save/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
-import type Game from "../Game";
 
 export default abstract class Component {
     private _page: HTMLElement;
     private _menuItem: HTMLElement;
-    constructor(readonly game: Game, readonly name: keyof ComponentsConfig) {
+    constructor(readonly name: keyof ComponentsConfig) {
         this._page = querySelector(`.p-game .p-${name}`);
         this._menuItem = querySelector(`.p-game [data-main-menu] [data-tab-target="${name}"]`);
 

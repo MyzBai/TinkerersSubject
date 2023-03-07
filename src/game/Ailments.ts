@@ -1,8 +1,11 @@
 import { lerp, querySelector } from "@src/utils/helpers";
 import { calcAilmentBaseDamage } from "./calc/calcDamage";
 import type { Configuration } from "./calc/calcMod";
-import type Game from "./Game";
+import Enemy from "./Enemy";
+import game from "./Game";
 import { StatModifierFlags } from "./mods";
+import Player from "./Player";
+import Statistics from "./Statistics";
 
 export type AilmentType = 'Bleed' | 'Burn';
 
@@ -27,8 +30,8 @@ abstract class AilmentHandler {
     time = 0;
     protected duration = 0;
     protected maxNumActiveInstances = 0;
-    constructor(readonly game: Game, readonly type: AilmentType) {
-        this.ailmentsListContainer = querySelector('.p-combat [data-ailment-list]', game.page);
+    constructor(readonly type: AilmentType) {
+        this.ailmentsListContainer = querySelector('.p-combat [data-ailment-list]');
     }
 
     get numActiveInstances() { return Math.min(this.instances.length, this.maxNumActiveInstances); }
@@ -41,7 +44,7 @@ abstract class AilmentHandler {
 
     addAilment(ailment: AilmentData) {
         if (this.instances.length === 0) {
-            this.loopId = this.game.player.game.gameLoop.subscribe(dt => {
+            this.loopId = game.gameLoop.subscribe(dt => {
                 this.tick(dt);
             });
             this.createElement();
@@ -57,7 +60,7 @@ abstract class AilmentHandler {
 
     tick(dt: number) {
         if (this.instances.length === 0) {
-            this.game.gameLoop.unsubscribe(this.loopId);
+            game.gameLoop.unsubscribe(this.loopId);
             this.removeElement();
             return;
         }
@@ -90,8 +93,8 @@ abstract class AilmentHandler {
         this.element = li;
         this.ailmentsListContainer.appendChild(li);
 
-        this.timeSpan = querySelector('[data-time]', li);
-        this.countSpan = querySelector('[data-count]', li);
+        this.timeSpan = li.querySelectorForce('[data-time]');
+        this.countSpan = li.querySelectorForce('[data-count]');
     }
 
     removeElement() {
@@ -132,28 +135,28 @@ abstract class AilmentHandler {
 
 class BleedHandler extends AilmentHandler {
 
-    constructor(readonly game: Game) {
-        super(game, 'Bleed');
+    constructor() {
+        super('Bleed');
     }
 
     setup() {
         super.setup();
-        this.game.statistics.statistics['Bleed Duration'].addListener('change', amount => {
+        Statistics.statistics['Bleed Duration'].addListener('change', amount => {
             const durationFac = amount / this.duration;
             this.time *= durationFac;
             this.instances.forEach(x => x.time *= durationFac);
             this.duration = amount;
         });
-        this.game.statistics.statistics['Maximum Bleed Stacks'].addListener('change', amount => {
+        Statistics.statistics['Maximum Bleed Stacks'].addListener('change', amount => {
             this.maxNumActiveInstances = amount;
         });
-        this.duration = this.game.statistics.statistics['Bleed Duration'].get();
-        this.maxNumActiveInstances = this.game.statistics.statistics['Maximum Bleed Stacks'].get();
+        this.duration = Statistics.statistics['Bleed Duration'].get();
+        this.maxNumActiveInstances = Statistics.statistics['Maximum Bleed Stacks'].get();
     }
 
     updateDamage() {
         const config: Configuration = {
-            statModList: this.game.player.modDB.modList,
+            statModList: Player.modDB.modList,
             flags: StatModifierFlags.Bleed | StatModifierFlags.Physical | StatModifierFlags.Ailment
         };
         const { min, max } = calcAilmentBaseDamage('Physical', config);
@@ -163,36 +166,36 @@ class BleedHandler extends AilmentHandler {
 
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
-        this.game.enemy.dealDamageOverTime(damage);
-        this.game.statistics.statistics['Total Damage'].add(damage);
-        this.game.statistics.statistics['Total Bleed Damage'].add(damage);
-        this.game.statistics.statistics['Total Physical Damage'].add(damage);
+        Enemy.dealDamageOverTime(damage);
+        Statistics.statistics['Total Damage'].add(damage);
+        Statistics.statistics['Total Bleed Damage'].add(damage);
+        Statistics.statistics['Total Physical Damage'].add(damage);
         super.tick(dt);
     }
 }
 
 class BurnHandler extends AilmentHandler {
-    constructor(readonly game: Game) {
-        super(game, 'Burn');
+    constructor() {
+        super('Burn');
     }
 
     setup(): void {
         super.setup();
-        this.game.statistics.statistics['Burn Duration'].addListener('change', amount => {
+        Statistics.statistics['Burn Duration'].addListener('change', amount => {
             const durationFac = amount / this.duration;
             this.time *= durationFac;
             this.instances.forEach(x => x.time *= durationFac);
             this.duration = amount;
         });
-        this.game.statistics.statistics['Maximum Burn Stacks'].addListener('change', amount => {
+        Statistics.statistics['Maximum Burn Stacks'].addListener('change', amount => {
             this.maxNumActiveInstances = amount;
         });
-        this.duration = this.game.statistics.statistics['Burn Duration'].get();
-        this.maxNumActiveInstances = this.game.statistics.statistics["Maximum Burn Stacks"].get();
+        this.duration = Statistics.statistics['Burn Duration'].get();
+        this.maxNumActiveInstances = Statistics.statistics["Maximum Burn Stacks"].get();
     }
     updateDamage() {
         const config: Configuration = {
-            statModList: this.game.player.modDB.modList,
+            statModList: Player.modDB.modList,
             flags: StatModifierFlags.Burn | StatModifierFlags.Elemental | StatModifierFlags.Ailment
         };
         const { min, max } = calcAilmentBaseDamage('Elemental', config);
@@ -202,10 +205,10 @@ class BurnHandler extends AilmentHandler {
 
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
-        this.game.enemy.dealDamageOverTime(damage);
-        this.game.statistics.statistics['Total Damage'].add(damage);
-        this.game.statistics.statistics['Total Burn Damage'].add(damage);
-        this.game.statistics.statistics['Total Elemental Damage'].add(damage);
+        Enemy.dealDamageOverTime(damage);
+        Statistics.statistics['Total Damage'].add(damage);
+        Statistics.statistics['Total Burn Damage'].add(damage);
+        Statistics.statistics['Total Elemental Damage'].add(damage);
         super.tick(dt);
     }
 }
@@ -213,17 +216,15 @@ class BurnHandler extends AilmentHandler {
 
 export class Ailments {
     readonly handlers: AilmentHandler[] = [];
-    readonly combatPage: HTMLElement;
-    constructor(readonly game: Game) {
-        this.combatPage = querySelector('.p-game .p-combat');
-        this.handlers.push(new BleedHandler(game));
-        this.handlers.push(new BurnHandler(game));
+    constructor() {
+        this.handlers.push(new BleedHandler());
+        this.handlers.push(new BurnHandler());
     }
 
     setup() {
         this.handlers.forEach(x => x.setup());
 
-        this.game.player.modDB.onChange.listen(() => {
+        Player.modDB.onChange.listen(() => {
             this.handlers.forEach(x => {
                 if (x.instances.length === 0) {
                     return;
@@ -232,7 +233,7 @@ export class Ailments {
             });
         });
 
-        this.game.visiblityObserver.registerLoop(this.combatPage, visible => {
+        game.visiblityObserver.registerLoop(querySelector('.p-game .p-combat'), visible => {
             if (visible) {
                 for (const handler of this.handlers) {
                     if (handler.instances.length === 0) {
@@ -242,7 +243,7 @@ export class Ailments {
                 }
             }
         });
-        this.game.visiblityObserver.registerLoop(this.combatPage, visible => {
+        game.visiblityObserver.registerLoop(querySelector('.p-game .p-combat'), visible => {
             if (visible) {
                 for (const handler of this.handlers) {
                     if (handler.instances.length === 0) {
@@ -277,7 +278,7 @@ export class Ailments {
     private tryLoad() {
         try {
             this.handlers.forEach(x => {
-                const save = this.game.saveObj?.enemy?.ailments?.find(y => y && y.type === x.type);
+                const save = game.saveObj?.enemy?.ailments?.find(y => y && y.type === x.type);
                 if (!save) {
                     return;
                 }

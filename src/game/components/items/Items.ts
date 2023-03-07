@@ -1,6 +1,8 @@
 import Component from "@src/game/components/Component";
-import type Game from "@src/game/Game";
+import Game from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
+import Player from "@src/game/Player";
+import Statistics from "@src/game/Statistics";
 import type { ItemModConfig } from "@src/types/gconfig/items";
 import type ItemsConfig from "@src/types/gconfig/items";
 import type GameSave from "@src/types/save/save";
@@ -13,18 +15,18 @@ export type ModTables = { [K in keyof ItemsConfig['modLists']]: ItemModifier[] }
 
 export default class Items extends Component {
     private readonly itemsPage = querySelector('.p-game .p-items');
-    private readonly itemListContainer = querySelector('[data-item-list]', this.itemsPage);
-    private readonly itemModListContainer = querySelector('[data-mod-list]', this.itemsPage);
-    private readonly itemCraftTableContainer = querySelector('.s-craft-container [data-craft-list] table', this.itemsPage);
-    private readonly craftButton = querySelector<HTMLButtonElement>('.s-craft-container [data-craft-button]', this.itemsPage);
-    private readonly craftMessageElement = querySelector<HTMLButtonElement>('[data-craft-message]', this.itemsPage);
+    private readonly itemListContainer = this.itemsPage.querySelectorForce('[data-item-list]');
+    private readonly itemModListContainer = this.itemsPage.querySelectorForce('[data-mod-list]');
+    private readonly itemCraftTableContainer = this.itemsPage.querySelectorForce('.s-craft-container [data-craft-list] table');
+    private readonly craftButton = this.itemsPage.querySelectorForce<HTMLButtonElement>('.s-craft-container [data-craft-button]');
+    private readonly craftMessageElement = this.itemsPage.querySelectorForce<HTMLButtonElement>('[data-craft-message]');
     readonly items: Item[] = [];
     private activeItem: Item;
     private activeCraftId?: CraftId;
     readonly modLists: ItemModifier[];
     private presets: CraftPresets;
-    constructor(readonly game: Game, readonly data: ItemsConfig) {
-        super(game, 'items');
+    constructor(readonly data: ItemsConfig) {
+        super('items');
         this.presets = new CraftPresets(this);
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
 
@@ -44,20 +46,20 @@ export default class Items extends Component {
         this.createCraftListItems(data.craftList);
         this.updateCraftList(this.presets.activePreset?.ids);
 
-        this.game.visiblityObserver.register(this.page, visible => {
+        Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
                 this.updateCraftButton();
             }
         })
 
-        this.game.statistics.statistics.Gold.addListener('change', () => {
+        Statistics.statistics.Gold.addListener('change', () => {
             if (this.page.classList.contains('hidden')) {
                 return;
             }
             this.updateCraftButton();
         });
 
-        game.statistics.statistics.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
+        Statistics.statistics.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
         this.craftButton.addEventListener('click', () => this.performCraft());
     }
 
@@ -95,7 +97,7 @@ export default class Items extends Component {
 
     private createItems() {
         for (const itemData of this.data.itemList) {
-            this.game.statistics.statistics.Level.registerCallback(itemData.levelReq, () => {
+            Statistics.statistics.Level.registerCallback(itemData.levelReq, () => {
                 const item = new Item(this, itemData.name);
                 this.items.push(item);
                 this.itemListContainer.appendChild(item.element);
@@ -121,9 +123,9 @@ export default class Items extends Component {
                 this.updateCraftButton();
             });
 
-            this.game.statistics.statistics.Level.registerCallback(levelReq, () => {
+            Statistics.statistics.Level.registerCallback(levelReq, () => {
                 tr.setAttribute('data-enabled', '');
-                
+
                 highlightHTMLElement(this.menuItem, 'click');
                 highlightHTMLElement(this.presets.presets[0]!.element, 'mouseover');
                 highlightHTMLElement(tr, 'mouseover');
@@ -151,7 +153,7 @@ export default class Items extends Component {
     private generateCraftData(): CraftData {
         return {
             itemModList: this.activeItem.mods,
-            modList: this.modLists.filter(x => x.levelReq <= this.game.statistics.statistics.Level.get())
+            modList: this.modLists.filter(x => x.levelReq <= Statistics.statistics.Level.get())
         }
     }
 
@@ -162,7 +164,7 @@ export default class Items extends Component {
             }
             const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute('data-cost');
             const cost = Number(costAttr);
-            if (cost > this.game.statistics.statistics.Gold.get()) {
+            if (cost > Statistics.statistics.Gold.get()) {
                 return 'Not Enough Gold';
             }
             const template = craftTemplates[this.activeCraftId];
@@ -196,7 +198,7 @@ export default class Items extends Component {
             return;
         }
         this.activeItem.mods = template.getItemMods(craftData);
-        this.game.statistics.statistics.Gold.subtract(cost);
+        Statistics.statistics.Gold.subtract(cost);
 
         this.updateItemModList();
     }
@@ -219,9 +221,9 @@ class Item {
     }
     get mods() { return this._mods; }
     set mods(v: ItemModifier[]) {
-        this.items.game.player.modDB.removeBySource(this.name);
+        Player.modDB.removeBySource(this.name);
         this._mods = v;
-        this.items.game.player.modDB.add(this._mods.flatMap(x => x.copy().stats), this.name);
+        Player.modDB.add(this._mods.flatMap(x => x.copy().stats), this.name);
     }
     private createElement() {
         const li = document.createElement('li');
@@ -237,7 +239,7 @@ class Item {
 
     private tryLoad() {
         try {
-            const savedItem = this.items.game.saveObj?.items?.items?.find(x => x && x.name === this.name);
+            const savedItem = Game.saveObj?.items?.items?.find(x => x && x.name === this.name);
             if (!savedItem) {
                 return;
             }

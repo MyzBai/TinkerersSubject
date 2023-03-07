@@ -4,9 +4,7 @@ import Enemy from './Enemy';
 import Loop from "@utils/Loop";
 import Statistics from "./Statistics";
 import EventEmitter from "@src/utils/EventEmitter";
-import gameHtml from '@html/game.html';
 import saveManager from "@src/utils/saveManager";
-import type Home from "@src/Home";
 
 import { VisibilityObserver } from "@src/utils/Observers";
 import type Component from "./components/Component";
@@ -15,38 +13,27 @@ import type GameConfig from "@src/types/gconfig/gameConfig";
 import type { ComponentName } from "@src/types/gconfig/components";
 import customAlert from "@src/utils/alert";
 import type GameSave from "@src/types/save/save";
-import CustomError from "@src/utils/CustomError";
 
-export default class Game {
-    readonly page: HTMLElement;
+export class Game {
+    readonly page = querySelector('.p-game');
     readonly gameLoop = new Loop();
-    readonly enemy: Enemy;
-    readonly player: Player;
-    readonly statistics: Statistics;
     readonly visiblityObserver: VisibilityObserver;
     readonly componentsList: Component[] = [];
     readonly onSave = new EventEmitter<GameSave>();
     private _config: GameConfig | undefined;
     private _saveObj?: DeepPartial<GameSave>;
-    constructor(readonly home: Home) {
-        this.page = querySelector('.p-game', new DOMParser().parseFromString(gameHtml, 'text/html').body);
-        querySelector('.p-home').after(this.page);
+    constructor() {
         this.visiblityObserver = new VisibilityObserver(this.gameLoop);
-        this.page = querySelector('.p-game');
-        this.enemy = new Enemy(this);
-        this.player = new Player(this);
-
-        this.statistics = new Statistics(this);
 
         if (isLocalHost()) {
             this.setupDevHelpers();
         }
 
-        querySelector('[data-target="home"]', this.page).addEventListener('click', () => {
+        this.page.querySelectorForce('[data-target="home"]').addEventListener('click', () => {
             this.page.classList.add('hidden');
             querySelector('.p-home').classList.remove('hidden');
         });
-        registerTabs(querySelector('[data-main-menu]', this.page), querySelector('[data-main-view]', this.page));
+        registerTabs(this.page.querySelectorForce<HTMLElement>('[data-main-menu]'), this.page.querySelectorForce<HTMLElement>('[data-main-view]'));
     }
     get config() {
         return this._config;
@@ -60,16 +47,16 @@ export default class Game {
         this._saveObj = saveObj;
 
 
-        querySelector('[data-config-name]', this.page).textContent = this._config.meta.name;
+        this.page.querySelectorForce('[data-config-name]').textContent = this._config.meta.name;
 
         //Reset
         this.reset();
 
         //Initialize
         try {
-            this.enemy.init();
-            this.player.init();
-            this.statistics.init();
+            Enemy.init();
+            Player.init();
+            Statistics.init();
             this.initComponents();
         } catch (e) {
             this.reset();
@@ -83,7 +70,7 @@ export default class Game {
         await this.save();
 
         this.gameLoop.subscribe(() => {
-            this.statistics.statistics["Time Played"].add(1);
+            Statistics.statistics["Time Played"].add(1);
         }, { intervalMilliseconds: 1000 });
 
         this.gameLoop.subscribe(() => {
@@ -93,8 +80,8 @@ export default class Game {
         {
             const endPrompt = config.options?.endPrompt;
             if (endPrompt) {
-                this.statistics.statistics.Level.addListener('change', level => {
-                    if (level >= this.enemy.maxIndex + 1) {
+                Statistics.statistics.Level.addListener('change', level => {
+                    if (level >= Enemy.maxIndex + 1) {
                         customAlert({
                             title: endPrompt.title,
                             body: endPrompt.body,
@@ -113,25 +100,25 @@ export default class Game {
         this.visiblityObserver.disconnectAll();
 
         this.gameLoop.reset();
-        this.player.reset();
-        this.enemy.reset();
-        this.statistics.reset();
+        Player.reset();
+        Enemy.reset();
+        Statistics.reset();
     }
 
     private setup() {
-        this.statistics.setup();
-        this.enemy.setup();
-        this.player.setup();
+        Statistics.setup();
+        Enemy.setup();
+        Player.setup();
 
         if (!isLocalHost()) {
             this.gameLoop.start();
         }
-        querySelector('[data-tab-target="combat"]', this.page).click();
+        this.page.querySelectorForce<HTMLElement>('[data-tab-target="combat"]').click();
         document.querySelectorAll('[data-highlight-notification]').forEach(x => x.removeAttribute('data-highlight-notification'));
     }
 
     private initComponents() {
-        const menuContainer = querySelector('[data-main-menu] .s-components', this.page);
+        const menuContainer = this.page.querySelectorForce('[data-main-menu] .s-components');
         menuContainer.replaceChildren();
         if (!this.config?.components) {
             return;
@@ -141,8 +128,8 @@ export default class Game {
             if (!data) {
                 continue;
             }
-            this.statistics.statistics.Level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
-                const component = loadComponent(this, key as ComponentName);
+            Statistics.statistics.Level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
+                const component = loadComponent(key as ComponentName);
                 this.componentsList.push(component);
             });
         }
@@ -179,9 +166,9 @@ export default class Game {
         const map = await saveManager.load('Game') || new Map<string, GameSave>();
         const saveObj = map.get(this.config.meta.id) as GameSave || { meta: { ...this.config.meta } };
         saveObj.meta.lastSavedAt = Date.now();
-        this.player.save(saveObj);
-        this.enemy.save(saveObj);
-        this.statistics.save(saveObj);
+        Player.save(saveObj);
+        Enemy.save(saveObj);
+        Statistics.save(saveObj);
 
         for (const componentData of this.componentsList) {
             componentData.save(saveObj);
@@ -239,3 +226,5 @@ export default class Game {
         return map.has(id);
     }
 }
+
+export default new Game();

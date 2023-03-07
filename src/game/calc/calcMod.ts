@@ -1,6 +1,7 @@
 import { avg, clamp } from "@utils/helpers";
-import type Game from "../Game";
 import { StatModifier, StatModifierFlags, StatName, StatModifierValueType } from "../mods";
+import Player from "../Player";
+import Statistics from "../Statistics";
 import { calcAilmentBaseDamage, calcBaseDamage, ConversionTable } from "./calcDamage";
 
 export type CalcMinMax = (min: number, max: number) => number;
@@ -12,12 +13,11 @@ export interface Configuration {
 }
 
 
-export function calcPlayerStats(game: Game) {
-    const player = game.player;
-    const statistics = game.statistics.statistics;
+export function calcPlayerStats() {
+    const statistics = Statistics.statistics;
 
     const config: Configuration = {
-        statModList: player.modDB.modList,
+        statModList: Player.modDB.modList,
         flags: 0
     };
 

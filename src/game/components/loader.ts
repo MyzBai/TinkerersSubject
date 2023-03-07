@@ -11,15 +11,15 @@ import itemsHtml from '@html/items.html';
 import missionsHtml from '@html/missions.html';
 import achievementsHtml from '@html/achievements.html';
 
-import type Game from "../Game";
 import { querySelector } from "@src/utils/helpers";
 import type ComponentsConfig from "@src/types/gconfig/components";
 import type { ComponentName } from "@src/types/gconfig/components";
 import CustomError from "@src/utils/CustomError";
+import Game from "../Game";
 
 export interface ComponentConfig {
     html: string;
-    constr: new (game: Game, data: any) => Component;
+    constr: new (data: any) => Component;
     label: string;
 }
 
@@ -53,10 +53,10 @@ export const componentConfigs: Record<keyof ComponentsConfig, ComponentConfig> =
 
 
 
-export function loadComponent(game: Game, key: ComponentName) {
+export function loadComponent(key: ComponentName) {
     const gamePage = querySelector('.p-game');
-    const menuContainer = querySelector('[data-main-menu] .s-components', gamePage);
-    const mainView = querySelector('[data-main-view]', gamePage);
+    const menuContainer = gamePage.querySelectorForce('[data-main-menu] .s-components');
+    const mainView = gamePage.querySelectorForce('[data-main-view]');
 
     const { constr, html, label } = componentConfigs[key];
 
@@ -81,7 +81,7 @@ export function loadComponent(game: Game, key: ComponentName) {
     }
 
     //instance
-    const instance = new constr(game, game.config!.components![key]);
+    const instance = new constr(Game.config!.components![key]);
 
 
     return instance;

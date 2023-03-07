@@ -1,4 +1,4 @@
-import Home from './Home';
+import home from './Home';
 
 window.addEventListener('DOMContentLoaded', () => {
     init();
@@ -6,7 +6,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function init() {
 
-    const home = new Home();
     await home.tryLoadRecentSave();
     document.body.classList.remove('hidden');
 }
