@@ -1,3 +1,4 @@
+import CustomError from "./CustomError";
 
 
 
@@ -13,7 +14,7 @@ export const isLocalHost = () => location.hostname === 'localhost' || location.h
 export function querySelector<T extends HTMLElement>(selectors: string, parent?: HTMLElement) {
     const element = (parent || document).querySelector<T>(selectors);
     if (!element) {
-        throw Error(`HTMLElement with selectors ${selectors} could not be found!`);
+        throw new CustomError(`HTMLElement with selectors ${selectors} could not be found!`);
     }
     return element;
 }
