@@ -7,6 +7,7 @@ import saveManager from "@src/utils/saveManager";
 import customAlert from "./utils/alert";
 import type MetaConfig from "./types/gconfig/meta";
 import type GameSave from "./types/save/save";
+import CustomError from "./utils/CustomError";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
@@ -259,7 +260,9 @@ export default class Home {
             navBtn.click();
         } catch (e) {
             console.error(`Failed to load "${this.activeEntry.name}" at: ${this.activeEntry.rawUrl}`);
-            console.error(e);
+            if(e instanceof CustomError){
+                console.error(e);
+            }
         }
 
     }

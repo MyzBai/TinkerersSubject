@@ -15,6 +15,7 @@ import type GameConfig from "@src/types/gconfig/gameConfig";
 import type { ComponentName } from "@src/types/gconfig/components";
 import customAlert from "@src/utils/alert";
 import type GameSave from "@src/types/save/save";
+import CustomError from "@src/utils/CustomError";
 
 export default class Game {
     readonly page: HTMLElement;
@@ -72,7 +73,7 @@ export default class Game {
             this.initComponents();
         } catch (e) {
             this.reset();
-            throw new Error('Failed to initialize the game');
+            throw e;
         }
 
 

@@ -15,6 +15,7 @@ import type Game from "../Game";
 import { querySelector } from "@src/utils/helpers";
 import type ComponentsConfig from "@src/types/gconfig/components";
 import type { ComponentName } from "@src/types/gconfig/components";
+import CustomError from "@src/utils/CustomError";
 
 export interface ComponentConfig {
     html: string;
@@ -62,7 +63,7 @@ export function loadComponent(game: Game, key: ComponentName) {
     //page
     const page = new DOMParser().parseFromString(html, 'text/html').querySelector(`.p-${key}`);
     if (!page || !(page instanceof HTMLElement)) {
-        throw Error(`invalid html of component: ${key}`);
+        throw new CustomError(`invalid html of component: ${key}`);
     }
     mainView.appendChild(page);
     //menu item
