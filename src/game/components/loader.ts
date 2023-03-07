@@ -62,7 +62,7 @@ export function loadComponent(game: Game, key: ComponentName) {
     //page
     const page = new DOMParser().parseFromString(html, 'text/html').querySelector(`.p-${key}`);
     if (!page || !(page instanceof HTMLElement)) {
-        throw Error(`invalid html of component: ${name}`);
+        throw Error(`invalid html of component: ${key}`);
     }
     mainView.appendChild(page);
     //menu item
