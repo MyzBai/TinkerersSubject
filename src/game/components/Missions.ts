@@ -56,6 +56,9 @@ class MissionSlot {
             this.updateNewButton();
         });
         this.tryLoad();
+
+        highlightHTMLElement(this.missions.menuItem, 'click');
+        highlightHTMLElement(this.element, 'mouseover');
     }
     get element() {
         return this._element;
@@ -72,6 +75,7 @@ class MissionSlot {
         this.completed = true;
         highlightHTMLElement(this.missions.menuItem, 'click');
         highlightHTMLElement(this.element, 'mouseover');
+        console.log('add highlight');
         this.updateSlot();
     }
 

@@ -67,7 +67,7 @@ export default class Items extends Component {
                 a.push({ name: c.name, modList: c.mods.map(x => ({ text: x.templateDesc, values: x.stats.map(x => x.value) })) });
                 return a;
             }, []),
-            craftPresets: this.presets.presets.reduce<Required<GameSave>['items']['craftPresets']>((a, c) => {
+            craftPresets: [...this.presets.presets].slice(1).reduce<Required<GameSave>['items']['craftPresets']>((a, c) => {
                 a.push({ name: c.name, ids: c.ids });
                 return a;
             }, [])
@@ -123,7 +123,9 @@ export default class Items extends Component {
 
             this.game.statistics.statistics.Level.registerCallback(levelReq, () => {
                 tr.setAttribute('data-enabled', '');
+                
                 highlightHTMLElement(this.menuItem, 'click');
+                highlightHTMLElement(this.presets.presets[0]!.element, 'mouseover');
                 highlightHTMLElement(tr, 'mouseover');
             });
             rows.push(tr);

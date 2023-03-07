@@ -254,7 +254,8 @@
     color: $color-var-invalid-fg;
 }
 [data-highlight-notification] {
-    border-left: 0.2em solid $color-highlight-border-bg !important;
+    box-shadow: inset 3px 0 0 $color-highlight-border-bg !important;
+    // border-left: 0.2em solid $color-highlight-border-bg !important;
 }
 
 .g-text-small {
