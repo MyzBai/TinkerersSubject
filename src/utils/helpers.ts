@@ -1,5 +1,18 @@
 import CustomError from "./CustomError";
 
+declare global {
+    interface HTMLElement {
+        querySelectorForce<E extends Element = Element>(selectors: string): E;
+    }
+}
+
+HTMLElement.prototype.querySelectorForce = function <E extends Element = Element>(this: HTMLElement, selectors: string) {
+    const element = this.querySelector<E>(selectors);
+    if (!element) {
+        throw new CustomError(`HTMLElement with selectors ${selectors} could not be found!`);
+    }
+    return element;
+}
 
 
 export const avg = (a: number, b: number) => (a + b) / 2;
