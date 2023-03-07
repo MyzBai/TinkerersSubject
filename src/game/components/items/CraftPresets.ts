@@ -35,15 +35,19 @@ export default class CraftPresets {
         //preset modal delete button
         querySelector('[data-delete]', this.modal).addEventListener('click', () => this.deleteActivePreset());
 
+        this.createDefaultPreset();
         if (items.game.saveObj?.items?.craftPresets) {
             for (const savedPreset of items.game.saveObj.items?.craftPresets) {
-                if(savedPreset?.name && savedPreset.ids){
+                if (savedPreset?.name && savedPreset.ids) {
                     this.newPreset(savedPreset.name, savedPreset.ids as CraftId[]);
                 }
             }
-        } else {
-            this.newPreset('Default', items.data.craftList.map(x => x.id));
         }
+    }
+
+    private createDefaultPreset(){
+        const preset = this.newPreset('Default');
+        preset.editable = false;
     }
 
     newPreset(name = 'New', ids: CraftId[] = this.items.data.craftList.map(x => x.id)) {
@@ -61,7 +65,8 @@ export default class CraftPresets {
     selectPreset(preset?: CraftPreset) {
         this.activePreset = preset;
         this.items.updateCraftList(this.activePreset?.ids);
-        querySelector<HTMLButtonElement>('.s-preset-container [data-edit]', this.items.page).disabled = typeof this.activePreset === 'undefined';
+        const canEdit = typeof this.activePreset !== 'undefined' && this.activePreset.editable;
+        querySelector<HTMLButtonElement>('.s-preset-container [data-edit]', this.items.page).disabled = !canEdit;
     }
 
     editActivePreset() {
@@ -99,7 +104,7 @@ export default class CraftPresets {
         }
         this.activePreset.element.remove();
         this.presets.splice(this.presets.indexOf(this.activePreset), 1);
-        if(this.presets.length === 0){
+        if (this.presets.length === 0) {
             this.items.updateCraftList();
             this.selectPreset(undefined);
         } else {
@@ -110,10 +115,10 @@ export default class CraftPresets {
 
 class CraftPreset {
     readonly element: HTMLLIElement;
+    editable = true;
     constructor(private _name: string, public ids: CraftId[]) {
         this.element = this.createElement();
     }
-
     get name() {
         return this._name;
     }
