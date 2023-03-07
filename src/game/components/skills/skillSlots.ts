@@ -103,14 +103,7 @@ export class AttackSkillSlot implements SkillSlot {
         li.classList.add('s-skill-slot', 'g-list-item');
         li.setAttribute('data-tab-target', 'attack');
         li.insertAdjacentHTML('beforeend', '<div data-skill-name></div>');
-
-        {
-            const progressBar = document.createElement('progress');
-            progressBar.max = 1;
-            progressBar.value = 0;
-
-            li.appendChild(progressBar);
-        }
+        li.insertAdjacentHTML('beforeend', `<progress value="0" max="1"></progress>`)
         return li;
     }
 }
