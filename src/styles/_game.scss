@@ -133,16 +133,16 @@
                     padding-bottom: $padding-container;
                     text-align: center;
                     justify-content: space-between;
-                    .title{
+                    .title {
                         align-self: center;
                     }
-                    [data-type]{
+                    [data-type] {
                         background-color: $color-global-button-accent-bg;
                         padding-left: 0.7em;
                         padding-right: 0.7em;
                         font-family: monospace;
 
-                        &:hover{
+                        &:hover {
                             background-color: $color-global-button-accent-hover-bg;
                         }
                         &:active {
@@ -415,12 +415,98 @@
             }
         }
 
-        .p-statistics{
+        .p-minions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr 0.7fr;
+            grid-auto-flow: column;
+
+            header{
+                display: flex;
+                padding-bottom: $padding-container;
+                text-align: center;
+                justify-content: space-between;
+                [data-title] {
+                    align-self: center;
+                }
+                [data-decrement], [data-increment] {
+                    background-color: $color-global-button-accent-bg;
+                    padding-left: 0.7em;
+                    padding-right: 0.7em;
+                    font-family: monospace;
+
+                    &:hover {
+                        background-color: $color-global-button-accent-hover-bg;
+                    }
+                    &:active {
+                        background-color: $color-global-button-bg-active;
+                    }
+                }
+            }
+
+            [data-slots] {
+                min-height: 0;
+                overflow-y: auto;
+                li {
+                    display: block;
+                    width: 100%;
+
+                    progress {
+                        display: block;
+                        width: 100%;
+                        height: 5px;
+                    }
+                }
+            }
+
+            [data-list] {
+                grid-column: 1/4;
+                grid-row: 3/4;
+                border-top: 1px solid $color-border-highlight;
+                min-height: 0;
+                overflow-y: auto;
+            }
+
+            [data-view] {
+                grid-row: 1/3;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+
+                header{
+                    text-align: center;
+                    padding-bottom: $padding-container;
+                }
+                [data-stats] {
+                    border-collapse: separate;
+                    border-spacing: $padding-container;
+                    border-top: 1px solid $color-border-highlight;
+                    border-bottom: 1px solid $color-border-highlight;
+                    border-spacing: $padding-container;
+                    td:last-child {
+                        text-align: end;
+                    }
+                }
+                [data-mods]{
+                    min-height: 0;
+                    overflow-y: auto;
+                    flex: 1;
+                    text-align: center;
+                    padding-top: $padding-container;
+                }
+
+                [data-enable]{
+                    width: 100%;
+                }
+            }
+        }
+
+        .p-statistics {
             min-height: 0;
             display: grid;
-            ul{
+            ul {
                 overflow-y: auto;
-                li{
+                li {
                     display: flex;
                     pointer-events: all;
                     border-bottom: 1px solid $color-border-highlight;
@@ -428,10 +514,10 @@
                     padding-bottom: 0.1em;
                     padding-left: $padding-list-item;
                     padding-right: $padding-list-item;
-                    [data-label]{
+                    [data-label] {
                         flex: 1;
                     }
-                    [data-stat]{
+                    [data-stat] {
                         padding-left: 1em;
                     }
                 }
@@ -444,7 +530,7 @@
         flex-direction: column;
         max-width: 15em;
         white-space: nowrap;
-        li{
+        li {
             padding: 0.1em;
             border-bottom: 1px solid $color-border-highlight;
         }

@@ -11,5 +11,6 @@ import passivesSchema from '@public/gconfig/schemas/definitions/components/passi
 import itemsSchema from '@public/gconfig/schemas/definitions/components/items.schema.json';
 import missionsSchema from '@public/gconfig/schemas/definitions/components/missions.schema.json';
 import achievementsSchema from '@public/gconfig/schemas/definitions/components/achievements.schema.json';
+import minionsSchema from '@public/gconfig/schemas/definitions/components/minions.schema.json';
 
-export const configValidator = new Ajv({ strictTuples: false, schemas: [playerSchema, enemiesSchema, optionsSchema, tasksSchema, modsSchema, componentsSchema, skillsSchema, passivesSchema, itemsSchema, missionsSchema, achievementsSchema] }).compile(gameConfigSchema);
+export const configValidator = new Ajv({ strictTuples: false, schemas: [playerSchema, enemiesSchema, optionsSchema, tasksSchema, modsSchema, componentsSchema, skillsSchema, passivesSchema, itemsSchema, missionsSchema, achievementsSchema, minionsSchema] }).compile(gameConfigSchema);
