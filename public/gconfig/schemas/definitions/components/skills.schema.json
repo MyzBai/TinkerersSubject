@@ -26,6 +26,7 @@
                                             {
                                                 "allOf": [
                                                     {
+                                                        "type": "object",
                                                         "required": ["levelReq"]
                                                     },
                                                     {
