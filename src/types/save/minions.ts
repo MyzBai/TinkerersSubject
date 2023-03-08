@@ -5,8 +5,8 @@ export default interface MinionsSave{
 }
 
 export interface MinionSlotSave{
-    name: string;
-    rankIndex: number;
+    name?: string;
+    rankIndex?: number;
 }
 
 export interface MinionRankSave{

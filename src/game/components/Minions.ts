@@ -38,7 +38,7 @@ export default class Minions extends Component {
         this.page.querySelectorForce('[data-add-slot]').addEventListener('click', this.createSlot.bind(this));
         this.page.querySelectorForce('[data-remove-slot]').addEventListener('click', this.removeSlot.bind(this));
 
-        Game.visiblityObserver.register(this.page, visible => {
+        Game.visiblityObserver.registerLoop(this.page, visible => {
             if (!visible) {
                 return;
             }
@@ -49,6 +49,16 @@ export default class Minions extends Component {
                 x.updateProgressBar();
             });
         });
+
+        for (const slotData of Game.saveObj?.minions?.minionSlots || []) {
+            const slot = this.createSlot();
+            const minion = this.minions.find(x => x.name === slotData?.name);
+            if(!minion){
+                continue;
+            }
+            minion.setRankIndex(slotData?.rankIndex || 0);
+            slot.setMinion(minion);
+        }
 
         this.selectSlot(this.slots[0]);
     }
@@ -73,31 +83,30 @@ export default class Minions extends Component {
         this.dataSlotListContainer.appendChild(slot.element);
         slot.element.addEventListener('click', () => this.selectSlot(slot));
         slot.element.click();
+        return slot;
     }
 
     private selectSlot(slot?: Slot) {
-        this.activeSlot = slot;
-        if (slot) {
-            this.slots.forEach(x => x.element.classList.toggle('selected', x === slot));
-            this.selectListItem(slot.minion);
+        if (!slot && this.activeSlot) {
+            this.activeSlot.setMinion();
         }
+        this.activeSlot = slot;
+        this.slots.forEach(x => x.element.classList.toggle('selected', x === slot));
+
+        this.selectListItem(this.activeSlot?.minion);
 
         this.page.querySelectorForce<HTMLButtonElement>('[data-remove-slot]').disabled = !this.activeSlot;
     }
 
     private removeSlot() {
-        let selectedSlot = this.activeSlot;
-        const lastSlot = this.slots.pop();
-        if (selectedSlot === lastSlot) {
-            selectedSlot = this.slots[this.slots.length - 1];
+        if (!this.activeSlot) {
+            return;
         }
-        lastSlot?.element.remove();
-        this.selectSlot(undefined);
-        if (this.activeSlot) {
-            this.activeSlot.element.click();
-        } else {
-            this.selectListItem(this.minions[0]);
-        }
+        this.activeSlot.element.remove();
+        let slotIndex = this.slots.indexOf(this.activeSlot);
+        this.slots.splice(slotIndex, 1);
+        const newSlot = this.slots[Math.min(slotIndex, this.slots.length - 1)];
+        this.selectSlot(newSlot);
     }
 
     private selectListItem(minion?: Minion) {
@@ -115,10 +124,8 @@ export default class Minions extends Component {
     save(saveObj: GameSave): void {
         saveObj.minions = {
             minionSlots: this.slots.reduce<MinionSlotSave[]>((a, c) => {
-                if (!c.minion) {
-                    return a;
-                }
-                a.push({ name: c.minion.ranks[0]!.config.name, rankIndex: c.minion.rankIndex })
+                const minion: MinionSlotSave = { name: c.minion?.name, rankIndex: c.minion?.rankIndex };
+                a.push(minion);
                 return a;
             }, []),
             minionList: this.minions.reduce<MinionRankSave[]>((a, c) => {
@@ -164,7 +171,9 @@ class Slot {
 
         Game.gameLoop.unsubscribe(this.attackId);
         this.modDB.clear();
+        console.log('clear');
         if (minion) {
+            console.log('add');
             this.applyModifiers();
             this.startAutoAttack();
         }
@@ -185,11 +194,12 @@ class Slot {
         this.attackId = Game.gameLoop.subscribe(dt => {
             if (!this._minion) {
                 Game.gameLoop.unsubscribe(this.attackId);
+                return;
             }
             this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
             time += dt;
             if (time >= waitTimeSeconds) {
-                this.performAttack();
+                console.log(this.minion?.name, 'attacked');
                 waitTimeSeconds = calcWaitTime();
                 time = 0;
             }
@@ -374,12 +384,12 @@ class View {
                 this.unlockButton.classList.remove('hidden');
                 this.removeButton.classList.add('hidden');
                 this.addButton.classList.remove('hidden');
-                this.addButton.disabled = true;
+                this.addButton.disabled = this.minions.slots.some(x => x.minion === minion);
             } else {
                 this.unlockButton.classList.add('hidden');
                 this.removeButton.classList.add('hidden');
                 this.addButton.classList.remove('hidden');
-                this.addButton.disabled = this.minions.activeSlot.minion?.rank === rank;
+                this.addButton.disabled = this.minions.activeSlot.minion?.rank === rank || this.minions.slots.some(x => x.minion === minion);
             }
         }
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
