@@ -1,6 +1,6 @@
-import type { CompanionConfig } from "@src/types/gconfig/companions";
-import type CompanionsConfig from "@src/types/gconfig/companions";
-import type { CompanionRankSave, CompanionSlotSave } from "@src/types/save/companions";
+import type { MinionConfig } from "@src/types/gconfig/minions";
+import type MinionsConfig from "@src/types/gconfig/minions";
+import type { MinionRankSave, MinionSlotSave } from "@src/types/save/minions";
 import type GameSave from "@src/types/save/save";
 import { highlightHTMLElement, invLerp } from "@src/utils/helpers";
 import { calcAttack } from "../calc/calcDamage";
@@ -12,28 +12,28 @@ import Statistics from "../Statistics";
 import Component from "./Component";
 
 
-export default class Companions extends Component {
+export default class Minions extends Component {
 
-    private readonly companions: Companion[] = [];
+    private readonly minions: Minion[] = [];
     private readonly dataSlotListContainer: HTMLElement;
     readonly slots: Slot[] = [];
     activeSlot?: Slot;
     private readonly view: View;
-    constructor(readonly config: CompanionsConfig) {
-        super('companions');
+    constructor(readonly config: MinionsConfig) {
+        super('minions');
         this.view = new View(this);
         this.dataSlotListContainer = this.page.querySelectorForce('ul[data-slots]');
 
         for (const data of config.list) {
             const levelReq = Array.isArray(data) ? data[0]!.levelReq : 1;
             Statistics.statistics.Level.registerCallback(levelReq, () => {
-                const companion = new Companion(data);
-                this.companions.push(companion);
-                this.createCompanionListItem(companion);
+                const minion = new Minion(data);
+                this.minions.push(minion);
+                this.createMinionListItem(minion);
             });
         }
 
-        this.selectListItem(this.companions[0]);
+        this.selectListItem(this.minions[0]);
 
         this.page.querySelectorForce('[data-add-slot]').addEventListener('click', this.createSlot.bind(this));
         this.page.querySelectorForce('[data-remove-slot]').addEventListener('click', this.removeSlot.bind(this));
@@ -43,7 +43,7 @@ export default class Companions extends Component {
                 return;
             }
             this.slots.forEach(x => {
-                if (!x.companion) {
+                if (!x.minion) {
                     return;
                 }
                 x.updateProgressBar();
@@ -53,13 +53,13 @@ export default class Companions extends Component {
         this.selectSlot(this.slots[0]);
     }
 
-    private createCompanionListItem(companion: Companion) {
+    private createMinionListItem(minion: Minion) {
         const li = document.createElement('li');
         li.classList.add('g-list-item');
-        li.setAttribute('data-name', companion.name || 'unknown');
-        li.textContent = companion.name || 'unknown';
+        li.setAttribute('data-name', minion.name || 'unknown');
+        li.textContent = minion.name || 'unknown';
         li.addEventListener('click', () => {
-            this.selectListItem(companion);
+            this.selectListItem(minion);
         });
         highlightHTMLElement(this.menuItem, 'click');
         highlightHTMLElement(li, 'mouseover');
@@ -79,7 +79,7 @@ export default class Companions extends Component {
         this.activeSlot = slot;
         if(slot){
             this.slots.forEach(x => x.element.classList.toggle('selected', x === slot));
-            this.selectListItem(slot.companion);
+            this.selectListItem(slot.minion);
         }
 
         this.page.querySelectorForce<HTMLButtonElement>('[data-remove-slot]').disabled = !this.activeSlot;
@@ -96,16 +96,16 @@ export default class Companions extends Component {
         if (this.activeSlot) {
             this.activeSlot.element.click();
         } else {
-            this.selectListItem(this.companions[0]);
+            this.selectListItem(this.minions[0]);
         }
     }
 
-    private selectListItem(companion?: Companion) {
-        if (companion) {
+    private selectListItem(minion?: Minion) {
+        if (minion) {
             this.page.querySelectorAll('[data-list] [data-name]').forEach(x => {
-                x.classList.toggle('selected', x.getAttribute('data-name') === companion.ranks[0]!.config.name)
+                x.classList.toggle('selected', x.getAttribute('data-name') === minion.ranks[0]!.config.name)
             });
-            this.view.show(companion);
+            this.view.show(minion);
         } else {
             const element = this.page.querySelector<HTMLElement>('[data-list] [data-name]:first-child');
             element?.click();
@@ -113,15 +113,15 @@ export default class Companions extends Component {
     }
 
     save(saveObj: GameSave): void {
-        saveObj.companions = {
-            companionSlots: this.slots.reduce<CompanionSlotSave[]>((a, c) => {
-                if (!c.companion) {
+        saveObj.minions = {
+            minionSlots: this.slots.reduce<MinionSlotSave[]>((a, c) => {
+                if (!c.minion) {
                     return a;
                 }
-                a.push({ name: c.companion.ranks[0]!.config.name, rankIndex: c.companion.rankIndex })
+                a.push({ name: c.minion.ranks[0]!.config.name, rankIndex: c.minion.rankIndex })
                 return a;
             }, []),
-            companionList: this.companions.reduce<CompanionRankSave[]>((a, c) => {
+            minionList: this.minions.reduce<MinionRankSave[]>((a, c) => {
                 const ranks = [...c.ranks].slice(1);
                 for (const rank of ranks) {
                     if (!rank.unlocked) {
@@ -139,7 +139,7 @@ export default class Companions extends Component {
 class Slot {
     readonly element: HTMLElement;
     private readonly progressBar: HTMLProgressElement;
-    private _companion?: Companion;
+    private _minion?: Minion;
     private _attackProgressPct = 0;
     private attackId?: string;
     private modDB = new ModDB();
@@ -147,17 +147,17 @@ class Slot {
         this.element = this.createElement();
         this.progressBar = this.element.querySelectorForce('progress');
     }
-    get companion() {
-        return this._companion;
+    get minion() {
+        return this._minion;
     }
 
-    setCompanion(companion?: Companion) {
-        this._companion = companion;
-        this.element.querySelectorForce('[data-name]').textContent = this._companion ? this._companion.rank.config.name : '[Empty]';
+    setMinion(minion?: Minion) {
+        this._minion = minion;
+        this.element.querySelectorForce('[data-name]').textContent = this._minion ? this._minion.rank.config.name : '[Empty]';
         this._attackProgressPct = 0;
         Game.gameLoop.unsubscribe(this.attackId);
         this.modDB.clear();
-        if (companion) {
+        if (minion) {
             this.applyModifiers();
             this.startAutoAttack();
         }
@@ -176,7 +176,7 @@ class Slot {
         let waitTimeSeconds = calcWaitTime();
         let time = 0;
         this.attackId = Game.gameLoop.subscribe(dt => {
-            if (!this._companion) {
+            if (!this._minion) {
                 Game.gameLoop.unsubscribe(this.attackId);
             }
             this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
@@ -201,13 +201,13 @@ class Slot {
     }
 
     private applyModifiers() {
-        if (!this._companion) {
+        if (!this._minion) {
             return;
         }
 
         const minionModsFromPlayer = Player.modDB.modList.filter(x => (x.flags & StatModifierFlags.Minion) === StatModifierFlags.Minion);
-        const minionMods = this._companion.rank.mods.flatMap<StatModifier>(x => x.copy().stats);
-        const sourceName = `Companion/${this._companion.rank.config.name}`;
+        const minionMods = this._minion.rank.mods.flatMap<StatModifier>(x => x.copy().stats);
+        const sourceName = `Minion/${this._minion.rank.config.name}`;
         this.modDB.add([...minionModsFromPlayer, ...minionMods], sourceName);
     }
 
@@ -221,21 +221,21 @@ class Slot {
 }
 
 interface Rank {
-    config: CompanionConfig;
+    config: MinionConfig;
     mods: Modifier[];
     unlocked: boolean;
 }
 
-class Companion {
+class Minion {
     readonly ranks: Rank[] = [];
     private _rankIndex = 0;
-    constructor(configs: CompanionConfig | CompanionConfig[]) {
+    constructor(configs: MinionConfig | MinionConfig[]) {
         configs = Array.isArray(configs) ? configs : [configs];
         for (const config of configs) {
             this.ranks.push({
                 config,
                 mods: config.mods.map(x => new Modifier(x)),
-                unlocked: !!Game.saveObj?.companions?.companionList?.find(x => x?.name === config.name) || (config.goldCost || 0) === 0
+                unlocked: !!Game.saveObj?.minions?.minionList?.find(x => x?.name === config.name) || (config.goldCost || 0) === 0
             });
         }
     }
@@ -256,7 +256,7 @@ class Companion {
 
 class View {
     readonly container: HTMLElement;
-    private activeCompanion?: Companion;
+    private activeMinion?: Minion;
     private rankIndex = 0;
 
     private readonly addButton: HTMLButtonElement;
@@ -264,8 +264,8 @@ class View {
     private readonly unlockButton: HTMLButtonElement;
     private readonly decrementRankButton: HTMLButtonElement;
     private readonly incrementRankButton: HTMLButtonElement;
-    constructor(private readonly companions: Companions) {
-        this.container = this.companions.page.querySelectorForce('[data-view]');
+    constructor(private readonly minions: Minions) {
+        this.container = this.minions.page.querySelectorForce('[data-view]');
         this.decrementRankButton = this.container.querySelectorForce('[data-decrement]');
         this.incrementRankButton = this.container.querySelectorForce('[data-increment]');
 
@@ -275,43 +275,43 @@ class View {
 
 
         this.decrementRankButton.addEventListener('click', () => {
-            this.show(this.activeCompanion!, this.rankIndex! - 1);
+            this.show(this.activeMinion!, this.rankIndex! - 1);
         });
         this.incrementRankButton.addEventListener('click', () => {
-            this.show(this.activeCompanion!, this.rankIndex! + 1);
+            this.show(this.activeMinion!, this.rankIndex! + 1);
         });
 
         this.addButton.addEventListener('click', () => {
-            this.activeCompanion!.setRankIndex(this.rankIndex!);
-            this.companions.activeSlot?.setCompanion(this.activeCompanion);
-            this.show(this.activeCompanion!, this.rankIndex);
+            this.activeMinion!.setRankIndex(this.rankIndex!);
+            this.minions.activeSlot?.setMinion(this.activeMinion);
+            this.show(this.activeMinion!, this.rankIndex);
         });
 
         this.removeButton.addEventListener('click', () => {
-            this.companions.activeSlot?.setCompanion(undefined);
-            this.show(this.activeCompanion!, this.rankIndex);
+            this.minions.activeSlot?.setMinion(undefined);
+            this.show(this.activeMinion!, this.rankIndex);
         });
 
         this.container.querySelectorForce<HTMLButtonElement>('[data-unlock]').addEventListener('click', () => {
-            const rank = this.activeCompanion?.ranks[this.rankIndex!];
-            if (rank && this.activeCompanion) {
+            const rank = this.activeMinion?.ranks[this.rankIndex!];
+            if (rank && this.activeMinion) {
                 Statistics.statistics.Gold.subtract(rank.config.goldCost || 0);
                 rank.unlocked = true;
-                this.show(this.activeCompanion, this.rankIndex);
+                this.show(this.activeMinion, this.rankIndex);
             }
         });
 
     }
 
-    show(companion: Companion, rankIndex?: number) {
+    show(minion: Minion, rankIndex?: number) {
         if (typeof rankIndex === 'number') {
             this.rankIndex = rankIndex;
         } else {
-            this.rankIndex = companion.rankIndex;
+            this.rankIndex = minion.rankIndex;
         }
-        this.activeCompanion = companion;
+        this.activeMinion = minion;
 
-        const rank = companion.ranks[this.rankIndex];
+        const rank = minion.ranks[this.rankIndex];
         if (!rank) {
             throw RangeError('rank index out of bounds');
         }
@@ -322,11 +322,11 @@ class View {
 
             this.decrementRankButton.style.visibility = 'hidden';
             this.incrementRankButton.style.visibility = 'hidden';
-            if (companion.ranks.length > 1) {
+            if (minion.ranks.length > 1) {
                 this.decrementRankButton.style.visibility = 'visible';
                 this.incrementRankButton.style.visibility = 'visible';
                 this.decrementRankButton.disabled = this.rankIndex <= 0;
-                this.incrementRankButton.disabled = !rank.unlocked || this.rankIndex >= companion.ranks.length - 1;
+                this.incrementRankButton.disabled = !rank.unlocked || this.rankIndex >= minion.ranks.length - 1;
             }
         }
 
@@ -354,7 +354,7 @@ class View {
             this.unlockButton.disabled = Statistics.statistics.Gold.get() < (rank.config.goldCost || 0);
         }
 
-        if (!this.companions.activeSlot) {
+        if (!this.minions.activeSlot) {
             this.unlockButton.classList.toggle('hidden', rank.unlocked);
             this.removeButton.classList.add('hidden');
             this.addButton.classList.remove('hidden');
@@ -369,7 +369,7 @@ class View {
                 this.unlockButton.classList.add('hidden');
                 this.removeButton.classList.add('hidden');
                 this.addButton.classList.remove('hidden');
-                this.addButton.disabled = this.companions.activeSlot.companion?.rank === rank;
+                this.addButton.disabled = this.minions.activeSlot.minion?.rank === rank;
             }
         }
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;

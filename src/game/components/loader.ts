@@ -10,14 +10,14 @@ import passivesHtml from '@html/passives.html';
 import itemsHtml from '@html/items.html';
 import missionsHtml from '@html/missions.html';
 import achievementsHtml from '@html/achievements.html';
-import companionsHtml from '@html/companions.html';
+import minionsHtml from '@html/minions.html';
 
 import { querySelector } from "@src/utils/helpers";
 import type ComponentsConfig from "@src/types/gconfig/components";
 import type { ComponentName } from "@src/types/gconfig/components";
 import CustomError from "@src/utils/CustomError";
 import Game from "../Game";
-import Companions from "./Companions";
+import Minions from "./Minions";
 
 export interface ComponentConfig {
     html: string;
@@ -46,10 +46,10 @@ export const componentConfigs: Record<keyof ComponentsConfig, ComponentConfig> =
         html: missionsHtml,
         label: 'Missions'
     },
-    companions: {
-        constr: Companions,
-        html: companionsHtml,
-        label: 'Companions'
+    minions: {
+        constr: Minions,
+        html: minionsHtml,
+        label: 'Minions'
     },
     achievements: {
         constr: Achievements,

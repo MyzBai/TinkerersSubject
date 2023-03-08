@@ -978,7 +978,7 @@
                 {"goldCost": 100, "levelReq": 5}
             ]
         },
-        "companions": {
+        "minions": {
             "levelReq": 1,
             "list": [
                 [

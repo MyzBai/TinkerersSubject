@@ -1,5 +1,5 @@
 import type AchievementsConfig from "./achievements";
-import type CompanionsConfig from "./companions";
+import type MinionsConfig from "./minions";
 import type GameConfig from "./gameConfig";
 import type ItemsConfig from "./items";
 import type MissionsConfig from "./missions";
@@ -13,7 +13,7 @@ export default interface ComponentsConfig {
     items?: ItemsConfig;
     missions?: MissionsConfig;
     achievements?: AchievementsConfig;
-    companions?: CompanionsConfig;
+    minions?: MinionsConfig;
 }
 
 export type ComponentName = { [K in keyof Required<Required<GameConfig>['components']>]: K }[keyof Required<GameConfig>['components']];

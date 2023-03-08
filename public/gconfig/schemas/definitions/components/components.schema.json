@@ -12,7 +12,7 @@
                 "items": {"$ref": "items.schema.json#/definitions/items"},
                 "missions": {"$ref": "missions.schema.json#/definitions/missions"},
                 "achievements": {"$ref": "achievements.schema.json#/definitions/achievements"},
-                "companions": {"$ref": "companions.schema.json#/definitions/companions"}
+                "minions": {"$ref": "minions.schema.json#/definitions/minions"}
             }
         }
     }

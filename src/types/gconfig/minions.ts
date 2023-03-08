@@ -1,11 +1,11 @@
 
 
-export default interface CompanionsConfig {
+export default interface MinionsConfig {
     levelReq: number;
-    list: (CompanionConfig | CompanionConfig[])[];
+    list: (MinionConfig | MinionConfig[])[];
  }
 
-export interface CompanionConfig{
+export interface MinionConfig{
     name: string;
     levelReq: number;
     attackSpeed: number;
