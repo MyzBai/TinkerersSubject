@@ -40,7 +40,9 @@ export class AttackSkillSlot implements SkillSlot {
         const savedAttackSkillName = saveData?.attackSkillSlot?.name;
         const savedAttackSkill = savedAttackSkillName ? skills.attackSkills.find(x => x.name === savedAttackSkillName) : undefined;
         savedAttackSkill?.setRankByIndex(saveData?.attackSkillSlot?.rankIndex || 0);
-        this.setSkill(savedAttackSkill || skills.attackSkills[0]!);
+        if(savedAttackSkill){
+            this.setSkill(savedAttackSkill);
+        }
 
     }
     get canEnable() { return true; };
@@ -69,7 +71,6 @@ export class AttackSkillSlot implements SkillSlot {
     }
 
     setSkill(skill: AttackSkill) {
-
         this.removeModifiers();
         this._skill = skill;
         this.element.querySelectorForce('[data-skill-name]').textContent = skill.rank.config.name || 'unknown';
@@ -84,7 +85,7 @@ export class AttackSkillSlot implements SkillSlot {
     }
 
     removeModifiers() {
-        Player.modDB.removeBySource(this._skill.sourceName);
+        Player.modDB.removeBySource(this._skill?.sourceName);
     }
     applyModifiers() {
         Player.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this._skill.rank.config.baseDamageMultiplier })], this._skill.sourceName);

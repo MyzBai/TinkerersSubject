@@ -21,8 +21,8 @@ export interface SkillRankData<T> {
 
 export default class Skills extends Component {
     activeSkill: Skill;
-    attackSkills: AttackSkill[];
-    buffSkills: BuffSkill[] = [];
+    readonly attackSkills: AttackSkill[] = [];
+    readonly buffSkills: BuffSkill[] = [];
     activeSkillSlot: SkillSlot;
 
     readonly attackSkillSlot: AttackSkillSlot;
@@ -33,12 +33,11 @@ export default class Skills extends Component {
         super('skills');
         this.skillViewer = new SkillViewer(this);
         {
-            this.attackSkills = [...this.config.attackSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1))].map(x => new AttackSkill(x));
-            Object.seal(this.attackSkills);
+            // this.attackSkills = [...this.config.attackSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1))].map(x => new AttackSkill(x));
+            // Object.seal(this.attackSkills);
 
             this.attackSkillSlot = new AttackSkillSlot(this);
             this.activeSkillSlot = this.attackSkillSlot;
-            this.activeSkill = this.attackSkillSlot.skill;
 
             const attackSkillListContainer = this.page.querySelectorForce<HTMLElement>('[data-attack-skill-list]');
             this.attackSkillSlot.element.addEventListener('click', () => {
@@ -47,12 +46,20 @@ export default class Skills extends Component {
                 this.selectSkillListItemByName(this.attackSkillSlot.skill.firstRank!.config.name, attackSkillListContainer);
             });
 
-            for (const skill of this.attackSkills) {
-                Statistics.statistics.Level.registerCallback(skill.rank.config.levelReq || 1, () => {
-                    this.addSkillListItem(skill, attackSkillListContainer);
+            for (const skill of config.attackSkills.skillList) {
+                const levelReq = Array.isArray(skill) ? skill[0]!.levelReq : skill.levelReq;
+                Statistics.statistics.Level.registerCallback(levelReq || 1, () => {
+                    const attackSkill = new AttackSkill(skill);
+                    this.attackSkills.push(attackSkill);
+                    this.addSkillListItem(attackSkill, attackSkillListContainer);
                 });
             }
 
+            if(!this.attackSkillSlot.skill){
+                this.attackSkillSlot.setSkill(this.attackSkills[0]!);
+            }
+            this.attackSkillSlot.element.click();
+            this.activeSkill = this.attackSkillSlot.skill;
         }
 
         if (config.buffSkills) {
@@ -208,15 +215,6 @@ export abstract class Skill {
 
     getNextRank() {
         return this.ranks[this._rankIndex + 1];
-    }
-
-    incrementRank() {
-        this._rankIndex++;
-        this.setRankByIndex(this._rankIndex);
-    }
-    decrementRank() {
-        this._rankIndex--;
-        this.setRankByIndex(this._rankIndex);
     }
 }
 
