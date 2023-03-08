@@ -1,17 +1,21 @@
 import { ModDB, Modifier } from "./mods";
 import { calcAttack } from "./calc/calcDamage";
 import { invLerp, querySelector } from "@src/utils/helpers";
-import Game from './Game';
+import Game, { Save } from './Game';
 import Statistics from './Statistics';
-import type GameSave from "@src/types/save/save";
 import Enemy from "./Enemy";
+
+export interface PlayerSave {
+    level?: number;
+    gold?: number;
+    curMana?: number;
+    attackTimePct?: number;
+}
 
 export class Player {
     private readonly manaBar = querySelector<HTMLProgressElement>('.p-game [data-mana-bar]');
     readonly modDB = new ModDB();
-    private _attackProgressPct: number = 0;
-    constructor() {
-    }
+    private _attackProgressPct = 0;
 
     get attackProgressPct() {
         return this._attackProgressPct;
@@ -114,7 +118,7 @@ export class Player {
         Enemy.applyAilments(result.ailments);
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.player = {
             level: Statistics.statistics.Level.get(),
             gold: Statistics.statistics.Gold.get(),

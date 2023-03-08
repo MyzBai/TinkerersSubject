@@ -43,8 +43,8 @@ export class VisibilityObserver {
         const disconnect = () => {
             observer.disconnect();
             this.loop?.unsubscribe(loopId);
-        }
+        };
         this.loopInstances.push({ observer, disconnect });
-        return { observer, disconnect }
-    };
+        return { observer, disconnect };
+    }
 }

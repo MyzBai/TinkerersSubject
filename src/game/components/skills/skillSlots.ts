@@ -40,17 +40,27 @@ export class AttackSkillSlot implements SkillSlot {
         const savedAttackSkillName = saveData?.attackSkillSlot?.name;
         const savedAttackSkill = savedAttackSkillName ? skills.attackSkills.find(x => x.name === savedAttackSkillName) : undefined;
         savedAttackSkill?.setRankByIndex(saveData?.attackSkillSlot?.rankIndex || 0);
-        if(savedAttackSkill){
+        if (savedAttackSkill) {
             this.setSkill(savedAttackSkill);
         }
 
     }
-    get canEnable() { return true; };
-    get canTrigger() { return false; };
-    get canRemove() { return false; };
-    get canAutomate() { return false; };
+    get canEnable() {
+        return true;
+    }
+    get canTrigger() {
+        return false;
+    }
+    get canRemove() {
+        return false;
+    }
+    get canAutomate() {
+        return false;
+    }
 
-    get skill() { return this._skill; }
+    get skill() {
+        return this._skill;
+    }
 
     private rankProgressCallback() {
         if (!this.skill) {
@@ -63,7 +73,7 @@ export class AttackSkillSlot implements SkillSlot {
                 this.skills.skillViewer.updateView();
             }
             if (nextRank.unlocked) {
-                Statistics.statistics['Hits'].removeListener('add', this.rankProgressCallback);
+                Statistics.statistics.Hits.removeListener('add', this.rankProgressCallback);
                 highlightHTMLElement(this.skills.menuItem, 'click');
                 highlightHTMLElement(this.element, 'mouseover', true);
             }
@@ -76,10 +86,10 @@ export class AttackSkillSlot implements SkillSlot {
         this.element.querySelectorForce('[data-skill-name]').textContent = skill.rank.config.name || 'unknown';
 
         const nextRank = skill.getNextRank();
-        Statistics.statistics['Hits'].removeListener('add', this.rankProgressCallback);
+        Statistics.statistics.Hits.removeListener('add', this.rankProgressCallback);
 
         if (nextRank && !nextRank.unlocked) {
-            Statistics.statistics['Hits'].addListener('add', this.rankProgressCallback);
+            Statistics.statistics.Hits.addListener('add', this.rankProgressCallback);
         }
         this.applyModifiers();
     }
@@ -104,7 +114,7 @@ export class AttackSkillSlot implements SkillSlot {
         li.classList.add('s-skill-slot', 'g-list-item');
         li.setAttribute('data-tab-target', 'attack');
         li.insertAdjacentHTML('beforeend', '<div data-skill-name></div>');
-        li.insertAdjacentHTML('beforeend', `<progress value="0" max="1"></progress>`)
+        li.insertAdjacentHTML('beforeend', `<progress value="0" max="1"></progress>`);
         return li;
     }
 }
@@ -142,16 +152,34 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         highlightHTMLElement(this.element, 'mouseover');
     }
 
-    get canEnable() { return !this._running; };
-    get canTrigger() { return !!this._skill && !this._running && this.sufficientMana; };
-    get canRemove() { return !!this._skill && !this._running; };
-    get canAutomate() { return !!this._skill };
-    get sufficientMana() { return Statistics.statistics["Current Mana"].get() > (this.skill?.rank.config.manaCost || 0); }
-    get automate() { return this._automate; }
-    get time() { return this._time; }
-    get running() { return this._running; }
+    get canEnable() {
+        return !this._running;
+    }
+    get canTrigger() {
+        return !!this._skill && !this._running && this.sufficientMana;
+    }
+    get canRemove() {
+        return !!this._skill && !this._running;
+    }
+    get canAutomate() {
+        return !!this._skill;
+    }
+    get sufficientMana() {
+        return Statistics.statistics["Current Mana"].get() > (this.skill?.rank.config.manaCost || 0);
+    }
+    get automate() {
+        return this._automate;
+    }
+    get time() {
+        return this._time;
+    }
+    get running() {
+        return this._running;
+    }
 
-    get skill() { return this._skill; }
+    get skill() {
+        return this._skill;
+    }
 
     setSkill(skill?: BuffSkill) {
         this._skill = skill;

@@ -1,14 +1,11 @@
 import Component from "@src/game/components/Component";
-import Game from "@src/game/Game";
+import Game, { Save } from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
 import Player from "@src/game/Player";
 import Statistics from "@src/game/Statistics";
-import type { ItemModConfig } from "@src/types/gconfig/items";
-import type ItemsConfig from "@src/types/gconfig/items";
-import type GameSave from "@src/types/save/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import { CraftData, CraftId, craftTemplates } from "./crafting";
-import CraftPresets from "./CraftPresets";
+import CraftPresets, { CraftPresetSave } from "./CraftPresets";
 
 
 export type ModTables = { [K in keyof ItemsConfig['modLists']]: ItemModifier[] }
@@ -50,7 +47,7 @@ export default class Items extends Component {
             if (visible) {
                 this.updateCraftButton();
             }
-        })
+        });
 
         Statistics.statistics.Gold.addListener('change', () => {
             if (this.page.classList.contains('hidden')) {
@@ -63,13 +60,13 @@ export default class Items extends Component {
         this.craftButton.addEventListener('click', () => this.performCraft());
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.items = {
-            items: this.items.reduce<Required<GameSave>['items']['items']>((a, c) => {
+            items: this.items.reduce<Required<Save>['items']['items']>((a, c) => {
                 a.push({ name: c.name, modList: c.mods.map(x => ({ text: x.templateDesc, values: x.stats.map(x => x.value) })) });
                 return a;
             }, []),
-            craftPresets: [...this.presets.presets].slice(1).reduce<Required<GameSave>['items']['craftPresets']>((a, c) => {
+            craftPresets: [...this.presets.presets].slice(1).reduce<Required<Save>['items']['craftPresets']>((a, c) => {
                 a.push({ name: c.name, ids: c.ids });
                 return a;
             }, [])
@@ -154,7 +151,7 @@ export default class Items extends Component {
         return {
             itemModList: this.activeItem.mods,
             modList: this.modLists.filter(x => x.levelReq <= Statistics.statistics.Level.get())
-        }
+        };
     }
 
     private updateCraftButton() {
@@ -174,7 +171,7 @@ export default class Items extends Component {
                 return validator.errors[0];
             }
             return true;
-        }
+        };
 
         const msg = validate();
         this.craftMessageElement.textContent = typeof (msg) === 'string' ? msg : '';
@@ -219,7 +216,9 @@ class Item {
 
         this.tryLoad();
     }
-    get mods() { return this._mods; }
+    get mods() {
+        return this._mods;
+    }
     set mods(v: ItemModifier[]) {
         Player.modDB.removeBySource(this.name);
         this._mods = v;
@@ -295,4 +294,43 @@ export class ItemModifier extends Modifier {
         copy.stats.forEach((v, i) => v.value = this.stats[i]?.value || v.min);
         return copy;
     }
+}
+
+//config
+export interface ItemsConfig {
+    levelReq: number;
+    itemList: ItemConfig[];
+    modLists: ItemModConfig[][];
+    craftList: CraftConfig[];
+}
+
+interface ItemConfig {
+    name: string;
+    levelReq: number;
+}
+
+interface ItemModConfig {
+    levelReq: number;
+    weight: number;
+    mod: string;
+}
+
+interface CraftConfig {
+    id: CraftId;
+    levelReq: number;
+    goldCost: number;
+}
+
+//save
+export interface ItemsSave {
+    items: ItemSave[];
+    craftPresets: CraftPresetSave[];
+}
+
+interface ItemSave {
+    name: string;
+    modList: {
+        values: number[];
+        text: string;
+    }[];
 }

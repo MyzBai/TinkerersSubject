@@ -155,7 +155,7 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Burn').itemCanCraftModWithTag(data.itemModList, data.modList, 'Burn'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Burn').modList
     }
-}
+};
 
 
 class CraftValidator {
@@ -208,7 +208,7 @@ class Crafter {
     }
 
     addOne(itemModList: ItemModifier[]) {
-        this.modList.push(...this.generateMods(itemModList, this.modList, 1))
+        this.modList.push(...this.generateMods(itemModList, this.modList, 1));
         return this;
     }
     addOneByTag(itemModList: ItemModifier[], tag: ModifierTag) {
@@ -274,4 +274,4 @@ const generateReforgeModCount = (offset = 0) => {
         }
     }
     throw Error();
-}
+};

@@ -34,13 +34,15 @@ abstract class AilmentHandler {
         this.ailmentsListContainer = querySelector('.p-combat [data-ailment-list]');
     }
 
-    get numActiveInstances() { return Math.min(this.instances.length, this.maxNumActiveInstances); }
+    get numActiveInstances() {
+        return Math.min(this.instances.length, this.maxNumActiveInstances);
+    }
 
     setup() {
         this.removeElement();
         this.instances.splice(0);
     }
-    updateDamage() { };
+    abstract updateDamage(): void;
 
     addAilment(ailment: AilmentData) {
         if (this.instances.length === 0) {
@@ -294,4 +296,15 @@ export class Ailments {
             throw Error('failed loading ailments');
         }
     }
+}
+
+//save
+export interface AilmentSave {
+    type: AilmentType;
+    instances: AilmentInstanceSave[];
+}
+
+interface AilmentInstanceSave {
+    damageFac?: number;
+    time: number;
 }

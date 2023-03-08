@@ -1,7 +1,6 @@
-import type GameSave from "@src/types/save/save";
 import { clamp, querySelector } from "@src/utils/helpers";
-import { AilmentData, Ailments } from "./Ailments";
-import Game from "./Game";
+import { AilmentData, Ailments, AilmentSave } from "./Ailments";
+import Game, { Save } from "./Game";
 import Statistics from "./Statistics";
 
 class Enemy {
@@ -53,10 +52,6 @@ class Enemy {
         this.ailments.setup();
     }
 
-    reset() {
-
-    }
-
     setIndex(index: number) {
         this._index = index;
     }
@@ -92,12 +87,12 @@ class Enemy {
         }
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.enemy = {
             index: this.index,
             health: this.health,
             dummyDamage: 0,
-            ailments: this.ailments.handlers.reduce<Required<GameSave>['enemy']['ailments']>((a, c) => {
+            ailments: this.ailments.handlers.reduce<AilmentSave[]>((a, c) => {
                 a?.push({ type: c.type, instances: c.instances.map(x => ({ time: x.time, damageFac: x.damageFac })) });
                 return a;
             }, [])
@@ -112,3 +107,11 @@ class Enemy {
 }
 
 export default new Enemy();
+
+export interface EnemySave {
+    index?: number;
+    health?: number;
+    dummyDamage?: number;
+    ailments: AilmentSave[];
+}
+

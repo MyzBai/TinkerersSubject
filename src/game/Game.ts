@@ -1,27 +1,25 @@
 import { registerTabs, querySelector, isLocalHost } from "@utils/helpers";
-import Player from './Player';
-import Enemy from './Enemy';
+import Player, { PlayerSave } from './Player';
+import Enemy, { EnemySave } from './Enemy';
 import Loop from "@utils/Loop";
-import Statistics from "./Statistics";
+import Statistics, { StatisticsSave } from "./Statistics";
 import EventEmitter from "@src/utils/EventEmitter";
 import saveManager from "@src/utils/saveManager";
 
 import { VisibilityObserver } from "@src/utils/Observers";
 import type Component from "./components/Component";
-import { componentConfigs, loadComponent } from "./components/loader";
-import type GameConfig from "@src/types/gconfig/gameConfig";
-import type { ComponentName } from "@src/types/gconfig/components";
+import { componentConfigs, ComponentName, ComponentsConfig, ItemsSave, loadComponent, MinionsSave, MissionsSave, PassivesSave } from "./components/componentHandler";
 import customAlert from "@src/utils/alert";
-import type GameSave from "@src/types/save/save";
+import type { SkillsSave } from "./components/skills/Skills";
 
 export class Game {
     readonly page = querySelector('.p-game');
     readonly gameLoop = new Loop();
     readonly visiblityObserver: VisibilityObserver;
     readonly componentsList: Component[] = [];
-    readonly onSave = new EventEmitter<GameSave>();
+    readonly onSave = new EventEmitter<Save>();
     private _config: GameConfig | undefined;
-    private _saveObj?: DeepPartial<GameSave>;
+    private _saveObj?: DeepPartial<Save>;
     constructor() {
         this.visiblityObserver = new VisibilityObserver(this.gameLoop);
 
@@ -42,7 +40,7 @@ export class Game {
         return this._saveObj;
     }
 
-    async init(config: GameConfig, saveObj?: GameSave) {
+    async init(config: GameConfig, saveObj?: Save) {
         this._config = config;
         this._saveObj = saveObj;
 
@@ -101,7 +99,6 @@ export class Game {
 
         this.gameLoop.reset();
         Player.reset();
-        Enemy.reset();
         Statistics.reset();
     }
 
@@ -163,8 +160,8 @@ export class Game {
         if (!this.config) {
             throw Error('missing configuration');
         }
-        const map = await saveManager.load('Game') || new Map<string, GameSave>();
-        const saveObj = map.get(this.config.meta.id) as GameSave || { meta: { ...this.config.meta } };
+        const map = await saveManager.load<Save>('Game') || new Map<string, Save>();
+        const saveObj = map.get(this.config.meta.id) as Save || { meta: { ...this.config.meta } };
         saveObj.meta.lastSavedAt = Date.now();
         Player.save(saveObj);
         Enemy.save(saveObj);
@@ -176,11 +173,11 @@ export class Game {
         this._saveObj = saveObj;
 
         map.set(this.config.meta.id, saveObj);
-        await saveManager.save('Game', Object.fromEntries(map));
+        await saveManager.save<Save>('Game', Object.fromEntries(map));
     }
 
     async load(config: GameConfig) {
-        const map = await saveManager.load('Game');
+        const map = await saveManager.load<Save>('Game');
         if (!map) {
             return false;
         }
@@ -199,7 +196,7 @@ export class Game {
 
     async getMostRecentSave() {
         try {
-            const map = await saveManager.load('Game');
+            const map = await saveManager.load<Save>('Game');
             if (!map) {
                 return;
             }
@@ -210,17 +207,17 @@ export class Game {
     }
 
     async deleteSave(id: string) {
-        const map = await saveManager.load('Game');
+        const map = await saveManager.load<Save>('Game');
         if (!map) {
             return;
         }
         if (map?.delete(id)) {
-            return await saveManager.save('Game', Object.fromEntries(map));
+            return await saveManager.save<Save>('Game', Object.fromEntries(map));
         }
     }
 
-    async hasSave(id: GameSave['meta']['id']) {
-        const map = await saveManager.load('Game');
+    async hasSave(id: Save['meta']['id']) {
+        const map = await saveManager.load<Save>('Game');
         if (!map) {
             return false;
         }
@@ -229,3 +226,44 @@ export class Game {
 }
 
 export default new Game();
+
+
+export interface MetaConfig {
+    name: string;
+    rawUrl: string;
+    id: string;
+    createdAt: number;
+    lastSavedAt: number;
+}
+
+export interface GameConfig {
+    meta: MetaConfig;
+    options?: OptionsConfig;
+    player?: { modList: string[]; }
+    enemies: { enemyList: number[]; }
+    components?: ComponentsConfig;
+}
+
+export interface OptionsConfig {
+    endPrompt?: {
+        title: string;
+        body: string;
+        footer?: string;
+    }
+}
+
+
+export interface Save {
+    meta: MetaConfig;
+    player?: PlayerSave;
+    enemy?: EnemySave;
+    statistics?: StatisticsSave;
+
+    //components
+    skills?: SkillsSave;
+    passives?: PassivesSave;
+    items?: ItemsSave;
+    missions?: MissionsSave;
+    minions?: MinionsSave;
+}
+

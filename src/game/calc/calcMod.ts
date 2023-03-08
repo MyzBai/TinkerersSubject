@@ -100,7 +100,7 @@ export function calcPlayerStats() {
     const ailmentDps = bleedDps + burnDps;
 
     const dps = (attackDps + ailmentDps);
-    statistics['Dps'].set(dps);
+    statistics.Dps.set(dps);
 
     const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
     statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
@@ -141,7 +141,7 @@ export function calcModSum(valueType: StatModifierValueType, name: StatName | St
     let result = valueType === 'More' ? 1 : 0;
     const hasFlag = (a: number, b: number) => {
         return (a & b) === b;
-    }
+    };
 
     const filteredModList = config.statModList.filter(x => {
         if (!name.includes(x.name)) {
@@ -154,7 +154,7 @@ export function calcModSum(valueType: StatModifierValueType, name: StatName | St
         return true;
     });
     for (const mod of filteredModList) {
-        let value = mod.value;
+        const value = mod.value;
         if (valueType === 'More') {
             result *= 1 + value / 100;
         } else {

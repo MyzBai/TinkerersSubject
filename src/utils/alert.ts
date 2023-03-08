@@ -1,8 +1,8 @@
 interface Button {
     label: string;
     type: 'confirm' | 'cancel';
-    callback?: (args?: any) => void;
-    args?: any;
+    callback?: (args?: unknown) => void;
+    args?: unknown;
 }
 interface AlertParams {
     title?: string;

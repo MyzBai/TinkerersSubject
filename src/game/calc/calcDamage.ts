@@ -100,7 +100,7 @@ export function calcAttack(statModList: StatModifier[]) {
         totalPhysicalDamage,
         totalElementalDamage,
         ailments
-    }
+    };
 }
 
 export function calcBaseDamage(config: Configuration, calcMinMax: CalcMinMax) {
@@ -123,7 +123,7 @@ export function calcBaseDamage(config: Configuration, calcMinMax: CalcMinMax) {
     const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config) / 100;
     for (const damageType of Object.keys(DamageTypeFlags) as DamageType[]) {
         const bit = StatModifierFlags[damageType];
-        config.flags |= bit
+        config.flags |= bit;
         let { min, max } = calcDamage(damageType, config, conversionTable);
         min *= baseDamageMultiplier;
         max *= baseDamageMultiplier;
@@ -174,14 +174,14 @@ export function calcAilmentBaseDamage(damageType: DamageType, config: Configurat
     const baseDamageMultiplier = calcModTotal('BaseDamageMultiplier', config) / 100;
     min *= baseDamageMultiplier;
     max *= baseDamageMultiplier;
-    return { min: min * convMulti, max: max * convMulti }
+    return { min: min * convMulti, max: max * convMulti };
 }
 
 
 function generateConversionTable(config: Configuration) {
 
     type Conversion = Partial<Record<keyof typeof DamageTypeFlags, number>>;
-    const conversionTable: ConversionTable = {}
+    const conversionTable: ConversionTable = {};
     const damageTypeFlagKeys = Object.keys(DamageTypeFlags) as (keyof typeof DamageTypeFlags)[];
     for (let i = 0; i < damageTypeFlagKeys.length; i++) {
         const damageType = damageTypeFlagKeys[i];
@@ -211,9 +211,9 @@ function generateConversionTable(config: Configuration) {
             const addValue = add[key as DamageType] || 0;
             conversionValues[key as DamageType] = (value + skillConvValue + addValue) / 100;
         }
-        conversionValues.multi = 1 - Math.min((globalTotal + skillTotal) / 100, 1)
+        conversionValues.multi = 1 - Math.min((globalTotal + skillTotal) / 100, 1);
         conversionTable[damageType!] = conversionValues;
     }
-    conversionTable['Chaos'] = { multi: 1 };
+    conversionTable.Chaos = { multi: 1 };
     return conversionTable;
 }

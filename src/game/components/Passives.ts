@@ -1,10 +1,7 @@
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
-import Game from "../Game";
+import Game, { Save } from "../Game";
 import { Modifier } from "../mods";
-import type PassivesConfig from "@src/types/gconfig/passives";
-import type { PassiveConfig } from "@src/types/gconfig/passives";
-import type GameSave from "@src/types/save/save";
 import Statistics from "../Statistics";
 import Player from "../Player";
 
@@ -63,15 +60,15 @@ export default class Passives extends Component {
         this.updatePoints();
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.passives = {
-            list: this.passives.reduce<Required<GameSave>['passives']['list']>((a, c) => {
+            list: this.passives.reduce<Required<Save>['passives']['list']>((a, c) => {
                 if (c.assigned) {
                     a.push({ desc: c.mod.templateDesc, index: c.index });
                 }
                 return a;
             }, [])
-        }
+        };
     }
 
     private updatePoints() {
@@ -138,4 +135,26 @@ class Passive {
         row.insertAdjacentHTML('beforeend', `<td>${this.data.points}</td>`);
         return row;
     }
+}
+
+//config
+export interface PassivesConfig {
+    pointsPerLevel: number;
+    passiveLists: PassiveConfig[][];
+}
+
+export interface PassiveConfig{
+    levelReq: number;
+    points: number;
+    mod: string;
+}
+
+//save
+export interface PassivesSave {
+    list: PassiveSave[];
+}
+
+interface PassiveSave {
+    index: number;
+    desc: string;
 }

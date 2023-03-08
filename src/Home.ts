@@ -1,12 +1,9 @@
-import Game from "@src/game/Game";
+import Game, { GameConfig, MetaConfig, Save } from "@src/game/Game";
 import { generateTime, isLocalHost, querySelector, registerTabs } from "./utils/helpers";
-import type GConfig from "@src/types/gconfig/gameConfig";
 import { configValidator } from "@src/utils/validateConfig";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
 import customAlert from "./utils/alert";
-import type MetaConfig from "./types/gconfig/meta";
-import type GameSave from "./types/save/save";
 import Statistics from "./game/Statistics";
 
 const entryTypes = ['new', 'saved'] as const;
@@ -33,7 +30,7 @@ export class Home {
             },
             game: Game,
             statistics: Statistics
-        }
+        };
     }
 
     private setupEventListeners() {
@@ -55,7 +52,7 @@ export class Home {
         querySelector('.p-home .p-new [data-entry-info] [data-start]').addEventListener('click', this.startNewConfigCallback.bind(this));
         //start saved config button
         querySelector('.p-home .p-saved [data-entry-info] [data-start]').addEventListener('click', async () => {
-            const map = await saveManager.load('Game');
+            const map = await saveManager.load<Save>('Game');
             if (map && this.activeEntry.id) {
                 const save = map.get(this.activeEntry.id);
                 if (save) {
@@ -72,7 +69,7 @@ export class Home {
             console.error('no entry selected');
             return;
         }
-        const map = await saveManager.load('Game');
+        const map = await saveManager.load<Save>('Game');
         const save = map ? Array.from(map).find(([_key, value]) => value.meta.name === this.activeEntry.name)?.[1] : undefined;
         if (save && save.meta) {
             customAlert({
@@ -80,17 +77,18 @@ export class Home {
                 body: "You already have a save with this configuration.\n\nNew - Start a new game with a new save file\nOverride - Start a new game and override save file\nContinue - Start from save file",
                 buttons: [
                     {
-                        label: 'New', type: 'confirm', callback: this.startNewGame.bind(this, 'new')
+                        label: 'New', type: 'confirm', callback: () => this.startNewGame()
                     },
                     {
-                        label: 'Override', type: 'confirm', callback: this.startSavedGame.bind(this, save, true)
+                        label: 'Override', type: 'confirm', callback: () => this.startSavedGame(save, true)
                     },
                     {
-                        label: 'Continue', type: 'confirm', callback: this.startSavedGame.bind(this, save)
+                        label: 'Continue', type: 'confirm', callback: () => this.startSavedGame(save)
                     },
                     {
                         label: 'Cancel', type: 'cancel'
-                    }]
+                    }
+                ]
             });
         } else {
             await this.startNewGame();
@@ -133,8 +131,8 @@ export class Home {
         if (elements.length === 0) {
             let msg = '';
             switch (type) {
-                case 'new': msg = 'Configuration list is empty'; break;
-                case 'saved': msg = 'There are no saved games'; break;
+            case 'new': msg = 'Configuration list is empty'; break;
+            case 'saved': msg = 'There are no saved games'; break;
             }
             listContainer.textContent = msg;
         }
@@ -188,7 +186,7 @@ export class Home {
             if (type === 'new') {
                 return configList.list.map<Entry>(x => ({ ...x, id: '' }));
             }
-            const map = await saveManager.load('Game');
+            const map = await saveManager.load<Save>('Game');
             if (!map) {
                 return [];
             }
@@ -205,17 +203,17 @@ export class Home {
         if (!name || !rawUrl) {
             throw Error();
         }
-        let entry: MetaConfig = {
+        const entry: MetaConfig = {
             id: crypto.randomUUID(),
             name,
             rawUrl,
             createdAt: 0,
             lastSavedAt: 0,
-        }
+        };
         await this.startGame(entry);
     }
 
-    async startSavedGame(save: GameSave, override = false) {
+    async startSavedGame(save: Save, override = false) {
         const { name, rawUrl } = this.activeEntry;
         if (!name || !rawUrl) {
             return;
@@ -238,7 +236,7 @@ export class Home {
     }
 
     async getConfig(url: string) {
-        const config = await (await fetch(url)).json() as GConfig;
+        const config = await (await fetch(url)).json() as GameConfig;
         if (!configValidator(config)) {
             console.error(`config at: ${url} is not valid`, configValidator.errors);
             return false;
@@ -246,7 +244,7 @@ export class Home {
         return config;
     }
 
-    async startGame(entry: MetaConfig, saveObj?: GameSave) {
+    async startGame(entry: MetaConfig, saveObj?: Save) {
         try {
             const config = await this.getConfig(entry.rawUrl);
             if (!config) {

@@ -1,15 +1,11 @@
-import type { AttackSkillConfig, BuffSkillConfig } from "@src/types/gconfig/skills";
-import type SkillsConfig from "@src/types/gconfig/skills";
-import type GameSave from "@src/types/save/save";
-import type SkillsSave from "@src/types/save/skills";
 import { highlightHTMLElement, registerTabs } from "@src/utils/helpers";
-import Game from "../../Game";
+import Game, { Save } from "../../Game";
 import Player from '../../Player';
 import Statistics from '../../Statistics';
 import { Modifier } from "../../mods";
 import Component from "../Component";
-import { AttackSkillSlot, BuffSkillSlot, SkillSlot } from "./skillSlots";
 import SkillViewer from "./SkillViewer";
+import { AttackSkillSlot, BuffSkillSlot, SkillSlot } from "./skillSlots";
 
 
 export interface SkillRankData<T> {
@@ -55,7 +51,7 @@ export default class Skills extends Component {
                 });
             }
 
-            if(!this.attackSkillSlot.skill){
+            if (!this.attackSkillSlot.skill) {
                 this.attackSkillSlot.setSkill(this.attackSkills[0]!);
             }
             this.attackSkillSlot.element.click();
@@ -136,7 +132,7 @@ export default class Skills extends Component {
         container.querySelector<HTMLLIElement>(`[data-name="${name}"]`)?.click();
     }
 
-    save(saveObj: GameSave): void {
+    save(saveObj: Save): void {
         saveObj.skills = {
             attackSkillSlot: {
                 name: this.attackSkillSlot.skill.firstRank?.config.name || 'unknown',
@@ -170,15 +166,19 @@ interface RankProgress {
     target: number;
 }
 
-export class Rank<T extends AttackSkillConfig | BuffSkillConfig>{
+export class Rank<T extends AttackSkillConfig | BuffSkillConfig> {
     private _unlocked: boolean;
     constructor(readonly config: T, readonly progress: RankProgress, readonly mods: Modifier[]) {
 
         this._unlocked = progress.current >= progress.target;
     }
 
-    get unlocked() { return this._unlocked; }
-    get rankProgress() { return this.progress.current; }
+    get unlocked() {
+        return this._unlocked;
+    }
+    get rankProgress() {
+        return this.progress.current;
+    }
 
     incrementProgress() {
         this.progress.current++;
@@ -194,12 +194,13 @@ export abstract class Skill {
     readonly abstract ranks: Rank<AttackSkillConfig | BuffSkillConfig>[];
     abstract rank: Rank<AttackSkillConfig | BuffSkillConfig>;
     protected _rankIndex = 0;
-    constructor() {
 
+    get firstRank() {
+        return this.ranks[0]!;
     }
-
-    get firstRank() { return this.ranks[0]!; }
-    get sourceName() { return `Skill/${this.firstRank!.config.name || 'unknown'}`; }
+    get sourceName() {
+        return `Skill/${this.firstRank!.config.name || 'unknown'}`;
+    }
     get name() {
         return this.firstRank.config.name;
     }
@@ -248,4 +249,67 @@ export class BuffSkill extends Skill {
         }
         this.rank = this.firstRank as Rank<BuffSkillConfig>;
     }
+}
+
+
+//config
+export interface SkillsConfig {
+    attackSkills: {
+        skillList: (AttackSkillConfig | AttackSkillConfig[])[]
+    };
+    buffSkills?: {
+        skillSlots: BuffSkillSlotConfig[];
+        skillList: (BuffSkillConfig | BuffSkillConfig)[];
+    }
+}
+
+export interface AttackSkillConfig{
+    name: string;
+    attackSpeed: number;
+    manaCost?: number;
+    baseDamageMultiplier: number;
+    levelReq?: number;
+    mods?: string[];
+    attackCountReq?: number;
+}
+
+export interface BuffSkillSlotConfig{
+    levelReq: number;
+}
+export interface BuffSkillConfig{
+    name: string;
+    baseDuration: number;
+    manaCost?: number;
+    levelReq?: number;
+    mods?: string[];
+    triggerCountReq?: number;
+}
+
+//save
+export interface SkillsSave {
+    attackSkillSlot: AttackSkillSlotSave;
+    attackSkillList: AttackSkillSave[];
+    buffSkillSlotList: BuffSkillSlotSave[];
+    buffSkillList: BuffSkillSave[];
+}
+
+interface AttackSkillSlotSave {
+    name: string;
+    rankIndex: number;
+}
+interface AttackSkillSave {
+    name: string;
+    rankProgress: number;
+}
+interface BuffSkillSlotSave {
+    name: string;
+    index: number;
+    time: number;
+    automate: boolean;
+    running: boolean;
+    rankIndex: number;
+}
+interface BuffSkillSave {
+    name: string;
+    rankProgress: number;
 }

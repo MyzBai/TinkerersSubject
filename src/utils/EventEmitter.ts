@@ -4,9 +4,8 @@ interface CallbackOptions {
 }
 type Listener<T> = { callback: Callback<T>, opts?: CallbackOptions }
 
-export default class EventEmitter<T>{
+export default class EventEmitter<T> {
     private readonly listeners = new Map<Callback<T>, Listener<T>>;
-    constructor() { }
 
     listen(callback: Callback<T>, opts?: CallbackOptions) {
         const instance = { callback, opts };
@@ -24,7 +23,7 @@ export default class EventEmitter<T>{
             x.callback(args);
         });
         for (const [key, value] of this.listeners.entries()) {
-            if(value.opts?.once){
+            if (value.opts?.once) {
                 this.listeners.delete(key);
             }
         }

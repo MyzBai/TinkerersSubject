@@ -12,7 +12,7 @@ HTMLElement.prototype.querySelectorForce = function <E extends Element = Element
         throw new CustomError(`HTMLElement with selectors ${selectors} could not be found!`);
     }
     return element;
-}
+};
 
 
 export const avg = (a: number, b: number) => (a + b) / 2;

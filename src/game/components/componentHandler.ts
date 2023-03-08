@@ -1,9 +1,10 @@
-import Skills from "./skills/Skills";
-import Items from "./items/Items";
+import Skills, { SkillsConfig } from "./skills/Skills";
+import Items, { ItemsConfig, ItemsSave } from "./items/Items";
 import type Component from "./Component";
-import Passives from "./Passives";
-import Achievements from "./Achievements";
-import Missions from "./Missions";
+import Passives, { PassivesConfig, PassivesSave } from "./Passives";
+import Achievements, { AchievementsConfig } from "./Achievements";
+import Missions, { MissionsConfig, MissionsSave } from "./Missions";
+import Minions, { MinionsConfig, MinionsSave } from "./Minions";
 
 import skillsHtml from '@html/skills.html';
 import passivesHtml from '@html/passives.html';
@@ -13,50 +14,65 @@ import achievementsHtml from '@html/achievements.html';
 import minionsHtml from '@html/minions.html';
 
 import { querySelector } from "@src/utils/helpers";
-import type ComponentsConfig from "@src/types/gconfig/components";
-import type { ComponentName } from "@src/types/gconfig/components";
 import CustomError from "@src/utils/CustomError";
 import Game from "../Game";
-import Minions from "./Minions";
 
-export interface ComponentConfig {
+export { SkillsConfig };
+export { ItemsConfig, ItemsSave };
+export { PassivesConfig, PassivesSave };
+export { AchievementsConfig };
+export { MissionsConfig, MissionsSave };
+export { MinionsConfig, MinionsSave };
+
+export type ComponentName = { [K in keyof Required<ComponentsConfig>]: K }[keyof ComponentsConfig];
+
+export interface ComponentWrapper {
     html: string;
-    constr: new (data: any) => Component;
+    constr: new (data: unknown) => Component;
     label: string;
 }
 
-export const componentConfigs: Record<keyof ComponentsConfig, ComponentConfig> = {
+export interface ComponentsConfig {
+    skills?: SkillsConfig;
+    passives?: PassivesConfig;
+    items?: ItemsConfig;
+    missions?: MissionsConfig;
+    achievements?: AchievementsConfig;
+    minions?: MinionsConfig;
+}
+
+export const componentConfigs: Record<keyof ComponentsConfig, ComponentWrapper> = {
     skills: {
-        constr: Skills,
+        constr: Skills as (new() => Skills),
         html: skillsHtml,
         label: 'Skills'
     },
     passives: {
-        constr: Passives,
+        constr: Passives as (new() => Passives),
         html: passivesHtml,
         label: 'Passives'
     },
     items: {
-        constr: Items,
+        constr: Items as (new() => Items),
         html: itemsHtml,
         label: 'Items'
     },
     missions: {
-        constr: Missions,
+        constr: Missions as (new() => Missions),
         html: missionsHtml,
         label: 'Missions'
     },
     minions: {
-        constr: Minions,
+        constr: Minions as (new() => Minions),
         html: minionsHtml,
         label: 'Minions'
     },
     achievements: {
-        constr: Achievements,
+        constr: Achievements as (new() => Achievements),
         html: achievementsHtml,
         label: 'Achievements'
     }
-}
+};
 
 
 

@@ -1,10 +1,7 @@
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
-import game from "../Game";
+import game, { Save } from "../Game";
 import Task from "../Task";
-import type MissionsConfig from "@src/types/gconfig/missions";
-import type { MissionConfig } from "@src/types/gconfig/missions";
-import type GameSave from "@src/types/save/save";
 import Statistics from "../Statistics";
 
 
@@ -22,7 +19,9 @@ export default class Missions extends Component {
             });
         }
 
-        game.gameLoop.subscribe(() => { this.slots.forEach(x => x.tryCompletion()); }, { intervalMilliseconds: 1000 });
+        game.gameLoop.subscribe(() => {
+            this.slots.forEach(x => x.tryCompletion());
+        }, { intervalMilliseconds: 1000 });
 
         game.visiblityObserver.registerLoop(this.page, visible => {
             if (visible) {
@@ -33,15 +32,15 @@ export default class Missions extends Component {
         querySelector('.p-game > menu [data-tab-target="missions"]').classList.remove('hidden');
     }
 
-    save(saveObj: GameSave): void {
+    save(saveObj: Save): void {
         saveObj.missions = {
-            missions: this.slots.reduce<Required<GameSave>['missions']['missions']>((a, c) => {
+            missions: this.slots.reduce<MissionsSave['missions']>((a, c) => {
                 if (c.task) {
                     a.push({ desc: c.task.text || '', startValue: c.task.startValue || 0 });
                 }
                 return a;
             }, [])
-        }
+        };
     }
 
 }
@@ -64,10 +63,18 @@ class MissionSlot {
     get element() {
         return this._element;
     }
-    get missionData() { return this._missionData; }
-    get newMissionCost() { return Math.ceil((this._missionData?.goldAmount || 0) * 0.1); }
-    get task() { return this._task; }
-    get taskCompleted() { return this._task?.completed; }
+    get missionData() {
+        return this._missionData;
+    }
+    get newMissionCost() {
+        return Math.ceil((this._missionData?.goldAmount || 0) * 0.1);
+    }
+    get task() {
+        return this._task;
+    }
+    get taskCompleted() {
+        return this._task?.completed;
+    }
 
     tryCompletion() {
         if (!this.taskCompleted || this.completed) {
@@ -234,4 +241,31 @@ class MissionSlot {
 
         this.updateSlot();
     }
+}
+
+//config
+export interface MissionsConfig {
+    levelReq: number;
+    slots: MissionSlotConfig[];
+    missionLists: MissionConfig[][];
+}
+
+export interface MissionSlotConfig {
+    levelReq: number;
+    cost: number;
+}
+export interface MissionConfig {
+    description: string;
+    levelReq: number;
+    goldAmount: number;
+}
+
+//save
+export interface MissionsSave{
+    missions: Mission[];
+}
+
+interface Mission{
+    desc: string;
+    startValue: number;
 }

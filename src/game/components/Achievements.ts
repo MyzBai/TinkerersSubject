@@ -1,10 +1,8 @@
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
-import game from "../Game";
+import game, { Save } from "../Game";
 import { Modifier } from "../mods";
 import Task from "../Task";
-import type AchievementsConfig from "@src/types/gconfig/achievements";
-import type { AchievementConfig } from "@src/types/gconfig/achievements";
 import Player from "../Player";
 
 
@@ -34,8 +32,9 @@ export default class Achievements extends Component {
         querySelector('.p-game .p-achievements ul').append(...this.achievements.map(x => x.element));
     }
 
-    //@ts-expect-error
-    save(saveObj: Save): void { }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    save(_saveObj: Save): void {
+    }
 
 }
 
@@ -51,7 +50,9 @@ class Achievement {
 
         this.tryCompletion();
     }
-    get taskCompleted() { return this.task.completed; }
+    get taskCompleted() {
+        return this.task.completed;
+    }
     tryCompletion() {
         if (!this.taskCompleted || this.completed) {
             return;
@@ -69,7 +70,7 @@ class Achievement {
     }
 
     updateLabel() {
-        if(this.completed){
+        if (this.completed) {
             return;
         }
         const label = this.element.querySelectorForce('[data-label]');
@@ -95,7 +96,7 @@ class Achievement {
         const header = document.createElement('div');
         accordion.appendChild(header);
         header.classList.add('header');
-        header.insertAdjacentHTML('beforeend', `<div data-label></div>`)
+        header.insertAdjacentHTML('beforeend', `<div data-label></div>`);
 
         if (this.data.modList) {
             const content = document.createElement('div');
@@ -112,3 +113,13 @@ class Achievement {
         return accordion;
     }
 }
+
+export interface AchievementsConfig {
+    list: AchievementConfig[]
+}
+
+export interface AchievementConfig{
+    description: string;
+    modList?: string[];
+}
+

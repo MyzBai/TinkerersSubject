@@ -1,8 +1,7 @@
-import type GameSave from "@src/types/save/save";
 import { querySelector } from "@src/utils/helpers";
 import Value from "@utils/Value";
 import { calcPlayerStats } from "./calc/calcMod";
-import Game from "./Game";
+import Game, { Save } from "./Game";
 import Player from "./Player";
 
 export type StatisticsList = [string, Statistics, boolean][];
@@ -92,7 +91,7 @@ export class Statistics {
         this.createStatisticsElements();
         this.createSideListItems();
 
- 
+
     }
 
     init() {
@@ -158,10 +157,8 @@ export class Statistics {
             element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
             element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
             switch (value.format) {
-                case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
-                case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
-            }
-            if (value.format === 'pct') {
+            case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
+            case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
             }
             element.addEventListener('click', () => {
                 value.sticky = !value.sticky;
@@ -215,29 +212,43 @@ export class Statistics {
         const type = variableElement.getAttribute('data-format');
         let value: number | string = statistic.get();
         switch (type) {
-            case 'time':
+        case 'time':
+            {
                 const date = new Date(0);
                 date.setSeconds(value);
-                const str = date.toISOString().substring(11, 19);
-                value = str;
-                break;
-            case 'pct':
-                value *= 100;
-                break;
-            default:
-                value = value.toFixed(statistic.decimals)
+                value = date.toISOString().substring(11, 19);
+            }
+            break;
+        case 'pct':
+            value *= 100;
+            break;
+        default:
+            value = value.toFixed(statistic.decimals);
         }
         variableElement.textContent = typeof value === 'number' ? value.toFixed(statistic.decimals) : value;
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.statistics = {
-            statistics: Object.entries(this.statistics).reduce<Required<GameSave>['statistics']['statistics']>((a, c) => {
+            statistics: Object.entries(this.statistics).reduce<Required<Save>['statistics']['statistics']>((a, c) => {
                 a.push({ name: c[0] as keyof Statistics['statistics'], sticky: c[1].sticky, value: c[1].get() });
                 return a;
             }, [])
-        }
+        };
     }
 }
 
 export default new Statistics();
+
+
+//save
+
+export interface StatisticsSave {
+    statistics: StatisticSave[];
+}
+
+interface StatisticSave {
+    name: keyof Statistics['statistics'];
+    value: number;
+    sticky: boolean;
+}

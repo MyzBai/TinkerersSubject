@@ -56,7 +56,7 @@ export default class Task {
         this.textData = {
             labelText: this.description.substring(0, valueIndex - 1),
             valueText: match[1]
-        }
+        };
     }
 
     get targetValue() {

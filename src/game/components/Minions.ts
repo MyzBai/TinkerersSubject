@@ -1,11 +1,7 @@
-import type { MinionConfig } from "@src/types/gconfig/minions";
-import type MinionsConfig from "@src/types/gconfig/minions";
-import type { MinionRankSave, MinionSlotSave } from "@src/types/save/minions";
-import type GameSave from "@src/types/save/save";
 import { highlightHTMLElement, invLerp } from "@src/utils/helpers";
 import { calcAttack } from "../calc/calcDamage";
 import Enemy from "../Enemy";
-import Game from "../Game";
+import Game, { Save } from "../Game";
 import { ModDB, Modifier, StatModifier, StatModifierFlags } from "../mods";
 import Player from "../Player";
 import Statistics from "../Statistics";
@@ -103,7 +99,7 @@ export default class Minions extends Component {
             return;
         }
         this.activeSlot.element.remove();
-        let slotIndex = this.slots.indexOf(this.activeSlot);
+        const slotIndex = this.slots.indexOf(this.activeSlot);
         this.slots.splice(slotIndex, 1);
         const newSlot = this.slots[Math.min(slotIndex, this.slots.length - 1)];
         this.selectSlot(newSlot);
@@ -112,7 +108,7 @@ export default class Minions extends Component {
     private selectListItem(minion?: Minion) {
         if (minion) {
             this.page.querySelectorAll('[data-list] [data-name]').forEach(x => {
-                x.classList.toggle('selected', x.getAttribute('data-name') === minion.ranks[0]!.config.name)
+                x.classList.toggle('selected', x.getAttribute('data-name') === minion.ranks[0]!.config.name);
             });
             this.view.show(minion);
         } else {
@@ -121,7 +117,7 @@ export default class Minions extends Component {
         }
     }
 
-    save(saveObj: GameSave): void {
+    save(saveObj: Save): void {
         saveObj.minions = {
             minionSlots: this.slots.reduce<MinionSlotSave[]>((a, c) => {
                 const minion: MinionSlotSave = { name: c.minion?.name, rankIndex: c.minion?.rankIndex };
@@ -234,7 +230,7 @@ class Slot {
         const li = document.createElement('li');
         li.classList.add('g-list-item');
         li.insertAdjacentHTML('beforeend', `<div data-name>[Empty]</div`);
-        li.insertAdjacentHTML('beforeend', `<progress class="small" value="0" max="1"></progress>`)
+        li.insertAdjacentHTML('beforeend', `<progress class="small" value="0" max="1"></progress>`);
         return li;
     }
 }
@@ -258,8 +254,12 @@ class Minion {
             });
         }
     }
-    get rankIndex() { return this.ranks.indexOf(this.rank); }
-    get rank() { return this.ranks[this._rankIndex]!; }
+    get rankIndex() {
+        return this.ranks.indexOf(this.rank);
+    }
+    get rank() {
+        return this.ranks[this._rankIndex]!;
+    }
     get name() {
         return this.ranks[0]!.config.name;
     }
@@ -395,4 +395,34 @@ class View {
         }
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
     }
+}
+
+//config
+export interface MinionsConfig {
+    levelReq: number;
+    list: (MinionConfig | MinionConfig[])[];
+ }
+
+interface MinionConfig{
+    name: string;
+    levelReq: number;
+    attackSpeed: number;
+    baseDamageMultiplier: number;
+    mods: string[];
+    goldCost: number;
+}
+
+//save
+export interface MinionsSave{
+    minionSlots: MinionSlotSave[];
+    minionList: MinionRankSave[];
+}
+
+interface MinionSlotSave{
+    name?: string;
+    rankIndex?: number;
+}
+
+interface MinionRankSave{
+    name: string;
 }

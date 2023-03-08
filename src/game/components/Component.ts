@@ -1,6 +1,6 @@
-import type ComponentsConfig from "@src/types/gconfig/components";
-import type GameSave from "@src/types/save/save";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
+import type { Save } from "../Game";
+import type { ComponentsConfig } from "./componentHandler";
 
 export default abstract class Component {
     private _page: HTMLElement;
@@ -12,8 +12,12 @@ export default abstract class Component {
         highlightHTMLElement(this._menuItem, 'click');
     }
 
-    get page() { return this._page; }
-    get menuItem() { return this._menuItem; }
+    get page() {
+        return this._page;
+    }
+    get menuItem() {
+        return this._menuItem;
+    }
 
-    abstract save(saveObj: GameSave): void;
+    abstract save(saveObj: Save): void;
 }

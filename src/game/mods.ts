@@ -46,7 +46,7 @@ interface ModTemplateStats {
     readonly name: StatName;
     readonly valueType: StatModifierValueType;
     readonly flags?: number;
-};
+}
 interface ModTemplate {
     readonly desc: string;
     readonly tags: ReadonlyArray<ModifierTag>,
@@ -123,9 +123,13 @@ export class Modifier {
         this.stats = parsedData.stats;
     }
 
-    get tags() { return this.template.tags }
+    get tags() {
+        return this.template.tags;
+    }
 
-    get templateDesc() { return this.template.desc; }
+    get templateDesc() {
+        return this.template.desc;
+    }
 
     get desc() {
         return Modifier.parseDescription(this.template.desc, this.stats);
@@ -220,7 +224,9 @@ export class ModDB {
         this.onChange = new EventEmitter<StatModifier[]>();
     }
 
-    get modList() { return this._modList; }
+    get modList() {
+        return this._modList;
+    }
 
     add(statMods: StatModifier[], source: string) {
         statMods.forEach(x => x.source = source);

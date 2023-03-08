@@ -95,7 +95,7 @@ export default class SkillViewer {
 
             this.rankProgress = undefined;
             if (rankIndex > 0) {
-                let prefix = skill instanceof AttackSkill ? 'Attacks' : 'Triggers';
+                const prefix = skill instanceof AttackSkill ? 'Attacks' : 'Triggers';
                 const rank = skill.ranks[rankIndex];
                 const target = rank?.progress.target;
                 const row = this.createTableRow(prefix,
@@ -163,5 +163,5 @@ export default class SkillViewer {
         row.insertAdjacentHTML('beforeend', `<td>${label}</td>`);
         row.insertAdjacentHTML('beforeend', `<td>${value}</td>`);
         return row;
-    };
+    }
 }

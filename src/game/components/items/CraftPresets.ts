@@ -38,16 +38,14 @@ export default class CraftPresets {
         this.modal.querySelectorForce('[data-delete]').addEventListener('click', () => this.deleteActivePreset());
 
         this.createDefaultPreset();
-        if (Game.saveObj?.items?.craftPresets) {
-            for (const savedPreset of Game.saveObj.items?.craftPresets) {
-                if (savedPreset?.name && savedPreset.ids) {
-                    this.newPreset(savedPreset.name, savedPreset.ids as CraftId[]);
-                }
+        for (const savedPreset of Game.saveObj?.items?.craftPresets || []) {
+            if (savedPreset?.name && savedPreset.ids) {
+                this.newPreset(savedPreset.name, savedPreset.ids as CraftId[]);
             }
         }
     }
 
-    private createDefaultPreset(){
+    private createDefaultPreset() {
         const preset = this.newPreset('Default');
         preset.editable = false;
     }
@@ -92,7 +90,7 @@ export default class CraftPresets {
                 <td class="g-gold">${craftData.goldCost}</td>`);
             row.addEventListener('click', () => {
                 row.classList.toggle('selected', !row.classList.contains('selected'));
-            })
+            });
             rows.push(row);
         }
 
@@ -134,4 +132,9 @@ class CraftPreset {
         li.textContent = this.name;
         return li;
     }
+}
+
+export interface CraftPresetSave {
+    name: string;
+    ids: CraftId[];
 }
