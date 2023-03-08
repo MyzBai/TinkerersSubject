@@ -7,7 +7,7 @@ import saveManager from "@src/utils/saveManager";
 import customAlert from "./utils/alert";
 import type MetaConfig from "./types/gconfig/meta";
 import type GameSave from "./types/save/save";
-import CustomError from "./utils/CustomError";
+import Statistics from "./game/Statistics";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
@@ -31,7 +31,8 @@ export class Home {
                     await Game.deleteSave(id);
                 }
             },
-            game: Game
+            game: Game,
+            statistics: Statistics
         }
     }
 
