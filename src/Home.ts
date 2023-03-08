@@ -239,7 +239,7 @@ export class Home {
     async getConfig(url: string) {
         const config = await (await fetch(url)).json() as GConfig;
         if (!configValidator(config)) {
-            console.error(`${config.meta.name} is not valid`, configValidator.errors);
+            console.error(`config at: ${url} is not valid`, configValidator.errors);
             return false;
         }
         return config;
@@ -258,9 +258,7 @@ export class Home {
             navBtn.click();
         } catch (e) {
             console.error(`Failed to load "${this.activeEntry.name}" at: ${this.activeEntry.rawUrl}`);
-            if (e instanceof CustomError) {
-                console.error(e);
-            }
+            console.error(e);
         }
 
     }
