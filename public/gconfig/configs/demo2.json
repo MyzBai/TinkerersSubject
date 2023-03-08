@@ -374,6 +374,7 @@
             }
         },
         "passives": {
+            "pointsPerLevel": 1,
             "passiveLists": [
                 [
                     {"levelReq": 1, "mod": "+{2} Gold Generation", "points": 2},
@@ -492,21 +493,6 @@
                     }
                 ]
             ]
-        },
-        "missions": {
-            "levelReq": 3,
-            "goldCost": 10,
-            "slots": [
-                {
-                    "levelReq": 3,
-                    "goldCost": 50
-                },
-                {
-                    "levelReq": 5,
-                    "goldCost": 100
-                }
-            ],
-            "pointsPerLevel": 1
         },
         "items": {
             "craftList": [
@@ -846,6 +832,196 @@
                 {
                     "description": "Regenerate Mana {10000}",
                     "modList": ["+{1} Mana Regeneration"]
+                }
+            ]
+        },
+        "missions": {
+            "goldCost": 10,
+            "levelReq": 3,
+            "missionLists": [
+                [
+                    {
+                        "description": "Deal Damage {1000}",
+                        "goldAmount": 50,
+                        "levelReq": 3
+                    },
+                    {
+                        "description": "Deal Damage {20000}",
+                        "goldAmount": 100,
+                        "levelReq": 5
+                    },
+                    {
+                        "description": "Deal Damage {500000}",
+                        "goldAmount": 200,
+                        "levelReq": 7
+                    }
+                ],
+                [
+                    {
+                        "description": "Deal Physical Damage {1000}",
+                        "goldAmount": 50,
+                        "levelReq": 3
+                    },
+                    {
+                        "description": "Deal Physical Damage {20000}",
+                        "goldAmount": 100,
+                        "levelReq": 5
+                    },
+                    {
+                        "description": "Deal Physical Damage {500000}",
+                        "goldAmount": 200,
+                        "levelReq": 7
+                    }
+                ],
+                [
+                    {
+                        "description": "Deal Elemental Damage {1000}",
+                        "goldAmount": 50,
+                        "levelReq": 3
+                    },
+                    {
+                        "description": "Deal Elemental Damage {20000}",
+                        "goldAmount": 100,
+                        "levelReq": 5
+                    },
+                    {
+                        "description": "Deal Elemental Damage {500000}",
+                        "goldAmount": 200,
+                        "levelReq": 7
+                    }
+                ],
+                [
+                    {
+                        "description": "Deal Bleed Damage {1000}",
+                        "goldAmount": 50,
+                        "levelReq": 3
+                    },
+                    {
+                        "description": "Deal Bleed Damage {20000}",
+                        "goldAmount": 100,
+                        "levelReq": 5
+                    },
+                    {
+                        "description": "Deal Bleed Damage {500000}",
+                        "goldAmount": 200,
+                        "levelReq": 7
+                    }
+                ],
+                [
+                    {
+                        "description": "Deal Burn Damage {1000}",
+                        "goldAmount": 50,
+                        "levelReq": 3
+                    },
+                    {
+                        "description": "Deal Burn Damage {20000}",
+                        "goldAmount": 100,
+                        "levelReq": 5
+                    },
+                    {
+                        "description": "Deal Burn Damage {500000}",
+                        "goldAmount": 500,
+                        "levelReq": 7
+                    }
+                ],
+                [
+                    {
+                        "description": "Generate Gold {100}",
+                        "goldAmount": 100,
+                        "levelReq": 1
+                    }
+                ],
+                [
+                    {
+                        "description": "Perform Hits {100}",
+                        "goldAmount": 50,
+                        "levelReq": 1
+                    },
+                    {
+                        "description": "Perform Hits {200}",
+                        "goldAmount": 100,
+                        "levelReq": 5
+                    }
+                ],
+                [
+                    {
+                        "description": "Perform Critical Hits {100}",
+                        "goldAmount": 200,
+                        "levelReq": 5
+                    },
+                    {
+                        "description": "Perform Critical Hits {300}",
+                        "goldAmount": 500,
+                        "levelReq": 7
+                    }
+                ],
+                [
+                    {
+                        "description": "Regenerate Mana {100}",
+                        "goldAmount": 50,
+                        "levelReq": 3
+                    },
+                    {
+                        "description": "Regenerate Mana {300}",
+                        "goldAmount": 100,
+                        "levelReq": 5
+                    },
+                    {
+                        "description": "Regenerate Mana {1000}",
+                        "goldAmount": 500,
+                        "levelReq": 7
+                    }
+                ]
+            ],
+            "slots": [
+                {"goldCost": 50, "levelReq": 3},
+                {"goldCost": 100, "levelReq": 5}
+            ]
+        },
+        "companions": {
+            "levelReq": 1,
+            "list": [
+                [
+                    {
+                        "name": "My Friend",
+                        "levelReq": 1,
+                        "attackSpeed": 1,
+                        "baseDamageMultiplier": 100,
+                        "mods": [],
+                        "goldCost": 0
+                    },
+                    {
+                        "name": "My Friend I",
+                        "levelReq": 1,
+                        "attackSpeed": 1,
+                        "baseDamageMultiplier": 100,
+                        "mods": [],
+                        "goldCost": 60
+                    }
+                ],
+                {
+                    "levelReq": 1,
+                    "name": "My Friend 2",
+                    "attackSpeed": 1,
+                    "baseDamageMultiplier": 100,
+                    "mods": [],
+                    "goldCost": 0
+                },
+                {
+                    "levelReq": 1,
+                    "name": "My Friend 3",
+                    "attackSpeed": 1,
+                    "baseDamageMultiplier": 100,
+                    "mods": [],
+                    "goldCost": 0
+                },
+                {
+                    "levelReq": 1,
+                    "name": "My Friend 4",
+                    "attackSpeed": 1,
+                    "baseDamageMultiplier": 100,
+                    "mods": [],
+                    "goldCost": 0
                 }
             ]
         }

@@ -1,8 +1,14 @@
 
 export default interface CompanionsSave{
-    list: CompanionSave[];
+    companionSlots: CompanionSlotSave[];
+    companionList: CompanionRankSave[];
 }
 
-export interface CompanionSave{
+export interface CompanionSlotSave{
+    name: string;
+    rankIndex: number;
+}
+
+export interface CompanionRankSave{
     name: string;
 }

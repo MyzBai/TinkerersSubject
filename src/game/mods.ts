@@ -73,7 +73,8 @@ export enum StatModifierFlags {
     Bleed = 1 << 5,
     Burn = 1 << 6,
     Ailment = StatModifierFlags.Bleed | StatModifierFlags.Burn,
-    Damage = 1 << 7
+    Damage = 1 << 7,
+    Minion = 1 << 8
 }
 
 export const modTemplates: ReadonlyArray<ModTemplate> = [

@@ -421,7 +421,32 @@
             grid-template-rows: auto 1fr 0.7fr;
             grid-auto-flow: column;
 
+            header{
+                display: flex;
+                padding-bottom: $padding-container;
+                text-align: center;
+                justify-content: space-between;
+                [data-title] {
+                    align-self: center;
+                }
+                [data-decrement], [data-increment] {
+                    background-color: $color-global-button-accent-bg;
+                    padding-left: 0.7em;
+                    padding-right: 0.7em;
+                    font-family: monospace;
+
+                    &:hover {
+                        background-color: $color-global-button-accent-hover-bg;
+                    }
+                    &:active {
+                        background-color: $color-global-button-bg-active;
+                    }
+                }
+            }
+
             [data-slots] {
+                min-height: 0;
+                overflow-y: auto;
                 li {
                     display: block;
                     width: 100%;
@@ -438,6 +463,8 @@
                 grid-column: 1/4;
                 grid-row: 3/4;
                 border-top: 1px solid $color-border-highlight;
+                min-height: 0;
+                overflow-y: auto;
             }
 
             [data-view] {

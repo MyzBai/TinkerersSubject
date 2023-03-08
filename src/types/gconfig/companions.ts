@@ -2,8 +2,8 @@
 
 export default interface CompanionsConfig {
     levelReq: number;
-    list: CompanionConfig[];
-}
+    list: (CompanionConfig | CompanionConfig[])[];
+ }
 
 export interface CompanionConfig{
     name: string;
@@ -11,5 +11,5 @@ export interface CompanionConfig{
     attackSpeed: number;
     baseDamageMultiplier: number;
     mods: string[];
-    goldCost?: number;
+    goldCost: number;
 }
