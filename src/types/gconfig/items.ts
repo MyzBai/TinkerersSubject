@@ -21,5 +21,5 @@ export interface ItemModConfig{
 export interface CraftConfig{
     id: CraftId;
     levelReq: number;
-    cost: number;
+    goldCost: number;
 }

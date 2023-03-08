@@ -110,13 +110,13 @@ export default class Items extends Component {
     private createCraftListItems(craftDataList: ItemsConfig['craftList']) {
         const rows = [] as HTMLTableRowElement[];
         for (const craftData of craftDataList) {
-            const { cost, id, levelReq } = craftData;
+            const { goldCost, id, levelReq } = craftData;
             const tr = document.createElement('tr');
             tr.classList.add('g-list-item', 'hidden');
             tr.setAttribute('data-id', id);
-            tr.setAttribute('data-cost', cost.toFixed());
+            tr.setAttribute('data-cost', goldCost.toFixed());
             const label = this.craftDescToHtml(id);
-            tr.insertAdjacentHTML('beforeend', `<tr><td>${label}</td><td class="g-gold" data-cost>${cost}</td></tr>`);
+            tr.insertAdjacentHTML('beforeend', `<tr><td>${label}</td><td class="g-gold" data-cost>${goldCost}</td></tr>`);
             tr.addEventListener('click', () => {
                 rows.forEach(x => x.classList.toggle('selected', x === tr));
                 this.activeCraftId = id;
@@ -185,7 +185,7 @@ export default class Items extends Component {
         if (!this.activeCraftId) {
             return;
         }
-        const cost = this.data.craftList.find(x => x.id === this.activeCraftId)?.cost;
+        const cost = this.data.craftList.find(x => x.id === this.activeCraftId)?.goldCost;
         if (!cost) {
             console.error('something went wrong');
             return;

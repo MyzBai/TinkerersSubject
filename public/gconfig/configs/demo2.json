@@ -8,7 +8,7 @@
         }
     },
     "enemies": {
-        "enemyList": [ 100, 500, 1000, 8000, 50000, 150000, 500000, 700000, 1e6]
+        "enemyList": [100, 500, 1000, 8000, 50000, 150000, 500000, 700000, 1e6]
     },
     "player": {
         "modList": [
@@ -33,7 +33,7 @@
                         "attackSpeed": 1,
                         "manaCost": 1,
                         "baseDamageMultiplier": 100,
-                        "mods": [ "+{100}% Hit Chance" ]
+                        "mods": ["+{100}% Hit Chance"]
                     },
                     [
                         {
@@ -240,27 +240,21 @@
                             "levelReq": 1,
                             "baseDuration": 30,
                             "manaCost": 20,
-                            "mods": [
-                                "{30}% More Damage"
-                            ]
+                            "mods": ["{30}% More Damage"]
                         },
                         {
                             "name": "Damage II",
                             "baseDuration": 30,
                             "manaCost": 25,
                             "triggerCountReq": 10,
-                            "mods": [
-                                "{50}% More Damage"
-                            ]
+                            "mods": ["{50}% More Damage"]
                         },
                         {
                             "name": "Damage III",
                             "baseDuration": 20,
                             "manaCost": 25,
                             "triggerCountReq": 10,
-                            "mods": [
-                                "{100}% More Damage"
-                            ]
+                            "mods": ["{100}% More Damage"]
                         }
                     ],
                     [
@@ -333,27 +327,21 @@
                             "levelReq": 1,
                             "baseDuration": 60,
                             "manaCost": 50,
-                            "mods": [
-                                "{20}% More Attack Speed"
-                            ]
+                            "mods": ["{20}% More Attack Speed"]
                         },
                         {
                             "name": "Attack Speed II",
                             "baseDuration": 60,
                             "manaCost": 75,
                             "triggerCountReq": 10,
-                            "mods": [
-                                "{30}% More Attack Speed"
-                            ]
+                            "mods": ["{30}% More Attack Speed"]
                         },
                         {
                             "name": "Attack Speed III",
                             "baseDuration": 60,
                             "manaCost": 100,
                             "triggerCountReq": 10,
-                            "mods": [
-                                "{50}% More Attack Speed"
-                            ]
+                            "mods": ["{50}% More Attack Speed"]
                         }
                     ],
                     [
@@ -394,116 +382,309 @@
         "items": {
             "levelReq": 1,
             "itemList": [
-                { "name": "Item 1", "levelReq": 1 },
-                { "name": "Item 2", "levelReq": 2 },
-                { "name": "Item 3", "levelReq": 3 },
-                { "name": "Item 4", "levelReq": 5 },
-                { "name": "Item 5", "levelReq": 7 }
+                {"levelReq": 1, "name": "Item 1"},
+                {"levelReq": 2, "name": "Item 2"},
+                {"levelReq": 3, "name": "Item 3"},
+                {"levelReq": 5, "name": "Item 4"},
+                {"levelReq": 7, "name": "Item 5"}
             ],
             "modLists": [
                 [
-                    { "weight": 10, "levelReq": 1, "mod": "+{1} Gold Generation" },
-                    { "weight": 5, "levelReq": 5, "mod": "+{2} Gold Generation" }
+                    {
+                        "weight": 10,
+                        "levelReq": 1,
+                        "mod": "+{1} Gold Generation"
+                    },
+                    {"weight": 5, "levelReq": 5, "mod": "+{2} Gold Generation"}
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "Adds {1} To {3} Physical Damage" },
-                    { "weight": 100, "levelReq": 2, "mod": "Adds {3-4} To {4-6} Physical Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "Adds {5-8} To {8-12} Physical Damage" },
-                    { "weight": 80, "levelReq": 7, "mod": "Adds {10-13} To {15-18} Physical Damage" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "Adds {1} To {3} Physical Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "Adds {3-4} To {4-6} Physical Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "Adds {5-8} To {8-12} Physical Damage"
+                    },
+                    {
+                        "weight": 80,
+                        "levelReq": 7,
+                        "mod": "Adds {10-13} To {15-18} Physical Damage"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "Adds {1} To {3} Elemental Damage" },
-                    { "weight": 100, "levelReq": 2, "mod": "Adds {3-4} To {4-6} Elemental Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "Adds {5-8} To {8-12} Elemental Damage" },
-                    { "weight": 80, "levelReq": 7, "mod": "Adds {10-13} To {15-18} Elemental Damage" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "Adds {1} To {3} Elemental Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "Adds {3-4} To {4-6} Elemental Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "Adds {5-8} To {8-12} Elemental Damage"
+                    },
+                    {
+                        "weight": 80,
+                        "levelReq": 7,
+                        "mod": "Adds {10-13} To {15-18} Elemental Damage"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "{30-40}% Increased Physical Damage" },
-                    { "weight": 100, "levelReq": 3, "mod": "{40-60}% Increased Physical Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "{80-100}% Increased Physical Damage" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "{30-40}% Increased Physical Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 3,
+                        "mod": "{40-60}% Increased Physical Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "{80-100}% Increased Physical Damage"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "{30-40}% Increased Elemental Damage" },
-                    { "weight": 100, "levelReq": 3, "mod": "{40-60}% Increased Elemental Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "{80-100}% Increased Elemental Damage" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "{30-40}% Increased Elemental Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 3,
+                        "mod": "{40-60}% Increased Elemental Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "{80-100}% Increased Elemental Damage"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "{30-40}% Increased Bleed Damage" },
-                    { "weight": 100, "levelReq": 3, "mod": "{40-60}% Increased Bleed Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "{80-100}% Increased Bleed Damage" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "{30-40}% Increased Bleed Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 3,
+                        "mod": "{40-60}% Increased Bleed Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "{80-100}% Increased Bleed Damage"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "{30-40}% Increased Burn Damage" },
-                    { "weight": 100, "levelReq": 3, "mod": "{40-60}% Increased Burn Damage" },
-                    { "weight": 100, "levelReq": 5, "mod": "{80-100}% Increased Burn Damage" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "{30-40}% Increased Burn Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 3,
+                        "mod": "{40-60}% Increased Burn Damage"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "{80-100}% Increased Burn Damage"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "+{5-10}% Hit Chance" },
-                    { "weight": 100, "levelReq": 5, "mod": "+{11-20}% Hit Chance" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "+{5-10}% Hit Chance"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "+{11-20}% Hit Chance"
+                    }
                 ],
                 [
-                    { "weight": 30, "levelReq": 1, "mod": "{5-10}% Increased Attack Speed" },
-                    { "weight": 30, "levelReq": 3, "mod": "{10-15}% Increased Attack Speed" }
+                    {
+                        "weight": 30,
+                        "levelReq": 1,
+                        "mod": "{5-10}% Increased Attack Speed"
+                    },
+                    {
+                        "weight": 30,
+                        "levelReq": 3,
+                        "mod": "{10-15}% Increased Attack Speed"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 2, "mod": "+{3-6}% Chance To Bleed" },
-                    { "weight": 100, "levelReq": 2, "mod": "+{6-10}% Chance To Bleed" }
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "+{3-6}% Chance To Bleed"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "+{6-10}% Chance To Bleed"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 2, "mod": "+{3-6}% Chance To Burn" },
-                    { "weight": 100, "levelReq": 2, "mod": "+{6-10}% Chance To Burn" }
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "+{3-6}% Chance To Burn"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "+{6-10}% Chance To Burn"
+                    }
                 ],
                 [
-                    { "weight": 70, "levelReq": 1, "mod": "+{10}% Critical Hit Chance" },
-                    { "weight": 70, "levelReq": 5, "mod": "+{20}% Critical Hit Chance" }
+                    {
+                        "weight": 70,
+                        "levelReq": 1,
+                        "mod": "+{10}% Critical Hit Chance"
+                    },
+                    {
+                        "weight": 70,
+                        "levelReq": 5,
+                        "mod": "+{20}% Critical Hit Chance"
+                    }
                 ],
                 [
-                    { "weight": 60, "levelReq": 1, "mod": "+{20}% Critical Hit Multiplier" },
-                    { "weight": 60, "levelReq": 3, "mod": "+{30}% Critical Hit Multiplier" },
-                    { "weight": 60, "levelReq": 5, "mod": "+{50}% Critical Hit Multiplier" }
+                    {
+                        "weight": 60,
+                        "levelReq": 1,
+                        "mod": "+{20}% Critical Hit Multiplier"
+                    },
+                    {
+                        "weight": 60,
+                        "levelReq": 3,
+                        "mod": "+{30}% Critical Hit Multiplier"
+                    },
+                    {
+                        "weight": 60,
+                        "levelReq": 5,
+                        "mod": "+{50}% Critical Hit Multiplier"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "+{10-20} Maximum Mana" },
-                    { "weight": 10, "levelReq": 5, "mod": "+{50-100} Maximum Mana" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "+{10-20} Maximum Mana"
+                    },
+                    {
+                        "weight": 10,
+                        "levelReq": 5,
+                        "mod": "+{50-100} Maximum Mana"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "{20-30}% Increased Maximum Mana" },
-                    { "weight": 100, "levelReq": 3, "mod": "{30-40}% Increased Maximum Mana" },
-                    { "weight": 100, "levelReq": 5, "mod": "{40-50}% Increased Maximum Mana" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "{20-30}% Increased Maximum Mana"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 3,
+                        "mod": "{30-40}% Increased Maximum Mana"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "{40-50}% Increased Maximum Mana"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 1, "mod": "+{1} Mana Regeneration" },
-                    { "weight": 80, "levelReq": 3, "mod": "+{2} Mana Regeneration" },
-                    { "weight": 50, "levelReq": 5, "mod": "+{3} Mana Regeneration" }
+                    {
+                        "weight": 100,
+                        "levelReq": 1,
+                        "mod": "+{1} Mana Regeneration"
+                    },
+                    {
+                        "weight": 80,
+                        "levelReq": 3,
+                        "mod": "+{2} Mana Regeneration"
+                    },
+                    {
+                        "weight": 50,
+                        "levelReq": 5,
+                        "mod": "+{3} Mana Regeneration"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 2, "mod": "{20-30}% Increased Bleed Duration" },
-                    { "weight": 100, "levelReq": 5, "mod": "{30-40}% Increased Bleed Duration" },
-                    { "weight": 100, "levelReq": 7, "mod": "{40-50}% Increased Bleed Duration" }
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "{20-30}% Increased Bleed Duration"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "{30-40}% Increased Bleed Duration"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 7,
+                        "mod": "{40-50}% Increased Bleed Duration"
+                    }
                 ],
                 [
-                    { "weight": 100, "levelReq": 2, "mod": "{20-30}% Increased Burn Duration" },
-                    { "weight": 100, "levelReq": 5, "mod": "{30-40}% Increased Burn Duration" },
-                    { "weight": 100, "levelReq": 7, "mod": "{40-50}% Increased Burn Duration" }
+                    {
+                        "weight": 100,
+                        "levelReq": 2,
+                        "mod": "{20-30}% Increased Burn Duration"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 5,
+                        "mod": "{30-40}% Increased Burn Duration"
+                    },
+                    {
+                        "weight": 100,
+                        "levelReq": 7,
+                        "mod": "{40-50}% Increased Burn Duration"
+                    }
                 ]
             ],
             "craftList": [
-                { "id": "reforge", "cost": 10, "levelReq": 1 },
-                { "id": "reforgeIncludePhysical", "cost": 50, "levelReq": 1 },
-                { "id": "reforgeIncludeElemental", "cost": 50, "levelReq": 3 },
-                { "id": "reforgeIncludeCritical", "cost": 50, "levelReq": 5 },
-                { "id": "reforgeIncludeMana", "cost": 50, "levelReq": 5 },
-
-                { "id": "addRandom", "cost": 50, "levelReq": 1 },
-                { "id": "addPhysical", "cost": 100, "levelReq": 3 },
-                { "id": "addElemental", "cost": 100, "levelReq": 3 },
-                { "id": "addCritical", "cost": 100, "levelReq": 5 },
-                { "id": "addMana", "cost": 100, "levelReq": 5 },
-
-                { "id": "removeRandom", "cost": 50, "levelReq": 5 },
-                { "id": "removePhysical", "cost": 200, "levelReq": 7 },
-                { "id": "removeElemental", "cost": 200, "levelReq": 7 }
-
+                {"goldCost": 10, "id": "reforge", "levelReq": 1},
+                {"goldCost": 50, "id": "reforgeIncludePhysical", "levelReq": 1},
+                {
+                    "goldCost": 50,
+                    "id": "reforgeIncludeElemental",
+                    "levelReq": 3
+                },
+                {"goldCost": 50, "id": "reforgeIncludeCritical", "levelReq": 5},
+                {"goldCost": 50, "id": "reforgeIncludeMana", "levelReq": 5},
+                {"goldCost": 50, "id": "addRandom", "levelReq": 1},
+                {"goldCost": 100, "id": "addPhysical", "levelReq": 3},
+                {"goldCost": 100, "id": "addElemental", "levelReq": 3},
+                {"goldCost": 100, "id": "addCritical", "levelReq": 5},
+                {"goldCost": 100, "id": "addMana", "levelReq": 5},
+                {"goldCost": 50, "id": "removeRandom", "levelReq": 5},
+                {"goldCost": 200, "id": "removePhysical", "levelReq": 7},
+                {"goldCost": 200, "id": "removeElemental", "levelReq": 7}
             ]
         },
         "passives": {
@@ -535,7 +716,7 @@
                         "mod": "{50}% Increased Elemental Damage"
                     }
                 ],
-                [ 
+                [
                     {
                         "levelReq": 2,
                         "points": 1,
@@ -651,15 +832,15 @@
         },
         "missions": {
             "levelReq": 3,
-            "cost": 10,
+            "goldCost": 10,
             "slots": [
                 {
                     "levelReq": 3,
-                    "cost": 50
+                    "goldCost": 50
                 },
                 {
                     "levelReq": 5,
-                    "cost": 100
+                    "goldCost": 100
                 }
             ],
             "missionLists": [
@@ -800,15 +981,39 @@
         },
         "achievements": {
             "list": [
-                { "description": "Reach Level {10}" },
-                { "description": "Deal Physical Damage {2000000}", "modList": [ "{20}% More Physical Damage" ] },
-                { "description": "Deal Elemental Damage {2000000}", "modList": [ "{20}% More Elemental Damage" ] },
-                { "description": "Deal Bleed Damage {2000000}", "modList": [ "{20}% More Bleed Damage" ] },
-                { "description": "Deal Burn Damage {2000000}", "modList": [ "{20}% More Burn Damage" ] },
-                { "description": "Generate Gold {1500}", "modList": [ "+{1} Gold Generation" ] },
-                { "description": "Perform Hits {1500}", "modList": [ "+{5}% Hit Chance" ] },
-                { "description": "Perform Critical Hits {1500}", "modList": [ "+{5}% Critical Hit Chance" ] },
-                { "description": "Regenerate Mana {10000}", "modList": [ "+{1} Mana Regeneration" ] }
+                {"description": "Reach Level {10}"},
+                {
+                    "description": "Deal Physical Damage {2000000}",
+                    "modList": ["{20}% More Physical Damage"]
+                },
+                {
+                    "description": "Deal Elemental Damage {2000000}",
+                    "modList": ["{20}% More Elemental Damage"]
+                },
+                {
+                    "description": "Deal Bleed Damage {2000000}",
+                    "modList": ["{20}% More Bleed Damage"]
+                },
+                {
+                    "description": "Deal Burn Damage {2000000}",
+                    "modList": ["{20}% More Burn Damage"]
+                },
+                {
+                    "description": "Generate Gold {1500}",
+                    "modList": ["+{1} Gold Generation"]
+                },
+                {
+                    "description": "Perform Hits {1500}",
+                    "modList": ["+{5}% Hit Chance"]
+                },
+                {
+                    "description": "Perform Critical Hits {1500}",
+                    "modList": ["+{5}% Critical Hit Chance"]
+                },
+                {
+                    "description": "Regenerate Mana {10000}",
+                    "modList": ["+{1} Mana Regeneration"]
+                }
             ]
         }
     }
