@@ -340,11 +340,13 @@ class View {
 
         //mods
         {
+            const container = this.container.querySelectorForce('[data-mods]');
+            container.replaceChildren();
             for (const mod of rank.mods) {
                 const element = document.createElement('div');
                 element.classList.add('g-mod-desc');
                 element.textContent = mod.desc;
-                this.container.querySelectorForce('[data-mods]').appendChild(element);
+                container.appendChild(element);
             }
         }
 
