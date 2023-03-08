@@ -173,6 +173,7 @@ export class Game {
         for (const componentData of this.componentsList) {
             componentData.save(saveObj);
         }
+        this._saveObj = saveObj;
 
         map.set(this.config.meta.id, saveObj);
         await saveManager.save('Game', Object.fromEntries(map));
