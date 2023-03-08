@@ -1,10 +1,10 @@
 export default interface SkillsConfig {
     attackSkills: {
-        skillList: AttackSkillConfig[]
+        skillList: (AttackSkillConfig | AttackSkillConfig[])[]
     };
     buffSkills?: {
         skillSlots: BuffSkillSlotConfig[];
-        skillList: BuffSkillConfig[];
+        skillList: (BuffSkillConfig | BuffSkillConfig)[];
     }
 }
 

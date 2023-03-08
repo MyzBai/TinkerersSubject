@@ -89,7 +89,7 @@ export default class CraftPresets {
             row.insertAdjacentHTML('beforeend', `
                 <td>${label}</td>
                 <td>${craftData.levelReq}</td>
-                <td class="g-gold">${craftData.cost}</td>`);
+                <td class="g-gold">${craftData.goldCost}</td>`);
             row.addEventListener('click', () => {
                 row.classList.toggle('selected', !row.classList.contains('selected'));
             })
