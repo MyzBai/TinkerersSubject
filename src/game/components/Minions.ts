@@ -77,7 +77,7 @@ export default class Minions extends Component {
 
     private selectSlot(slot?: Slot) {
         this.activeSlot = slot;
-        if(slot){
+        if (slot) {
             this.slots.forEach(x => x.element.classList.toggle('selected', x === slot));
             this.selectListItem(slot.minion);
         }
@@ -128,7 +128,6 @@ export default class Minions extends Component {
                         break;
                     }
                     a.push({ name: rank.config.name });
-                    console.log(rank.config.name);
                 }
                 return a;
             }, [])
@@ -155,6 +154,14 @@ class Slot {
         this._minion = minion;
         this.element.querySelectorForce('[data-name]').textContent = this._minion ? this._minion.rank.config.name : '[Empty]';
         this._attackProgressPct = 0;
+        Player.modDB.onChange.listen(() => {
+            if (this._minion) {
+                this.applyModifiers();
+            }
+        });
+
+        this.applyModifiers();
+
         Game.gameLoop.unsubscribe(this.attackId);
         this.modDB.clear();
         if (minion) {
@@ -201,6 +208,7 @@ class Slot {
     }
 
     private applyModifiers() {
+        this.modDB.clear();
         if (!this._minion) {
             return;
         }

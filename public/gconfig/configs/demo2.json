@@ -992,7 +992,6 @@
                     },
                     {
                         "name": "My Friend I",
-                        "levelReq": 1,
                         "attackSpeed": 1,
                         "baseDamageMultiplier": 100,
                         "mods": [],
