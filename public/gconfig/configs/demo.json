@@ -165,16 +165,16 @@
                 ]
             ],
             "craftList": [
-                { "id": "reforge", "cost": 10, "levelReq": 1 },
-                { "id": "reforgeIncludePhysical", "cost": 50, "levelReq": 1 },
-                { "id": "reforgeIncludeCritical", "cost": 50, "levelReq": 3 },
-                { "id": "reforgeIncludeMana", "cost": 50, "levelReq": 3 },
+                { "id": "reforge", "goldCost": 10, "levelReq": 1 },
+                { "id": "reforgeIncludePhysical", "goldCost": 50, "levelReq": 1 },
+                { "id": "reforgeIncludeCritical", "goldCost": 50, "levelReq": 3 },
+                { "id": "reforgeIncludeMana", "goldCost": 50, "levelReq": 3 },
 
-                { "id": "addRandom", "cost": 50, "levelReq": 1 },
-                { "id": "addPhysical", "cost": 100, "levelReq": 3 },
-                { "id": "addCritical", "cost": 100, "levelReq": 5 },
-                { "id": "addMana", "cost": 100, "levelReq": 5 },
-                { "id": "removeRandom", "cost": 50, "levelReq": 5 }
+                { "id": "addRandom", "goldCost": 50, "levelReq": 1 },
+                { "id": "addPhysical", "goldCost": 100, "levelReq": 3 },
+                { "id": "addCritical", "goldCost": 100, "levelReq": 5 },
+                { "id": "addMana", "goldCost": 100, "levelReq": 5 },
+                { "id": "removeRandom", "goldCost": 50, "levelReq": 5 }
 
             ]
         },
@@ -316,15 +316,15 @@
         },
         "missions": {
             "levelReq": 3,
-            "cost": 10,
+            "goldCost": 10,
             "slots": [
                 {
                     "levelReq": 3,
-                    "cost": 50
+                    "goldCost": 50
                 },
                 {
                     "levelReq": 5,
-                    "cost": 100
+                    "goldCost": 100
                 }
             ],
             "missionLists": [

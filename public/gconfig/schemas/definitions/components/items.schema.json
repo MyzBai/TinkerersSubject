@@ -23,7 +23,7 @@
                     "minItems": 1,
                     "items": {
                         "type": "object",
-                        "required": [ "id", "levelReq", "cost" ],
+                        "required": [ "id", "levelReq", "goldCost" ],
                         "properties": {
                             "id": {
                                 "enum": [
@@ -32,8 +32,8 @@
                                     "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn",
                                     "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn" ]
                             },
-                            "levelReq": { "type": "integer", "minimum": 0 },
-                            "cost": { "type": "integer", "minimum": 0 }
+                            "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
+                            "goldCost": { "$ref": "../../gameConfig.schema.json#/definitions/goldCost" }
                         }
                     }
                 },
