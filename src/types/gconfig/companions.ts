@@ -11,4 +11,5 @@ export interface CompanionConfig{
     attackSpeed: number;
     baseDamageMultiplier: number;
     mods: string[];
+    goldCost?: number;
 }

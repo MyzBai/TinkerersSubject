@@ -510,19 +510,19 @@
         },
         "items": {
             "craftList": [
-                {"cost": 10, "id": "reforge", "levelReq": 1},
-                {"cost": 50, "id": "reforgeIncludePhysical", "levelReq": 1},
-                {"cost": 50, "id": "reforgeIncludeElemental", "levelReq": 3},
-                {"cost": 50, "id": "reforgeIncludeCritical", "levelReq": 5},
-                {"cost": 50, "id": "reforgeIncludeMana", "levelReq": 5},
-                {"cost": 50, "id": "addRandom", "levelReq": 1},
-                {"cost": 100, "id": "addPhysical", "levelReq": 3},
-                {"cost": 100, "id": "addElemental", "levelReq": 3},
-                {"cost": 100, "id": "addCritical", "levelReq": 5},
-                {"cost": 100, "id": "addMana", "levelReq": 5},
-                {"cost": 50, "id": "removeRandom", "levelReq": 5},
-                {"cost": 200, "id": "removePhysical", "levelReq": 7},
-                {"cost": 200, "id": "removeElemental", "levelReq": 7}
+                {"goldCost": 10, "id": "reforge", "levelReq": 1},
+                {"goldCost": 50, "id": "reforgeIncludePhysical", "levelReq": 1},
+                {"goldCost": 50, "id": "reforgeIncludeElemental", "levelReq": 3},
+                {"goldCost": 50, "id": "reforgeIncludeCritical", "levelReq": 5},
+                {"goldCost": 50, "id": "reforgeIncludeMana", "levelReq": 5},
+                {"goldCost": 50, "id": "addRandom", "levelReq": 1},
+                {"goldCost": 100, "id": "addPhysical", "levelReq": 3},
+                {"goldCost": 100, "id": "addElemental", "levelReq": 3},
+                {"goldCost": 100, "id": "addCritical", "levelReq": 5},
+                {"goldCost": 100, "id": "addMana", "levelReq": 5},
+                {"goldCost": 50, "id": "removeRandom", "levelReq": 5},
+                {"goldCost": 200, "id": "removePhysical", "levelReq": 7},
+                {"goldCost": 200, "id": "removeElemental", "levelReq": 7}
             ],
             "itemList": [
                 {"levelReq": 1, "name": "Item 1"},
