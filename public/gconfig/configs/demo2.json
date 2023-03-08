@@ -12,7 +12,6 @@
     },
     "player": {
         "modList": [
-            "Adds {1} To {3} Physical Damage",
             "+{100} Maximum Mana",
             "+{1} Mana Regeneration",
             "+{1} Gold Generation",
@@ -498,7 +497,11 @@
             "craftList": [
                 {"goldCost": 10, "id": "reforge", "levelReq": 1},
                 {"goldCost": 50, "id": "reforgeIncludePhysical", "levelReq": 1},
-                {"goldCost": 50, "id": "reforgeIncludeElemental", "levelReq": 3},
+                {
+                    "goldCost": 50,
+                    "id": "reforgeIncludeElemental",
+                    "levelReq": 3
+                },
                 {"goldCost": 50, "id": "reforgeIncludeCritical", "levelReq": 5},
                 {"goldCost": 50, "id": "reforgeIncludeMana", "levelReq": 5},
                 {"goldCost": 50, "id": "addRandom", "levelReq": 1},
@@ -987,14 +990,20 @@
                         "levelReq": 1,
                         "attackSpeed": 1,
                         "baseDamageMultiplier": 100,
-                        "mods": [],
+                        "mods": [
+                            "Adds {1} To {3} Physical Damage",
+                            "+{100}% Hit Chance"
+                        ],
                         "goldCost": 0
                     },
                     {
                         "name": "My Friend I",
                         "attackSpeed": 1,
                         "baseDamageMultiplier": 100,
-                        "mods": [],
+                        "mods": [
+                            "Adds {3} To {5} Physical Damage",
+                            "+{100}% Hit Chance"
+                        ],
                         "goldCost": 60
                     }
                 ],

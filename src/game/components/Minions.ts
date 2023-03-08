@@ -53,7 +53,7 @@ export default class Minions extends Component {
         for (const slotData of Game.saveObj?.minions?.minionSlots || []) {
             const slot = this.createSlot();
             const minion = this.minions.find(x => x.name === slotData?.name);
-            if(!minion){
+            if (!minion) {
                 continue;
             }
             minion.setRankIndex(slotData?.rankIndex || 0);
@@ -200,6 +200,7 @@ class Slot {
             time += dt;
             if (time >= waitTimeSeconds) {
                 console.log(this.minion?.name, 'attacked');
+                this.performAttack();
                 waitTimeSeconds = calcWaitTime();
                 time = 0;
             }
@@ -213,8 +214,7 @@ class Slot {
         }
 
         Enemy.dealDamage(result.totalDamage);
-
-        Enemy.applyAilments(result.ailments);
+        // Enemy.applyAilments(result.ailments);
     }
 
     private applyModifiers() {
@@ -226,6 +226,7 @@ class Slot {
         const minionModsFromPlayer = Player.modDB.modList.filter(x => (x.flags & StatModifierFlags.Minion) === StatModifierFlags.Minion);
         const minionMods = this._minion.rank.mods.flatMap<StatModifier>(x => x.copy().stats);
         const sourceName = `Minion/${this._minion.rank.config.name}`;
+        this.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', value: this._minion.rank.config.baseDamageMultiplier, valueType: 'Base' })], sourceName);
         this.modDB.add([...minionModsFromPlayer, ...minionMods], sourceName);
     }
 
@@ -353,7 +354,7 @@ class View {
             const table = this.container.querySelectorForce('table');
             table.replaceChildren();
             table.insertAdjacentHTML('beforeend', `<tr><td>Attack Speed</td><td>${rank.config.attackSpeed.toFixed(2)}</td></tr>`);
-            table.insertAdjacentHTML('beforeend', `<tr><td>Attack Speed</td><td>${rank.config.baseDamageMultiplier}%</td></tr>`);
+            table.insertAdjacentHTML('beforeend', `<tr><td>Base Damage Multiplier</td><td>${rank.config.baseDamageMultiplier}%</td></tr>`);
         }
 
         //mods
@@ -389,7 +390,7 @@ class View {
                 this.unlockButton.classList.add('hidden');
                 this.removeButton.classList.add('hidden');
                 this.addButton.classList.remove('hidden');
-                this.addButton.disabled = this.minions.activeSlot.minion?.rank === rank || this.minions.slots.some(x => x.minion === minion);
+                this.addButton.disabled = this.minions.activeSlot.minion?.rank === rank || this.minions.slots.filter(x => x !== this.minions.activeSlot).some(x => x.minion === minion);
             }
         }
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
