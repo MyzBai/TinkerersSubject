@@ -1,8 +1,6 @@
 name: Deploy to GitHub pages branch
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -20,6 +18,7 @@ jobs:
         run: npm install
       - name: Build
         run: | 
+          npm run-script lint
           npm run-script build:esbuild
           npm run-script build:sass
       - name: Prepare for deploy
