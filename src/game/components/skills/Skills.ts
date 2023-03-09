@@ -81,7 +81,7 @@ export default class Skills extends Component {
 
         Game.visiblityObserver.registerLoop(this.page, visible => {
             if (visible) {
-                this.attackSkillSlot.updateProgressBar(Player.attackProgressPct);
+                this.attackSkillSlot.updateProgressBar();
                 for (const buffSkillSlot of this.buffSkillSlots) {
                     buffSkillSlot.updateProgressBar();
                 }

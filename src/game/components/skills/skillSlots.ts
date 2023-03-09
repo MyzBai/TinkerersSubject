@@ -79,8 +79,9 @@ export class AttackSkillSlot implements SkillSlot {
         Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
     }
 
-    updateProgressBar(attackProgressPct: number) {
-        this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
+    updateProgressBar() {
+        const pct = Player.attackTime / Player.attackWaitTime;
+        this.progressBar.value = pct > 1 ? 0 : pct;
     }
 
     protected createElement() {

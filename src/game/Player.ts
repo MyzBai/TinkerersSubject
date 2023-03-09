@@ -1,26 +1,16 @@
 import { ModDB, Modifier } from "./mods";
 import { calcAttack } from "./calc/calcDamage";
-import { invLerp, querySelector } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import Game, { Save } from './Game';
 import Statistics from './Statistics';
 import Enemy from "./Enemy";
 
-export interface PlayerSave {
-    level?: number;
-    gold?: number;
-    curMana?: number;
-    attackTimePct?: number;
-}
 
 export class Player {
     private readonly manaBar = querySelector<HTMLProgressElement>('.p-game [data-mana-bar]');
     readonly modDB = new ModDB();
-    private _attackProgressPct = 0;
-
-    get attackProgressPct() {
-        return this._attackProgressPct;
-    }
-
+    private _attackTime = 0;
+    private _attackWaitTime = Number.POSITIVE_INFINITY;
     init() {
         Game.onSave.listen(this.save.bind(this));
 
@@ -53,8 +43,11 @@ export class Player {
             Statistics.statistics["Mana Generated"].add(manaRegen);
         });
 
-        this._attackProgressPct = Game.saveObj?.player?.attackTimePct || 0;
+        this._attackTime = Game.saveObj?.player?.attackTime || 0;
     }
+
+    get attackTime() { return this._attackTime; }
+    get attackWaitTime() { return this._attackWaitTime; }
 
     reset() {
         this.modDB.clear();
@@ -79,22 +72,18 @@ export class Player {
 
         const calcWaitTime = () => 1 / Statistics.statistics['Attack Speed'].get();
         Statistics.statistics['Attack Speed'].addListener('change', () => {
-            waitTimeSeconds = calcWaitTime();
-            time = waitTimeSeconds * this._attackProgressPct;
+            this._attackWaitTime = calcWaitTime();
         });
-        let waitTimeSeconds = calcWaitTime();
-        let time = 0;
+        this._attackWaitTime = calcWaitTime();
         Game.gameLoop.subscribe(dt => {
-            this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
-            time += dt;
-            if (time >= waitTimeSeconds) {
+            this._attackTime += dt;
+            if (this._attackTime >= this._attackWaitTime) {
                 const curMana = Statistics.statistics['Current Mana'].get();
                 const manaCost = Statistics.statistics['Attack Mana Cost'].get();
                 if (curMana > manaCost) {
                     Statistics.statistics['Current Mana'].subtract(manaCost);
                     this.performAttack();
-                    waitTimeSeconds = calcWaitTime();
-                    time = 0;
+                    this._attackTime = 0;
                 }
             }
         });
@@ -123,9 +112,18 @@ export class Player {
             level: Statistics.statistics.Level.get(),
             gold: Statistics.statistics.Gold.get(),
             curMana: Statistics.statistics['Current Mana'].get(),
-            attackTimePct: this.attackProgressPct
+            attackTime: this._attackTime
         };
     }
 }
 
 export default new Player();
+
+
+//save
+export interface PlayerSave {
+    level?: number;
+    gold?: number;
+    curMana?: number;
+    attackTime?: number;
+}
