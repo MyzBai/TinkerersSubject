@@ -90,7 +90,7 @@
         .p-skills {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 0.5fr;
+            grid-template-rows: 1fr 0.7fr;
             min-height: 0;
             flex: 1;
             .s-skill-slots {
@@ -100,7 +100,7 @@
                 .s-skill-slot {
                     display: block;
                     width: 100%;
-                    
+
                     progress {
                         display: block;
                         width: 100%;
@@ -418,65 +418,66 @@
         .p-minions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto 1fr 0.7fr;
+            grid-template-rows: 1fr 0.7fr;
             grid-auto-flow: column;
 
-            header{
-                display: flex;
-                padding-bottom: $padding-container;
-                text-align: center;
-                justify-content: space-between;
-                [data-title] {
-                    align-self: center;
-                }
-                [data-decrement], [data-increment] {
-                    background-color: $color-global-button-accent-bg;
-                    padding-left: 0.7em;
-                    padding-right: 0.7em;
-                    font-family: monospace;
-
-                    &:hover {
-                        background-color: $color-global-button-accent-hover-bg;
-                    }
-                    &:active {
-                        background-color: $color-global-button-bg-active;
-                    }
-                }
-            }
-
-            [data-slots] {
-                min-height: 0;
-                overflow-y: auto;
-                li {
-                    display: block;
-                    width: 100%;
-
-                    progress {
+            .wrapper {
+   
+                [data-slots] {
+                    min-height: 0;
+                    overflow-y: auto;
+                    li {
                         display: block;
                         width: 100%;
-                        height: 5px;
+
+                        progress {
+                            display: block;
+                            width: 100%;
+                            height: 5px;
+                        }
                     }
                 }
             }
 
             [data-list] {
                 grid-column: 1/4;
-                grid-row: 3/4;
+                grid-row: 2/3;
                 border-top: 1px solid $color-border-highlight;
                 min-height: 0;
                 overflow-y: auto;
+                padding-top: $padding-container;
             }
 
             [data-view] {
-                grid-row: 1/3;
+                grid-row: 1/2;
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
 
-                header{
-                    text-align: center;
+                header {
+                    display: flex;
                     padding-bottom: $padding-container;
+                    text-align: center;
+                    justify-content: space-between;
+                    [data-title] {
+                        align-self: center;
+                    }
+                    [data-decrement],
+                    [data-increment] {
+                        background-color: $color-global-button-accent-bg;
+                        padding-left: 0.7em;
+                        padding-right: 0.7em;
+                        font-family: monospace;
+
+                        &:hover {
+                            background-color: $color-global-button-accent-hover-bg;
+                        }
+                        &:active {
+                            background-color: $color-global-button-bg-active;
+                        }
+                    }
                 }
+
                 [data-stats] {
                     border-collapse: separate;
                     border-spacing: $padding-container;
@@ -487,7 +488,7 @@
                         text-align: end;
                     }
                 }
-                [data-mods]{
+                [data-mods] {
                     min-height: 0;
                     overflow-y: auto;
                     flex: 1;
@@ -495,7 +496,7 @@
                     padding-top: $padding-container;
                 }
 
-                [data-enable]{
+                [data-enable] {
                     width: 100%;
                 }
             }
