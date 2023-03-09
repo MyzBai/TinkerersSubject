@@ -1,7 +1,7 @@
 import EventEmitter from "@utils/EventEmitter";
 
 //#region Types
-export type ModifierTag = 'Gold' | 'Damage' | 'Attack' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical' | 'Ailment' | 'Bleed' | 'Burn' | 'Duration' | 'Skill';
+export type ModifierTag = 'Gold' | 'Damage' | 'Attack' | 'Physical' | 'Elemental' | 'Speed' | 'Mana' | 'Critical' | 'Ailment' | 'Bleed' | 'Burn' | 'Duration' | 'Skill' | 'Minion';
 export type StatModifierValueType = 'Base' | 'Inc' | 'More';
 //#region Mod Description
 export type ModDescription = typeof modTemplates[number]['desc'];
@@ -22,7 +22,8 @@ export type StatName =
     | 'AilmentStack'
     | 'BleedChance'
     | 'BurnChance'
-    | 'Duration';
+    | 'Duration'
+    | 'MinionCount';
 //#endregion Stat Name
 
 //#region Damage Stat Name
@@ -98,8 +99,8 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     { desc: '#% Increased Skill Duration', tags: ['Skill'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Skill }], },
     { desc: '+#% Chance To Bleed', tags: ['Attack', 'Bleed', 'Physical', 'Ailment'], stats: [{ name: 'BleedChance', valueType: 'Base', flags: StatModifierFlags.Bleed }], },
     { desc: '+#% Chance To Burn', tags: ['Attack', 'Burn', 'Elemental', 'Ailment'], stats: [{ name: 'BurnChance', valueType: 'Base', flags: StatModifierFlags.Burn }], },
-    { desc: '+# Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Bleed }], },
-    { desc: '+# Burn Duration', tags: ['Duration', 'Burn', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Burn }], },
+    { desc: '# Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Bleed }], },
+    { desc: '# Burn Duration', tags: ['Duration', 'Burn', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlags.Burn }], },
     { desc: '#% Increased Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Bleed }], },
     { desc: '#% Increased Burn Duration', tags: ['Duration', 'Burn', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlags.Burn }], },
     { desc: '+# Maximum Bleed Stack', tags: ['Bleed', 'Ailment'], stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlags.Bleed }], },
@@ -108,6 +109,7 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     { desc: '+#% Critical Hit Multiplier', tags: ['Critical', 'Attack'], stats: [{ name: 'CritMulti', valueType: 'Base' }] },
     { desc: '#% More Attack Speed', tags: ['Attack', 'Speed'], stats: [{ name: 'AttackSpeed', valueType: 'More' }] },
     { desc: '+#% Hit Chance', tags: ['Attack'], stats: [{ name: 'HitChance', valueType: 'Base' }] },
+    { desc: '+# Maximum Minions', tags: ['Minion'], stats: [{ name: 'MinionCount', valueType: 'Base' }] },
 ];
 
 export class Modifier {
