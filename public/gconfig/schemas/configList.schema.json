@@ -13,7 +13,7 @@
                         "pattern": "^[A-Za-z 0-9]{3,}$"
                     },
                     "description": {
-                        "$ref": "gameConfig.schema.json#/definitions/text"
+                        "$ref": "./definitions/definitions.schema.json#/definitions/text"
                     },
                     "rawUrl": {
                         "type": "string",
