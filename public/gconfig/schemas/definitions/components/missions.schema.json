@@ -7,16 +7,16 @@
             "type": "object",
             "required": [ "levelReq", "slots", "missionLists", "goldCost" ],
             "properties": {
-                "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
-                "goldCost": { "$ref": "../../gameConfig.schema.json#/definitions/goldCost" },
+                "levelReq": { "$ref": "../definitions.schema.json#/definitions/levelReq" },
+                "goldCost": { "$ref": "../definitions.schema.json#/definitions/goldCost" },
                 "slots": {
                     "type": "array",
                     "items": {
                         "type": "object",
                         "required": ["levelReq", "goldCost"],
                         "properties": {
-                            "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
-                            "goldCost": { "$ref": "../../gameConfig.schema.json#/definitions/goldCost" }
+                            "levelReq": { "$ref": "../definitions.schema.json#/definitions/levelReq" },
+                            "goldCost": { "$ref": "../definitions.schema.json#/definitions/goldCost" }
                         }
                     }
                 },
@@ -28,7 +28,7 @@
                             "type": "object",
                             "required": [ "levelReq", "goldAmount", "description" ],
                             "properties": {
-                                "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
+                                "levelReq": { "$ref": "../definitions.schema.json#/definitions/levelReq" },
                                 "goldAmount": { "type": "integer" },
                                 "description": {
                                     "$ref": "../tasks.schema.json#/definitions/tasks"

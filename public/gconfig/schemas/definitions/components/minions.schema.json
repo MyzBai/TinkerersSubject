@@ -8,7 +8,7 @@
             "required": ["levelReq", "list"],
             "properties": {
                 "levelReq": {
-                    "$ref": "../../gameConfig.schema.json#/definitions/levelReq"
+                    "$ref": "../definitions.schema.json#/definitions/levelReq"
                 },
                 "list": {
                     "type": "array",
@@ -56,13 +56,13 @@
             ],
             "properties": {
                 "name": {
-                    "$ref": "../../gameConfig.schema.json#/definitions/name"
+                    "$ref": "../definitions.schema.json#/definitions/name"
                 },
                 "levelReq": {
-                    "$ref": "../../gameConfig.schema.json#/definitions/levelReq"
+                    "$ref": "../definitions.schema.json#/definitions/levelReq"
                 },
                 "attackSpeed": {
-                    "$ref": "../../gameConfig.schema.json#/definitions/levelReq"
+                    "$ref": "../definitions.schema.json#/definitions/levelReq"
                 },
                 "baseDamageMultiplier": {
                     "type": "integer",
@@ -75,7 +75,7 @@
                     "items": {"$ref": "../mods.schema.json#/definitions/mod"}
                 },
                 "goldCost": {
-                    "$ref": "../../gameConfig.schema.json#/definitions/goldCost"
+                    "$ref": "../definitions.schema.json#/definitions/goldCost"
                 }
             }
         }
