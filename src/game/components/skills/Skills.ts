@@ -29,9 +29,6 @@ export default class Skills extends Component {
         super('skills');
         this.skillViewer = new SkillViewer(this);
         {
-            // this.attackSkills = [...this.config.attackSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1))].map(x => new AttackSkill(x));
-            // Object.seal(this.attackSkills);
-
             this.attackSkillSlot = new AttackSkillSlot(this);
             this.activeSkillSlot = this.attackSkillSlot;
 
@@ -94,7 +91,7 @@ export default class Skills extends Component {
 
         Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
-                this.skillViewer.updateView();
+                this.skillViewer.createView(this.activeSkill);
             }
         });
 
@@ -138,11 +135,16 @@ export default class Skills extends Component {
                 name: this.attackSkillSlot.skill.firstRank?.config.name || 'unknown',
                 rankIndex: this.attackSkillSlot.skill.ranks.indexOf(this.attackSkillSlot.skill.rank),
             },
-            attackSkillList: this.attackSkills.reduce<SkillsSave['attackSkillList']>((a, c) => {
-                a.push(...c.ranks.map(x => ({ name: x.config.name, rankProgress: x.rankProgress })).filter(x => x.rankProgress > 0));
+            attackSkillList: this.attackSkills.reduce<AttackSkillSave[]>((a, c) => {
+                for (const rank of c.ranks) {
+                    if (!rank.unlocked) {
+                        continue;
+                    }
+                    a.push({ name: rank.config.name });
+                }
                 return a;
             }, []),
-            buffSkillSlotList: this.buffSkillSlots.reduce<SkillsSave['buffSkillSlotList']>((a, c) => {
+            buffSkillSlotList: this.buffSkillSlots.reduce<BuffSkillSlotSave[]>((a, c) => {
                 if (!c.skill) {
                     return a;
                 }
@@ -153,41 +155,23 @@ export default class Skills extends Component {
                 a.push({ automate, index, name, rankIndex, time, running });
                 return a;
             }, []),
-            buffSkillList: this.buffSkills.reduce<SkillsSave['buffSkillList']>((a, c) => {
-                a.push(...c.ranks.map(x => ({ name: x.config.name, rankProgress: x.rankProgress })).filter(x => x.rankProgress > 0));
+            buffSkillList: this.buffSkills.reduce<BuffSkillSave[]>((a, c) => {
+                for (const rank of c.ranks) {
+                    if (!rank.unlocked) {
+                        continue;
+                    }
+                    a.push({ name: rank.config.name });
+                }
                 return a;
             }, [])
         };
     }
 }
 
-interface RankProgress {
-    current: number;
-    target: number;
-}
-
-export class Rank<T extends AttackSkillConfig | BuffSkillConfig> {
-    private _unlocked: boolean;
-    constructor(readonly config: T, readonly progress: RankProgress, readonly mods: Modifier[]) {
-
-        this._unlocked = progress.current >= progress.target;
-    }
-
-    get unlocked() {
-        return this._unlocked;
-    }
-    get rankProgress() {
-        return this.progress.current;
-    }
-
-    incrementProgress() {
-        this.progress.current++;
-
-        this._unlocked = this.progress.current >= this.progress.target;
-        // const progress = this.rankProgress - rankData.startRankProgress;
-        // return (progress || 1 / Math.max(rankData.config.attackCountReq || 0, 1)) >= 1;
-    }
-
+interface Rank<T extends AttackSkillConfig | BuffSkillConfig> {
+    config: T;
+    mods: Modifier[];
+    unlocked: boolean;
 }
 
 export abstract class Skill {
@@ -203,6 +187,9 @@ export abstract class Skill {
     }
     get name() {
         return this.firstRank.config.name;
+    }
+    get rankIndex() {
+        return this._rankIndex;
     }
 
     setRankByIndex(index: number) {
@@ -226,10 +213,11 @@ export class AttackSkill extends Skill {
         super();
         configs = Array.isArray(configs) ? configs : [configs];
         for (const config of configs) {
-            const rankProgress = Game.saveObj?.skills?.attackSkillList?.find(x => x && x.name === config.name)?.rankProgress || 0;
-            const mods = config.mods?.map(x => new Modifier(x)) || [];
-            const rank = new Rank(config, { current: rankProgress, target: config.attackCountReq || 0 }, mods);
-            this.ranks.push(rank);
+            this.ranks.push({
+                config,
+                mods: config.mods.map(x => new Modifier(x)),
+                unlocked: !!Game.saveObj?.skills?.attackSkillList?.find(x => x?.name === config.name) || config.goldCost === 0
+            });
         }
         this.rank = this.firstRank as Rank<AttackSkillConfig>;
     }
@@ -243,9 +231,11 @@ export class BuffSkill extends Skill {
         super();
         configs = Array.isArray(configs) ? configs : [configs];
         for (const config of configs) {
-            const rankProgress = Game.saveObj?.skills?.buffSkillList?.find(x => x && x.name === config.name)?.rankProgress || 0;
-            const mods = config.mods?.map(x => new Modifier(x)) || [];
-            this.ranks.push(new Rank(config, { current: rankProgress, target: config.triggerCountReq || 0 }, mods));
+            this.ranks.push({
+                config,
+                mods: config.mods.map(x => new Modifier(x)),
+                unlocked: !!Game.saveObj?.skills?.buffSkillList?.find(x => x?.name === config.name) || config.goldCost === 0
+            });
         }
         this.rank = this.firstRank as Rank<BuffSkillConfig>;
     }
@@ -263,26 +253,26 @@ export interface SkillsConfig {
     }
 }
 
-export interface AttackSkillConfig{
+export interface AttackSkillConfig {
     name: string;
     attackSpeed: number;
-    manaCost?: number;
+    manaCost: number;
+    goldCost: number;
     baseDamageMultiplier: number;
     levelReq?: number;
-    mods?: string[];
-    attackCountReq?: number;
+    mods: string[];
 }
 
-export interface BuffSkillSlotConfig{
+export interface BuffSkillSlotConfig {
     levelReq: number;
 }
-export interface BuffSkillConfig{
+export interface BuffSkillConfig {
     name: string;
     baseDuration: number;
-    manaCost?: number;
-    levelReq?: number;
-    mods?: string[];
-    triggerCountReq?: number;
+    manaCost: number;
+    goldCost: number;
+    levelReq: number;
+    mods: string[];
 }
 
 //save
@@ -299,7 +289,6 @@ interface AttackSkillSlotSave {
 }
 interface AttackSkillSave {
     name: string;
-    rankProgress: number;
 }
 interface BuffSkillSlotSave {
     name: string;
@@ -311,5 +300,4 @@ interface BuffSkillSlotSave {
 }
 interface BuffSkillSave {
     name: string;
-    rankProgress: number;
 }

@@ -26,12 +26,10 @@ export class AttackSkillSlot implements SkillSlot {
     readonly element: HTMLElement;
     private readonly progressBar: HTMLProgressElement;
     private _skill: AttackSkill;
-    constructor(private skills: Skills) {
+    constructor(skills: Skills) {
 
         this.element = this.createElement();
         this.progressBar = this.element.querySelectorForce<HTMLProgressElement>('progress');
-
-        this.rankProgressCallback = this.rankProgressCallback.bind(this);
 
         skills.page.querySelectorForce('[data-attack-skill-slot]').appendChild(this.element);
         this._skill = skills.attackSkills[0]!;
@@ -62,35 +60,11 @@ export class AttackSkillSlot implements SkillSlot {
         return this._skill;
     }
 
-    private rankProgressCallback() {
-        if (!this.skill) {
-            return;
-        }
-        const nextRank = this.skill.getNextRank();
-        if (nextRank) {
-            nextRank.incrementProgress();
-            if (!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this) {
-                this.skills.skillViewer.updateView();
-            }
-            if (nextRank.unlocked) {
-                Statistics.statistics.Hits.removeListener('add', this.rankProgressCallback);
-                highlightHTMLElement(this.skills.menuItem, 'click');
-                highlightHTMLElement(this.element, 'mouseover', true);
-            }
-        }
-    }
-
     setSkill(skill: AttackSkill) {
         this.removeModifiers();
         this._skill = skill;
         this.element.querySelectorForce('[data-skill-name]').textContent = skill.rank.config.name || 'unknown';
 
-        const nextRank = skill.getNextRank();
-        Statistics.statistics.Hits.removeListener('add', this.rankProgressCallback);
-
-        if (nextRank && !nextRank.unlocked) {
-            Statistics.statistics.Hits.addListener('add', this.rankProgressCallback);
-        }
         this.applyModifiers();
     }
 
@@ -128,7 +102,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     private _duration = 0;
     private _running = false;
 
-    constructor(private readonly skills: Skills) {
+    constructor(skills: Skills) {
         this.element = this.createElement();
         this.progressBar = this.element.querySelectorForce<HTMLProgressElement>('progress');
         this.setSkill(undefined);
@@ -191,17 +165,6 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         if (!this._skill || !this.canTrigger) {
             return;
         }
-        const nextRank = this._skill?.getNextRank();
-        if (nextRank) {
-            nextRank.incrementProgress();
-            if (!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this) {
-                this.skills.skillViewer.updateView();
-            }
-            if (nextRank.unlocked) {
-                highlightHTMLElement(this.skills.menuItem, 'click');
-                highlightHTMLElement(this.element, 'mouseover', true);
-            }
-        }
         Statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
         this.loop();
         return true;
@@ -253,8 +216,6 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
                 return;
             }
 
-            // this._time = this._duration * (this._time / this._duration);
-
             if (this._time <= 0) {
                 this._time = 0;
                 Game.gameLoop.unsubscribe(loopId);
@@ -268,20 +229,16 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
 
     //End
     stop() {
-        if (!this.skill) {
+        if (!this._skill) {
             throw Error();
         }
 
-        Player.modDB.removeBySource(this.skill.sourceName);
+        Player.modDB.removeBySource(this._skill.sourceName);
         this.progressBar.value = 0;
 
         this._running = false;
         if (this._automate) {
             this.tryTriggerLoop();
-        }
-
-        if (!this.skills.page.classList.contains('hidden') && this === this.skills.activeSkillSlot) {
-            this.skills.skillViewer.updateView();
         }
     }
 
@@ -308,14 +265,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         li.classList.add('s-skill-slot', 'g-list-item');
         li.setAttribute('data-tab-target', 'buff');
         li.insertAdjacentHTML('beforeend', '<div data-skill-name></div>');
-
-        {
-            const progressBar = document.createElement('progress');
-            progressBar.max = 1;
-            progressBar.value = 0;
-
-            li.appendChild(progressBar);
-        }
+        li.insertAdjacentHTML('beforeend', `<progress class="small" value="0" max="1"></progress>`);
         return li;
     }
 
