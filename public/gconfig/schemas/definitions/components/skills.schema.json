@@ -118,13 +118,7 @@
             "required": [ "name", "attackSpeed", "manaCost", "goldCost", "baseDamageMultiplier" ],
             "properties": {
                 "name": { "type": "string" },
-                "attackSpeed": {
-                    "type": "number",
-                    "minimum": 0.001,
-                    "maximum": 10,
-                    "default": 1,
-                    "description": "Number of attacks per second"
-                },
+                "attackSpeed": { "$ref": "../definitions.schema.json#/definitions/attackSpeed" },
                 "manaCost": { "type": "integer", "minimum": 0 },
                 "levelReq": { "$ref": "../definitions.schema.json#/definitions/levelReq" },
                 "goldCost": { "$ref": "../definitions.schema.json#/definitions/goldCost" },

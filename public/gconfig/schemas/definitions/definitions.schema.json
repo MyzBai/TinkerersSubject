@@ -21,6 +21,13 @@
             "default": 0,
             "minimum": 0,
             "description": "Gold required to unlock"
+        },
+        "attackSpeed": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 10,
+            "default": 1,
+            "description": "Number of attacks per second"
         }
     }
 }

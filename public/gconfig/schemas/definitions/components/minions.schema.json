@@ -62,7 +62,7 @@
                     "$ref": "../definitions.schema.json#/definitions/levelReq"
                 },
                 "attackSpeed": {
-                    "$ref": "../definitions.schema.json#/definitions/levelReq"
+                    "$ref": "../definitions.schema.json#/definitions/attackSpeed"
                 },
                 "baseDamageMultiplier": {
                     "type": "integer",
