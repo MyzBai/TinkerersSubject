@@ -115,7 +115,7 @@
         },
         "attackSkill": {
             "type": "object",
-            "required": [ "name", "attackSpeed", "manaCost", "baseDamageMultiplier" ],
+            "required": [ "name", "attackSpeed", "manaCost", "goldCost", "baseDamageMultiplier" ],
             "properties": {
                 "name": { "type": "string" },
                 "attackSpeed": {
@@ -142,7 +142,7 @@
         },
         "buffSkill": {
             "type": "object",
-            "required": [ "name", "baseDuration", "manaCost", "mods" ],
+            "required": [ "name", "baseDuration", "manaCost", "goldCost", "mods" ],
             "properties": {
                 "name": { "type": "string" },
                 "baseDuration": { "type": "integer" },
