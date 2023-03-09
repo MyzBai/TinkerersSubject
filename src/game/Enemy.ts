@@ -1,16 +1,16 @@
 import { clamp, querySelector } from "@src/utils/helpers";
-import { AilmentData, Ailments, AilmentSave } from "./Ailments";
+// import { AilmentData, Ailments, AilmentSave } from "./Ailments";
 import Game, { Save } from "./Game";
 import Statistics from "./Statistics";
 
 class Enemy {
-    private readonly ailments: Ailments;
+    // private readonly ailments: Ailments;
     private _index: number;
     private healthList: number[] = [];
     private _health = 0;
     private readonly healthBar: HTMLProgressElement;
     constructor() {
-        this.ailments = new Ailments();
+        // this.ailments = new Ailments();
         this._index = 0;
         this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]');
     }
@@ -36,7 +36,7 @@ class Enemy {
             this.updateHealthBar();
         });
 
-        Statistics.statistics.Level.addListener('change', level => {
+        Statistics.gameStats.Level.addListener('change', level => {
             this._index = clamp(level, 1, this.maxIndex + 1) - 1;
             this.spawn();
         });
@@ -49,7 +49,7 @@ class Enemy {
         this.spawn();
         this.health = Game.saveObj?.enemy?.health || this.maxHealth;
         this.updateHealthBar();
-        this.ailments.setup();
+        // this.ailments.setup();
     }
 
     setIndex(index: number) {
@@ -61,7 +61,7 @@ class Enemy {
         if (this.index === this.maxIndex + 1) {
             this.healthBar.textContent = 'Dummy (Cannot die)';
         }
-        this.ailments.reset();
+        // this.ailments.reset();
     }
 
     dealDamage(amount: number) {
@@ -73,7 +73,7 @@ class Enemy {
         if (this.health <= 0) {
             this.health = 0;
             this._index++;
-            Statistics.statistics.Level.add(1);
+            Statistics.gameStats.Level.add(1);
         }
     }
 
@@ -81,21 +81,21 @@ class Enemy {
         this.dealDamage(damage);
     }
 
-    applyAilments(instances: AilmentData[]) {
-        for (const instance of instances) {
-            this.ailments.add(instance);
-        }
-    }
+    // applyAilments(instances: AilmentData[]) {
+    //     for (const instance of instances) {
+    //         this.ailments.add(instance);
+    //     }
+    // }
 
     save(saveObj: Save) {
         saveObj.enemy = {
             index: this.index,
             health: this.health,
             dummyDamage: 0,
-            ailments: this.ailments.handlers.reduce<AilmentSave[]>((a, c) => {
+            /*ailments: this.ailments.handlers.reduce<AilmentSave[]>((a, c) => {
                 a?.push({ type: c.type, instances: c.instances.map(x => ({ time: x.time, damageFac: x.damageFac })) });
                 return a;
-            }, [])
+            }, [])*/
 
         };
     }
@@ -112,6 +112,6 @@ export interface EnemySave {
     index?: number;
     health?: number;
     dummyDamage?: number;
-    ailments: AilmentSave[];
+    // ailments: AilmentSave[];
 }
 

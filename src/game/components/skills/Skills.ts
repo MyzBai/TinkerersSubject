@@ -1,6 +1,5 @@
 import { highlightHTMLElement, registerTabs } from "@src/utils/helpers";
 import Game, { Save } from "../../Game";
-import Player from '../../Player';
 import Statistics from '../../Statistics';
 import { Modifier } from "../../mods";
 import Component from "../Component";
@@ -40,7 +39,7 @@ export default class Skills extends Component {
 
             for (const skill of config.attackSkills.skillList) {
                 const levelReq = Array.isArray(skill) ? skill[0]!.levelReq : skill.levelReq;
-                Statistics.statistics.Level.registerCallback(levelReq || 1, () => {
+                Statistics.gameStats.Level.registerCallback(levelReq || 1, () => {
                     const attackSkill = new AttackSkill(skill);
                     this.attackSkills.push(attackSkill);
                     this.addSkillListItem(attackSkill, attackSkillListContainer);
@@ -60,7 +59,7 @@ export default class Skills extends Component {
             const buffSkillSlotContainer = this.page.querySelectorForce('.s-skill-slots [data-buff-skill-slots]');
             const buffSkillListContainer = this.page.querySelectorForce<HTMLElement>('[data-buff-skill-list]');
             for (const buffSkillConfig of config.buffSkills.skillSlots) {
-                Statistics.statistics.Level.registerCallback(buffSkillConfig.levelReq, () => {
+                Statistics.gameStats.Level.registerCallback(buffSkillConfig.levelReq, () => {
                     const slot = new BuffSkillSlot(this);
                     slot.element.setAttribute('data-tab-target', 'buff');
                     slot.element.addEventListener('click', () => {
@@ -73,7 +72,7 @@ export default class Skills extends Component {
             }
 
             for (const skill of this.buffSkills) {
-                Statistics.statistics.Level.registerCallback(skill.firstRank.config.levelReq || 1, () => {
+                Statistics.gameStats.Level.registerCallback(skill.firstRank.config.levelReq || 1, () => {
                     this.addSkillListItem(skill, buffSkillListContainer);
                 });
             }
@@ -122,10 +121,6 @@ export default class Skills extends Component {
             const element = container.querySelector<HTMLElement>('[data-name]:first-child');
             element?.click();
         }
-    }
-
-    private selectSkillListItemByName(name: string, container: HTMLElement) {
-        container.querySelector<HTMLLIElement>(`[data-name="${name}"]`)?.click();
     }
 
     save(saveObj: Save): void {

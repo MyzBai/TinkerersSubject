@@ -1,7 +1,9 @@
-import { StatModifier, StatModifierFlags, StatName } from "@game/mods";
+import { KeywordModifierFlag, StatModifierFlag, StatName } from "@game/mods";
 import { CalcMinMax, calcModBase, calcModIncMore, calcModTotal, Configuration } from "./calcMod";
 import { randomRange } from '@utils/helpers';
 import type { AilmentData } from "../Ailments";
+import type Entity from "../Entity";
+import { MinionEntity} from "../Entity";
 
 type ConversionValues = Partial<Record<keyof typeof DamageTypeFlags | 'multi', number>>;
 export type ConversionTable = Partial<Record<keyof typeof DamageTypeFlags, ConversionValues>>;
@@ -38,12 +40,18 @@ const damageNamesMetaTable = (() => {
     return names;
 })();
 
-export function calcAttack(statModList: StatModifier[]) {
+export function calcAttack(source: Entity) {
 
     const config: Configuration = {
-        statModList,
-        flags: StatModifierFlags.Attack
+        statModList: [...source.modDB.modList],
+        source,
+        flags: StatModifierFlag.Attack | StatModifierFlag.Minion,
+        keywords: KeywordModifierFlag.Global
     };
+
+    if(source instanceof MinionEntity){
+        config.keywords |= KeywordModifierFlag.Minion;
+    }
 
     //Hit
     const hitChance = calcModTotal('HitChance', config) / 100;
@@ -53,7 +61,6 @@ export function calcAttack(statModList: StatModifier[]) {
         return false;
     }
 
-    config.flags = StatModifierFlags.Attack;
     const baseDamage = calcBaseDamage(config, randomRange);
 
 
@@ -78,19 +85,19 @@ export function calcAttack(statModList: StatModifier[]) {
     const ailments: AilmentData[] = [];
     //ailments
     {
-        config.flags = StatModifierFlags.Ailment | StatModifierFlags.Bleed | StatModifierFlags.Physical;
-        const bleedChance = calcModTotal('BleedChance', config) / 100;
-        if (bleedChance >= randomRange(0, 1)) {
-            const damageFac = randomRange(0, 1);
-            ailments.push({ damageFac, type: 'Bleed' });
-        }
+        // config.flags |= StatModifierFlag.Ailment | StatModifierFlag.Bleed | StatModifierFlag.Physical;
+        // const bleedChance = calcModTotal('BleedChance', config) / 100;
+        // if (bleedChance >= randomRange(0, 1)) {
+        //     const damageFac = randomRange(0, 1);
+        //     ailments.push({ damageFac, type: 'Bleed', source: config.source });
+        // }
 
-        config.flags = StatModifierFlags.Ailment | StatModifierFlags.Burn | StatModifierFlags.Elemental;
-        const burnChance = calcModTotal('BurnChance', config) / 100;
-        if (burnChance >= randomRange(0, 1)) {
-            const damageFac = randomRange(0, 1);
-            ailments.push({ damageFac, type: 'Burn' });
-        }
+        // config.flags &= ~(StatModifierFlag.Ailment | StatModifierFlag.Burn | StatModifierFlag.Elemental);
+        // const burnChance = calcModTotal('BurnChance', config) / 100;
+        // if (burnChance >= randomRange(0, 1)) {
+        //     const damageFac = randomRange(0, 1);
+        //     ailments.push({ damageFac, type: 'Burn', source: config.source });
+        // }
     }
 
     return {
@@ -122,7 +129,7 @@ export function calcBaseDamage(config: Configuration, calcMinMax: CalcMinMax) {
     let totalBaseDamage = 0;
     const baseDamageMultiplier = calcModBase('BaseDamageMultiplier', config) / 100;
     for (const damageType of Object.keys(DamageTypeFlags) as DamageType[]) {
-        const bit = StatModifierFlags[damageType];
+        const bit = StatModifierFlag[damageType];
         config.flags |= bit;
         let { min, max } = calcDamage(damageType, config, conversionTable);
         min *= baseDamageMultiplier;

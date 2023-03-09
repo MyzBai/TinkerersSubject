@@ -1,8 +1,9 @@
-import { highlightHTMLElement, invLerp, querySelector } from "@src/utils/helpers";
+import { highlightHTMLElement, invLerp } from "@src/utils/helpers";
 import { calcAttack } from "../calc/calcDamage";
 import Enemy from "../Enemy";
+import { MinionEntity } from "../Entity";
 import Game, { Save } from "../Game";
-import { ModDB, Modifier, StatModifier, StatModifierFlags } from "../mods";
+import { ModDB, Modifier, StatModifier, StatModifierFlag } from "../mods";
 import Player from "../Player";
 import Statistics from "../Statistics";
 import Component from "./Component";
@@ -22,7 +23,7 @@ export default class Minions extends Component {
 
         for (const data of config.list) {
             const levelReq = Array.isArray(data) ? data[0]!.levelReq : 1;
-            Statistics.statistics.Level.registerCallback(levelReq, () => {
+            Statistics.gameStats.Level.registerCallback(levelReq, () => {
                 const minion = new Minion(data);
                 this.minions.push(minion);
                 this.createMinionListItem(minion);
@@ -177,8 +178,8 @@ class Slot {
     }
 
     private startAutoAttack() {
-        const calcWaitTime = () => 1 / Statistics.statistics['Attack Speed'].get();
-        Statistics.statistics['Attack Speed'].addListener('change', () => {
+        const calcWaitTime = () => 1 / this._minion!.stats['Attack Speed'].get() || 1;
+        this._minion!.stats['Attack Speed'].addListener('change', () => {
             waitTimeSeconds = calcWaitTime();
             time = waitTimeSeconds * this._attackProgressPct;
         });
@@ -192,7 +193,6 @@ class Slot {
             this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
             time += dt;
             if (time >= waitTimeSeconds) {
-                console.log(this.minion?.name, 'attacked');
                 this.performAttack();
                 waitTimeSeconds = calcWaitTime();
                 time = 0;
@@ -201,13 +201,17 @@ class Slot {
     }
 
     private performAttack() {
-        const result = calcAttack(this.modDB.modList);
+        if(!this._minion){
+            return;
+        }
+
+        const result = calcAttack(this._minion);
         if (!result) {
             return;
         }
 
         Enemy.dealDamage(result.totalDamage);
-        // Enemy.applyAilments(result.ailments);
+        //Enemy.applyAilments(result.ailments);
     }
 
     private applyModifiers() {
@@ -216,7 +220,7 @@ class Slot {
             return;
         }
 
-        const minionModsFromPlayer = Player.modDB.modList.filter(x => (x.flags & StatModifierFlags.Minion) === StatModifierFlags.Minion);
+        const minionModsFromPlayer = Player.modDB.modList.filter(x => (x.flags & StatModifierFlag.Minion) === StatModifierFlag.Minion);
         const minionMods = this._minion.rank.mods.flatMap<StatModifier>(x => x.copy().stats);
         const sourceName = `Minion/${this._minion.rank.config.name}`;
         this.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', value: this._minion.rank.config.baseDamageMultiplier, valueType: 'Base' })], sourceName);
@@ -238,11 +242,12 @@ interface Rank {
     unlocked: boolean;
 }
 
-class Minion {
+class Minion extends MinionEntity {
     readonly ranks: Rank[] = [];
     private _rankIndex = 0;
     constructor(configs: MinionConfig | MinionConfig[]) {
         configs = Array.isArray(configs) ? configs : [configs];
+        super(configs[0]!.name);
         for (const config of configs) {
             this.ranks.push({
                 config,
@@ -256,9 +261,6 @@ class Minion {
     }
     get rank() {
         return this.ranks[this._rankIndex]!;
-    }
-    get name() {
-        return this.ranks[0]!.config.name;
     }
 
     setRankIndex(rankIndex: number) {
@@ -311,7 +313,7 @@ class View {
         this.container.querySelectorForce<HTMLButtonElement>('[data-unlock]').addEventListener('click', () => {
             const rank = this.activeMinion?.ranks[this.rankIndex!];
             if (rank && this.activeMinion) {
-                Statistics.statistics.Gold.subtract(rank.config.goldCost || 0);
+                Statistics.gameStats.Gold.subtract(rank.config.goldCost || 0);
                 rank.unlocked = true;
                 this.show(this.activeMinion, this.rankIndex);
             }
@@ -373,7 +375,7 @@ class View {
         }
 
         this.unlockButton.classList.toggle('hidden', rank.unlocked);
-        this.unlockButton.disabled = Statistics.statistics.Gold.get() < (rank.config.goldCost || 0);
+        this.unlockButton.disabled = Statistics.gameStats.Gold.get() < (rank.config.goldCost || 0);
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
 
         this.removeButton.classList.toggle('hidden', this.minions.activeSlot?.minion?.rank !== rank);

@@ -1,5 +1,6 @@
 import { remap } from "@src/utils/helpers";
 import type Value from "@src/utils/Value";
+import Player from "./Player";
 import Statistics from "./Statistics";
 
 interface TextData {
@@ -25,16 +26,16 @@ export default class Task {
 
     constructor(text: string) {
         this.taskValidators = [
-            new Validator(/^Reach Level {(\d+)}$/, Statistics.statistics.Level),
-            new Validator(/^Deal Damage {(\d+)}$/, Statistics.statistics["Total Damage"]),
-            new Validator(/^Deal Physical Damage {(\d+)}$/, Statistics.statistics["Total Physical Damage"]),
-            new Validator(/^Deal Elemental Damage {(\d+)}$/, Statistics.statistics["Total Elemental Damage"]),
-            new Validator(/^Deal Bleed Damage {(\d+)}$/, Statistics.statistics["Total Bleed Damage"]),
-            new Validator(/^Deal Burn Damage {(\d+)}$/, Statistics.statistics["Total Burn Damage"]),
-            new Validator(/^Perform Hits {(\d+)}$/, Statistics.statistics.Hits),
-            new Validator(/^Perform Critical Hits {(\d+)}$/, Statistics.statistics["Critical Hits"]),
-            new Validator(/^Generate Gold {(\d+)}$/, Statistics.statistics["Gold Generated"]),
-            new Validator(/^Regenerate Mana {(\d+)}$/, Statistics.statistics["Mana Generated"]),
+            new Validator(/^Reach Level {(\d+)}$/, Statistics.gameStats.Level),
+            new Validator(/^Deal Damage {(\d+)}$/, Statistics.gameStats["Total Damage"]),
+            new Validator(/^Deal Physical Damage {(\d+)}$/, Statistics.gameStats["Total Physical Damage"]),
+            new Validator(/^Deal Elemental Damage {(\d+)}$/, Statistics.gameStats["Total Elemental Damage"]),
+            new Validator(/^Deal Bleed Damage {(\d+)}$/, Statistics.gameStats["Total Bleed Damage"]),
+            new Validator(/^Deal Burn Damage {(\d+)}$/, Statistics.gameStats["Total Burn Damage"]),
+            new Validator(/^Perform Hits {(\d+)}$/, Player.stats.Hits),
+            new Validator(/^Perform Critical Hits {(\d+)}$/, Player.stats["Critical Hits"]),
+            new Validator(/^Generate Gold {(\d+)}$/, Statistics.gameStats["Gold Generated"]),
+            new Validator(/^Regenerate Mana {(\d+)}$/, Player.stats["Mana Generated"]),
         ];
         this.text = text;
         this.description = text.replace(/[{}]*/g, '');

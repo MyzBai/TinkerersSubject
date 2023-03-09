@@ -63,7 +63,7 @@ export default class SkillViewer {
         this.unlockButton.addEventListener('click', () => {
             const rank = this.skills.activeSkill?.ranks[this.rankIndex!];
             if (rank) {
-                Statistics.statistics.Gold.subtract(rank.config.goldCost || 0);
+                Statistics.gameStats.Gold.subtract(rank.config.goldCost || 0);
                 rank.unlocked = true;
                 this.createView(this.skills.activeSkill, this.rankIndex);
             }
@@ -138,7 +138,7 @@ export default class SkillViewer {
 
 
         this.unlockButton.classList.toggle('hidden', rank.unlocked);
-        this.unlockButton.disabled = Statistics.statistics.Gold.get() < (rank.config.goldCost || 0);
+        this.unlockButton.disabled = Statistics.gameStats.Gold.get() < (rank.config.goldCost || 0);
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
 
 

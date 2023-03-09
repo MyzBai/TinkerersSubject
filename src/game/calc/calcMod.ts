@@ -1,5 +1,7 @@
 import { avg, clamp } from "@utils/helpers";
-import { StatModifier, StatModifierFlags, StatName, StatModifierValueType } from "../mods";
+import type { MinionEntity, PlayerEntity } from "../Entity";
+import type Entity from "../Entity";
+import { StatModifier, StatModifierFlag, StatName, StatModifierValueType, KeywordModifierFlag } from "../mods";
 import Player from "../Player";
 import Statistics from "../Statistics";
 import { calcAilmentBaseDamage, calcBaseDamage, ConversionTable } from "./calcDamage";
@@ -10,16 +12,20 @@ export interface Configuration {
     statModList: StatModifier[];
     flags: number;
     conversionTable?: ConversionTable;
+    source?: Entity;
+    keywords: KeywordModifierFlag;
 }
 
-
-export function calcPlayerStats() {
-    const statistics = Statistics.statistics;
+export function calculateEntityStats(entity: Entity, keyword?: KeywordModifierFlag) {
+    const statistics = entity.stats;
 
     const config: Configuration = {
-        statModList: Player.modDB.modList,
-        flags: 0
+        statModList: entity.modDB.modList,
+        flags: StatModifierFlag.Attack,
+        keywords: KeywordModifierFlag.Global | (keyword || 0),
+        source: entity
     };
+
 
     //Hit Chance
     const hitChance = calcModTotal('HitChance', config) / 100;
@@ -30,13 +36,6 @@ export function calcPlayerStats() {
     const attackSpeed = calcModTotal('AttackSpeed', config);
     statistics['Attack Speed'].set(attackSpeed);
 
-    //Mana
-    const maxMana = calcModTotal('MaxMana', config);
-    statistics['Maximum Mana'].set(maxMana);
-    const manaRegen = calcModTotal('ManaRegen', config);
-    statistics['Mana Regeneration'].set(manaRegen);
-    const attackManaCost = calcModTotal('AttackManaCost', config);
-    statistics['Attack Mana Cost'].set(attackManaCost);
     //Crit
     const critChance = calcModTotal('CritChance', config) / 100;
     statistics['Critical Hit Chance'].set(critChance);
@@ -46,21 +45,21 @@ export function calcPlayerStats() {
 
     let attackDps = 0;
     {
-        config.flags = StatModifierFlags.Attack;
+        config.flags = StatModifierFlag.Attack;
         const baseDamageResult = calcBaseDamage(config, avg);
         const critDamageMultiplier = 1 + (clampedCritChance * critMulti);
         attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier;
 
         statistics['Attack Dps'].set(attackDps);
-        statistics['Average Attack Damage'].set(baseDamageResult.totalBaseDamage);
-        statistics['Average Physical Attack Damage'].set(baseDamageResult.physicalDamage);
-        statistics['Average Elemental Attack Damage'].set(baseDamageResult.elementalDamage);
+        statistics['Attack Damage'].set(baseDamageResult.totalBaseDamage);
+        statistics['Physical Attack Damage'].set(baseDamageResult.physicalDamage);
+        statistics['Elemental Attack Damage'].set(baseDamageResult.elementalDamage);
     }
 
     //bleed
     let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
     {
-        config.flags = StatModifierFlags.Physical | StatModifierFlags.Bleed;
+        config.flags = StatModifierFlag.Physical | StatModifierFlag.Bleed;
         bleedChance = calcModTotal('BleedChance', config) / 100;
         maxBleedStacks = calcModTotal('AilmentStack', config);
         bleedDuration = calcModTotal('Duration', config);
@@ -80,7 +79,7 @@ export function calcPlayerStats() {
     //burn
     let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
     {
-        config.flags = StatModifierFlags.Elemental | StatModifierFlags.Burn;
+        config.flags = StatModifierFlag.Elemental | StatModifierFlag.Burn;
         burnChance = calcModTotal('BurnChance', config) / 100;
         maxBurnStacks = calcModTotal('AilmentStack', config);
         burnDuration = calcModTotal('Duration', config);
@@ -101,12 +100,38 @@ export function calcPlayerStats() {
 
     const dps = (attackDps + ailmentDps);
     statistics.Dps.set(dps);
+}
 
-    const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
+export function calcPlayerStats(player: PlayerEntity) {
+    const statistics = player.stats;
+
+    const config = {
+        statModList: Player.modDB.modList,
+        flags: 0,
+        source: player,
+        keywords: KeywordModifierFlag.Global
+    } satisfies Configuration;
+
+    //Mana
+    const maxMana = calcModTotal('MaxMana', config);
+    statistics['Maximum Mana'].set(maxMana);
+    const manaRegen = calcModTotal('ManaRegen', config);
+    statistics['Mana Regeneration'].set(manaRegen);
+    const attackManaCost = calcModTotal('AttackManaCost', config);
+    statistics['Attack Mana Cost'].set(attackManaCost);
+
+    calculateEntityStats(player);
+
+    const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlag.Skill }));
     statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
 
     const goldGeneration = calcModTotal('GoldGeneration', config);
-    statistics['Gold Generation'].set(goldGeneration);
+    Statistics.gameStats['Gold Generation'].set(goldGeneration);
+}
+
+export function calcMinionStats(minion: MinionEntity) {
+
+    calculateEntityStats(minion, KeywordModifierFlag.Minion);
 }
 
 
@@ -149,6 +174,9 @@ export function calcModSum(valueType: StatModifierValueType, name: StatName | St
         }
         if (x.valueType !== valueType)
             return false;
+        if (!hasFlag(config.keywords, x.keywords)) {
+            return false;
+        }
         if (!hasFlag(config.flags, x.flags || 0))
             return false;
         return true;

@@ -2,7 +2,7 @@
 
 .p-game {
     display: grid;
-    grid-template-columns: minmax(10em, min-content) 1fr minmax(12em, min-content);
+    grid-template-columns: minmax(10em, min-content) 1fr minmax(15em, min-content);
     grid-template-rows: auto 1fr;
     grid-auto-flow: column;
     grid-template-areas:
@@ -397,8 +397,6 @@
             }
             .g-accordion {
                 .header {
-                    padding: $padding-button;
-                    margin-bottom: 1px;
                     var {
                         color: $color-var-invalid-fg;
                         &[data-valid] {
@@ -419,7 +417,6 @@
             grid-auto-flow: column;
 
             .wrapper {
-   
                 [data-slots] {
                     min-height: 0;
                     overflow-y: auto;
@@ -504,19 +501,16 @@
             display: grid;
             ul {
                 overflow-y: auto;
-                li {
-                    display: flex;
-                    pointer-events: all;
-                    border-bottom: 1px solid $color-border-highlight;
-                    padding-top: 0.1em;
-                    padding-bottom: 0.1em;
-                    padding-left: $padding-list-item;
-                    padding-right: $padding-list-item;
-                    [data-label] {
-                        flex: 1;
+                .g-accordion {
+                    .header {
+                        margin-bottom: 1px;
                     }
-                    [data-stat] {
-                        padding-left: 1em;
+
+                    li {
+                        pointer-events: all;
+                        &.selected{
+                            background-color: #131518;
+                        }
                     }
                 }
             }
@@ -526,11 +520,25 @@
         grid-area: stats;
         display: flex;
         flex-direction: column;
-        max-width: 15em;
+        // max-width: 15em;
         white-space: nowrap;
-        li {
-            padding: 0.1em;
-            border-bottom: 1px solid $color-border-highlight;
+        min-height: 0;
+        ul {
+            min-height: 0;
+            overflow-y: auto;
+
+            .g-accordion {
+                padding: 0;
+                .content {
+                    padding-right: 0;
+                    padding-top: 0;
+                    pointer-events: none;
+                    li {
+                        padding-left: 0;
+                        padding-right: 0;
+                    }
+                }
+            }
         }
     }
 }

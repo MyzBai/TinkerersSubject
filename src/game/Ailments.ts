@@ -1,9 +1,9 @@
-import { lerp, querySelector } from "@src/utils/helpers";
+import { querySelector } from "@src/utils/helpers";
 import { calcAilmentBaseDamage } from "./calc/calcDamage";
-import type { Configuration } from "./calc/calcMod";
 import Enemy from "./Enemy";
+import type Entity from "./Entity";
+import Game from "./Game";
 import game from "./Game";
-import { StatModifierFlags } from "./mods";
 import Player from "./Player";
 import Statistics from "./Statistics";
 
@@ -12,11 +12,13 @@ export type AilmentType = 'Bleed' | 'Burn';
 export interface AilmentData {
     type: AilmentType;
     damageFac: number;
+    source: Entity;
 }
 
 export interface AilmentInstance extends AilmentData {
     time: number;
     damage: number;
+    source: Entity;
 }
 
 abstract class AilmentHandler {
@@ -57,6 +59,7 @@ abstract class AilmentHandler {
         this.time = this.duration;
         this.updateElement();
         this.updateProgressBar();
+
         return instance;
     }
 
@@ -103,6 +106,9 @@ abstract class AilmentHandler {
         this.element?.remove();
     }
 
+    protected abstract updateDuration(source: Entity, amount: number): void;
+    protected abstract updateStacks(source: Entity, amount: number): void;
+
     updateElement() {
         if (!this.timeSpan || !this.countSpan) {
             return;
@@ -143,35 +149,53 @@ class BleedHandler extends AilmentHandler {
 
     setup() {
         super.setup();
-        Statistics.statistics['Bleed Duration'].addListener('change', amount => {
-            const durationFac = amount / this.duration;
-            this.time *= durationFac;
-            this.instances.forEach(x => x.time *= durationFac);
-            this.duration = amount;
+
+        // this.maxNumActiveInstances = Statistics.gameStats['Maximum Bleed Stacks'].get();
+    }
+
+    addAilment(ailment: AilmentData): AilmentInstance {
+        const instance = super.addAilment(ailment);
+
+        ailment.source.stats["Bleed Duration"].addListener('change', amount => {
+            this.updateDuration(instance.source, amount);
         });
-        Statistics.statistics['Maximum Bleed Stacks'].addListener('change', amount => {
-            this.maxNumActiveInstances = amount;
+
+        ailment.source.stats["Maximum Bleed Stacks"].addListener('change', amount => {
+            this.updateDuration(instance.source, amount);
+           
         });
-        this.duration = Statistics.statistics['Bleed Duration'].get();
-        this.maxNumActiveInstances = Statistics.statistics['Maximum Bleed Stacks'].get();
+
+        return instance;
+    }
+
+    protected updateDuration(source: Entity, amount: number): void {
+        this.duration = source.stats['Bleed Duration'].get();
+        const durationFac = amount / this.duration;
+        this.time *= durationFac;
+        this.instances.forEach(x => x.time *= durationFac);
+        this.duration = amount;
+    }
+
+    protected updateStacks(source: Entity, amount: number): void {
+        this.maxNumActiveInstances = amount;
     }
 
     updateDamage() {
-        const config: Configuration = {
-            statModList: Player.modDB.modList,
-            flags: StatModifierFlags.Bleed | StatModifierFlags.Physical | StatModifierFlags.Ailment
-        };
-        const { min, max } = calcAilmentBaseDamage('Physical', config);
-        this.instances.forEach(x => x.damage = (min + max) / 2 * x.damageFac);
-        this.instances.sort((a, b) => b.damage - a.damage);
+        // const config: Configuration = {
+        //     statModList: Player.modDB.modList,
+        //     flags: StatModifierFlag.Bleed | StatModifierFlag.Physical | StatModifierFlag.Ailment
+        // };
+        // const { min, max } = calcAilmentBaseDamage('Physical', config);
+        // this.instances.forEach(x => x.damage = (min + max) / 2 * x.damageFac);
+        // this.instances.sort((a, b) => b.damage - a.damage);
     }
 
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
         Enemy.dealDamageOverTime(damage);
-        Statistics.statistics['Total Damage'].add(damage);
-        Statistics.statistics['Total Bleed Damage'].add(damage);
-        Statistics.statistics['Total Physical Damage'].add(damage);
+        Statistics.gameStats['Total Damage'].add(damage);
+        Statistics.gameStats['Total Bleed Damage'].add(damage);
+        Statistics.gameStats['Total Physical Damage'].add(damage);
         super.tick(dt);
     }
 }
@@ -183,34 +207,44 @@ class BurnHandler extends AilmentHandler {
 
     setup(): void {
         super.setup();
-        Statistics.statistics['Burn Duration'].addListener('change', amount => {
-            const durationFac = amount / this.duration;
-            this.time *= durationFac;
-            this.instances.forEach(x => x.time *= durationFac);
-            this.duration = amount;
-        });
-        Statistics.statistics['Maximum Burn Stacks'].addListener('change', amount => {
-            this.maxNumActiveInstances = amount;
-        });
-        this.duration = Statistics.statistics['Burn Duration'].get();
-        this.maxNumActiveInstances = Statistics.statistics["Maximum Burn Stacks"].get();
+        // Statistics.gameStats['Burn Duration'].addListener('change', amount => {
+        //     const durationFac = amount / this.duration;
+        //     this.time *= durationFac;
+        //     this.instances.forEach(x => x.time *= durationFac);
+        //     this.duration = amount;
+        // });
+        // Statistics.gameStats['Maximum Burn Stacks'].addListener('change', amount => {
+        //     this.maxNumActiveInstances = amount;
+        // });
+        // this.duration = Statistics.gameStats['Burn Duration'].get();
+        // this.maxNumActiveInstances = Statistics.gameStats["Maximum Burn Stacks"].get();
     }
     updateDamage() {
-        const config: Configuration = {
-            statModList: Player.modDB.modList,
-            flags: StatModifierFlags.Burn | StatModifierFlags.Elemental | StatModifierFlags.Ailment
-        };
-        const { min, max } = calcAilmentBaseDamage('Elemental', config);
-        this.instances.forEach(x => x.damage = lerp(min, max, x.damageFac));
-        this.instances.sort((a, b) => b.damage - a.damage);
+        // const config: Configuration = {
+        //     statModList: Player.modDB.modList,
+        //     flags: StatModifierFlag.Burn | StatModifierFlag.Elemental | StatModifierFlag.Ailment,
+        //     source: 
+        // };
+        // const { min, max } = calcAilmentBaseDamage('Elemental', config);
+        // this.instances.forEach(x => x.damage = lerp(min, max, x.damageFac));
+        // this.instances.sort((a, b) => b.damage - a.damage);
+    }
+
+    protected updateDuration(source: Entity, amount: number) {
+        
+    }
+
+
+    protected updateStacks(source: Entity, amount: number): void {
+        
     }
 
     tick(dt: number): void {
         const damage = this.calcDamage() * dt;
         Enemy.dealDamageOverTime(damage);
-        Statistics.statistics['Total Damage'].add(damage);
-        Statistics.statistics['Total Burn Damage'].add(damage);
-        Statistics.statistics['Total Elemental Damage'].add(damage);
+        Statistics.gameStats['Total Damage'].add(damage);
+        Statistics.gameStats['Total Burn Damage'].add(damage);
+        Statistics.gameStats['Total Elemental Damage'].add(damage);
         super.tick(dt);
     }
 }
@@ -226,37 +260,37 @@ export class Ailments {
     setup() {
         this.handlers.forEach(x => x.setup());
 
-        Player.modDB.onChange.listen(() => {
-            this.handlers.forEach(x => {
-                if (x.instances.length === 0) {
-                    return;
-                }
-                x.updateDamage();
-            });
-        });
+        // Game.modDB.onChange.listen(() => {
+        //     this.handlers.forEach(x => {
+        //         if (x.instances.length === 0) {
+        //             return;
+        //         }
+        //         x.updateDamage();
+        //     });
+        // });
 
-        game.visiblityObserver.registerLoop(querySelector('.p-game .p-combat'), visible => {
-            if (visible) {
-                for (const handler of this.handlers) {
-                    if (handler.instances.length === 0) {
-                        continue;
-                    }
-                    handler.updateProgressBar();
-                }
-            }
-        });
-        game.visiblityObserver.registerLoop(querySelector('.p-game .p-combat'), visible => {
-            if (visible) {
-                for (const handler of this.handlers) {
-                    if (handler.instances.length === 0) {
-                        continue;
-                    }
-                    handler.updateElement();
-                }
-            }
-        }, { intervalMilliseconds: 1000 });
+        // game.visiblityObserver.registerLoop(querySelector('.p-game .p-combat'), visible => {
+        //     if (visible) {
+        //         for (const handler of this.handlers) {
+        //             if (handler.instances.length === 0) {
+        //                 continue;
+        //             }
+        //             handler.updateProgressBar();
+        //         }
+        //     }
+        // });
+        // game.visiblityObserver.registerLoop(querySelector('.p-game .p-combat'), visible => {
+        //     if (visible) {
+        //         for (const handler of this.handlers) {
+        //             if (handler.instances.length === 0) {
+        //                 continue;
+        //             }
+        //             handler.updateElement();
+        //         }
+        //     }
+        // }, { intervalMilliseconds: 1000 });
 
-        this.tryLoad();
+        // this.tryLoad();
 
     }
 
@@ -278,23 +312,23 @@ export class Ailments {
     }
 
     private tryLoad() {
-        try {
-            this.handlers.forEach(x => {
-                const save = game.saveObj?.enemy?.ailments?.find(y => y && y.type === x.type);
-                if (!save) {
-                    return;
-                }
-                let time = 0;
-                for (const savedInstance of save.instances || []) {
-                    const instance = x.addAilment({ damageFac: savedInstance?.damageFac || 1, type: x.type });
-                    instance.time = savedInstance?.time || 0;
-                    time = Math.max(time, instance.time);
-                }
-                x.time = time;
-            });
-        } catch (e) {
-            throw Error('failed loading ailments');
-        }
+        // try {
+        //     this.handlers.forEach(x => {
+        //         const save = game.saveObj?.enemy?.ailments?.find(y => y && y.type === x.type);
+        //         if (!save) {
+        //             return;
+        //         }
+        //         let time = 0;
+        //         for (const savedInstance of save.instances || []) {
+        //             const instance = x.addAilment({ damageFac: savedInstance?.damageFac || 1, type: x.type, source: });
+        //             instance.time = savedInstance?.time || 0;
+        //             time = Math.max(time, instance.time);
+        //         }
+        //         x.time = time;
+        //     });
+        // } catch (e) {
+        //     throw Error('failed loading ailments');
+        // }
     }
 }
 

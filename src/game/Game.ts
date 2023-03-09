@@ -52,9 +52,9 @@ export class Game {
 
         //Initialize
         try {
+            Statistics.init();
             Enemy.init();
             Player.init();
-            Statistics.init();
             this.initComponents();
         } catch (e) {
             this.reset();
@@ -67,8 +67,14 @@ export class Game {
 
         await this.save();
 
+        //Per second loop
         this.gameLoop.subscribe(() => {
-            Statistics.statistics["Time Played"].add(1);
+            Statistics.gameStats["Time Played"].add(1);
+            const amount = Statistics.gameStats['Gold Generation'].get();
+            Statistics.gameStats.Gold.add(amount);
+            Statistics.gameStats["Gold Generated"].add(amount);
+
+            Statistics.updateSideList();
         }, { intervalMilliseconds: 1000 });
 
         this.gameLoop.subscribe(() => {
@@ -78,7 +84,7 @@ export class Game {
         {
             const endPrompt = config.options?.endPrompt;
             if (endPrompt) {
-                Statistics.statistics.Level.addListener('change', level => {
+                Statistics.gameStats.Level.addListener('change', level => {
                     if (level >= Enemy.maxIndex + 1) {
                         customAlert({
                             title: endPrompt.title,
@@ -125,7 +131,7 @@ export class Game {
             if (!data) {
                 continue;
             }
-            Statistics.statistics.Level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
+            Statistics.gameStats.Level.registerCallback('levelReq' in data ? data.levelReq : 1, () => {
                 const component = loadComponent(key as ComponentName);
                 this.componentsList.push(component);
             });
@@ -145,6 +151,7 @@ export class Game {
         console.log('Press Space to toggle GameLoop');
         document.body.addEventListener('keydown', x => {
             if (x.code === 'Space') {
+                x.preventDefault();
                 if (this.gameLoop.running) {
                     document.title = `Tinkerers Subject (Stopped)`;
                     this.gameLoop.stop();
