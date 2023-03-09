@@ -1,4 +1,4 @@
-import { highlightHTMLElement, invLerp } from "@src/utils/helpers";
+import { highlightHTMLElement, invLerp, querySelector } from "@src/utils/helpers";
 import { calcAttack } from "../calc/calcDamage";
 import Enemy from "../Enemy";
 import Game, { Save } from "../Game";
@@ -366,31 +366,33 @@ class View {
             }
         }
 
-        this.unlockButton.classList.add('hidden');
-        this.unlockButton.classList.toggle('hidden', rank.unlocked);
-        if (!rank.unlocked) {
-            this.unlockButton.disabled = Statistics.statistics.Gold.get() < (rank.config.goldCost || 0);
+        this.addButton.disabled = !this.validateAddButton(minion, rank);
+        this.addButton.classList.toggle('hidden', !rank.unlocked);
+        if(this.minions.activeSlot?.minion?.rank === rank){
+            this.addButton.classList.add('hidden');
         }
 
-        if (!this.minions.activeSlot) {
-            this.unlockButton.classList.toggle('hidden', rank.unlocked);
-            this.removeButton.classList.add('hidden');
-            this.addButton.classList.remove('hidden');
-            this.addButton.disabled = true;
-        } else {
-            if (!rank.unlocked) {
-                this.unlockButton.classList.remove('hidden');
-                this.removeButton.classList.add('hidden');
-                this.addButton.classList.remove('hidden');
-                this.addButton.disabled = this.minions.slots.some(x => x.minion === minion);
-            } else {
-                this.unlockButton.classList.add('hidden');
-                this.removeButton.classList.add('hidden');
-                this.addButton.classList.remove('hidden');
-                this.addButton.disabled = this.minions.activeSlot.minion?.rank === rank || this.minions.slots.filter(x => x !== this.minions.activeSlot).some(x => x.minion === minion);
-            }
-        }
+        this.unlockButton.classList.toggle('hidden', rank.unlocked);
+        this.unlockButton.disabled = Statistics.statistics.Gold.get() < (rank.config.goldCost || 0);
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
+
+        this.removeButton.classList.toggle('hidden', this.minions.activeSlot?.minion?.rank !== rank);
+    }
+
+    private validateAddButton(minion: Minion, rank: Minion['rank']){
+        if(!rank.unlocked){
+            return false;
+        }
+        if(!this.minions.activeSlot){
+            return false;
+        }
+        if(this.minions.activeSlot.minion?.rank === rank){
+            return false;
+        }
+        if(this.minions.slots.filter(x => x.minion !== minion).some(x => x.minion === minion)){
+            return false;
+        }
+        return true;
     }
 }
 
