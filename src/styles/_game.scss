@@ -133,9 +133,6 @@
                     padding-bottom: $padding-container;
                     text-align: center;
                     justify-content: space-between;
-                    .title {
-                        align-self: center;
-                    }
                     [data-type] {
                         background-color: $color-global-button-accent-bg;
                         padding-left: 0.7em;

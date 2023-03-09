@@ -36,7 +36,6 @@ export default class Skills extends Component {
             this.attackSkillSlot.element.addEventListener('click', () => {
                 this.activeSkillSlot = this.attackSkillSlot;
                 this.selectSkillListItem(this.attackSkillSlot.skill, attackSkillListContainer);
-                this.selectSkillListItemByName(this.attackSkillSlot.skill.firstRank!.config.name, attackSkillListContainer);
             });
 
             for (const skill of config.attackSkills.skillList) {

@@ -1,6 +1,6 @@
 import Statistics from "@src/game/Statistics";
 import type Skills from "./Skills";
-import { AttackSkill, BuffSkill, Skill} from "./Skills";
+import { AttackSkill, BuffSkill, Skill } from "./Skills";
 import { BuffSkillSlot, Triggerable } from "./skillSlots";
 
 export default class SkillViewer {
@@ -60,10 +60,9 @@ export default class SkillViewer {
 
         this.unlockButton.addEventListener('click', () => {
             const rank = this.skills.activeSkill?.ranks[this.rankIndex!];
-            if(rank){
+            if (rank) {
                 Statistics.statistics.Gold.subtract(rank.config.goldCost || 0);
                 rank.unlocked = true;
-                this.skills.activeSkill.setRankByIndex(this.rankIndex);
                 this.createView(this.skills.activeSkill, this.rankIndex);
             }
         });
@@ -120,33 +119,49 @@ export default class SkillViewer {
         }
 
         const activeSkillSlot = this.skills.activeSkillSlot;
+
         this.enableButton.disabled = !this.validateEnableButton(skill, rank);
+        this.enableButton.classList.toggle('hidden', !rank.unlocked);
+        if (rank.unlocked && activeSkillSlot instanceof BuffSkillSlot) {
+            if (activeSkillSlot.skill?.rank === rank) {
+                this.enableButton.classList.add('hidden');
+            }
+        }
+
+
         this.unlockButton.classList.toggle('hidden', rank.unlocked);
         this.unlockButton.disabled = Statistics.statistics.Gold.get() < (rank.config.goldCost || 0);
+        this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
+
 
         this.removeButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
-        this.triggerButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
-        this.automateButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
+        this.removeButton.disabled = !activeSkillSlot.canRemove;
+        
 
-        this.removeButton.disabled = activeSkillSlot.canRemove;
-        this.triggerButton.disabled = activeSkillSlot.canTrigger;
-        this.automateButton.disabled = activeSkillSlot.canAutomate;
+        this.triggerButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
+        this.triggerButton.disabled = !activeSkillSlot.canTrigger;
+        
+
+        this.automateButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
+        this.automateButton.disabled = !activeSkillSlot.canAutomate;
+        if (this.skills.activeSkillSlot instanceof BuffSkillSlot) {
+            this.automateButton.setAttribute('data-role', this.skills.activeSkillSlot.automate ? 'confirm' : 'cancel');
+        }
     }
 
-    private validateEnableButton(skill: Skill, rank: Skill['ranks'][number]) {
-        if (!rank.unlocked || rank === skill.rank) {
+    private validateEnableButton(skill: Skill, rank: Skill['rank']) {
+        if (!rank.unlocked) {
             return false;
         }
-
-        if (skill instanceof AttackSkill) {
-            if (this.skills.attackSkillSlot.skill === skill) {
-                return false;
-            }
-        } else if (skill instanceof BuffSkill) {
-            if (this.skills.buffSkillSlots.some(x => x.skill === skill)) {
+        if (this.skills.activeSkillSlot.skill?.rank === rank) {
+            return false;
+        }
+        if (skill instanceof BuffSkill) {
+            if (this.skills.buffSkillSlots.filter(x => x !== this.skills.activeSkillSlot).some(x => x.skill === skill)) {
                 return false;
             }
         }
+
         return this.skills.activeSkillSlot.canEnable;
     }
 }
