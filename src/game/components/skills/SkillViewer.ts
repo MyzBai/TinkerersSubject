@@ -14,6 +14,7 @@ export default class SkillViewer {
     private readonly automateButton: HTMLButtonElement;
     private readonly removeButton: HTMLButtonElement;
     private readonly unlockButton: HTMLButtonElement;
+    private readonly cancelButton: HTMLButtonElement;
 
     constructor(private readonly skills: Skills) {
         this.container = skills.page.querySelectorForce('[data-skill-info]');
@@ -25,6 +26,7 @@ export default class SkillViewer {
         this.automateButton = this.container.querySelectorForce('[data-automate]');
         this.removeButton = this.container.querySelectorForce('[data-remove]');
         this.unlockButton = this.container.querySelectorForce('[data-unlock]');
+        this.cancelButton = this.container.querySelectorForce('[data-cancel]');
 
         this.decrementRankButton.addEventListener('click', () => {
             this.createView(skills.activeSkill!, this.rankIndex - 1);
@@ -63,6 +65,12 @@ export default class SkillViewer {
             if (rank) {
                 Statistics.statistics.Gold.subtract(rank.config.goldCost || 0);
                 rank.unlocked = true;
+                this.createView(this.skills.activeSkill, this.rankIndex);
+            }
+        });
+        this.cancelButton.addEventListener('click', () => {
+            if (this.skills.activeSkillSlot instanceof BuffSkillSlot) {
+                this.skills.activeSkillSlot.cancel();
                 this.createView(this.skills.activeSkill, this.rankIndex);
             }
         });
@@ -136,16 +144,23 @@ export default class SkillViewer {
 
         this.removeButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
         this.removeButton.disabled = !activeSkillSlot.canRemove;
-        
 
-        this.triggerButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
-        this.triggerButton.disabled = !activeSkillSlot.canTrigger;
-        
 
-        this.automateButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
-        this.automateButton.disabled = !activeSkillSlot.canAutomate;
-        if (this.skills.activeSkillSlot instanceof BuffSkillSlot) {
-            this.automateButton.setAttribute('data-role', this.skills.activeSkillSlot.automate ? 'confirm' : 'cancel');
+        this.triggerButton.classList.add('hidden');
+        this.cancelButton.classList.add('hidden');
+        this.automateButton.classList.add('hidden');
+
+        if(activeSkillSlot instanceof BuffSkillSlot && activeSkillSlot.skill?.rank === rank){
+
+            this.triggerButton.classList.toggle('hidden', activeSkillSlot.running);
+            this.cancelButton.classList.toggle('hidden', !activeSkillSlot.running);
+            this.cancelButton.disabled = activeSkillSlot.automate;
+            this.automateButton.classList.toggle('hidden', !activeSkillSlot.running);
+            
+            this.automateButton.classList.remove('hidden');
+            this.automateButton.disabled = !activeSkillSlot.canAutomate;
+            this.automateButton.textContent = `Auto ${activeSkillSlot.automate ? 'On' : 'Off'}`;
+            this.automateButton.setAttribute('data-role', activeSkillSlot.automate ? 'confirm' : 'cancel');
         }
     }
 

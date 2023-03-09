@@ -102,6 +102,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     private _time = 0;
     private _duration = 0;
     private _running = false;
+    private _cancelled = false;
 
     constructor(skills: Skills) {
         this.element = this.createElement();
@@ -179,12 +180,12 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     }
 
     //Start
-    tryTriggerLoop() {
+    private tryTriggerLoop() {
         if (!this.skill) {
             return;
         }
         const loopEval = () => {
-
+            if(this._cancelled)
             if (!this._automate) {
                 Statistics.statistics["Current Mana"].removeListener('change', loopEval);
                 return;
@@ -198,7 +199,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         loopEval();
     }
     //Loop
-    loop() {
+    private loop() {
         if (!this.skill) {
             return;
         }
@@ -210,6 +211,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         calcDuration(Statistics.statistics["Skill Duration Multiplier"].get());
         this._time = this._time > 0 ? this._time : this._duration;
         this._running = true;
+        this._cancelled = false;
         Statistics.statistics["Skill Duration Multiplier"].addListener('change', calcDuration);
         this.applyModifiers();
         const loopId = Game.gameLoop.subscribe((dt) => {
@@ -229,12 +231,12 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     }
 
     //End
-    stop() {
+    private stop() {
         if (!this._skill) {
             throw Error();
         }
 
-        Player.modDB.removeBySource(this._skill.sourceName);
+        this.removeModifiers();
         this.progressBar.value = 0;
 
         this._running = false;
@@ -243,12 +245,17 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         }
     }
 
-    removeModifiers() {
+    cancel() {
+        this._cancelled = true;
+        this.stop();
+    }
+
+    private removeModifiers() {
         if (this._skill) {
             Player.modDB.removeBySource(this._skill.sourceName);
         }
     }
-    applyModifiers() {
+    private applyModifiers() {
         if (this._skill) {
             Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
         }
