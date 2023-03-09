@@ -125,8 +125,7 @@ export default class Minions extends Component {
                 return a;
             }, []),
             minionList: this.minions.reduce<MinionRankSave[]>((a, c) => {
-                const ranks = [...c.ranks].slice(1);
-                for (const rank of ranks) {
+                for (const rank of c.ranks) {
                     if (!rank.unlocked) {
                         break;
                     }
@@ -167,9 +166,7 @@ class Slot {
 
         Game.gameLoop.unsubscribe(this.attackId);
         this.modDB.clear();
-        console.log('clear');
         if (minion) {
-            console.log('add');
             this.applyModifiers();
             this.startAutoAttack();
         }
@@ -250,7 +247,7 @@ class Minion {
             this.ranks.push({
                 config,
                 mods: config.mods.map(x => new Modifier(x)),
-                unlocked: !!Game.saveObj?.minions?.minionList?.find(x => x?.name === config.name) || (config.goldCost || 0) === 0
+                unlocked: !!Game.saveObj?.minions?.minionList?.find(x => x?.name === config.name) || config.goldCost === 0
             });
         }
     }
@@ -274,15 +271,15 @@ class Minion {
 }
 
 class View {
-    readonly container: HTMLElement;
     private activeMinion?: Minion;
     private rankIndex = 0;
-
+    
+    readonly container: HTMLElement;
+    private readonly decrementRankButton: HTMLButtonElement;
+    private readonly incrementRankButton: HTMLButtonElement;
     private readonly addButton: HTMLButtonElement;
     private readonly removeButton: HTMLButtonElement;
     private readonly unlockButton: HTMLButtonElement;
-    private readonly decrementRankButton: HTMLButtonElement;
-    private readonly incrementRankButton: HTMLButtonElement;
     constructor(private readonly minions: Minions) {
         this.container = this.minions.page.querySelectorForce('[data-view]');
         this.decrementRankButton = this.container.querySelectorForce('[data-decrement]');
@@ -294,10 +291,10 @@ class View {
 
 
         this.decrementRankButton.addEventListener('click', () => {
-            this.show(this.activeMinion!, this.rankIndex! - 1);
+            this.show(this.activeMinion!, this.rankIndex - 1);
         });
         this.incrementRankButton.addEventListener('click', () => {
-            this.show(this.activeMinion!, this.rankIndex! + 1);
+            this.show(this.activeMinion!, this.rankIndex + 1);
         });
 
         this.addButton.addEventListener('click', () => {
