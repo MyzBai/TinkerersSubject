@@ -1,16 +1,17 @@
 import { clamp, querySelector } from "@src/utils/helpers";
-// import { AilmentData, Ailments, AilmentSave } from "./Ailments";
+import Ailments, { AilmentData } from "./AilmentsNew";
+import type Entity from "./Entity";
 import Game, { Save } from "./Game";
 import Statistics from "./Statistics";
 
 class Enemy {
-    // private readonly ailments: Ailments;
+    private readonly ailments: Ailments;
     private _index: number;
     private healthList: number[] = [];
     private _health = 0;
     private readonly healthBar: HTMLProgressElement;
     constructor() {
-        // this.ailments = new Ailments();
+        this.ailments = new Ailments();
         this._index = 0;
         this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]');
     }
@@ -43,6 +44,8 @@ class Enemy {
 
         this.healthList = Game.config!.enemies.enemyList;
         this._index = Game.saveObj?.enemy?.index || 0;
+
+        this.ailments.init();
     }
 
     setup() {
@@ -81,22 +84,15 @@ class Enemy {
         this.dealDamage(damage);
     }
 
-    // applyAilments(instances: AilmentData[]) {
-    //     for (const instance of instances) {
-    //         this.ailments.add(instance);
-    //     }
-    // }
+    applyAilments(source: Entity, ...instances: AilmentData[]) {
+        this.ailments.addAilments(source, ...instances);
+    }
 
     save(saveObj: Save) {
         saveObj.enemy = {
             index: this.index,
             health: this.health,
             dummyDamage: 0,
-            /*ailments: this.ailments.handlers.reduce<AilmentSave[]>((a, c) => {
-                a?.push({ type: c.type, instances: c.instances.map(x => ({ time: x.time, damageFac: x.damageFac })) });
-                return a;
-            }, [])*/
-
         };
     }
 
