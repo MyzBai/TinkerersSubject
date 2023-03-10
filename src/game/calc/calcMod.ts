@@ -4,7 +4,7 @@ import type Entity from "../Entity";
 import { StatModifier, StatModifierFlag, StatName, StatModifierValueType, KeywordModifierFlag } from "../mods";
 import Player from "../Player";
 import Statistics from "../Statistics";
-import { calcAilmentBaseDamage, calcBaseDamage, ConversionTable } from "./calcDamage";
+import { calcAilmentBaseDamage, calcBaseAttackDamage, ConversionTable } from "./calcDamage";
 
 export type CalcMinMax = (min: number, max: number) => number;
 
@@ -46,7 +46,7 @@ export function calculateEntityStats(entity: Entity, keyword?: KeywordModifierFl
     let attackDps = 0;
     {
         config.flags = StatModifierFlag.Attack;
-        const baseDamageResult = calcBaseDamage(config, avg);
+        const baseDamageResult = calcBaseAttackDamage(config, avg);
         const critDamageMultiplier = 1 + (clampedCritChance * critMulti);
         attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier;
 

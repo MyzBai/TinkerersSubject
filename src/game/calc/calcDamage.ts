@@ -61,7 +61,7 @@ export function calcAttack(source: Entity) {
         return false;
     }
 
-    const baseDamage = calcBaseDamage(config, randomRange);
+    const baseDamage = calcBaseAttackDamage(config, randomRange);
 
 
     const critChance = Math.min(calcModTotal('CritChance', config), 100) / 100;
@@ -110,7 +110,7 @@ export function calcAttack(source: Entity) {
     };
 }
 
-export function calcBaseDamage(config: Configuration, calcMinMax: CalcMinMax) {
+export function calcBaseAttackDamage(config: Configuration, calcMinMax: CalcMinMax) {
 
     const conversionTable = generateConversionTable(config);
     const output = {
