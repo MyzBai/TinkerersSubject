@@ -13,6 +13,7 @@ interface Window {
 interface TS {
     deleteAllSaves: () => void
     game: import("@src/game/Game").Game;
+    player: import('@src/game/Player').Player;
     statistics: import("@src/game/Statistics").Statistics;
 }
 
