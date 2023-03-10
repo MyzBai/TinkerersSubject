@@ -1,4 +1,4 @@
-import { Modifier } from "./mods";
+import { Modifier, StatModifier } from "./mods";
 import { querySelector } from "@src/utils/helpers";
 import Game, { Save } from './Game';
 import Statistics, { PlayerStatistics, StatisticSave } from './Statistics';
@@ -24,6 +24,7 @@ export class Player extends PlayerEntity {
                 this.modDB.add('Player', ...new Modifier(x).stats);
             });
         }
+        this.modDB.add([new StatModifier({ name: 'BleedChance', value: 20, valueType: 'Base' })], 'test');
 
         Game.gameLoop.subscribeAnim(() => {
             this.updateManaBar();
