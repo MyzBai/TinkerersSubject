@@ -1,9 +1,10 @@
 import EventEmitter from "@src/utils/EventEmitter";
+import type { AilmentData } from "./AilmentsNew";
 import { calcAttack } from "./calc/calcDamage";
 import { calcMinionStats, calcPlayerStats } from "./calc/calcMod";
 import Enemy from "./Enemy";
 import Game from "./Game";
-import { ModDB } from "./mods";
+import { ModDB, StatModifier } from "./mods";
 import { EntityStatistics, MinionStatistics, PlayerStatistics } from "./Statistics";
 
 export default abstract class Entity {
@@ -13,8 +14,8 @@ export default abstract class Entity {
     protected updateId = -1;
     protected _attackTime = 0;
     protected _attackWaitTime = Number.POSITIVE_INFINITY;
+    protected ailments: AilmentData[] = [];
     constructor(readonly name: string) {
-
         this.modDB.onChange.listen(async () => {
             return new Promise((resolve) => {
                 clearTimeout(this.updateId);
@@ -77,6 +78,20 @@ export default abstract class Entity {
             this.stats["Critical Hits"].add(1);
         }
         Enemy.dealDamage(result.totalDamage);
+
+        if (result.ailments.length > 0) {
+            for (const ailment of result.ailments) {
+                ailment.detachCallback = () => {
+                    const index = this.ailments.indexOf(ailment);
+                    if (index !== -1) {
+                        this.ailments.splice(index, 1);
+                    }
+                }
+            }
+            this.ailments.push(...result.ailments);
+            Enemy.applyAilments(this, ...result.ailments);
+            this.modDB.add([new StatModifier({name: 'AilmentStack', value: 5, valueType: 'Base'})], 'test');
+        }
     }
 }
 
