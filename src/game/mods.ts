@@ -90,9 +90,7 @@ export enum StatModifierFlag {
     Skill = 1 << 4,
     Bleed = 1 << 5,
     Burn = 1 << 6,
-    Ailment = StatModifierFlag.Bleed | StatModifierFlag.Burn,
-    Damage = 1 << 7,
-    Minion = 1 << 8
+    Damage = 1 << 7
 }
 
 export enum KeywordModifierFlag {

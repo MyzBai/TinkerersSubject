@@ -2,7 +2,6 @@ import { KeywordModifierFlag, StatModifierFlag, StatName } from "@game/mods";
 import { CalcMinMax, calcModBase, calcModIncMore, calcModTotal, Configuration } from "./calcMod";
 import { randomRange } from '@utils/helpers';
 import type Entity from "../Entity";
-import { MinionEntity } from "../Entity";
 import type { AilmentData, AilmentType } from "../AilmentsNew";
 
 type ConversionValues = Partial<Record<keyof typeof DamageTypeFlags | 'multi', number>>;
@@ -45,13 +44,9 @@ export function calcAttack(source: Entity) {
     const config: Configuration = {
         statModList: [...source.modDB.modList],
         source,
-        flags: StatModifierFlag.Attack | StatModifierFlag.Minion,
+        flags: StatModifierFlag.Attack,
         keywords: KeywordModifierFlag.Global
     };
-
-    if (source instanceof MinionEntity) {
-        config.keywords |= KeywordModifierFlag.Minion;
-    }
 
     //Hit
     const hitChance = calcModTotal('HitChance', config) / 100;
@@ -62,7 +57,6 @@ export function calcAttack(source: Entity) {
     }
 
     const baseDamage = calcBaseAttackDamage(config, randomRange);
-
 
     const critChance = Math.min(calcModTotal('CritChance', config), 100) / 100;
     const critFac = randomRange(0, 1);
@@ -157,7 +151,7 @@ export function calcAilmentDamage(source: Entity, type: AilmentType) {
         keywords: KeywordModifierFlag.Global
     };
     if (type === 'Bleed') {
-        config.flags |= StatModifierFlag.Bleed | StatModifierFlag.Physical;
+        config.flags = StatModifierFlag.Bleed | StatModifierFlag.Physical;
         const { min, max } = calcAilmentBaseDamage('Physical', config);
         return { min, max };
     }

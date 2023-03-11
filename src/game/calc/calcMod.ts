@@ -15,17 +15,8 @@ export interface Configuration {
     keywords: KeywordModifierFlag;
 }
 
-export function calculateEntityStats(entity: Entity, keyword?: KeywordModifierFlag) {
-    const statistics = entity.stats;
-
-    const config: Configuration = {
-        statModList: entity.modDB.modList,
-        flags: StatModifierFlag.Attack,
-        keywords: KeywordModifierFlag.Global | (keyword || 0),
-        source: entity
-    };
-
-
+export function calculateEntityStats(config: Configuration & { source: Entity }) {
+    const statistics = config.source.stats;
     //Hit Chance
     const hitChance = calcModTotal('HitChance', config) / 100;
     statistics['Hit Chance'].set(hitChance);
@@ -119,9 +110,12 @@ export function calcPlayerStats(player: PlayerEntity) {
     const attackManaCost = calcModTotal('AttackManaCost', config);
     statistics['Attack Mana Cost'].set(attackManaCost);
 
-    calculateEntityStats(player);
+    calculateEntityStats(config);
 
-    const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlag.Skill }));
+    config.flags |= StatModifierFlag.Skill;
+    const skillDurationMultiplier = calcModIncMore('Duration', 1, config);
+    config.flags &= ~StatModifierFlag.Skill;
+
     statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
 
     const maxMinions = calcModBase('MinionCount', config);
@@ -129,8 +123,13 @@ export function calcPlayerStats(player: PlayerEntity) {
 }
 
 export function calcMinionStats(minion: MinionEntity) {
-
-    calculateEntityStats(minion, KeywordModifierFlag.Minion);
+    const config = {
+        statModList: Player.modDB.modList,
+        flags: 0,
+        source: minion,
+        keywords: KeywordModifierFlag.Global | KeywordModifierFlag.Minion
+    } satisfies Configuration;
+    calculateEntityStats(config);
 }
 
 
