@@ -3,7 +3,7 @@ import { MinionEntity } from "../Entity";
 import Game, { Save } from "../Game";
 import { KeywordModifierFlag, Modifier, StatModifier } from "../mods";
 import Player from "../Player";
-import Statistics from "../Statistics";
+import Statistics, { EntityStatistics, MinionStatistics, StatisticSave } from "../Statistics";
 import Component from "./Component";
 
 
@@ -160,15 +160,13 @@ export default class Minions extends Component {
                 a.push(minion);
                 return a;
             }, []),
-            minionList: this.minions.reduce<MinionRankSave[]>((a, c) => {
-                for (const rank of c.ranks) {
-                    if (!rank.unlocked) {
-                        break;
-                    }
-                    a.push({ name: rank.config.name });
-                }
+            minionList: this.minions.reduce((a, c) => {
+                const stats = Statistics.createStatsSaveObj(c.stats);
+                const name = c.name;
+                const ranks = c.ranks.filter(x => x.unlocked).map(x => x.config.name);
+                a.push({ name, ranks, stats })
                 return a;
-            }, [])
+            }, [] as MinionSave[])
         };
     }
 }
@@ -226,13 +224,15 @@ class Minion extends MinionEntity {
     constructor(configs: MinionConfig | MinionConfig[]) {
         configs = Array.isArray(configs) ? configs : [configs];
         super(configs[0]!.name);
+        const savedMinion = Game.saveObj?.minions?.minionList?.find(x => x?.name === this.name);
         for (const config of configs) {
             this.ranks.push({
                 config,
                 mods: config.mods.map(x => new Modifier(x)),
-                unlocked: !!Game.saveObj?.minions?.minionList?.find(x => x?.name === config.name) || config.goldCost === 0
+                unlocked: !!savedMinion?.ranks?.find(x => x === config.name) || config.goldCost === 0
             });
         }
+        this.loadStats(savedMinion?.stats as Record<keyof MinionStatistics['stats'], StatisticSave>);
     }
     get rankIndex() {
         return this.ranks.indexOf(this.rank);
@@ -435,7 +435,7 @@ interface MinionConfig {
 //save
 export interface MinionsSave {
     minionSlots: MinionSlotSave[];
-    minionList: MinionRankSave[];
+    minionList: MinionSave[];
 }
 
 interface MinionSlotSave {
@@ -443,6 +443,8 @@ interface MinionSlotSave {
     rankIndex?: number;
 }
 
-interface MinionRankSave {
+interface MinionSave {
     name: string;
+    stats: Record<keyof MinionStatistics['stats'], StatisticSave>;
+    ranks: string[];
 }
