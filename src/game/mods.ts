@@ -89,8 +89,7 @@ export enum StatModifierFlag {
     Chaos = 1 << 3,
     Skill = 1 << 4,
     Bleed = 1 << 5,
-    Burn = 1 << 6,
-    Damage = 1 << 7
+    Burn = 1 << 6
 }
 
 export enum KeywordModifierFlag {
@@ -131,8 +130,8 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     { desc: '#% More Attack Speed', tags: ['Attack', 'Speed'], stats: [{ name: 'AttackSpeed', valueType: 'More' }] },
     { desc: '+#% Hit Chance', tags: ['Attack'], stats: [{ name: 'HitChance', valueType: 'Base' }] },
     { desc: '+# Maximum Minions', tags: ['Minion', 'Global'], stats: [{ name: 'MinionCount', valueType: 'Base', keywords: KeywordModifierFlag.Global }] },
-    { desc: '#% Increased Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlag.Damage, keywords: KeywordModifierFlag.Minion }] },
-    { desc: '#% More Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlag.Damage, keywords: KeywordModifierFlag.Minion }] },
+    { desc: '#% Increased Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'Inc', keywords: KeywordModifierFlag.Minion }] },
+    { desc: '#% More Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'More', keywords: KeywordModifierFlag.Minion }] },
 ];
 
 export class Modifier {
