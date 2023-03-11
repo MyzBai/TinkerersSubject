@@ -124,7 +124,7 @@ export function calcPlayerStats(player: PlayerEntity) {
 
 export function calcMinionStats(minion: MinionEntity) {
     const config = {
-        statModList: Player.modDB.modList,
+        statModList: minion.modDB.modList,
         flags: 0,
         source: minion,
         keywords: KeywordModifierFlag.Global | KeywordModifierFlag.Minion
