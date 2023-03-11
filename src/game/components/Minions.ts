@@ -3,7 +3,7 @@ import { MinionEntity } from "../Entity";
 import Game, { Save } from "../Game";
 import { KeywordModifierFlag, Modifier, StatModifier } from "../mods";
 import Player from "../Player";
-import Statistics, { EntityStatistics, MinionStatistics, StatisticSave } from "../Statistics";
+import Statistics, { MinionStatistics, StatisticSave } from "../Statistics";
 import Component from "./Component";
 
 

@@ -234,7 +234,7 @@ export class StatModifier {
     source?: string;
     readonly flags: StatModifierFlag;
     readonly keywords: KeywordModifierFlag;
-    constructor(private readonly data: StatModifierParams) {
+    constructor(data: StatModifierParams) {
         this.name = data.name;
         this.valueType = data.valueType;
         this.value = data.value;
