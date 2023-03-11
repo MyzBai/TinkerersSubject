@@ -173,7 +173,7 @@ export default class Ailments {
         //bleed
         {
             const bleedInstances = instances.filter(isBleedInstance);
-            if(bleedInstances){
+            if (bleedInstances) {
                 const { min, max } = calcAilmentDamage(source, 'Bleed');
                 const avgDamage = (min + max) / 2;
                 bleedInstances.forEach(x => x.damage = avgDamage * x.damageFac);
@@ -188,7 +188,11 @@ export default class Ailments {
                 const instance = instances[i]!;
                 if ('damage' in instance) {
                     if (instance.damage) {
-                        this.dealDamage(source, instance.damage * dt, instance.type);
+                        const damage = instance.damage * dt;
+                        this.dealDamage(source, damage, instance.type);
+                        instance.source.stats["Total Physical Damage"].add(damage);
+                        instance.source.stats["Total Bleed Damage"].add(damage);
+                        instance.source.stats["Total Damage"].add(damage);
                     }
                 }
 
