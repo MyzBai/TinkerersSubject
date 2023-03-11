@@ -4,7 +4,6 @@ import type { AttackSkill, BuffSkill, Skill } from "./Skills";
 import type Skills from "./Skills";
 import Game from '@src/game/Game';
 import Player from '@src/game/Player';
-import Statistics from "@src/game/Statistics";
 
 export interface SkillSlot {
     readonly element: HTMLElement;
@@ -72,11 +71,11 @@ export class AttackSkillSlot implements SkillSlot {
         Player.modDB.removeBySource(this._skill?.sourceName);
     }
     applyModifiers() {
-        Player.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this._skill.rank.config.baseDamageMultiplier })], this._skill.sourceName);
-        Player.modDB.add([new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this._skill.rank.config.attackSpeed })], this._skill.sourceName);
-        Player.modDB.add([new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this._skill.rank.config.manaCost || 0 })], this._skill.sourceName);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this._skill.rank.config.baseDamageMultiplier })]);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this._skill.rank.config.attackSpeed })]);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this._skill.rank.config.manaCost || 0 })]);
 
-        Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
+        Player.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap(x => x.copy().stats));
     }
 
     updateProgressBar() {
@@ -141,7 +140,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         return !!this._skill;
     }
     get sufficientMana() {
-        return Statistics.statistics["Current Mana"].get() > (this.skill?.rank.config.manaCost || 0);
+        return Player.stats["Current Mana"].get() > (this.skill?.rank.config.manaCost || 0);
     }
     get automate() {
         return this._automate;
@@ -167,7 +166,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         if (!this._skill || !this.canTrigger) {
             return;
         }
-        Statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
+        Player.stats["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
         this.loop();
         return true;
     }
@@ -185,17 +184,17 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             return;
         }
         const loopEval = () => {
-            if(this._cancelled)
-            if (!this._automate) {
-                Statistics.statistics["Current Mana"].removeListener('change', loopEval);
-                return;
-            }
+            if (this._cancelled)
+                if (!this._automate) {
+                    Player.stats["Current Mana"].removeListener('change', loopEval);
+                    return;
+                }
             if (this.canTrigger) {
-                Statistics.statistics["Current Mana"].removeListener('change', loopEval);
+                Player.stats["Current Mana"].removeListener('change', loopEval);
                 this.trigger();
             }
         };
-        Statistics.statistics["Current Mana"].addListener('change', loopEval);
+        Player.stats["Current Mana"].addListener('change', loopEval);
         loopEval();
     }
     //Loop
@@ -208,11 +207,11 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             this._duration = baseDuration * multiplier;
         };
 
-        calcDuration(Statistics.statistics["Skill Duration Multiplier"].get());
+        calcDuration(Player.stats["Skill Duration Multiplier"].get());
         this._time = this._time > 0 ? this._time : this._duration;
         this._running = true;
         this._cancelled = false;
-        Statistics.statistics["Skill Duration Multiplier"].addListener('change', calcDuration);
+        Player.stats["Skill Duration Multiplier"].addListener('change', calcDuration);
         this.applyModifiers();
         const loopId = Game.gameLoop.subscribe((dt) => {
             if (!this.skill) {
@@ -222,7 +221,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             if (this._time <= 0) {
                 this._time = 0;
                 Game.gameLoop.unsubscribe(loopId);
-                Statistics.statistics["Skill Duration Multiplier"].removeListener('change', calcDuration);
+                Player.stats["Skill Duration Multiplier"].removeListener('change', calcDuration);
                 this.stop();
                 return;
             }
@@ -257,7 +256,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     }
     private applyModifiers() {
         if (this._skill) {
-            Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
+            Player.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap(x => x.copy().stats));
         }
     }
 

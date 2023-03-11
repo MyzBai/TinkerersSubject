@@ -6,6 +6,7 @@
         "components": {
             "type": "object",
             "additionalProperties": false,
+            "required": ["skills"],
             "properties": {
                 "skills": {"$ref": "skills.schema.json#/definitions/skills"},
                 "passives": {"$ref": "passives.schema.json#/definitions/passives"},

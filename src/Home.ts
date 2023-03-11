@@ -5,6 +5,7 @@ import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
 import customAlert from "./utils/alert";
 import Statistics from "./game/Statistics";
+import Player from "./game/Player";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
@@ -29,6 +30,7 @@ export class Home {
                 }
             },
             game: Game,
+            player: Player,
             statistics: Statistics
         };
     }

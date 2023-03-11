@@ -49,14 +49,14 @@ export default class Items extends Component {
             }
         });
 
-        Statistics.statistics.Gold.addListener('change', () => {
+        Statistics.gameStats.Gold.addListener('change', () => {
             if (this.page.classList.contains('hidden')) {
                 return;
             }
             this.updateCraftButton();
         });
 
-        Statistics.statistics.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
+        Statistics.gameStats.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
         this.craftButton.addEventListener('click', () => this.performCraft());
     }
 
@@ -94,7 +94,7 @@ export default class Items extends Component {
 
     private createItems() {
         for (const itemData of this.data.itemList) {
-            Statistics.statistics.Level.registerCallback(itemData.levelReq, () => {
+            Statistics.gameStats.Level.registerCallback(itemData.levelReq, () => {
                 const item = new Item(this, itemData.name);
                 this.items.push(item);
                 this.itemListContainer.appendChild(item.element);
@@ -120,7 +120,7 @@ export default class Items extends Component {
                 this.updateCraftButton();
             });
 
-            Statistics.statistics.Level.registerCallback(levelReq, () => {
+            Statistics.gameStats.Level.registerCallback(levelReq, () => {
                 tr.setAttribute('data-enabled', '');
 
                 highlightHTMLElement(this.menuItem, 'click');
@@ -150,7 +150,7 @@ export default class Items extends Component {
     private generateCraftData(): CraftData {
         return {
             itemModList: this.activeItem.mods,
-            modList: this.modLists.filter(x => x.levelReq <= Statistics.statistics.Level.get())
+            modList: this.modLists.filter(x => x.levelReq <= Statistics.gameStats.Level.get())
         };
     }
 
@@ -161,7 +161,7 @@ export default class Items extends Component {
             }
             const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute('data-cost');
             const cost = Number(costAttr);
-            if (cost > Statistics.statistics.Gold.get()) {
+            if (cost > Statistics.gameStats.Gold.get()) {
                 return 'Not Enough Gold';
             }
             const template = craftTemplates[this.activeCraftId];
@@ -195,7 +195,7 @@ export default class Items extends Component {
             return;
         }
         this.activeItem.mods = template.getItemMods(craftData);
-        Statistics.statistics.Gold.subtract(cost);
+        Statistics.gameStats.Gold.subtract(cost);
 
         this.updateItemModList();
     }
@@ -222,7 +222,7 @@ class Item {
     set mods(v: ItemModifier[]) {
         Player.modDB.removeBySource(this.name);
         this._mods = v;
-        Player.modDB.add(this._mods.flatMap(x => x.copy().stats), this.name);
+        Player.modDB.add(this.name, ...this._mods.flatMap(x => x.copy().stats));
     }
     private createElement() {
         const li = document.createElement('li');

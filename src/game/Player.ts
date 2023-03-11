@@ -1,22 +1,27 @@
-import { ModDB, Modifier } from "./mods";
-import { calcAttack } from "./calc/calcDamage";
+import { Modifier } from "./mods";
 import { querySelector } from "@src/utils/helpers";
 import Game, { Save } from './Game';
-import Statistics from './Statistics';
-import Enemy from "./Enemy";
+import Statistics, { PlayerStatistics, StatisticSave } from './Statistics';
+import { PlayerEntity } from "./Entity";
+import { calcPlayerStats } from "./calc/calcMod";
 
 
-export class Player {
+export class Player extends PlayerEntity {
     private readonly manaBar = querySelector<HTMLProgressElement>('.p-game [data-mana-bar]');
-    readonly modDB = new ModDB();
-    private _attackTime = 0;
-    private _attackWaitTime = Number.POSITIVE_INFINITY;
+
+    constructor() {
+        super();
+
+    }
+
     init() {
         Game.onSave.listen(this.save.bind(this));
 
+        Statistics.updateStats(this.name, this.stats);
+
         if (Game.config!.player) {
             Game.config!.player.modList.forEach(x => {
-                this.modDB.add(new Modifier(x).stats, 'Player');
+                this.modDB.add('Player', ...new Modifier(x).stats);
             });
         }
 
@@ -24,26 +29,22 @@ export class Player {
             this.updateManaBar();
         });
 
-        Statistics.statistics['Current Mana'].addListener('change', curMana => {
-            const maxMana = Statistics.statistics['Maximum Mana'].get();
+        this.stats['Current Mana'].addListener('change', curMana => {
+            const maxMana = this.stats['Maximum Mana'].get();
             if (curMana > maxMana) {
-                Statistics.statistics['Current Mana'].set(maxMana);
+                this.stats['Current Mana'].set(maxMana);
             }
         });
 
-        Game.gameLoop.subscribe(() => {
-            const amount = Statistics.statistics['Gold Generation'].get();
-            Statistics.statistics.Gold.add(amount);
-            Statistics.statistics["Gold Generated"].add(amount);
-        }, { intervalMilliseconds: 1000 });
-
         Game.gameLoop.subscribe((dt) => {
-            const manaRegen = Statistics.statistics['Mana Regeneration'].get() * dt;
-            Statistics.statistics['Current Mana'].add(manaRegen);
-            Statistics.statistics["Mana Generated"].add(manaRegen);
+            const manaRegen = this.stats['Mana Regeneration'].get() * dt;
+            this.stats['Current Mana'].add(manaRegen);
+            this.stats["Mana Generated"].add(manaRegen);
         });
 
         this._attackTime = Game.saveObj?.player?.attackTime || 0;
+
+        calcPlayerStats(this);
     }
 
     get attackTime() { return this._attackTime; }
@@ -54,65 +55,24 @@ export class Player {
     }
 
     async setup() {
-        Statistics.statistics['Current Mana'].set(Game.saveObj?.player?.curMana || Statistics.statistics['Maximum Mana'].get());
+        this.updateStats();
+        this.stats['Current Mana'].set(Game.saveObj?.player?.curMana || this.stats['Maximum Mana'].get());
         this.updateManaBar();
-
-        this.startAutoAttack();
+        this.beginAutoAttack();
     }
 
     private updateManaBar() {
-        if (Statistics.statistics['Maximum Mana'].get() <= 0) {
+        if (this.stats['Maximum Mana'].get() <= 0) {
             return;
         }
-        const pct = Statistics.statistics['Current Mana'].get() / Statistics.statistics['Maximum Mana'].get();
+        const pct = this.stats['Current Mana'].get() / this.stats['Maximum Mana'].get();
         this.manaBar.value = pct;
-    }
-
-    private startAutoAttack() {
-
-        const calcWaitTime = () => 1 / Statistics.statistics['Attack Speed'].get();
-        Statistics.statistics['Attack Speed'].addListener('change', () => {
-            this._attackWaitTime = calcWaitTime();
-        });
-        this._attackWaitTime = calcWaitTime();
-        Game.gameLoop.subscribe(dt => {
-            this._attackTime += dt;
-            if (this._attackTime >= this._attackWaitTime) {
-                const curMana = Statistics.statistics['Current Mana'].get();
-                const manaCost = Statistics.statistics['Attack Mana Cost'].get();
-                if (curMana > manaCost) {
-                    Statistics.statistics['Current Mana'].subtract(manaCost);
-                    this.performAttack();
-                    this._attackTime = 0;
-                }
-            }
-        });
-    }
-
-    private performAttack() {
-        const result = calcAttack(this.modDB.modList);
-        if (!result) {
-            return;
-        }
-
-        Statistics.statistics.Hits.add(1);
-        Statistics.statistics["Total Damage"].add(result.totalDamage);
-        Statistics.statistics["Total Physical Damage"].add(result.totalPhysicalDamage);
-        Statistics.statistics["Total Elemental Damage"].add(result.totalElementalDamage);
-        if (result.crit) {
-            Statistics.statistics["Critical Hits"].add(1);
-        }
-        Enemy.dealDamage(result.totalDamage);
-
-        Enemy.applyAilments(result.ailments);
     }
 
     save(saveObj: Save) {
         saveObj.player = {
-            level: Statistics.statistics.Level.get(),
-            gold: Statistics.statistics.Gold.get(),
-            curMana: Statistics.statistics['Current Mana'].get(),
-            attackTime: this._attackTime
+            attackTime: this._attackTime,
+            stats: Statistics.createSaveObj(this.stats)
         };
     }
 }
@@ -126,4 +86,7 @@ export interface PlayerSave {
     gold?: number;
     curMana?: number;
     attackTime?: number;
+    stats: PlayerStatisticsSave;
 }
+
+export type PlayerStatisticsSave = Record<keyof PlayerStatistics['stats'], StatisticSave>;

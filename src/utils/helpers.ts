@@ -14,7 +14,8 @@ HTMLElement.prototype.querySelectorForce = function <E extends Element = Element
     return element;
 };
 
-
+export const hasFlags = (a: number, b: number) => (a & b) === b;
+export const hasAnyFlag = (a: number, ...b: number[]) => b.some(x => (a & x) === x);
 export const avg = (a: number, b: number) => (a + b) / 2;
 export const randomRange = (min: number, max: number) => Math.random() * (max - min) + min;
 export const randomRangeInt = (min: number, max: number) => Math.floor(randomRange(min, max));

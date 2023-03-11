@@ -61,7 +61,7 @@ class Achievement {
         if (this.data.modList) {
             const modifiers = this.data.modList.flatMap(x => new Modifier(x).stats);
             const source = `Achievement/${this.data.description}`;
-            Player.modDB.add(modifiers, source);
+            Player.modDB.add(source, ...modifiers);
         }
         highlightHTMLElement(this.achievements.menuItem, 'click');
         highlightHTMLElement(this.element, 'mouseover');

@@ -17,7 +17,7 @@ export default class Passives extends Component {
         {
             //init passive list
             for (const passiveListData of data.passiveLists) {
-                passiveListData.sort((a, b) => a.levelReq - b.levelReq);
+                passiveListData.sort((a, b) => a.points - b.points);
                 for (const passiveData of passiveListData) {
                     const passive = new Passive(this, passiveData, this.passives.length);
                     passive.element.addEventListener('click', () => {
@@ -25,7 +25,7 @@ export default class Passives extends Component {
                         this.updatePoints();
                         this.updatePassiveList();
                     });
-                    Statistics.statistics.Level.registerCallback(passiveData.levelReq, () => {
+                    Statistics.gameStats.Level.registerCallback(passiveData.levelReq, () => {
                         passive.element.classList.remove('hidden');
                         highlightHTMLElement(this.menuItem, 'click');
                         highlightHTMLElement(passive.element, 'mouseover');
@@ -36,7 +36,7 @@ export default class Passives extends Component {
             }
         }
 
-        Statistics.statistics.Level.addListener('change', () => {
+        Statistics.gameStats.Level.addListener('change', () => {
             this.updatePoints();
             this.updatePassiveList();
         });
@@ -48,7 +48,7 @@ export default class Passives extends Component {
     }
 
     get maxPoints() {
-        return this.data.pointsPerLevel * Statistics.statistics.Level.get() - 1;
+        return this.data.pointsPerLevel * Statistics.gameStats.Level.get() - 1;
     }
     get curPoints() {
         return this.maxPoints - this.passives.filter(x => x.assigned).reduce((a, c) => a += c.data.points, 0);
@@ -69,6 +69,7 @@ export default class Passives extends Component {
                 return a;
             }, [])
         };
+        console.log(saveObj.passives);
     }
 
     private updatePoints() {
@@ -97,15 +98,11 @@ class Passive {
         this.mod = new Modifier(data.mod);
 
         this.element = this.createElement();
-        highlightHTMLElement(this.element, 'mouseover');
-        Statistics.statistics.Level.registerCallback(data.levelReq, () => {
-            this.element.classList.remove('hidden');
-        });
 
         const savedList = Game.saveObj?.passives?.list;
         if (savedList) {
             const desc = savedList.find(x => x && x.index === index)?.desc;
-            if (desc === data.mod && passives.curPoints >= data.points) {
+            if (desc === this.mod.templateDesc && passives.curPoints >= data.points) {
                 this.assigned = true;
             }
         }
@@ -118,12 +115,10 @@ class Passive {
     set assigned(v: boolean) {
         const modDB = Player.modDB;
         const source = 'Passives'.concat('/', this.index.toFixed());
-        if (v) {
-            this._assigned = true;
-            const mods = this.mod.copy().stats;
-            modDB.add(mods, source);
+        this._assigned = v;
+        if (this._assigned) {
+            modDB.add(source, ...this.mod.stats);
         } else {
-            this._assigned = false;
             modDB.removeBySource(source);
         }
     }
