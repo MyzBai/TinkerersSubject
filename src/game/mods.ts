@@ -250,7 +250,7 @@ export class StatModifier {
     }
 
     copy() {
-        return new StatModifier(this.data);
+        return new StatModifier(this);
     }
 }
 

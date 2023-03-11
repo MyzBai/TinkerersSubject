@@ -63,7 +63,14 @@ export default class Items extends Component {
     save(saveObj: Save) {
         saveObj.items = {
             items: this.items.reduce<Required<Save>['items']['items']>((a, c) => {
-                a.push({ name: c.name, modList: c.mods.map(x => ({ text: x.templateDesc, values: x.stats.map(x => x.value) })) });
+                a.push({
+                    name: c.name,
+                    modList: c.mods.map(x => ({
+                        text: x.templateDesc,
+                        groupIndex: x.groupIndex,
+                        values: x.stats.map(x => x.value)
+                    }))
+                });
                 return a;
             }, []),
             craftPresets: [...this.presets.presets].slice(1).reduce<Required<Save>['items']['craftPresets']>((a, c) => {
@@ -221,8 +228,8 @@ class Item {
     }
     set mods(v: ItemModifier[]) {
         Player.modDB.removeBySource(this.name);
-        this._mods = v;
-        Player.modDB.add(this.name, ...this._mods.flatMap(x => x.copy().stats));
+        this._mods = v.map(x => x.copy());
+        Player.modDB.add(this.name, ...this._mods.flatMap(x => x.stats));
     }
     private createElement() {
         const li = document.createElement('li');
@@ -244,12 +251,12 @@ class Item {
             }
             const mods = savedItem.modList?.reduce<ItemModifier[]>((a, c) => {
                 if (c?.text && c.values) {
-                    const mod = this.items.modLists.find(x => x.templateDesc === c.text)?.copy();
+                    const mod = this.items.modLists.find(x => x.groupIndex === (c.groupIndex || 0) && x.templateDesc === c.text)?.copy();
                     if (!mod) {
                         return a;
                     }
+
                     if (c.values.length !== mod.stats.length || c.values.some(x => typeof x !== 'number')) {
-                        mod.stats.forEach(x => x.value = x.min);
                         a.push(mod);
                         return a;
                     }
@@ -331,6 +338,7 @@ interface ItemSave {
     name: string;
     modList: {
         values: number[];
+        groupIndex: number;
         text: string;
     }[];
 }
