@@ -123,7 +123,7 @@ export class Statistics {
 
         if (Game.saveObj?.statistics?.gameStatistics) {
             Object.entries(Game.saveObj?.statistics?.gameStatistics).forEach(([key, value]) => {
-                const stat = this.gameStats[key as keyof GameStatistics['stats']];
+                const stat = this.gameStats[key as keyof GameStatistics['stats']] as Statistic | undefined;;
                 if (stat) {
                     stat.set(value?.value || stat.defaultValue);
                     stat.sticky = value?.sticky || false;
@@ -141,7 +141,7 @@ export class Statistics {
             this.calcGlobalStats();
             this.updateStats('Global', this.gameStats);
         });
-        
+
         this.updateStats('Global', this.gameStats);
     }
 
@@ -167,6 +167,10 @@ export class Statistics {
 
         this.createPageListGroup(name);
         this.createSideListGroup(name);
+        if (Game.saveObj?.statistics) {
+            this.pageListContainer.querySelector(`[data-name="${name}"] .header`)?.toggleAttribute('data-open', Game.saveObj.statistics.pageHeaders?.[name])
+            this.sideListContainer.querySelector(`[data-name="${name}"] .header`)?.toggleAttribute('data-open', Game.saveObj.statistics.sideHeaders?.[name])
+        }
     }
 
     removeStats(name: string) {
@@ -340,11 +344,19 @@ export class Statistics {
 
     save(saveObj: Save) {
         saveObj.statistics = {
-            gameStatistics: this.createSaveObj(this.gameStats)
+            gameStatistics: this.createStatsSaveObj(this.gameStats),
+            pageHeaders: [...this.statistics.keys()].reduce((a, key) => {
+                a[key] = !!this.pageListContainer.querySelector(`[data-name="${key}"] .header[data-open]`);
+                return a;
+            }, {} as StatisticsSave['pageHeaders']),
+            sideHeaders: [...this.statistics.keys()].reduce((a, key) => {
+                a[key] = !!this.sideListContainer.querySelector(`[data-name="${key}"] .header[data-open]`);
+                return a;
+            }, {} as StatisticsSave['pageHeaders']),
         }
     }
 
-    createSaveObj<T extends Record<string, Statistic>>(stats: T) {
+    createStatsSaveObj<T extends Record<string, Statistic>>(stats: T) {
         return Object.entries(stats).reduce((a, [key, value]) => {
             a[key as keyof T] = { value: value.get(), sticky: value.sticky };
             return a;
@@ -359,6 +371,8 @@ export default new Statistics();
 
 export interface StatisticsSave {
     gameStatistics: Record<keyof GameStatistics['stats'], StatisticSave>;
+    pageHeaders: Record<string, boolean>;
+    sideHeaders: Record<string, boolean>;
 }
 
 export interface StatisticSave {

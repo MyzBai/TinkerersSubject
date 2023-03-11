@@ -5,7 +5,7 @@ import { calcMinionStats, calcPlayerStats } from "./calc/calcMod";
 import Enemy from "./Enemy";
 import Game from "./Game";
 import { ModDB } from "./mods";
-import Statistics, { EntityStatistics, MinionStatistics, PlayerStatistics } from "./Statistics";
+import Statistics, { EntityStatistics, MinionStatistics, PlayerStatistics, Statistic, StatisticSave } from "./Statistics";
 
 export default abstract class Entity {
     abstract stats: EntityStatistics['stats'];
@@ -17,7 +17,6 @@ export default abstract class Entity {
     protected _attackWaitTime = Number.POSITIVE_INFINITY;
     protected ailments: AilmentData[] = [];
     constructor(readonly name: string) {
-
 
     }
 
@@ -35,6 +34,18 @@ export default abstract class Entity {
             return Number.POSITIVE_INFINITY;
         }
         return time;
+    }
+
+    loadStats(savedStats?: Record<keyof EntityStatistics['stats'], StatisticSave>) {
+        if (savedStats) {
+            Object.entries(savedStats).forEach(([key, value]) => {
+                const stat = this.stats[key as keyof EntityStatistics['stats']] as Statistic | undefined;
+                if (stat) {
+                    stat.set(value.value || stat.defaultValue);
+                    stat.sticky = value.sticky || false;
+                }
+            });
+        }
     }
 
     protected beginAutoAttack() {

@@ -1,7 +1,7 @@
 import { Modifier } from "./mods";
 import { querySelector } from "@src/utils/helpers";
 import Game, { Save } from './Game';
-import Statistics, { PlayerStatistics, StatisticSave } from './Statistics';
+import Statistics, { EntityStatistics, PlayerStatistics, Statistic, StatisticSave } from './Statistics';
 import { PlayerEntity } from "./Entity";
 import { calcPlayerStats } from "./calc/calcMod";
 
@@ -16,6 +16,8 @@ export class Player extends PlayerEntity {
     init() {
         super.init();
         Game.onSave.listen(this.save.bind(this));
+
+        this.loadStats(Game.saveObj?.player?.stats as Record<keyof PlayerStatistics['stats'], StatisticSave>);
 
         Statistics.updateStats(this.name, this.stats);
 
@@ -73,7 +75,7 @@ export class Player extends PlayerEntity {
     save(saveObj: Save) {
         saveObj.player = {
             attackTime: this._attackTime,
-            stats: Statistics.createSaveObj(this.stats)
+            stats: Statistics.createStatsSaveObj(this.stats)
         };
     }
 }
