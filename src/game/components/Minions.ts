@@ -34,6 +34,12 @@ export default class Minions extends Component {
         this.page.querySelectorForce('[data-add-slot]').addEventListener('click', this.createSlot.bind(this));
         this.page.querySelectorForce('[data-remove-slot]').addEventListener('click', this.removeSlot.bind(this));
 
+        Game.visiblityObserver.register(this.page, visible => {
+            if (visible) {
+                this.updateCounter();
+            }
+        });
+
         Game.visiblityObserver.registerLoop(this.page, visible => {
             if (!visible) {
                 return;
@@ -185,9 +191,6 @@ class Slot {
 
         this._minion = minion;
         this.element.querySelectorForce('[data-name]').textContent = minion ? minion.rank.config.name : '[Empty]';
-        if (!minion) {
-            return;
-        }
         this.minions.fixStuff();
     }
 
@@ -262,6 +265,9 @@ class Minion extends MinionEntity {
     }
 
     disable() {
+        if(!this._enabled){
+            return;
+        }
         this._modDB.clear();
         this.stopAttacking();
         this._enabled = false;
