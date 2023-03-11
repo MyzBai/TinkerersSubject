@@ -1,5 +1,5 @@
 import EventEmitter from "@src/utils/EventEmitter";
-import type { AilmentData } from "./AilmentsNew";
+import type { AilmentData } from "./Ailments";
 import { calcAttack } from "./calc/calcDamage";
 import { calcMinionStats, calcPlayerStats } from "./calc/calcMod";
 import Enemy from "./Enemy";

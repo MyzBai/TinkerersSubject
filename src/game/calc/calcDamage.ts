@@ -2,7 +2,7 @@ import { KeywordModifierFlag, StatModifierFlag, StatName } from "@game/mods";
 import { CalcMinMax, calcModBase, calcModIncMore, calcModTotal, Configuration } from "./calcMod";
 import { randomRange } from '@utils/helpers';
 import type Entity from "../Entity";
-import type { AilmentData, AilmentType } from "../AilmentsNew";
+import type { AilmentData, AilmentType } from "../Ailments";
 
 type ConversionValues = Partial<Record<keyof typeof DamageTypeFlags | 'multi', number>>;
 export type ConversionTable = Partial<Record<keyof typeof DamageTypeFlags, ConversionValues>>;

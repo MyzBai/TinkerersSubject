@@ -1,5 +1,5 @@
 import { clamp, querySelector } from "@src/utils/helpers";
-import Ailments, { AilmentData } from "./AilmentsNew";
+import Ailments, { AilmentData } from "./Ailments";
 import type Entity from "./Entity";
 import Game, { Save } from "./Game";
 import Statistics from "./Statistics";
