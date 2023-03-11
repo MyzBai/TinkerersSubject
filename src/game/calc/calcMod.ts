@@ -3,7 +3,6 @@ import type { MinionEntity, PlayerEntity } from "../Entity";
 import type Entity from "../Entity";
 import { StatModifier, StatModifierFlag, StatName, StatModifierValueType, KeywordModifierFlag } from "../mods";
 import Player from "../Player";
-import Statistics from "../Statistics";
 import { calcAilmentBaseDamage, calcBaseAttackDamage, ConversionTable } from "./calcDamage";
 
 export type CalcMinMax = (min: number, max: number) => number;
@@ -125,8 +124,8 @@ export function calcPlayerStats(player: PlayerEntity) {
     const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlag.Skill }));
     statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
 
-    const goldGeneration = calcModTotal('GoldGeneration', config);
-    Statistics.gameStats['Gold Generation'].set(goldGeneration);
+    const maxMinions = calcModBase('MinionCount', config);
+    statistics['Maximum Minions'].set(maxMinions);
 }
 
 export function calcMinionStats(minion: MinionEntity) {

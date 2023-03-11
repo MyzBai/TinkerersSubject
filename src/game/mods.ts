@@ -62,6 +62,7 @@ interface ModTemplateStats {
     readonly name: StatName;
     readonly valueType: StatModifierValueType;
     readonly flags?: number;
+    readonly keywords?: number;
 }
 interface ModTemplate {
     readonly desc: string;
@@ -116,22 +117,22 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     { desc: '#% Increased Maximum Mana', tags: ['Mana'], stats: [{ name: 'MaxMana', valueType: 'Inc' }] },
     { desc: '+# Maximum Mana', tags: ['Mana'], stats: [{ name: 'MaxMana', valueType: 'Base' }] },
     { desc: '+# Mana Regeneration', tags: ['Mana'], stats: [{ name: 'ManaRegen', valueType: 'Base' }] },
-    { desc: '+# Gold Generation', tags: ['Gold', 'Global'], stats: [{ name: 'GoldGeneration', valueType: 'Base' }], },
-    { desc: '#% Increased Gold Generation', tags: ['Gold', 'Global'], stats: [{ name: 'GoldGeneration', valueType: 'Inc' }], },
+    { desc: '+# Gold Generation', tags: ['Gold', 'Global'], stats: [{ name: 'GoldGeneration', valueType: 'Base', keywords: KeywordModifierFlag.Global }] },
+    { desc: '#% Increased Gold Generation', tags: ['Gold', 'Global'], stats: [{ name: 'GoldGeneration', valueType: 'Inc', keywords: KeywordModifierFlag.Global }], },
     { desc: '#% Increased Skill Duration', tags: ['Skill'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlag.Skill }], },
     { desc: '+#% Chance To Bleed', tags: ['Attack', 'Bleed', 'Physical', 'Ailment'], stats: [{ name: 'BleedChance', valueType: 'Base', flags: StatModifierFlag.Bleed }], },
     { desc: '+#% Chance To Burn', tags: ['Attack', 'Burn', 'Elemental', 'Ailment'], stats: [{ name: 'BurnChance', valueType: 'Base', flags: StatModifierFlag.Burn }], },
     { desc: '# Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlag.Bleed }], },
     { desc: '# Burn Duration', tags: ['Duration', 'Burn', 'Ailment'], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlag.Burn }], },
-    { desc: '#% Increased Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment', 'Global'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlag.Bleed }], },
-    { desc: '#% Increased Burn Duration', tags: ['Duration', 'Burn', 'Ailment', 'Global'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlag.Burn }], },
-    { desc: '+# Maximum Bleed Stack', tags: ['Bleed', 'Ailment', 'Global'], stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlag.Bleed }], },
-    { desc: '+# Maximum Burn Stack', tags: ['Burn', 'Ailment', 'Global'], stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlag.Burn }], },
+    { desc: '#% Increased Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment', 'Global'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlag.Bleed, keywords: KeywordModifierFlag.Global }], },
+    { desc: '#% Increased Burn Duration', tags: ['Duration', 'Burn', 'Ailment', 'Global'], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlag.Burn, keywords: KeywordModifierFlag.Global }], },
+    { desc: '+# Maximum Bleed Stack', tags: ['Bleed', 'Ailment', 'Global'], stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlag.Bleed, keywords: KeywordModifierFlag.Global }], },
+    { desc: '+# Maximum Burn Stack', tags: ['Burn', 'Ailment', 'Global'], stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlag.Burn, keywords: KeywordModifierFlag.Global }], },
     { desc: '+#% Critical Hit Chance', tags: ['Critical', 'Attack'], stats: [{ name: 'CritChance', valueType: 'Base' }] },
     { desc: '+#% Critical Hit Multiplier', tags: ['Critical', 'Attack'], stats: [{ name: 'CritMulti', valueType: 'Base' }] },
     { desc: '#% More Attack Speed', tags: ['Attack', 'Speed'], stats: [{ name: 'AttackSpeed', valueType: 'More' }] },
     { desc: '+#% Hit Chance', tags: ['Attack'], stats: [{ name: 'HitChance', valueType: 'Base' }] },
-    { desc: '+# Maximum Minions', tags: ['Minion'], stats: [{ name: 'MinionCount', valueType: 'Base' }] },
+    { desc: '+# Maximum Minions', tags: ['Minion', 'Global'], stats: [{ name: 'MinionCount', valueType: 'Base', keywords: KeywordModifierFlag.Global }] },
     { desc: '#% Increased Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlag.Damage | StatModifierFlag.Minion }] },
 ];
 
@@ -193,7 +194,8 @@ export class Modifier {
                 value,
                 min,
                 max,
-                flags: statTemplate.flags || 0
+                flags: statTemplate.flags || 0,
+                keywords: statTemplate.keywords
             }));
         }
         return { template, stats };

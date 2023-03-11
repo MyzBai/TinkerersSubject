@@ -5,27 +5,28 @@ import { calcMinionStats, calcPlayerStats } from "./calc/calcMod";
 import Enemy from "./Enemy";
 import Game from "./Game";
 import { ModDB, StatModifier } from "./mods";
-import { EntityStatistics, MinionStatistics, PlayerStatistics } from "./Statistics";
+import Statistics, { EntityStatistics, MinionStatistics, PlayerStatistics } from "./Statistics";
 
 export default abstract class Entity {
     abstract stats: EntityStatistics['stats'];
     protected _modDB = new ModDB();
     public readonly onStatsUpdate = new EventEmitter<Entity>();
     protected updateId = -1;
+    protected attackId?: string;
     protected _attackTime = 0;
     protected _attackWaitTime = Number.POSITIVE_INFINITY;
     protected ailments: AilmentData[] = [];
     constructor(readonly name: string) {
-        this.modDB.onChange.listen(async () => {
-            return new Promise((resolve) => {
-                clearTimeout(this.updateId);
-                this.updateId = window.setTimeout(async () => {
-                    this.updateStats();
-                    this.onStatsUpdate.invoke(this);
-                    resolve();
-                }, 1);
-            });
-        });
+        // this.modDB.onChange.listen(async () => {
+        //     return new Promise((resolve) => {
+        //         clearTimeout(this.updateId);
+        //         this.updateId = window.setTimeout(async () => {
+        //             this.updateStats();
+        //             this.onStatsUpdate.invoke(this);
+        //             resolve();
+        //         }, 1);
+        //     });
+        // });
 
     }
 
@@ -52,7 +53,7 @@ export default abstract class Entity {
         });
 
         this._attackWaitTime = this.calcWaitTime();
-        Game.gameLoop.subscribe(dt => {
+        this.attackId = Game.gameLoop.subscribe(dt => {
             this._attackTime += dt;
             if (this._attackTime >= this._attackWaitTime) {
                 const result = this.canAttack;
@@ -90,8 +91,12 @@ export default abstract class Entity {
             }
             this.ailments.push(...result.ailments);
             Enemy.applyAilments(this, ...result.ailments);
-            this.modDB.add([new StatModifier({name: 'AilmentStack', value: 5, valueType: 'Base'})], 'test');
+            this.modDB.add([new StatModifier({ name: 'AilmentStack', value: 5, valueType: 'Base' })], 'test');
         }
+    }
+
+    protected stopAttacking() {
+        Game.gameLoop.unsubscribe(this.attackId);
     }
 }
 
@@ -113,6 +118,9 @@ export class PlayerEntity extends Entity {
 
     updateStats(): void {
         calcPlayerStats(this);
+        Statistics.calcGlobalStats();
+        Statistics.updateStats(this.name, this.stats);
+        clearTimeout(this.updateId);
     }
 }
 
@@ -123,5 +131,7 @@ export class MinionEntity extends Entity {
     }
     updateStats(): void {
         calcMinionStats(this);
+        Statistics.updateStats(this.name, this.stats);
+        clearTimeout(this.updateId);
     }
 }

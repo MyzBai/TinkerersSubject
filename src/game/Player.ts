@@ -1,8 +1,9 @@
-import { Modifier, StatModifier } from "./mods";
+import { Modifier } from "./mods";
 import { querySelector } from "@src/utils/helpers";
 import Game, { Save } from './Game';
 import Statistics, { PlayerStatistics, StatisticSave } from './Statistics';
 import { PlayerEntity } from "./Entity";
+import { calcPlayerStats } from "./calc/calcMod";
 
 
 export class Player extends PlayerEntity {
@@ -16,14 +17,13 @@ export class Player extends PlayerEntity {
     init() {
         Game.onSave.listen(this.save.bind(this));
 
-        Statistics.addEntity(this);
+        Statistics.updateStats(this.name, this.stats);
 
         if (Game.config!.player) {
             Game.config!.player.modList.forEach(x => {
                 this.modDB.add(new Modifier(x).stats, 'Player');
             });
         }
-        this.modDB.add([new StatModifier({ name: 'BleedChance', value: 20, valueType: 'Base' })], 'test');
 
         Game.gameLoop.subscribeAnim(() => {
             this.updateManaBar();
@@ -43,6 +43,8 @@ export class Player extends PlayerEntity {
         });
 
         this._attackTime = Game.saveObj?.player?.attackTime || 0;
+
+        calcPlayerStats(this);
     }
 
     reset() {

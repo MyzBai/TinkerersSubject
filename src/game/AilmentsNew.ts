@@ -188,7 +188,7 @@ export default class Ailments {
                 const instance = instances[i]!;
                 if ('damage' in instance) {
                     if (instance.damage) {
-                        this.dealDamage(source, instance.damage, instance.type);
+                        this.dealDamage(source, instance.damage * dt, instance.type);
                     }
                 }
 

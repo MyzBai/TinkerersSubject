@@ -74,7 +74,8 @@ export class Game {
             Statistics.gameStats.Gold.add(amount);
             Statistics.gameStats["Gold Generated"].add(amount);
 
-            Statistics.updateSideList();
+            // Statistics.updateStats('Global', Statistics.gameStats);
+            Statistics.updateAll();
         }, { intervalMilliseconds: 1000 });
 
         this.gameLoop.subscribe(() => {
