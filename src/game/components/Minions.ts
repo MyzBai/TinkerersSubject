@@ -1,8 +1,8 @@
-import { highlightHTMLElement } from "@src/utils/helpers";
+import { hasFlags, hasAnyFlag, highlightHTMLElement } from "@src/utils/helpers";
 import { calcMinionStats } from "../calc/calcMod";
 import { MinionEntity } from "../Entity";
 import Game, { Save } from "../Game";
-import { Modifier, StatModifier, StatModifierFlag } from "../mods";
+import { KeywordModifierFlag, Modifier, StatModifier, StatModifierFlag } from "../mods";
 import Player from "../Player";
 import Statistics from "../Statistics";
 import Component from "./Component";
@@ -276,7 +276,7 @@ class Minion extends MinionEntity {
 
     private applyModifiers() {
         this.modDB.clear();
-        const minionModsFromPlayer = Player.modDB.modList.filter(x => (x.flags & StatModifierFlag.Minion) === StatModifierFlag.Minion);
+        const minionModsFromPlayer = Player.modDB.modList.filter(x => hasFlags(x.flags, StatModifierFlag.Minion) || hasAnyFlag(x.keywords, KeywordModifierFlag.Global, KeywordModifierFlag.Minion));
         const minionMods = this.rank.mods.flatMap<StatModifier>(x => x.copy().stats);
         const sourceName = `Minion/${this.rank.config.name}`;
         this.modDB.add(sourceName, ...[new StatModifier({ name: 'AttackSpeed', value: this.rank.config.attackSpeed, valueType: 'Base' })]);
