@@ -181,12 +181,6 @@ export class Statistics {
         this.gameStats["Gold Generation"].set(v);
     }
 
-    setup() {
-        // calcPlayerStats();
-        // this.updatePageStatisticsUI();
-        // this.updateSideStatisticsUI();
-    }
-
     reset() {
         Object.values(this.gameStats).forEach(x => x.reset());
         this.statistics.clear();
@@ -312,6 +306,8 @@ export class Statistics {
 
             if (container === this.sideListContainer) {
                 element.classList.toggle('hidden', !value.sticky);
+            } else if (container === this.pageListContainer) {
+                element.classList.toggle('hidden', value.get() === value.defaultValue)
             }
             varElement.textContent = this.formatVariableText(value);
         });

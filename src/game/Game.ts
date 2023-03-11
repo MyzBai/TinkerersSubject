@@ -110,7 +110,7 @@ export class Game {
     }
 
     private setup() {
-        Statistics.setup();
+        // Statistics.setup();
         Enemy.setup();
         Player.setup();
 
