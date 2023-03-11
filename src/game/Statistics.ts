@@ -277,6 +277,7 @@ export class Statistics {
                 }
             }
         });
+        header.click(); //open by default
         return accordion;
     }
 
