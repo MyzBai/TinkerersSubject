@@ -257,11 +257,10 @@ export class StatModifier {
 }
 
 export class ModDB {
-    private _modList: StatModifier[];
-    public readonly onChange: EventEmitter<StatModifier[]>;
+    private _modList: StatModifier[] = [];
+    public readonly onChange = new EventEmitter();
     constructor() {
         this._modList = [];
-        this.onChange = new EventEmitter<StatModifier[]>();
     }
 
     get modList() {
@@ -275,24 +274,16 @@ export class ModDB {
             Object.freeze(copy);
             return copy;
         }));
+        this.onChange.invoke(undefined);
     }
-
-    // add(statMods: StatModifier[], source: string) {
-    //     statMods.forEach(x => {
-    //         x.source = source;
-    //         Object.freeze(x);
-    //     });
-    //     this.modList.push(...statMods);
-    //     this.onChange.invoke([...this.modList]);
-    // }
 
     removeBySource(source: string) {
         this._modList = this.modList.filter(x => x.source !== source);
-        this.onChange.invoke([...this.modList]);
+        this.onChange.invoke(undefined);
     }
 
     clear() {
         this._modList = [];
-        this.onChange.invoke([...this.modList]);
+        this.onChange.invoke(undefined);
     }
 }

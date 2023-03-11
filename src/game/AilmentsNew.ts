@@ -172,7 +172,7 @@ export default class Ailments {
 
         //bleed
         {
-            const bleedInstances = this.sources.get(source)?.filter(isBleedInstance);
+            const bleedInstances = instances.filter(isBleedInstance);
             if(bleedInstances){
                 const { min, max } = calcAilmentDamage(source, 'Bleed');
                 const avgDamage = (min + max) / 2;

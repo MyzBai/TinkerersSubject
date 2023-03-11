@@ -136,8 +136,7 @@ export class Statistics {
                 this.updateContainer(this.pageListContainer);
             }
         });
-
-        this.calcGlobalStats();
+        
         this.updateStats('Global', this.gameStats);
     }
 

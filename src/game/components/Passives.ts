@@ -118,12 +118,10 @@ class Passive {
     set assigned(v: boolean) {
         const modDB = Player.modDB;
         const source = 'Passives'.concat('/', this.index.toFixed());
-        if (v) {
-            this._assigned = true;
-            const mods = this.mod.copy().stats;
-            modDB.add(source, ...mods);
+        this._assigned = v;
+        if (this._assigned) {
+            modDB.add(source, ...this.mod.stats);
         } else {
-            this._assigned = false;
             modDB.removeBySource(source);
         }
     }

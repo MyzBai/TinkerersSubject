@@ -100,6 +100,7 @@ export class PlayerEntity extends Entity {
                 clearTimeout(this.updateId);
                 this.updateId = window.setTimeout(async () => {
                     this.updateStats();
+                    Statistics.calcGlobalStats();
                     this.onStatsUpdate.invoke(this);
                     resolve();
                 }, 1);
