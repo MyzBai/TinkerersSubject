@@ -42,6 +42,16 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Bleed'),
         getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Bleed').addMultiple(data.modList, generateReforgeModCount(1)).modList
     },
+    reforgeIncludeBurn: {
+        desc: 'Reforge the item with new random modifiers, including a [burn] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Burn'),
+        getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Burn').addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
+    reforgeIncludeMinion: {
+        desc: 'Reforge the item with new random modifiers, including a [minion] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, 'Minion'),
+        getItemMods: (data: CraftData) => new Crafter().addOneByTag(data.modList, 'Minion').addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
     reforgeHigherChanceSameMods: {
         desc: 'Reforge the item with a higher chance of receiving the same modifiers',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsIsNotEmpty(data.modList),
@@ -105,6 +115,11 @@ export const craftTemplates = {
         validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Burn'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Burn').modList
     },
+    addMinion: {
+        desc: 'Add a [minion] modifier',
+        validate: (data: CraftData) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, 'Minion'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).addOneByTag(data.modList, 'Minion').modList
+    },
     removeRandom: {
         desc: 'Remove a random modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList),
@@ -119,6 +134,11 @@ export const craftTemplates = {
         desc: 'Remove an [elemental] modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, 'Elemental'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Elemental').modList
+    },
+    removeMinion: {
+        desc: 'Remove an [minion] modifier',
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, 'Minion'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Minion').modList
     },
     removeRandomAddRandom: {
         desc: 'Remove a random modifier and add a new random modifier',
@@ -154,6 +174,11 @@ export const craftTemplates = {
         desc: 'Remove a random modifier and add a new [burn] modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Burn').itemCanCraftModWithTag(data.itemModList, data.modList, 'Burn'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Burn').modList
+    },
+    removeRandomAddMinion: {
+        desc: 'Remove a random modifier and add a new [minion] modifier',
+        validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, 'Minion').itemCanCraftModWithTag(data.itemModList, data.modList, 'Minion'),
+        getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, 'Minion').modList
     }
 };
 

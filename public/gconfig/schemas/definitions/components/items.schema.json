@@ -27,10 +27,10 @@
                         "properties": {
                             "id": {
                                 "enum": [
-                                    "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeIncludeBurn", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
-                                    "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed", "addBurn",
-                                    "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn",
-                                    "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn" ]
+                                    "reforge", "reforgeIncludePhysical", "reforgeIncludeElemental", "reforgeIncludeCritical", "reforgeIncludeMana", "reforgeIncludeBleed", "reforgeIncludeBurn", "reforgeIncludeMinion", "reforgeHigherChanceSameMods", "reforgeLowerChanceSameMods",
+                                    "addRandom", "addPhysical", "addElemental", "addCritical", "addMana", "addBleed", "addBurn", "addMinion",
+                                    "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn", "removeMinion",
+                                    "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn", "removeRandomAddMinion" ]
                             },
                             "levelReq": { "$ref": "../definitions.schema.json#/definitions/levelReq" },
                             "goldCost": { "$ref": "../definitions.schema.json#/definitions/goldCost" }
