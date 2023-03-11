@@ -1016,7 +1016,7 @@
                         "goldCost": 50,
                         "mods": [
                             "+{50}% Hit Chance",
-                            "Adds {2} To {3} Physical Damage"
+                            "Adds {10} To {18} Physical Damage"
                         ]
                     },
                     {
@@ -1084,12 +1084,12 @@
                         "name": "Wolf",
                         "levelReq": 1,
                         "attackSpeed": 1.2,
-                        "baseDamageMultiplier": 90,
+                        "baseDamageMultiplier": 100,
                         "goldCost": 100,
                         "mods": [
                             "+{60}% Hit Chance",
-                            "Adds {2} To {3} Physical Damage",
-                            "+{5}% Chance To Bleed"
+                            "Adds {2} To {4} Physical Damage",
+                            "+{10}% Chance To Bleed"
                         ]
                     },
                     {
