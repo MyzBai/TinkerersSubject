@@ -8,13 +8,13 @@ import { calcPlayerStats } from "./calc/calcMod";
 
 export class Player extends PlayerEntity {
     private readonly manaBar = querySelector<HTMLProgressElement>('.p-game [data-mana-bar]');
-
     constructor() {
         super();
 
     }
 
     init() {
+        super.init();
         Game.onSave.listen(this.save.bind(this));
 
         Statistics.updateStats(this.name, this.stats);
@@ -52,6 +52,7 @@ export class Player extends PlayerEntity {
 
     reset() {
         this.modDB.clear();
+        this.onStatsUpdate.removeAllListeners();
     }
 
     async setup() {

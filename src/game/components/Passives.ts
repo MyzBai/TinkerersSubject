@@ -69,7 +69,6 @@ export default class Passives extends Component {
                 return a;
             }, [])
         };
-        console.log(saveObj.passives);
     }
 
     private updatePoints() {

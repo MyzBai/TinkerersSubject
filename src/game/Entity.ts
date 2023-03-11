@@ -94,7 +94,13 @@ export class PlayerEntity extends Entity {
     readonly stats = new PlayerStatistics().stats;
     constructor() {
         super('Player');
+    }
 
+    get canAttack() {
+        return this.stats["Current Mana"].get() >= this.stats["Attack Mana Cost"].get();
+    }
+
+    protected init() {
         this.modDB.onChange.listen(async () => {
             return new Promise((resolve) => {
                 clearTimeout(this.updateId);
@@ -105,10 +111,6 @@ export class PlayerEntity extends Entity {
                 }, 1);
             });
         });
-    }
-
-    get canAttack() {
-        return this.stats["Current Mana"].get() >= this.stats["Attack Mana Cost"].get();
     }
 
     protected performAttack(): void {

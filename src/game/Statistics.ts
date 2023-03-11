@@ -136,6 +136,11 @@ export class Statistics {
                 this.updateContainer(this.pageListContainer);
             }
         });
+
+        Player.modDB.onChange.listen(() => {
+            this.calcGlobalStats();
+            this.updateStats('Global', this.gameStats);
+        });
         
         this.updateStats('Global', this.gameStats);
     }

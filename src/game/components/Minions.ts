@@ -51,7 +51,7 @@ export default class Minions extends Component {
             });
         });
 
-        Player.modDB.onChange.listen(() => {
+        Player.onStatsUpdate.listen(() => {
             this.fixStuff();
         });
 
@@ -233,12 +233,6 @@ class Minion extends MinionEntity {
                 unlocked: !!Game.saveObj?.minions?.minionList?.find(x => x?.name === config.name) || config.goldCost === 0
             });
         }
-        Player.modDB.onChange.listen(() => {
-            if (this._enabled) {
-                this.applyModifiers();
-                Statistics.updateStats(this.name, this.stats);
-            }
-        });
     }
     get rankIndex() {
         return this.ranks.indexOf(this.rank);

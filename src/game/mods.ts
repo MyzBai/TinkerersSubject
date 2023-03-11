@@ -282,6 +282,6 @@ export class ModDB {
 
     clear() {
         this._modList = [];
-        this.onChange.invoke(undefined);
+        this.onChange.removeAllListeners();
     }
 }
