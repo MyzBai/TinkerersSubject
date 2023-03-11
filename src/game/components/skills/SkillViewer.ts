@@ -1,8 +1,11 @@
+import Statistics from "@src/game/Statistics";
 import type Skills from "./Skills";
 import { AttackSkill, BuffSkill, Skill } from "./Skills";
 import { BuffSkillSlot, Triggerable } from "./skillSlots";
 
 export default class SkillViewer {
+    private rankIndex = 0;
+
     private readonly container: HTMLElement;
     private readonly decrementRankButton: HTMLButtonElement;
     private readonly incrementRankButton: HTMLButtonElement;
@@ -10,8 +13,9 @@ export default class SkillViewer {
     private readonly triggerButton: HTMLButtonElement;
     private readonly automateButton: HTMLButtonElement;
     private readonly removeButton: HTMLButtonElement;
-    private rankProgress?: HTMLElement;
-    private readonly skillViewInfo: { skill?: Skill, rankIndex: number } = { rankIndex: 0 };
+    private readonly unlockButton: HTMLButtonElement;
+    private readonly cancelButton: HTMLButtonElement;
+
     constructor(private readonly skills: Skills) {
         this.container = skills.page.querySelectorForce('[data-skill-info]');
 
@@ -21,61 +25,92 @@ export default class SkillViewer {
         this.triggerButton = this.container.querySelectorForce('[data-trigger]');
         this.automateButton = this.container.querySelectorForce('[data-automate]');
         this.removeButton = this.container.querySelectorForce('[data-remove]');
+        this.unlockButton = this.container.querySelectorForce('[data-unlock]');
+        this.cancelButton = this.container.querySelectorForce('[data-cancel]');
 
         this.decrementRankButton.addEventListener('click', () => {
-            this.createView(skills.activeSkill!, this.skillViewInfo.rankIndex - 1);
+            this.createView(skills.activeSkill!, this.rankIndex - 1);
         });
         this.incrementRankButton.addEventListener('click', () => {
-            this.createView(skills.activeSkill!, this.skillViewInfo.rankIndex + 1);
+            this.createView(skills.activeSkill!, this.rankIndex + 1);
         });
 
         this.enableButton.addEventListener('click', () => {
-            skills.activeSkill.setRankByIndex(this.skillViewInfo!.rankIndex);
+            skills.activeSkill.setRankByIndex(this!.rankIndex);
             skills.activeSkillSlot.setSkill(skills.activeSkill);
-            this.createView(skills.activeSkill!, this.skillViewInfo.rankIndex);
+            this.createView(skills.activeSkill!, this.rankIndex);
         });
         this.removeButton.addEventListener('click', () => {
             if (skills.activeSkillSlot.canRemove) {
                 skills.activeSkillSlot.setSkill(undefined);
-                this.createView(skills.activeSkill, this.skillViewInfo.rankIndex);
+                this.createView(skills.activeSkill, this.rankIndex);
             }
         });
         this.triggerButton.addEventListener('click', () => {
             if (skills.activeSkillSlot.canTrigger) {
                 (skills.activeSkillSlot as Triggerable).trigger();
-                this.createView(skills.activeSkillSlot.skill!, this.skillViewInfo.rankIndex);
+                this.createView(skills.activeSkillSlot.skill!, this.rankIndex);
             }
         });
         this.automateButton.addEventListener('click', () => {
             const skillSlot = skills.activeSkillSlot as BuffSkillSlot;
             if (skillSlot instanceof BuffSkillSlot && skillSlot.skill) {
                 skillSlot.toggleAutomate();
-                this.createView(skillSlot.skill, this.skillViewInfo.rankIndex);
+                this.createView(skillSlot.skill, this.rankIndex);
+            }
+        });
+
+        this.unlockButton.addEventListener('click', () => {
+            const rank = this.skills.activeSkill?.ranks[this.rankIndex!];
+            if (rank) {
+                Statistics.gameStats.Gold.subtract(rank.config.goldCost || 0);
+                rank.unlocked = true;
+                this.createView(this.skills.activeSkill, this.rankIndex);
+            }
+        });
+        this.cancelButton.addEventListener('click', () => {
+            if (this.skills.activeSkillSlot instanceof BuffSkillSlot) {
+                this.skills.activeSkillSlot.cancel();
+                this.createView(this.skills.activeSkill, this.rankIndex);
+            }
+        });
+
+
+        Statistics.gameStats.Gold.addListener('change', x => {
+            if(this.skills.page.classList.contains('hidden')){
+                return;
+            }
+            const rank = this.skills.activeSkill.ranks[this.rankIndex];
+            if(rank && !rank.unlocked){
+                if(rank.config.goldCost <= x){
+                    this.unlockButton.disabled = false;
+                }
             }
         });
     }
 
     createView(skill: Skill, rankIndex?: number) {
-        rankIndex = typeof rankIndex === 'number' ? rankIndex : skill.ranks.indexOf(skill.rank);
-        this.skillViewInfo.skill = skill;
-        this.skillViewInfo.rankIndex = rankIndex;
+        if (typeof rankIndex === 'number') {
+            this.rankIndex = rankIndex;
+        } else {
+            this.rankIndex = skill.rankIndex;
+        }
 
-        const rank = skill.ranks[rankIndex];
+        const rank = skill.ranks[this.rankIndex];
         if (!rank) {
-            throw Error();
+            throw RangeError('rank index out of bounds');
         }
 
         //header
         {
-            this.container.querySelectorForce('header .title').textContent = rank.config.name;
-            if (skill.ranks.length === 1) {
-                this.decrementRankButton.style.visibility = 'hidden';
-                this.incrementRankButton.style.visibility = 'hidden';
-            } else {
+            this.container.querySelectorForce('[data-title]').textContent = rank.config.name;
+            this.decrementRankButton.style.visibility = 'hidden';
+            this.incrementRankButton.style.visibility = 'hidden';
+            if (skill.ranks.length > 1) {
                 this.decrementRankButton.style.visibility = 'visible';
                 this.incrementRankButton.style.visibility = 'visible';
-                this.decrementRankButton.disabled = rankIndex <= 0;
-                this.incrementRankButton.disabled = rankIndex >= skill.ranks.length - 1;
+                this.decrementRankButton.disabled = this.rankIndex <= 0;
+                this.incrementRankButton.disabled = !rank.unlocked || this.rankIndex >= skill.ranks.length - 1;
             }
         }
 
@@ -83,29 +118,14 @@ export default class SkillViewer {
         {
             const table = this.container.querySelectorForce('table');
             table.replaceChildren();
-            table.appendChild(this.createTableRow('Mana Cost', (rank.config.manaCost || 0).toFixed()));
-
+            table.insertAdjacentHTML('beforeend', `<tr><td>Mana Cost</td><td>${rank?.config.manaCost.toFixed()}</td></tr>`);
             if (skill instanceof AttackSkill) {
-                table.appendChild(this.createTableRow('Attack Speed', skill.ranks[rankIndex]!.config.attackSpeed.toFixed(2)));
-                table.appendChild(this.createTableRow('Base Damage', skill.ranks[rankIndex]!.config.baseDamageMultiplier.toFixed() + '%'));
+                table.insertAdjacentHTML('beforeend', `<tr><td>Attack Speed</td><td>${skill.ranks[this.rankIndex]?.config.attackSpeed.toFixed(2)}</td></tr>`);
+                table.insertAdjacentHTML('beforeend', `<tr><td>Base Damage Multiplier</td><td>${skill.ranks[this.rankIndex]?.config.baseDamageMultiplier.toFixed()}%</td></tr>`);
             } else if (skill instanceof BuffSkill) {
-                table.appendChild(this.createTableRow('Duration', skill.ranks[rankIndex]!.config.baseDuration.toFixed() + 's'));
-            }
-
-
-            this.rankProgress = undefined;
-            if (rankIndex > 0) {
-                const prefix = skill instanceof AttackSkill ? 'Attacks' : 'Triggers';
-                const rank = skill.ranks[rankIndex];
-                const target = rank?.progress.target;
-                const row = this.createTableRow(prefix,
-                    `<var data-rank-progress></var>/<span>${target}</span>`);
-                this.rankProgress = row.querySelector('[data-rank-progress]') || undefined;
-                // this.updateRankProgress(skill, rankIndex);
-                table.appendChild(row);
+                table.insertAdjacentHTML('beforeend', `<tr><td>Duration</td><td>${skill.ranks[this.rankIndex]?.config.baseDuration.toFixed()}s</td></tr>`);
             }
         }
-
 
         //mods
         if (rank.config.mods) {
@@ -118,50 +138,58 @@ export default class SkillViewer {
             }
             this.container.querySelectorForce('.s-mods').replaceChildren(...modElements);
         }
-        this.updateView();
 
+        const activeSkillSlot = this.skills.activeSkillSlot;
+
+        this.enableButton.disabled = !this.validateEnableButton(skill, rank);
+        this.enableButton.classList.toggle('hidden', !rank.unlocked);
+        if (rank.unlocked && activeSkillSlot instanceof BuffSkillSlot) {
+            if (activeSkillSlot.skill?.rank === rank) {
+                this.enableButton.classList.add('hidden');
+            }
+        }
+
+
+        this.unlockButton.classList.toggle('hidden', rank.unlocked);
+        this.unlockButton.disabled = Statistics.gameStats.Gold.get() < rank.config.goldCost;
+        this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
+
+
+        this.removeButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
+        this.removeButton.disabled = !activeSkillSlot.canRemove;
+
+
+        this.triggerButton.classList.add('hidden');
+        this.cancelButton.classList.add('hidden');
+        this.automateButton.classList.add('hidden');
+
+        if(activeSkillSlot instanceof BuffSkillSlot && activeSkillSlot.skill?.rank === rank){
+
+            this.triggerButton.classList.toggle('hidden', activeSkillSlot.running);
+            this.cancelButton.classList.toggle('hidden', !activeSkillSlot.running);
+            this.cancelButton.disabled = activeSkillSlot.automate;
+            this.automateButton.classList.toggle('hidden', !activeSkillSlot.running);
+            
+            this.automateButton.classList.remove('hidden');
+            this.automateButton.disabled = !activeSkillSlot.canAutomate;
+            this.automateButton.textContent = `Auto ${activeSkillSlot.automate ? 'On' : 'Off'}`;
+            this.automateButton.setAttribute('data-role', activeSkillSlot.automate ? 'confirm' : 'cancel');
+        }
     }
 
-    updateView() {
-        const { skill, rankIndex } = this.skillViewInfo;
-        const rank = skill?.ranks[rankIndex];
-        if (!rank) {
-            throw RangeError();
+    private validateEnableButton(skill: Skill, rank: Skill['rank']) {
+        if (!rank.unlocked) {
+            return false;
         }
-        //buttons
-        const hideExtraButtons = skill instanceof AttackSkill || this.skills.activeSkillSlot.skill !== skill;
-        this.removeButton.classList.toggle('hidden', hideExtraButtons);
-        this.triggerButton.classList.toggle('hidden', hideExtraButtons);
-        this.automateButton.classList.toggle('hidden', hideExtraButtons);
-
-
-        const sameSkillAndRank = (this.skills.activeSkillSlot.skill === skill && this.skills.activeSkillSlot.skill.rank === rank);
-        const anotherAlreadyEnabled = [this.skills.attackSkillSlot, ...this.skills.buffSkillSlots].filter(x => x !== this.skills.activeSkillSlot).some(x => x.skill === skill);
-
-        const canEnable = this.skills.activeSkillSlot.canEnable && rank.unlocked && !sameSkillAndRank && !anotherAlreadyEnabled;
-        this.enableButton.disabled = !canEnable;
-
-        if (skill instanceof BuffSkill && this.skills.activeSkillSlot instanceof BuffSkillSlot && this.skills.activeSkillSlot.skill === skill) {
-            this.removeButton.disabled = !this.skills.activeSkillSlot.canRemove || !sameSkillAndRank;
-            this.triggerButton.disabled = !this.skills.activeSkillSlot.canTrigger || !sameSkillAndRank;
-            this.automateButton.disabled = !this.skills.activeSkillSlot.canAutomate;
-
-            this.automateButton.setAttribute('data-role', this.skills.activeSkillSlot.automate ? 'confirm' : 'cancel');
-        } else {
-            this.removeButton.disabled = true;
-            this.triggerButton.disabled = true;
-            this.automateButton.disabled = true;
+        if (this.skills.activeSkillSlot.skill?.rank === rank) {
+            return false;
+        }
+        if (skill instanceof BuffSkill) {
+            if (this.skills.buffSkillSlots.filter(x => x !== this.skills.activeSkillSlot).some(x => x.skill === skill)) {
+                return false;
+            }
         }
 
-        if (this.rankProgress) {
-            this.rankProgress.textContent = Math.min(rank.progress.current, rank.progress.target).toFixed();
-        }
-    }
-
-    private createTableRow(label: string, value: string) {
-        const row = document.createElement('tr');
-        row.insertAdjacentHTML('beforeend', `<td>${label}</td>`);
-        row.insertAdjacentHTML('beforeend', `<td>${value}</td>`);
-        return row;
+        return this.skills.activeSkillSlot.canEnable;
     }
 }

@@ -12,7 +12,7 @@ export default class Missions extends Component {
         super('missions');
 
         for (const slotData of data.slots) {
-            Statistics.statistics.Level.registerCallback(slotData.levelReq, () => {
+            Statistics.gameStats.Level.registerCallback(slotData.levelReq, () => {
                 const slot = new MissionSlot(this, slotData.cost);
                 this.slots.push(slot);
                 this.missionsListContainer.appendChild(slot.element);
@@ -52,7 +52,7 @@ class MissionSlot {
     private completed = false;
     constructor(readonly missions: Missions, readonly unlockCost: number) {
         this._element = this.createElement();
-        Statistics.statistics.Gold.addListener('change', () => {
+        Statistics.gameStats.Gold.addListener('change', () => {
             this.updateNewButton();
         });
         this.tryLoad();
@@ -83,7 +83,6 @@ class MissionSlot {
         this.completed = true;
         highlightHTMLElement(this.missions.menuItem, 'click');
         highlightHTMLElement(this.element, 'mouseover');
-        console.log('add highlight');
         this.updateSlot();
     }
 
@@ -104,7 +103,7 @@ class MissionSlot {
         buttonNew.insertAdjacentHTML('beforeend', '<span>New</span>');
         buttonNew.insertAdjacentHTML('beforeend', `<span class="g-gold" data-cost></span>`);
         buttonNew.addEventListener('click', () => {
-            Statistics.statistics.Gold.subtract(this.newMissionCost);
+            Statistics.gameStats.Gold.subtract(this.newMissionCost);
             this.generateRandomMission();
         });
 
@@ -116,7 +115,7 @@ class MissionSlot {
         if (!this._missionData) {
             return;
         }
-        Statistics.statistics.Gold.add(this._missionData.goldAmount);
+        Statistics.gameStats.Gold.add(this._missionData.goldAmount);
         this.generateRandomMission();
         this.completed = false;
     }
@@ -124,7 +123,7 @@ class MissionSlot {
     private generateRandomMission() {
 
         const missionDataArr = this.missions.data.missionLists.reduce((a, c) => {
-            const missionData = c.filter(x => x.levelReq <= Statistics.statistics.Level.get()).sort((a, b) => b.levelReq - a.levelReq)[0];
+            const missionData = c.filter(x => x.levelReq <= Statistics.gameStats.Level.get()).sort((a, b) => b.levelReq - a.levelReq)[0];
             if (missionData) {
                 a.push(missionData);
             }
@@ -193,7 +192,7 @@ class MissionSlot {
         }
         const element = this._element.querySelectorForce<HTMLButtonElement>('[data-trigger="new"]');
         element.querySelectorForce<HTMLSpanElement>('[data-cost]').textContent = this.newMissionCost.toFixed();
-        element.disabled = this._task.completed || Statistics.statistics.Gold.get() < this.newMissionCost;
+        element.disabled = this._task.completed || Statistics.gameStats.Gold.get() < this.newMissionCost;
     }
 
     private createElement() {
@@ -208,12 +207,12 @@ class MissionSlot {
         button.insertAdjacentHTML('beforeend', `<span class="g-gold" data-cost>${this.unlockCost}</span>`);
         button.setAttribute('data-trigger', 'buy');
         button.addEventListener('click', () => {
-            Statistics.statistics.Gold.subtract(this.unlockCost);
+            Statistics.gameStats.Gold.subtract(this.unlockCost);
             this.unlock();
             this.generateRandomMission();
         });
         button.disabled = true;
-        Statistics.statistics.Gold.addListener('change', amount => {
+        Statistics.gameStats.Gold.addListener('change', amount => {
             button.disabled = amount < this.unlockCost;
         });
 

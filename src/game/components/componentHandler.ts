@@ -33,7 +33,7 @@ export interface ComponentWrapper {
 }
 
 export interface ComponentsConfig {
-    skills?: SkillsConfig;
+    skills: SkillsConfig;
     passives?: PassivesConfig;
     items?: ItemsConfig;
     missions?: MissionsConfig;

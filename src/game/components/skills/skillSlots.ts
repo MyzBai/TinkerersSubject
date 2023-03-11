@@ -4,7 +4,6 @@ import type { AttackSkill, BuffSkill, Skill } from "./Skills";
 import type Skills from "./Skills";
 import Game from '@src/game/Game';
 import Player from '@src/game/Player';
-import Statistics from "@src/game/Statistics";
 
 export interface SkillSlot {
     readonly element: HTMLElement;
@@ -26,12 +25,10 @@ export class AttackSkillSlot implements SkillSlot {
     readonly element: HTMLElement;
     private readonly progressBar: HTMLProgressElement;
     private _skill: AttackSkill;
-    constructor(private skills: Skills) {
+    constructor(skills: Skills) {
 
         this.element = this.createElement();
         this.progressBar = this.element.querySelectorForce<HTMLProgressElement>('progress');
-
-        this.rankProgressCallback = this.rankProgressCallback.bind(this);
 
         skills.page.querySelectorForce('[data-attack-skill-slot]').appendChild(this.element);
         this._skill = skills.attackSkills[0]!;
@@ -62,35 +59,11 @@ export class AttackSkillSlot implements SkillSlot {
         return this._skill;
     }
 
-    private rankProgressCallback() {
-        if (!this.skill) {
-            return;
-        }
-        const nextRank = this.skill.getNextRank();
-        if (nextRank) {
-            nextRank.incrementProgress();
-            if (!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this) {
-                this.skills.skillViewer.updateView();
-            }
-            if (nextRank.unlocked) {
-                Statistics.statistics.Hits.removeListener('add', this.rankProgressCallback);
-                highlightHTMLElement(this.skills.menuItem, 'click');
-                highlightHTMLElement(this.element, 'mouseover', true);
-            }
-        }
-    }
-
     setSkill(skill: AttackSkill) {
         this.removeModifiers();
         this._skill = skill;
         this.element.querySelectorForce('[data-skill-name]').textContent = skill.rank.config.name || 'unknown';
 
-        const nextRank = skill.getNextRank();
-        Statistics.statistics.Hits.removeListener('add', this.rankProgressCallback);
-
-        if (nextRank && !nextRank.unlocked) {
-            Statistics.statistics.Hits.addListener('add', this.rankProgressCallback);
-        }
         this.applyModifiers();
     }
 
@@ -98,15 +71,16 @@ export class AttackSkillSlot implements SkillSlot {
         Player.modDB.removeBySource(this._skill?.sourceName);
     }
     applyModifiers() {
-        Player.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this._skill.rank.config.baseDamageMultiplier })], this._skill.sourceName);
-        Player.modDB.add([new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this._skill.rank.config.attackSpeed })], this._skill.sourceName);
-        Player.modDB.add([new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this._skill.rank.config.manaCost || 0 })], this._skill.sourceName);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this._skill.rank.config.baseDamageMultiplier })]);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this._skill.rank.config.attackSpeed })]);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this._skill.rank.config.manaCost || 0 })]);
 
-        Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
+        Player.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap(x => x.copy().stats));
     }
 
-    updateProgressBar(attackProgressPct: number) {
-        this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
+    updateProgressBar() {
+        const pct = Player.attackTime / Player.attackWaitTime;
+        this.progressBar.value = pct > 1 ? 0 : pct;
     }
 
     protected createElement() {
@@ -127,8 +101,9 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     private _time = 0;
     private _duration = 0;
     private _running = false;
+    private _cancelled = false;
 
-    constructor(private readonly skills: Skills) {
+    constructor(skills: Skills) {
         this.element = this.createElement();
         this.progressBar = this.element.querySelectorForce<HTMLProgressElement>('progress');
         this.setSkill(undefined);
@@ -165,7 +140,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         return !!this._skill;
     }
     get sufficientMana() {
-        return Statistics.statistics["Current Mana"].get() > (this.skill?.rank.config.manaCost || 0);
+        return Player.stats["Current Mana"].get() > (this.skill?.rank.config.manaCost || 0);
     }
     get automate() {
         return this._automate;
@@ -191,18 +166,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         if (!this._skill || !this.canTrigger) {
             return;
         }
-        const nextRank = this._skill?.getNextRank();
-        if (nextRank) {
-            nextRank.incrementProgress();
-            if (!this.skills.page.classList.contains('hidden') && this.skills.activeSkillSlot === this) {
-                this.skills.skillViewer.updateView();
-            }
-            if (nextRank.unlocked) {
-                highlightHTMLElement(this.skills.menuItem, 'click');
-                highlightHTMLElement(this.element, 'mouseover', true);
-            }
-        }
-        Statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
+        Player.stats["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
         this.loop();
         return true;
     }
@@ -215,26 +179,26 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     }
 
     //Start
-    tryTriggerLoop() {
+    private tryTriggerLoop() {
         if (!this.skill) {
             return;
         }
         const loopEval = () => {
-
-            if (!this._automate) {
-                Statistics.statistics["Current Mana"].removeListener('change', loopEval);
-                return;
-            }
+            if (this._cancelled)
+                if (!this._automate) {
+                    Player.stats["Current Mana"].removeListener('change', loopEval);
+                    return;
+                }
             if (this.canTrigger) {
-                Statistics.statistics["Current Mana"].removeListener('change', loopEval);
+                Player.stats["Current Mana"].removeListener('change', loopEval);
                 this.trigger();
             }
         };
-        Statistics.statistics["Current Mana"].addListener('change', loopEval);
+        Player.stats["Current Mana"].addListener('change', loopEval);
         loopEval();
     }
     //Loop
-    loop() {
+    private loop() {
         if (!this.skill) {
             return;
         }
@@ -243,22 +207,21 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             this._duration = baseDuration * multiplier;
         };
 
-        calcDuration(Statistics.statistics["Skill Duration Multiplier"].get());
+        calcDuration(Player.stats["Skill Duration Multiplier"].get());
         this._time = this._time > 0 ? this._time : this._duration;
         this._running = true;
-        Statistics.statistics["Skill Duration Multiplier"].addListener('change', calcDuration);
+        this._cancelled = false;
+        Player.stats["Skill Duration Multiplier"].addListener('change', calcDuration);
         this.applyModifiers();
         const loopId = Game.gameLoop.subscribe((dt) => {
             if (!this.skill) {
                 return;
             }
 
-            // this._time = this._duration * (this._time / this._duration);
-
             if (this._time <= 0) {
                 this._time = 0;
                 Game.gameLoop.unsubscribe(loopId);
-                Statistics.statistics["Skill Duration Multiplier"].removeListener('change', calcDuration);
+                Player.stats["Skill Duration Multiplier"].removeListener('change', calcDuration);
                 this.stop();
                 return;
             }
@@ -267,32 +230,33 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     }
 
     //End
-    stop() {
-        if (!this.skill) {
+    private stop() {
+        if (!this._skill) {
             throw Error();
         }
 
-        Player.modDB.removeBySource(this.skill.sourceName);
+        this.removeModifiers();
         this.progressBar.value = 0;
 
         this._running = false;
         if (this._automate) {
             this.tryTriggerLoop();
         }
-
-        if (!this.skills.page.classList.contains('hidden') && this === this.skills.activeSkillSlot) {
-            this.skills.skillViewer.updateView();
-        }
     }
 
-    removeModifiers() {
+    cancel() {
+        this._cancelled = true;
+        this.stop();
+    }
+
+    private removeModifiers() {
         if (this._skill) {
             Player.modDB.removeBySource(this._skill.sourceName);
         }
     }
-    applyModifiers() {
+    private applyModifiers() {
         if (this._skill) {
-            Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
+            Player.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap(x => x.copy().stats));
         }
     }
 
@@ -308,14 +272,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         li.classList.add('s-skill-slot', 'g-list-item');
         li.setAttribute('data-tab-target', 'buff');
         li.insertAdjacentHTML('beforeend', '<div data-skill-name></div>');
-
-        {
-            const progressBar = document.createElement('progress');
-            progressBar.max = 1;
-            progressBar.value = 0;
-
-            li.appendChild(progressBar);
-        }
+        li.insertAdjacentHTML('beforeend', `<progress class="small" value="0" max="1"></progress>`);
         return li;
     }
 

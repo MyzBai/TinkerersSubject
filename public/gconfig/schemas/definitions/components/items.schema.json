@@ -7,7 +7,7 @@
             "type": "object",
             "required": [ "levelReq", "itemList", "craftList", "modLists" ],
             "properties": {
-                "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
+                "levelReq": { "$ref": "../definitions.schema.json#/definitions/levelReq" },
                 "itemList": {
                     "type": "array",
                     "items": {
@@ -32,8 +32,8 @@
                                     "removeRandom", "removePhysical", "removeElemental", "removeCritical", "removeMana", "removeBleed", "removeBurn",
                                     "removeRandomAddPhysical", "removeRandomAddElemental", "removeRandomAddCritical", "removeRandomAddMana", "removeRandomAddBleed", "removeRandomAddBurn" ]
                             },
-                            "levelReq": { "$ref": "../../gameConfig.schema.json#/definitions/levelReq" },
-                            "goldCost": { "$ref": "../../gameConfig.schema.json#/definitions/goldCost" }
+                            "levelReq": { "$ref": "../definitions.schema.json#/definitions/levelReq" },
+                            "goldCost": { "$ref": "../definitions.schema.json#/definitions/goldCost" }
                         }
                     }
                 },

@@ -1,5 +1,6 @@
 import { clamp, querySelector } from "@src/utils/helpers";
-import { AilmentData, Ailments, AilmentSave } from "./Ailments";
+import Ailments, { AilmentData } from "./Ailments";
+import type Entity from "./Entity";
 import Game, { Save } from "./Game";
 import Statistics from "./Statistics";
 
@@ -36,20 +37,22 @@ class Enemy {
             this.updateHealthBar();
         });
 
-        Statistics.statistics.Level.addListener('change', level => {
+        Statistics.gameStats.Level.addListener('change', level => {
             this._index = clamp(level, 1, this.maxIndex + 1) - 1;
             this.spawn();
         });
 
         this.healthList = Game.config!.enemies.enemyList;
         this._index = Game.saveObj?.enemy?.index || 0;
+
+        this.ailments.init();
     }
 
     setup() {
         this.spawn();
         this.health = Game.saveObj?.enemy?.health || this.maxHealth;
         this.updateHealthBar();
-        this.ailments.setup();
+        // this.ailments.setup();
     }
 
     setIndex(index: number) {
@@ -61,7 +64,7 @@ class Enemy {
         if (this.index === this.maxIndex + 1) {
             this.healthBar.textContent = 'Dummy (Cannot die)';
         }
-        this.ailments.reset();
+        // this.ailments.reset();
     }
 
     dealDamage(amount: number) {
@@ -73,7 +76,7 @@ class Enemy {
         if (this.health <= 0) {
             this.health = 0;
             this._index++;
-            Statistics.statistics.Level.add(1);
+            Statistics.gameStats.Level.add(1);
         }
     }
 
@@ -81,10 +84,8 @@ class Enemy {
         this.dealDamage(damage);
     }
 
-    applyAilments(instances: AilmentData[]) {
-        for (const instance of instances) {
-            this.ailments.add(instance);
-        }
+    applyAilments(source: Entity, ...instances: AilmentData[]) {
+        this.ailments.addAilments(source, ...instances);
     }
 
     save(saveObj: Save) {
@@ -92,11 +93,6 @@ class Enemy {
             index: this.index,
             health: this.health,
             dummyDamage: 0,
-            ailments: this.ailments.handlers.reduce<AilmentSave[]>((a, c) => {
-                a?.push({ type: c.type, instances: c.instances.map(x => ({ time: x.time, damageFac: x.damageFac })) });
-                return a;
-            }, [])
-
         };
     }
 
@@ -112,6 +108,6 @@ export interface EnemySave {
     index?: number;
     health?: number;
     dummyDamage?: number;
-    ailments: AilmentSave[];
+    // ailments: AilmentSave[];
 }
 

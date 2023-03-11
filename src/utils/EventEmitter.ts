@@ -3,7 +3,6 @@ interface CallbackOptions {
     once?: boolean;
 }
 type Listener<T> = { callback: Callback<T>, opts?: CallbackOptions }
-
 export default class EventEmitter<T> {
     private readonly listeners = new Map<Callback<T>, Listener<T>>;
 

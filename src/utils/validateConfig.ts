@@ -1,5 +1,6 @@
 import Ajv from 'ajv';
 import gameConfigSchema from '@public/gconfig/schemas/gameConfig.schema.json';
+import definitionsSchema from '@public/gconfig/schemas/definitions/definitions.schema.json';
 import playerSchema from '@public/gconfig/schemas/definitions/player.schema.json';
 import enemiesSchema from '@public/gconfig/schemas/definitions/enemies.schema.json';
 import optionsSchema from '@public/gconfig/schemas/definitions/options.schema.json';
@@ -13,4 +14,4 @@ import missionsSchema from '@public/gconfig/schemas/definitions/components/missi
 import achievementsSchema from '@public/gconfig/schemas/definitions/components/achievements.schema.json';
 import minionsSchema from '@public/gconfig/schemas/definitions/components/minions.schema.json';
 
-export const configValidator = new Ajv({ strictTuples: false, schemas: [playerSchema, enemiesSchema, optionsSchema, tasksSchema, modsSchema, componentsSchema, skillsSchema, passivesSchema, itemsSchema, missionsSchema, achievementsSchema, minionsSchema] }).compile(gameConfigSchema);
+export const configValidator = new Ajv({ strictTuples: false, schemas: [definitionsSchema, playerSchema, enemiesSchema, optionsSchema, tasksSchema, modsSchema, componentsSchema, skillsSchema, passivesSchema, itemsSchema, missionsSchema, achievementsSchema, minionsSchema] }).compile(gameConfigSchema);

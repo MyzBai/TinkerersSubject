@@ -116,10 +116,12 @@
         display: flex;
         background-color: $color-accordion-header-bg;
         padding: $padding-list-item;
+        margin-bottom: 1px;
         cursor: default;
         user-select: none;
-        * {
+        & > * {
             pointer-events: none;
+            user-select: all;
         }
         &:hover {
             background-color: $color-accordion-hover-bg;
