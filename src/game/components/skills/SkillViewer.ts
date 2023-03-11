@@ -74,6 +74,19 @@ export default class SkillViewer {
                 this.createView(this.skills.activeSkill, this.rankIndex);
             }
         });
+
+
+        Statistics.gameStats.Gold.addListener('change', x => {
+            if(this.skills.page.classList.contains('hidden')){
+                return;
+            }
+            const rank = this.skills.activeSkill.ranks[this.rankIndex];
+            if(rank && !rank.unlocked){
+                if(rank.config.goldCost <= x){
+                    this.unlockButton.disabled = false;
+                }
+            }
+        });
     }
 
     createView(skill: Skill, rankIndex?: number) {
@@ -138,7 +151,7 @@ export default class SkillViewer {
 
 
         this.unlockButton.classList.toggle('hidden', rank.unlocked);
-        this.unlockButton.disabled = Statistics.gameStats.Gold.get() < (rank.config.goldCost || 0);
+        this.unlockButton.disabled = Statistics.gameStats.Gold.get() < rank.config.goldCost;
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
 
 

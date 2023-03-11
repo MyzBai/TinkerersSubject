@@ -329,6 +329,17 @@ class View {
             }
         });
 
+        Statistics.gameStats.Gold.addListener('change', x => {
+            if (this.minions.page.classList.contains('hidden')) {
+                return;
+            }
+            const rank = this.activeMinion?.ranks[this.rankIndex];
+            if (rank && !rank.unlocked) {
+                if (rank.config.goldCost <= x) {
+                    this.unlockButton.disabled = false;
+                }
+            }
+        });
     }
 
     show(minion: Minion, rankIndex?: number) {
