@@ -1,4 +1,4 @@
-import { avg, clamp } from "@utils/helpers";
+import { avg, clamp, hasFlags } from "@utils/helpers";
 import type { MinionEntity, PlayerEntity } from "../Entity";
 import type Entity from "../Entity";
 import { StatModifier, StatModifierFlag, StatName, StatModifierValueType, KeywordModifierFlag } from "../mods";
@@ -163,20 +163,16 @@ export function calcModSum(valueType: StatModifierValueType, name: StatName | St
 
     name = Array.isArray(name) ? name : [name]; // force array
     let result = valueType === 'More' ? 1 : 0;
-    const hasFlag = (a: number, b: number) => {
-        return (a & b) === b;
-    };
-
     const filteredModList = config.statModList.filter(x => {
         if (!name.includes(x.name)) {
             return false;
         }
         if (x.valueType !== valueType)
             return false;
-        if (!hasFlag(config.keywords, x.keywords)) {
+        if (!hasFlags(config.keywords, x.keywords)) {
             return false;
         }
-        if (!hasFlag(config.flags, x.flags || 0))
+        if (!hasFlags(config.flags, x.flags || 0))
             return false;
         return true;
     });
