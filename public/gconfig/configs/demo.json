@@ -557,6 +557,13 @@
                         "points": 3,
                         "mod": "+{2} Maximum Burn Stack"
                     }
+                ],
+                [
+                    {
+                        "levelReq": 1,
+                        "points": 1,
+                        "mod": "+{1} Maximum Minions"
+                    }
                 ]
             ]
         },
@@ -997,36 +1004,71 @@
                     {
                         "name": "Golem",
                         "levelReq": 1,
-                        "attackSpeed": 1,
-                        "baseDamageMultiplier": 100,
+                        "attackSpeed": 0.8,
+                        "baseDamageMultiplier": 150,
                         "goldCost": 50,
                         "mods": [
-                            "Adds {1} To {3} Physical Damage",
-                            "+{100}% Hit Chance"
+                            "+{50}% Hit Chance",
+                            "Adds {2} To {3} Physical Damage"
                         ]
                     },
                     {
-                        "name": "Golem I",
-                        "attackSpeed": 1,
-                        "baseDamageMultiplier": 100,
+                        "name": "Golem II",
+                        "attackSpeed": 0.8,
+                        "baseDamageMultiplier": 180,
                         "goldCost": 200,
                         "mods": [
-                            "Adds {3} To {5} Physical Damage",
-                            "+{100}% Hit Chance"
+                            "+{50}% Hit Chance",
+                            "Adds {3} To {8} Physical Damage"
+                        ]
+                    },
+                    {
+                        "name": "Golem III",
+                        "attackSpeed": 0.8,
+                        "baseDamageMultiplier": 200,
+                        "goldCost": 1000,
+                        "mods": [
+                            "+{50}% Hit Chance",
+                            "Adds {5} To {10} Physical Damage"
                         ]
                     }
                 ],
                 [
                     {
                         "name": "Skeleton",
-                        "attackSpeed": 0.9,
-                        "baseDamageMultiplier": 130,
+                        "attackSpeed": 1.3,
+                        "baseDamageMultiplier": 100,
                         "levelReq": 1,
                         "goldCost": 100,
                         "mods": [
+                            "+{30}% Hit Chance",
                             "Adds {2} To {3} Physical Damage",
                             "+{50}% Critical Hit Chance",
                             "+{200}% Critical Hit Multiplier"
+                        ]
+                    },
+                    {
+                        "name": "Skeleton II",
+                        "attackSpeed": 1.35,
+                        "baseDamageMultiplier": 120,
+                        "goldCost": 500,
+                        "mods": [
+                            "+{35}% Hit Chance",
+                            "Adds {3} To {4} Physical Damage",
+                            "+{60}% Critical Hit Chance",
+                            "+{200}% Critical Hit Multiplier"
+                        ]
+                    },
+                    {
+                        "name": "Skeleton III",
+                        "attackSpeed": 1.35,
+                        "baseDamageMultiplier": 120,
+                        "goldCost": 2000,
+                        "mods": [
+                            "+{35}% Hit Chance",
+                            "Adds {3} To {5} Physical Damage",
+                            "+{70}% Critical Hit Chance",
+                            "+{250}% Critical Hit Multiplier"
                         ]
                     }
                 ],
@@ -1035,21 +1077,36 @@
                         "name": "Wolf",
                         "levelReq": 1,
                         "attackSpeed": 1.2,
-                        "baseDamageMultiplier": 80,
+                        "baseDamageMultiplier": 90,
                         "goldCost": 100,
                         "mods": [
+                            "+{60}% Hit Chance",
                             "Adds {2} To {3} Physical Damage",
                             "+{5}% Chance To Bleed"
                         ]
                     },
                     {
-                        "name": "Wolf",
+                        "name": "Wolf II",
                         "attackSpeed": 1.2,
-                        "baseDamageMultiplier": 90,
+                        "baseDamageMultiplier": 100,
                         "goldCost": 500,
                         "mods": [
-                            "Adds {2} To {3} Physical Damage",
-                            "+{10}% Chance To Bleed"
+                            "+{60}% Hit Chance",
+                            "Adds {3} To {5} Physical Damage",
+                            "+{10}% Chance To Bleed",
+                            "{30}% More Bleed Damage"
+                        ]
+                    },
+                    {
+                        "name": "Wolf III",
+                        "attackSpeed": 1.3,
+                        "baseDamageMultiplier": 120,
+                        "goldCost": 2000,
+                        "mods": [
+                            "+{70}% Hit Chance",
+                            "Adds {5} To {8} Physical Damage",
+                            "+{10}% Chance To Bleed",
+                            "{50}% More Bleed Damage"
                         ]
                     }
                 ]
