@@ -17,16 +17,7 @@ export default abstract class Entity {
     protected _attackWaitTime = Number.POSITIVE_INFINITY;
     protected ailments: AilmentData[] = [];
     constructor(readonly name: string) {
-        // this.modDB.onChange.listen(async () => {
-        //     return new Promise((resolve) => {
-        //         clearTimeout(this.updateId);
-        //         this.updateId = window.setTimeout(async () => {
-        //             this.updateStats();
-        //             this.onStatsUpdate.invoke(this);
-        //             resolve();
-        //         }, 1);
-        //     });
-        // });
+
 
     }
 
@@ -104,6 +95,17 @@ export class PlayerEntity extends Entity {
     readonly stats = new PlayerStatistics().stats;
     constructor() {
         super('Player');
+        
+        this.modDB.onChange.listen(async () => {
+            return new Promise((resolve) => {
+                clearTimeout(this.updateId);
+                this.updateId = window.setTimeout(async () => {
+                    this.updateStats();
+                    this.onStatsUpdate.invoke(this);
+                    resolve();
+                }, 1);
+            });
+        });
     }
 
     get canAttack() {
