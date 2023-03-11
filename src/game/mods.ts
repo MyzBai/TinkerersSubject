@@ -133,7 +133,8 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     { desc: '#% More Attack Speed', tags: ['Attack', 'Speed'], stats: [{ name: 'AttackSpeed', valueType: 'More' }] },
     { desc: '+#% Hit Chance', tags: ['Attack'], stats: [{ name: 'HitChance', valueType: 'Base' }] },
     { desc: '+# Maximum Minions', tags: ['Minion', 'Global'], stats: [{ name: 'MinionCount', valueType: 'Base', keywords: KeywordModifierFlag.Global }] },
-    { desc: '#% Increased Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlag.Damage | StatModifierFlag.Minion }] },
+    { desc: '#% Increased Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'Inc', flags: StatModifierFlag.Damage, keywords: KeywordModifierFlag.Minion }] },
+    { desc: '#% More Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'More', flags: StatModifierFlag.Damage, keywords: KeywordModifierFlag.Minion }] },
 ];
 
 export class Modifier {

@@ -564,6 +564,13 @@
                         "points": 1,
                         "mod": "+{1} Maximum Minions"
                     }
+                ],
+                [
+                    {
+                        "levelReq": 1,
+                        "points": 1,
+                        "mod": "{50}% More Minion Damage"
+                    }
                 ]
             ]
         },
