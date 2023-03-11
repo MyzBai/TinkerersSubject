@@ -60,7 +60,7 @@ export class EntityStatistics implements StatisticsObject {
         'Elemental Attack Damage': new Statistic(),
         //Crit
         'Critical Hit Chance': new Statistic({ format: 'pct' }),
-        'Critical Hit Multiplier': new Statistic({ format: 'pct' }),
+        'Critical Hit Multiplier': new Statistic({ defaultValue: 1, format: 'pct' }),
 
         //Bleed
         'Bleed Chance': new Statistic({ format: 'pct' }),
