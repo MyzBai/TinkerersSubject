@@ -1,7 +1,6 @@
 import { querySelector } from "@src/utils/helpers";
 import Value from "@utils/Value";
-import { calcModTotal, calculateEntityStats, Configuration } from "./calc/calcMod";
-import type Entity from "./Entity";
+import { calcModTotal, Configuration } from "./calc/calcMod";
 import Game, { Save } from "./Game";
 import { KeywordModifierFlag } from "./mods";
 import Player from "./Player";
@@ -15,7 +14,8 @@ interface StatisticOptions {
     decimals?: number;
 }
 
-interface StatisticsList {
+
+interface StatisticsObject {
     stats: Record<string, Statistic>;
 }
 
@@ -31,7 +31,7 @@ export class Statistic extends Value {
     }
 }
 
-export class GameStatistics implements StatisticsList {
+export class GameStatistics implements StatisticsObject {
     readonly stats = {
         'Time Played': new Statistic({ format: 'time' }),
         'Level': new Statistic({ defaultValue: 1, sticky: true }),
@@ -47,7 +47,7 @@ export class GameStatistics implements StatisticsList {
     } as const;
 }
 
-export class EntityStatistics implements StatisticsList {
+export class EntityStatistics implements StatisticsObject {
     readonly stats = {
         'Dps': new Statistic({ sticky: true }),
         'Hit Chance': new Statistic({ sticky: true, format: 'pct' }),
@@ -112,14 +112,10 @@ export class Statistics {
     private readonly pageListContainer: HTMLElement;
     private readonly sideListContainer: HTMLElement;
     readonly gameStats = new GameStatistics().stats;
-    private readonly statistics = new Map<string, StatisticsList['stats']>();
+    private readonly statistics = new Map<string, StatisticsObject['stats']>();
     constructor() {
         this.pageListContainer = this.page.querySelectorForce('ul');
         this.sideListContainer = querySelector('.p-game .s-stats ul');
-        // this.createStatisticsElements();
-        // this.createSideListItems();
-
-        this.updateEntityStats = this.updateEntityStats.bind(this);
     }
 
     init() {
@@ -137,43 +133,42 @@ export class Statistics {
 
         Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
-                this.updatePageList();
+                this.updateContainer(this.pageListContainer);
             }
         });
 
-        this.statistics.set('Global', this.gameStats);
-        this.createPageListGroup('Global');
-        this.createSideListGroup('Global');
         this.calcGlobalStats();
+        this.updateStats('Global', this.gameStats);
     }
 
-    addEntity(entity: Entity) {
-        if (!this.statistics.has(entity.name)) {
-            const combined: Record<string, Statistic> = {};
-            Object.entries(entity.stats).forEach(([key, value]) => {
-                if (!combined[key as keyof EntityStatistics['stats']]) {
-                    combined[key as keyof EntityStatistics['stats']] = new Statistic(value.opts);
-                }
-                combined[key as keyof EntityStatistics['stats']]?.add(value.get());
-            });
-            this.statistics.set(entity.name, combined);
-            this.createPageListGroup(entity.name);
-            this.createSideListGroup(entity.name);
+    updateAll() {
+        for (const [key, stats] of this.statistics) {
+            this.updateStats(key, stats);
+        }
+    }
 
-            entity.onStatsUpdate.listen(this.updateEntityStats);
+    updateStats(name: string, stats: StatisticsObject['stats']) {
+        if (!this.statistics.has(name)) {
+            this.statistics.set(name, stats);
+        }
 
+        const group = this.pageListContainer.querySelector(`[data-name="${name}"]`);
+        if (group) {
+            if (!this.page.classList.contains('hidden')) {
+                this.updateHeaderContents(name, stats, this.pageListContainer);
+            }
+            this.updateHeaderContents(name, stats, this.sideListContainer);
             return;
         }
-        Object.entries(this.statistics.get(entity.name)!).forEach(([key, value]) => {
-            value.add(entity.stats[key as keyof Entity['stats']]?.get() || 0);
-        });
-        calculateEntityStats(entity);
+
+        this.createPageListGroup(name);
+        this.createSideListGroup(name);
     }
 
-    removeEntity(entity: Entity) {
-        this.statistics.delete(entity.name);
-        this.pageListContainer.querySelector('.g-accordion[data-name]')?.classList.add('hidden');
-
+    removeStats(name: string) {
+        this.statistics.delete(name);
+        this.pageListContainer.querySelector(`[data-name="${name}"]`)?.remove();
+        this.sideListContainer.querySelector(`[data-name="${name}"]`)?.remove();
     }
 
     calcGlobalStats() {
@@ -184,14 +179,6 @@ export class Statistics {
         }
         const v = calcModTotal('GoldGeneration', config);
         this.gameStats["Gold Generation"].set(v);
-    }
-
-    private updateEntityStats(entity: Entity) {
-        if (this.statistics.has(entity.name)) {
-            this.statistics.set(entity.name, entity.stats);
-        }
-        this.updatePageList();
-        this.updateSideList();
     }
 
     setup() {
@@ -217,7 +204,7 @@ export class Statistics {
             }
         }
         accordion?.querySelectorAll(`[data-stat]`).forEach(element => {
-            const statName = element.getAttribute('data-stat') as keyof StatisticsList['stats'];
+            const statName = element.getAttribute('data-stat') as keyof StatisticsObject['stats'];
 
             element.classList.toggle('selected', this.statistics.get(label)?.[statName]?.sticky || false);
             element.addEventListener('click', () => {
@@ -227,11 +214,13 @@ export class Statistics {
                 }
                 stat.sticky = !stat.sticky;
                 element.classList.toggle('selected', stat.sticky);
-                const header = this.sideListContainer.querySelectorForce(`.g-accordion[data-name="${label}"]`);
-                header.querySelector(`[data-stat="${statName}"]`)?.classList.toggle('hidden', !stat.sticky);
-                header.classList.toggle('hidden', header.querySelectorAll('[data-stat]:not(.hidden)').length === 0);
+                this.updateContainer(this.sideListContainer);
             });
         });
+        const stats = this.statistics.get(label);
+        if (stats) {
+            this.updateHeaderContents(label, stats, this.pageListContainer);
+        }
     }
 
     private createSideListGroup(label: string) {
@@ -241,10 +230,14 @@ export class Statistics {
         } else {
             accordion = this.createAccordion(label) || null;
             if (accordion) {
+                accordion?.setAttribute('data-side-stats', '');
                 this.sideListContainer.appendChild(accordion);
             }
         }
-        this.updateSideList();
+        const stats = this.statistics.get(label);
+        if (stats) {
+            this.updateHeaderContents(label, stats, this.sideListContainer);
+        }
     }
 
     private createAccordion(label: string) {
@@ -284,35 +277,13 @@ export class Statistics {
             header.toggleAttribute('data-open');
             const stats = this.statistics.get(label);
             if (stats) {
-                this.updateHeaderContents(accordion, stats);
+                const container = accordion.closest('ul');
+                if (container) {
+                    this.updateHeaderContents(label, stats, container);
+                }
             }
         });
         return accordion;
-    }
-
-    private updatePageList() {
-        this.updateContainer(this.pageListContainer);
-    }
-
-    updateSideList() {
-        this.updateContainer(this.sideListContainer);
-        const headers = this.sideListContainer.querySelectorAll('[data-name]');
-        for (const header of headers) {
-            const label = header.getAttribute('data-name');
-            if (!label) {
-                continue;
-            }
-            const items = header.querySelectorAll('[data-stat]');
-            for (const item of items) {
-                const statName = item.getAttribute('data-stat') as keyof StatisticsList['stats'];
-                const stat = this.statistics.get(label)?.[statName];
-                if (!stat) {
-                    continue;
-                }
-                const sticky = stat.sticky || false;
-                item.classList.toggle('hidden', !sticky);
-            }
-        }
     }
 
     private updateContainer(container: HTMLElement) {
@@ -322,18 +293,28 @@ export class Statistics {
             if (!isOpen || !accordion) {
                 continue;
             }
-            this.updateHeaderContents(accordion, stats);
+            this.updateHeaderContents(label, stats, container);
+            accordion.classList.toggle('hidden', accordion.querySelectorAll('[data-stat]:not(.hidden)').length === 0);
         }
     }
 
-    private updateHeaderContents(accordion: HTMLElement, stats: StatisticsList['stats']) {
+    private updateHeaderContents(name: string, stats: StatisticsObject['stats'], container: HTMLElement) {
+        const accordion = container.querySelector<HTMLElement>(`[data-name="${name}"]`);
+        if (!accordion || !accordion.querySelector('.header')?.hasAttribute('data-open')) {
+            return;
+        }
         Object.entries(stats).forEach(([key, value]) => {
-            const varElement = accordion?.querySelector<HTMLElement>(`[data-stat="${key}"] var`);
-            if (!varElement) {
+            const element = accordion?.querySelector<HTMLElement>(`[data-stat="${key}"]`);
+            const varElement = element?.querySelector('var');
+            if (!element || !varElement) {
                 return;
             }
+
+            if (container === this.sideListContainer) {
+                element.classList.toggle('hidden', !value.sticky);
+            }
             varElement.textContent = this.formatVariableText(value);
-        })
+        });
     }
 
     private formatVariableText(statistic: Statistic) {

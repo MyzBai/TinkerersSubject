@@ -417,6 +417,16 @@
             grid-auto-flow: column;
 
             .wrapper {
+
+                .s-toolbar{
+                    display: grid;
+                    grid-template-columns: auto auto 1fr;
+                    span{
+                        text-align: center;
+                        align-self: center;
+                    }
+                }
+
                 [data-slots] {
                     min-height: 0;
                     overflow-y: auto;
