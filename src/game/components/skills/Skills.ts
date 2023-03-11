@@ -46,6 +46,14 @@ export default class Skills extends Component {
                 });
             }
 
+            const savedAttackSkillSlot = Game.saveObj?.skills?.attackSkillSlot;
+            if (savedAttackSkillSlot) {
+                const savedAttackSkill = this.attackSkills.find(x => x.name === savedAttackSkillSlot.name);
+                if (savedAttackSkill) {
+                    savedAttackSkill?.setRankByIndex(savedAttackSkillSlot.rankIndex || 0);
+                    this.attackSkillSlot.setSkill(savedAttackSkill);
+                }
+            }
             if (!this.attackSkillSlot.skill) {
                 this.attackSkillSlot.setSkill(this.attackSkills[0]!);
             }

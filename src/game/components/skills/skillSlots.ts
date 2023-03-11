@@ -32,15 +32,6 @@ export class AttackSkillSlot implements SkillSlot {
 
         skills.page.querySelectorForce('[data-attack-skill-slot]').appendChild(this.element);
         this._skill = skills.attackSkills[0]!;
-
-        const saveData = Game.saveObj?.skills;
-        const savedAttackSkillName = saveData?.attackSkillSlot?.name;
-        const savedAttackSkill = savedAttackSkillName ? skills.attackSkills.find(x => x.name === savedAttackSkillName) : undefined;
-        savedAttackSkill?.setRankByIndex(saveData?.attackSkillSlot?.rankIndex || 0);
-        if (savedAttackSkill) {
-            this.setSkill(savedAttackSkill);
-        }
-
     }
     get canEnable() {
         return true;
@@ -108,21 +99,25 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         this.progressBar = this.element.querySelectorForce<HTMLProgressElement>('progress');
         this.setSkill(undefined);
 
-        const savedSkillSlotData = Game.saveObj?.skills?.buffSkillSlotList?.find(x => x && x.index === skills.buffSkillSlots.length);
-        if (savedSkillSlotData) {
-            const skill = skills.buffSkills.find(x => x.firstRank!.config.name === savedSkillSlotData.name);
-            if (skill) {
-                this.setSkill(skill);
-                this._time = savedSkillSlotData.time || 0;
-                this._automate = savedSkillSlotData.automate || false;
-                if (savedSkillSlotData.running) {
-                    this.loop();
-                } else {
-                    this.tryTriggerLoop();
+        const savedSlots = Game.saveObj?.skills?.buffSkillSlotList;
+        if (savedSlots) {
+            const savedSlot = savedSlots.find(x => x?.index === skills.buffSkillSlots.length);
+            if (savedSlot) {
+                const skill = skills.buffSkills.find(x => x.name === savedSlot.name);
+                if (skill) {
+                    skill.setRankByIndex(savedSlot.rankIndex || 0);
+                    this.setSkill(skill);
+                    this._time = savedSlot.time || 0;
+                    this._automate = savedSlot.automate || false;
+                    if (savedSlot.running) {
+                        this.loop();
+                    } else {
+                        this.tryTriggerLoop();
+                    }
+
                 }
             }
         }
-
         highlightHTMLElement(skills.menuItem, 'click');
         highlightHTMLElement(this.element, 'mouseover');
     }
@@ -184,11 +179,10 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             return;
         }
         const loopEval = () => {
-            if (this._cancelled)
-                if (!this._automate) {
-                    Player.stats["Current Mana"].removeListener('change', loopEval);
-                    return;
-                }
+            if (this._cancelled || !this._automate) {
+                Player.stats["Current Mana"].removeListener('change', loopEval);
+                return;
+            }
             if (this.canTrigger) {
                 Player.stats["Current Mana"].removeListener('change', loopEval);
                 this.trigger();
