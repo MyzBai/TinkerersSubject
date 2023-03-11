@@ -222,7 +222,7 @@ class Item {
     set mods(v: ItemModifier[]) {
         Player.modDB.removeBySource(this.name);
         this._mods = v;
-        Player.modDB.add(this._mods.flatMap(x => x.copy().stats), this.name);
+        Player.modDB.add(this.name, ...this._mods.flatMap(x => x.copy().stats));
     }
     private createElement() {
         const li = document.createElement('li');

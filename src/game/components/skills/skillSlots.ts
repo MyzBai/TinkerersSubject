@@ -71,11 +71,11 @@ export class AttackSkillSlot implements SkillSlot {
         Player.modDB.removeBySource(this._skill?.sourceName);
     }
     applyModifiers() {
-        Player.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this._skill.rank.config.baseDamageMultiplier })], this._skill.sourceName);
-        Player.modDB.add([new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this._skill.rank.config.attackSpeed })], this._skill.sourceName);
-        Player.modDB.add([new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this._skill.rank.config.manaCost || 0 })], this._skill.sourceName);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'BaseDamageMultiplier', valueType: 'Base', value: this._skill.rank.config.baseDamageMultiplier })]);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'AttackSpeed', valueType: 'Base', value: this._skill.rank.config.attackSpeed })]);
+        Player.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: 'AttackManaCost', valueType: 'Base', value: this._skill.rank.config.manaCost || 0 })]);
 
-        Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
+        Player.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap(x => x.copy().stats));
     }
 
     updateProgressBar() {
@@ -184,11 +184,11 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             return;
         }
         const loopEval = () => {
-            if(this._cancelled)
-            if (!this._automate) {
-                Player.stats["Current Mana"].removeListener('change', loopEval);
-                return;
-            }
+            if (this._cancelled)
+                if (!this._automate) {
+                    Player.stats["Current Mana"].removeListener('change', loopEval);
+                    return;
+                }
             if (this.canTrigger) {
                 Player.stats["Current Mana"].removeListener('change', loopEval);
                 this.trigger();
@@ -256,7 +256,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     }
     private applyModifiers() {
         if (this._skill) {
-            Player.modDB.add(this._skill.rank.mods.flatMap(x => x.copy().stats), this._skill.sourceName);
+            Player.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap(x => x.copy().stats));
         }
     }
 

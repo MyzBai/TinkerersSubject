@@ -4,7 +4,7 @@ import { calcAttack } from "./calc/calcDamage";
 import { calcMinionStats, calcPlayerStats } from "./calc/calcMod";
 import Enemy from "./Enemy";
 import Game from "./Game";
-import { ModDB, StatModifier } from "./mods";
+import { ModDB } from "./mods";
 import Statistics, { EntityStatistics, MinionStatistics, PlayerStatistics } from "./Statistics";
 
 export default abstract class Entity {
@@ -82,7 +82,6 @@ export default abstract class Entity {
             }
             this.ailments.push(...result.ailments);
             Enemy.applyAilments(this, ...result.ailments);
-            this.modDB.add([new StatModifier({ name: 'AilmentStack', value: 5, valueType: 'Base' })], 'test');
         }
     }
 
@@ -95,7 +94,7 @@ export class PlayerEntity extends Entity {
     readonly stats = new PlayerStatistics().stats;
     constructor() {
         super('Player');
-        
+
         this.modDB.onChange.listen(async () => {
             return new Promise((resolve) => {
                 clearTimeout(this.updateId);

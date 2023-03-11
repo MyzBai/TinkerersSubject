@@ -121,7 +121,7 @@ class Passive {
         if (v) {
             this._assigned = true;
             const mods = this.mod.copy().stats;
-            modDB.add(mods, source);
+            modDB.add(source, ...mods);
         } else {
             this._assigned = false;
             modDB.removeBySource(source);

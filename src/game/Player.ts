@@ -21,7 +21,7 @@ export class Player extends PlayerEntity {
 
         if (Game.config!.player) {
             Game.config!.player.modList.forEach(x => {
-                this.modDB.add(new Modifier(x).stats, 'Player');
+                this.modDB.add('Player', ...new Modifier(x).stats);
             });
         }
 

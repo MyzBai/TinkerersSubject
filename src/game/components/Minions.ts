@@ -265,7 +265,7 @@ class Minion extends MinionEntity {
     }
 
     disable() {
-        if(!this._enabled){
+        if (!this._enabled) {
             return;
         }
         this._modDB.clear();
@@ -279,9 +279,9 @@ class Minion extends MinionEntity {
         const minionModsFromPlayer = Player.modDB.modList.filter(x => (x.flags & StatModifierFlag.Minion) === StatModifierFlag.Minion);
         const minionMods = this.rank.mods.flatMap<StatModifier>(x => x.copy().stats);
         const sourceName = `Minion/${this.rank.config.name}`;
-        this.modDB.add([new StatModifier({ name: 'AttackSpeed', value: this.rank.config.attackSpeed, valueType: 'Base' })], sourceName);
-        this.modDB.add([new StatModifier({ name: 'BaseDamageMultiplier', value: this.rank.config.baseDamageMultiplier, valueType: 'Base' })], sourceName);
-        this.modDB.add([...minionModsFromPlayer, ...minionMods], sourceName);
+        this.modDB.add(sourceName, ...[new StatModifier({ name: 'AttackSpeed', value: this.rank.config.attackSpeed, valueType: 'Base' })]);
+        this.modDB.add(sourceName, ...[new StatModifier({ name: 'BaseDamageMultiplier', value: this.rank.config.baseDamageMultiplier, valueType: 'Base' })]);
+        this.modDB.add(sourceName, ...[...minionModsFromPlayer, ...minionMods]);
 
         calcMinionStats(this);
         Statistics.updateStats(this.name, this.stats);

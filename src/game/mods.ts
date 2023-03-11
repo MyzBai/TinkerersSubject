@@ -236,7 +236,7 @@ export class StatModifier {
     source?: string;
     readonly flags: StatModifierFlag;
     readonly keywords: KeywordModifierFlag;
-    constructor(data: StatModifierParams) {
+    constructor(private readonly data: StatModifierParams) {
         this.name = data.name;
         this.valueType = data.valueType;
         this.value = data.value;
@@ -249,6 +249,10 @@ export class StatModifier {
 
     randomizeValue() {
         this.value = Math.random() * (this.max - this.min) + this.min;
+    }
+
+    copy() {
+        return new StatModifier(this.data);
     }
 }
 
@@ -264,14 +268,23 @@ export class ModDB {
         return this._modList;
     }
 
-    add(statMods: StatModifier[], source: string) {
-        statMods.forEach(x => {
-            x.source = source;
-            Object.freeze(x);
-        });
-        this.modList.push(...statMods);
-        this.onChange.invoke([...this.modList]);
+    add(source: string, ...statMods: StatModifier[]) {
+        this.modList.push(...statMods.map(x => {
+            const copy = x.copy();
+            copy.source = source;
+            Object.freeze(copy);
+            return copy;
+        }));
     }
+
+    // add(statMods: StatModifier[], source: string) {
+    //     statMods.forEach(x => {
+    //         x.source = source;
+    //         Object.freeze(x);
+    //     });
+    //     this.modList.push(...statMods);
+    //     this.onChange.invoke([...this.modList]);
+    // }
 
     removeBySource(source: string) {
         this._modList = this.modList.filter(x => x.source !== source);
@@ -282,6 +295,4 @@ export class ModDB {
         this._modList = [];
         this.onChange.invoke([...this.modList]);
     }
-
-
 }
