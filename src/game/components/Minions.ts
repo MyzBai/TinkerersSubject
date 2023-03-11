@@ -412,7 +412,7 @@ class View {
         if (this.minions.activeSlot.minion?.rank === rank) {
             return false;
         }
-        if (this.minions.slots.filter(x => x.minion !== minion).some(x => x.minion === minion)) {
+        if (this.minions.slots.filter(x => x !== this.minions.activeSlot).some(x => x.minion === minion)) {
             return false;
         }
         return true;
