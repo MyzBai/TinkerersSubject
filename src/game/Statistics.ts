@@ -184,6 +184,7 @@ export class Statistics {
         Object.values(this.gameStats).forEach(x => x.reset());
         this.statistics.clear();
         this.pageListContainer.replaceChildren();
+        this.sideListContainer.replaceChildren();
     }
 
     private createPageListGroup(label: string) {
