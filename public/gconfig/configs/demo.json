@@ -9,13 +9,13 @@
     },
     "enemies": {
         "enemyList": [
-            100,
-            500,
+            200,
             1000,
-            8000,
-            50000,
-            150000,
-            500000,
+            10000,
+            25000,
+            100000,
+            300000,
+            800000,
             2000000,
             10000000
         ]
@@ -52,25 +52,24 @@
                     [
                         {
                             "name": "Physical Attack",
-                            "attackSpeed": 0.5,
-                            "baseDamageMultiplier": 250,
+                            "attackSpeed": 0.6,
+                            "baseDamageMultiplier": 300,
                             "levelReq": 2,
                             "manaCost": 3,
-                            "goldCost": 50,
+                            "goldCost": 100,
                             "mods": [
-                                "+{80}% Hit Chance",
+                                "+{60}% Hit Chance",
                                 "{50}% More Physical Damage"
                             ]
                         },
                         {
                             "name": "Physical Attack II",
-                            "attackCountReq": 100,
-                            "attackSpeed": 0.6,
-                            "baseDamageMultiplier": 300,
-                            "manaCost": 5,
-                            "goldCost": 300,
+                            "attackSpeed": 0.65,
+                            "baseDamageMultiplier": 325,
+                            "manaCost": 4,
+                            "goldCost": 200,
                             "mods": [
-                                "+{60}% Hit Chance",
+                                "+{65}% Hit Chance",
                                 "{80}% More Physical Damage"
                             ]
                         },
@@ -78,35 +77,46 @@
                             "name": "Physical Attack III",
                             "attackSpeed": 0.7,
                             "baseDamageMultiplier": 350,
-                            "manaCost": 8,
-                            "goldCost": 2000,
+                            "manaCost": 5,
+                            "goldCost": 500,
                             "mods": [
-                                "+{60}% Hit Chance",
+                                "+{70}% Hit Chance",
                                 "{100}% More Physical Damage"
+                            ]
+                        },
+                        {
+                            "name": "Physical Attack IV",
+                            "attackSpeed": 0.75,
+                            "baseDamageMultiplier": 400,
+                            "manaCost": 8,
+                            "goldCost": 1000,
+                            "mods": [
+                                "+{75}% Hit Chance",
+                                "{150}% More Physical Damage"
                             ]
                         }
                     ],
                     [
                         {
                             "name": "Elemental Attack",
-                            "attackSpeed": 0.5,
-                            "baseDamageMultiplier": 250,
+                            "attackSpeed": 0.6,
+                            "baseDamageMultiplier": 300,
                             "levelReq": 2,
                             "manaCost": 3,
-                            "goldCost": 50,
+                            "goldCost": 100,
                             "mods": [
-                                "+{80}% Hit Chance",
+                                "+{60}% Hit Chance",
                                 "{50}% More Elemental Damage"
                             ]
                         },
                         {
                             "name": "Elemental Attack II",
-                            "attackSpeed": 0.6,
-                            "baseDamageMultiplier": 300,
-                            "manaCost": 5,
-                            "goldCost": 300,
+                            "attackSpeed": 0.65,
+                            "baseDamageMultiplier": 325,
+                            "manaCost": 4,
+                            "goldCost": 200,
                             "mods": [
-                                "+{60}% Hit Chance",
+                                "+{65}% Hit Chance",
                                 "{80}% More Elemental Damage"
                             ]
                         },
@@ -114,11 +124,22 @@
                             "name": "Elemental Attack III",
                             "attackSpeed": 0.7,
                             "baseDamageMultiplier": 350,
-                            "manaCost": 8,
-                            "goldCost": 2000,
+                            "manaCost": 5,
+                            "goldCost": 500,
                             "mods": [
-                                "+{60}% Hit Chance",
+                                "+{70}% Hit Chance",
                                 "{100}% More Elemental Damage"
+                            ]
+                        },
+                        {
+                            "name": "Elemental Attack IV",
+                            "attackSpeed": 0.75,
+                            "baseDamageMultiplier": 400,
+                            "manaCost": 8,
+                            "goldCost": 1000,
+                            "mods": [
+                                "+{75}% Hit Chance",
+                                "{150}% More Elemental Damage"
                             ]
                         }
                     ],
@@ -126,12 +147,12 @@
                         {
                             "name": "Bleed Attack",
                             "attackSpeed": 0.35,
-                            "baseDamageMultiplier": 300,
+                            "baseDamageMultiplier": 400,
                             "levelReq": 3,
                             "manaCost": 10,
-                            "goldCost": 50,
+                            "goldCost": 100,
                             "mods": [
-                                "+{80}% Hit Chance",
+                                "+{70}% Hit Chance",
                                 "+{20}% Chance To Bleed",
                                 "{50}% More Bleed Damage"
                             ]
@@ -139,25 +160,37 @@
                         {
                             "name": "Bleed Attack II",
                             "attackSpeed": 0.4,
-                            "baseDamageMultiplier": 300,
-                            "manaCost": 12,
-                            "goldCost": 300,
+                            "baseDamageMultiplier": 450,
+                            "manaCost": 11,
+                            "goldCost": 200,
                             "mods": [
-                                "+{60}% Hit Chance",
-                                "+{30}% Chance To Bleed",
+                                "+{70}% Hit Chance",
+                                "+{25}% Chance To Bleed",
                                 "{80}% More Bleed Damage"
                             ]
                         },
                         {
                             "name": "Bleed Attack III",
-                            "attackSpeed": 0.5,
-                            "baseDamageMultiplier": 350,
-                            "manaCost": 13,
-                            "goldCost": 2000,
+                            "attackSpeed": 0.4,
+                            "baseDamageMultiplier": 500,
+                            "manaCost": 12,
+                            "goldCost": 500,
                             "mods": [
-                                "+{60}% Hit Chance",
-                                "+{35}% Chance To Bleed",
-                                "{100}% More Bleed Damage"
+                                "+{70}% Hit Chance",
+                                "+{30}% Chance To Bleed",
+                                "{120}% More Bleed Damage"
+                            ]
+                        },
+                        {
+                            "name": "Bleed Attack IV",
+                            "attackSpeed": 0.5,
+                            "baseDamageMultiplier": 500,
+                            "manaCost": 13,
+                            "goldCost": 1000,
+                            "mods": [
+                                "+{75}% Hit Chance",
+                                "+{40}% Chance To Bleed",
+                                "{150}% More Bleed Damage"
                             ]
                         }
                     ],
@@ -165,38 +198,50 @@
                         {
                             "name": "Burn Attack",
                             "attackSpeed": 0.35,
-                            "baseDamageMultiplier": 300,
+                            "baseDamageMultiplier": 450,
                             "levelReq": 3,
-                            "manaCost": 10,
-                            "goldCost": 50,
+                            "manaCost": 12,
+                            "goldCost": 100,
                             "mods": [
                                 "+{80}% Hit Chance",
-                                "+{20}% Chance To Burn",
-                                "{50}% More Burn Damage"
-                            ]
-                        },
-                        {
-                            "name": "Burn Attack II",
-                            "attackSpeed": 0.4,
-                            "baseDamageMultiplier": 300,
-                            "manaCost": 12,
-                            "goldCost": 300,
-                            "mods": [
-                                "+{60}% Hit Chance",
                                 "+{30}% Chance To Burn",
                                 "{80}% More Burn Damage"
                             ]
                         },
                         {
-                            "name": "Burn Attack III",
-                            "attackSpeed": 0.5,
-                            "baseDamageMultiplier": 350,
-                            "manaCost": 13,
-                            "goldCost": 2000,
+                            "name": "Burn Attack II",
+                            "attackSpeed": 0.35,
+                            "baseDamageMultiplier": 500,
+                            "manaCost": 14,
+                            "goldCost": 200,
                             "mods": [
-                                "+{60}% Hit Chance",
+                                "+{80}% Hit Chance",
                                 "+{35}% Chance To Burn",
-                                "{100}% More Burn Damage"
+                                "{120}% More Burn Damage"
+                            ]
+                        },
+                        {
+                            "name": "Burn Attack III",
+                            "attackSpeed": 0.35,
+                            "baseDamageMultiplier": 600,
+                            "manaCost": 15,
+                            "goldCost": 500,
+                            "mods": [
+                                "+{80}% Hit Chance",
+                                "+{40}% Chance To Burn",
+                                "{150}% More Burn Damage"
+                            ]
+                        },
+                        {
+                            "name": "Burn Attack IV",
+                            "attackSpeed": 0.35,
+                            "baseDamageMultiplier": 700,
+                            "manaCost": 16,
+                            "goldCost": 1000,
+                            "mods": [
+                                "+{80}% Hit Chance",
+                                "+{40}% Chance To Burn",
+                                "{200}% More Burn Damage"
                             ]
                         }
                     ],
@@ -219,7 +264,7 @@
                             "attackSpeed": 1.3,
                             "baseDamageMultiplier": 200,
                             "manaCost": 6,
-                            "goldCost": 500,
+                            "goldCost": 200,
                             "mods": [
                                 "+{60}% Hit Chance",
                                 "+{25}% Critical Hit Chance",
@@ -228,21 +273,43 @@
                         },
                         {
                             "name": "Critical Attack III",
-                            "attackCountReq": 200,
                             "attackSpeed": 1.5,
-                            "baseDamageMultiplier": 200,
+                            "baseDamageMultiplier": 230,
                             "manaCost": 7,
-                            "goldCost": 3000,
+                            "goldCost": 500,
                             "mods": [
                                 "+{40}% Hit Chance",
                                 "+{30}% Critical Hit Chance",
                                 "+{200}% Critical Hit Multiplier"
+                            ]
+                        },
+                        {
+                            "name": "Critical Attack III",
+                            "attackSpeed": 1.5,
+                            "baseDamageMultiplier": 250,
+                            "manaCost": 7,
+                            "goldCost": 1000,
+                            "mods": [
+                                "+{50}% Hit Chance",
+                                "+{40}% Critical Hit Chance",
+                                "+{250}% Critical Hit Multiplier"
                             ]
                         }
                     ]
                 ]
             },
             "buffSkills": {
+                "skillSlots": [
+                    {
+                        "levelReq": 2
+                    },
+                    {
+                        "levelReq": 5
+                    },
+                    {
+                        "levelReq": 7
+                    }
+                ],
                 "skillList": [
                     [
                         {
@@ -259,7 +326,7 @@
                             "name": "Damage II",
                             "baseDuration": 30,
                             "manaCost": 25,
-                            "goldCost": 500,
+                            "goldCost": 300,
                             "mods": [
                                 "{50}% More Damage"
                             ]
@@ -268,7 +335,7 @@
                             "name": "Damage III",
                             "baseDuration": 20,
                             "manaCost": 25,
-                            "goldCost": 2000,
+                            "goldCost": 800,
                             "mods": [
                                 "{100}% More Damage"
                             ]
@@ -290,7 +357,7 @@
                             "name": "Bleed II",
                             "baseDuration": 30,
                             "manaCost": 25,
-                            "goldCost": 500,
+                            "goldCost": 300,
                             "mods": [
                                 "+{15}% Chance To Bleed",
                                 "{50}% More Bleed Damage"
@@ -300,7 +367,7 @@
                             "name": "Bleed III",
                             "baseDuration": 30,
                             "manaCost": 25,
-                            "goldCost": 2000,
+                            "goldCost": 800,
                             "mods": [
                                 "+{20}% Chance To Bleed",
                                 "{100}% More Bleed Damage"
@@ -323,7 +390,7 @@
                             "name": "Burn II",
                             "baseDuration": 30,
                             "manaCost": 30,
-                            "goldCost": 500,
+                            "goldCost": 300,
                             "mods": [
                                 "+{10}% Chance To Burn",
                                 "{100}% More Burn Damage"
@@ -333,10 +400,49 @@
                             "name": "Burn III",
                             "baseDuration": 30,
                             "manaCost": 30,
-                            "goldCost": 2000,
+                            "goldCost": 800,
                             "mods": [
                                 "+{10}% Chance To Burn",
                                 "{200}% More Burn Damage"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Minion Damage",
+                            "baseDuration": 60,
+                            "manaCost": 100,
+                            "goldCost": 100,
+                            "levelReq": 2,
+                            "mods": [
+                                "{30}% More Minion Damage"
+                            ]
+                        },
+                        {
+                            "name": "Minion Damage II",
+                            "baseDuration": 60,
+                            "manaCost": 200,
+                            "goldCost": 200,
+                            "mods": [
+                                "{50}% More Minion Damage"
+                            ]
+                        },
+                        {
+                            "name": "Minion Damage III",
+                            "baseDuration": 60,
+                            "manaCost": 300,
+                            "goldCost": 500,
+                            "mods": [
+                                "{100}% More Minion Damage"
+                            ]
+                        },
+                        {
+                            "name": "Minion Damage IV",
+                            "baseDuration": 60,
+                            "manaCost": 350,
+                            "goldCost": 1000,
+                            "mods": [
+                                "{150}% More Minion Damage"
                             ]
                         }
                     ],
@@ -355,7 +461,7 @@
                             "name": "Attack Speed II",
                             "baseDuration": 60,
                             "manaCost": 75,
-                            "goldCost": 1000,
+                            "goldCost": 500,
                             "mods": [
                                 "{30}% More Attack Speed"
                             ]
@@ -364,7 +470,7 @@
                             "name": "Attack Speed III",
                             "baseDuration": 60,
                             "manaCost": 50,
-                            "goldCost": 3000,
+                            "goldCost": 1000,
                             "mods": [
                                 "{50}% More Attack Speed"
                             ]
@@ -386,7 +492,7 @@
                             "name": "Critical Strike II",
                             "baseDuration": 60,
                             "manaCost": 30,
-                            "goldCost": 1000,
+                            "goldCost": 500,
                             "mods": [
                                 "+{20}% Critical Hit Chance",
                                 "+{150}% Critical Hit Multiplier"
@@ -396,24 +502,13 @@
                             "name": "Critical Strike III",
                             "baseDuration": 60,
                             "manaCost": 50,
-                            "goldCost": 3000,
+                            "goldCost": 1000,
                             "mods": [
                                 "+{25}% Critical Hit Chance",
                                 "+{300}% Critical Hit Multiplier"
                             ]
                         }
                     ]
-                ],
-                "skillSlots": [
-                    {
-                        "levelReq": 2
-                    },
-                    {
-                        "levelReq": 5
-                    },
-                    {
-                        "levelReq": 7
-                    }
                 ]
             }
         },
@@ -563,18 +658,51 @@
                         "levelReq": 1,
                         "points": 1,
                         "mod": "+{1} Maximum Minions"
+                    },
+                    {
+                        "levelReq": 5,
+                        "points": 3,
+                        "mod": "+{2} Maximum Minions"
                     }
                 ],
                 [
                     {
                         "levelReq": 1,
                         "points": 1,
+                        "mod": "{30}% More Minion Damage"
+                    },
+                    {
+                        "levelReq": 5,
+                        "points": 2,
                         "mod": "{50}% More Minion Damage"
                     }
                 ]
             ]
         },
         "items": {
+            "levelReq": 1,
+            "itemList": [
+                {
+                    "levelReq": 1,
+                    "name": "Item 1"
+                },
+                {
+                    "levelReq": 2,
+                    "name": "Item 2"
+                },
+                {
+                    "levelReq": 3,
+                    "name": "Item 3"
+                },
+                {
+                    "levelReq": 5,
+                    "name": "Item 4"
+                },
+                {
+                    "levelReq": 7,
+                    "name": "Item 5"
+                }
+            ],
             "craftList": [
                 {
                     "goldCost": 10,
@@ -603,6 +731,11 @@
                 },
                 {
                     "goldCost": 50,
+                    "id": "reforgeIncludeMinion",
+                    "levelReq": 5
+                },
+                {
+                    "goldCost": 50,
                     "id": "addRandom",
                     "levelReq": 1
                 },
@@ -627,44 +760,31 @@
                     "levelReq": 5
                 },
                 {
+                    "goldCost": 100,
+                    "id": "addMinion",
+                    "levelReq": 5
+                },
+                {
                     "goldCost": 50,
                     "id": "removeRandom",
                     "levelReq": 5
                 },
                 {
-                    "goldCost": 200,
+                    "goldCost": 300,
                     "id": "removePhysical",
                     "levelReq": 7
                 },
                 {
-                    "goldCost": 200,
+                    "goldCost": 300,
                     "id": "removeElemental",
+                    "levelReq": 7
+                },
+                {
+                    "goldCost": 300,
+                    "id": "removeMinion",
                     "levelReq": 7
                 }
             ],
-            "itemList": [
-                {
-                    "levelReq": 1,
-                    "name": "Item 1"
-                },
-                {
-                    "levelReq": 2,
-                    "name": "Item 2"
-                },
-                {
-                    "levelReq": 3,
-                    "name": "Item 3"
-                },
-                {
-                    "levelReq": 5,
-                    "name": "Item 4"
-                },
-                {
-                    "levelReq": 7,
-                    "name": "Item 5"
-                }
-            ],
-            "levelReq": 1,
             "modLists": [
                 [
                     {
@@ -675,7 +795,12 @@
                     {
                         "levelReq": 5,
                         "mod": "+{2} Gold Generation",
-                        "weight": 5
+                        "weight": 10
+                    },
+                    {
+                        "levelReq": 7,
+                        "mod": "+{3} Gold Generation",
+                        "weight": 10
                     }
                 ],
                 [
@@ -753,6 +878,23 @@
                     {
                         "levelReq": 5,
                         "mod": "{80-100}% Increased Elemental Damage",
+                        "weight": 100
+                    }
+                ],
+                [
+                    {
+                        "levelReq": 1,
+                        "mod": "{30-40}% Increased Minion Damage",
+                        "weight": 100
+                    },
+                    {
+                        "levelReq": 3,
+                        "mod": "{40-60}% Increased Minion Damage",
+                        "weight": 100
+                    },
+                    {
+                        "levelReq": 5,
+                        "mod": "{80-100}% Increased Minion Damage",
                         "weight": 100
                     }
                 ],
@@ -871,11 +1013,16 @@
                     {
                         "levelReq": 1,
                         "mod": "+{10-20} Maximum Mana",
-                        "weight": 100
+                        "weight": 80
                     },
                     {
                         "levelReq": 5,
                         "mod": "+{50-100} Maximum Mana",
+                        "weight": 50
+                    },
+                    {
+                        "levelReq": 7,
+                        "mod": "+{100-200} Maximum Mana",
                         "weight": 10
                     }
                 ],
@@ -883,17 +1030,17 @@
                     {
                         "levelReq": 1,
                         "mod": "{20-30}% Increased Maximum Mana",
-                        "weight": 100
+                        "weight": 80
                     },
                     {
                         "levelReq": 3,
                         "mod": "{30-40}% Increased Maximum Mana",
-                        "weight": 100
+                        "weight": 50
                     },
                     {
                         "levelReq": 5,
                         "mod": "{40-50}% Increased Maximum Mana",
-                        "weight": 100
+                        "weight": 10
                     }
                 ],
                 [
@@ -1012,31 +1159,44 @@
                         "name": "Golem",
                         "levelReq": 1,
                         "attackSpeed": 0.8,
-                        "baseDamageMultiplier": 150,
+                        "baseDamageMultiplier": 200,
                         "goldCost": 50,
                         "mods": [
-                            "+{50}% Hit Chance",
-                            "Adds {10} To {18} Physical Damage"
+                            "+{40}% Hit Chance",
+                            "Adds {30} To {50} Physical Damage"
                         ]
                     },
                     {
                         "name": "Golem II",
                         "attackSpeed": 0.8,
-                        "baseDamageMultiplier": 180,
+                        "baseDamageMultiplier": 250,
                         "goldCost": 200,
                         "mods": [
-                            "+{50}% Hit Chance",
-                            "Adds {3} To {8} Physical Damage"
+                            "+{40}% Hit Chance",
+                            "Adds {50} To {80} Physical Damage",
+                            "{30}% More Physical Damage"
                         ]
                     },
                     {
                         "name": "Golem III",
                         "attackSpeed": 0.8,
-                        "baseDamageMultiplier": 200,
-                        "goldCost": 1000,
+                        "baseDamageMultiplier": 300,
+                        "goldCost": 500,
                         "mods": [
                             "+{50}% Hit Chance",
-                            "Adds {5} To {10} Physical Damage"
+                            "Adds {80} To {100} Physical Damage",
+                            "{50}% More Physical Damage"
+                        ]
+                    },
+                    {
+                        "name": "Golem IV",
+                        "attackSpeed": 0.8,
+                        "baseDamageMultiplier": 350,
+                        "goldCost": 2000,
+                        "mods": [
+                            "+{60}% Hit Chance",
+                            "Adds {100} To {150} Physical Damage",
+                            "{100}% More Physical Damage"
                         ]
                     }
                 ],
@@ -1044,38 +1204,50 @@
                     {
                         "name": "Skeleton",
                         "attackSpeed": 1.3,
-                        "baseDamageMultiplier": 100,
+                        "baseDamageMultiplier": 120,
                         "levelReq": 1,
                         "goldCost": 100,
                         "mods": [
-                            "+{30}% Hit Chance",
-                            "Adds {2} To {3} Physical Damage",
-                            "+{50}% Critical Hit Chance",
+                            "+{80}% Hit Chance",
+                            "Adds {9} To {18} Physical Damage",
+                            "+{40}% Critical Hit Chance",
                             "+{200}% Critical Hit Multiplier"
                         ]
                     },
                     {
                         "name": "Skeleton II",
-                        "attackSpeed": 1.35,
-                        "baseDamageMultiplier": 120,
-                        "goldCost": 500,
+                        "attackSpeed": 1.3,
+                        "baseDamageMultiplier": 140,
+                        "goldCost": 200,
                         "mods": [
-                            "+{35}% Hit Chance",
-                            "Adds {3} To {4} Physical Damage",
-                            "+{60}% Critical Hit Chance",
-                            "+{200}% Critical Hit Multiplier"
+                            "+{80}% Hit Chance",
+                            "Adds {16} To {28} Physical Damage",
+                            "+{50}% Critical Hit Chance",
+                            "+{250}% Critical Hit Multiplier"
                         ]
                     },
                     {
                         "name": "Skeleton III",
-                        "attackSpeed": 1.35,
-                        "baseDamageMultiplier": 120,
-                        "goldCost": 2000,
+                        "attackSpeed": 1.4,
+                        "baseDamageMultiplier": 150,
+                        "goldCost": 500,
                         "mods": [
-                            "+{35}% Hit Chance",
-                            "Adds {3} To {5} Physical Damage",
+                            "+{85}% Hit Chance",
+                            "Adds {26} To {36} Physical Damage",
+                            "+{60}% Critical Hit Chance",
+                            "+{300}% Critical Hit Multiplier"
+                        ]
+                    },
+                    {
+                        "name": "Skeleton IV",
+                        "attackSpeed": 1.4,
+                        "baseDamageMultiplier": 175,
+                        "goldCost": 1000,
+                        "mods": [
+                            "+{90}% Hit Chance",
+                            "Adds {38} To {52} Physical Damage",
                             "+{70}% Critical Hit Chance",
-                            "+{250}% Critical Hit Multiplier"
+                            "+{400}% Critical Hit Multiplier"
                         ]
                     }
                 ],
@@ -1083,37 +1255,48 @@
                     {
                         "name": "Wolf",
                         "levelReq": 1,
-                        "attackSpeed": 1.2,
-                        "baseDamageMultiplier": 100,
+                        "attackSpeed": 1,
+                        "baseDamageMultiplier": 125,
                         "goldCost": 100,
                         "mods": [
-                            "+{60}% Hit Chance",
-                            "Adds {2} To {4} Physical Damage",
-                            "+{10}% Chance To Bleed"
+                            "+{70}% Hit Chance",
+                            "Adds {12} To {14} Physical Damage",
+                            "+{20}% Chance To Bleed"
                         ]
                     },
                     {
                         "name": "Wolf II",
-                        "attackSpeed": 1.2,
-                        "baseDamageMultiplier": 100,
-                        "goldCost": 500,
+                        "attackSpeed": 1,
+                        "baseDamageMultiplier": 130,
+                        "goldCost": 200,
                         "mods": [
-                            "+{60}% Hit Chance",
-                            "Adds {3} To {5} Physical Damage",
-                            "+{10}% Chance To Bleed",
-                            "{30}% More Bleed Damage"
+                            "+{75}% Hit Chance",
+                            "Adds {22} To {26} Physical Damage",
+                            "+{25}% Chance To Bleed"
                         ]
                     },
                     {
                         "name": "Wolf III",
-                        "attackSpeed": 1.3,
-                        "baseDamageMultiplier": 120,
-                        "goldCost": 2000,
+                        "attackSpeed": 1.2,
+                        "baseDamageMultiplier": 180,
+                        "goldCost": 500,
                         "mods": [
-                            "+{70}% Hit Chance",
-                            "Adds {5} To {8} Physical Damage",
-                            "+{10}% Chance To Bleed",
+                            "+{80}% Hit Chance",
+                            "Adds {24} To {32} Physical Damage",
+                            "+{25}% Chance To Bleed",
                             "{50}% More Bleed Damage"
+                        ]
+                    },
+                    {
+                        "name": "Wolf IV",
+                        "attackSpeed": 1.3,
+                        "baseDamageMultiplier": 200,
+                        "goldCost": 1000,
+                        "mods": [
+                            "+{90}% Hit Chance",
+                            "Adds {32} To {44} Physical Damage",
+                            "+{35}% Chance To Bleed",
+                            "{80}% More Bleed Damage"
                         ]
                     }
                 ]
