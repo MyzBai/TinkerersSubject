@@ -5,13 +5,42 @@ import { calcMinionStats, calcPlayerStats } from "./calc/calcMod";
 import Enemy from "./Enemy";
 import Game from "./Game";
 import { ModDB } from "./mods";
-import Statistics, { EntityStatistics, MinionStatistics, PlayerStatistics, Statistic, StatisticSave } from "./Statistics";
+import { EntityStatistics, MinionStatistics, PlayerStatistics, Statistic, StatisticSave } from "./Statistics";
+
+export class EntityHandler {
+    readonly onEntityChanged = new EventEmitter<Entity>();
+    private _entities = new Map<string, Entity>;
+    constructor() {
+
+    }
+
+    addEntity(entity: Entity) {
+        this._entities.set(entity.name, entity);
+        this.onEntityChanged.invoke(entity);
+    }
+
+    removeEntity(entity: Entity) {
+        this._entities.delete(entity.name);
+        this.onEntityChanged.invoke(entity);
+    }
+
+    has(name: string) { return this._entities.has(name); }
+
+    query(constr: Function = Entity) {
+        return [...this._entities.values()].filter(x => x instanceof constr);
+    }
+    queryByName(name: string) { return this._entities.get(name); }
+
+    reset() {
+        this._entities.clear();
+        this.onEntityChanged.removeAllListeners();
+    }
+}
 
 export default abstract class Entity {
     abstract stats: EntityStatistics['stats'];
     protected _modDB = new ModDB();
     public readonly onStatsUpdate = new EventEmitter<Entity>();
-    protected updateId = -1;
     protected attackId?: string;
     protected _attackTime = 0;
     protected _attackWaitTime = Number.POSITIVE_INFINITY;
@@ -24,9 +53,14 @@ export default abstract class Entity {
     get attackTime() { return this._attackTime; }
     get attackWaitTime() { return this._attackWaitTime; }
 
-    get canAttack() { return true; }
-
+    protected abstract canAttack: boolean;
     protected abstract updateStats(): void;
+
+    protected reset() {
+        this._modDB.clear();
+        this.onStatsUpdate.removeAllListeners();
+        Object.values(this.stats).forEach(x => x.reset());
+    }
 
     private calcWaitTime() {
         const time = 1 / this.stats["Attack Speed"].get();
@@ -58,8 +92,7 @@ export default abstract class Entity {
         this.attackId = Game.gameLoop.subscribe(dt => {
             this._attackTime += dt;
             if (this._attackTime >= this._attackWaitTime) {
-                const result = this.canAttack;
-                if (result) {
+                if (this.canAttack) {
                     this.performAttack();
                     this._attackTime = 0;
                 }
@@ -103,6 +136,7 @@ export default abstract class Entity {
 
 export class PlayerEntity extends Entity {
     readonly stats = new PlayerStatistics().stats;
+    protected updateId = -1;
     constructor() {
         super('Player');
     }
@@ -117,7 +151,6 @@ export class PlayerEntity extends Entity {
                 clearTimeout(this.updateId);
                 this.updateId = window.setTimeout(async () => {
                     this.updateStats();
-                    this.onStatsUpdate.invoke(this);
                     resolve();
                 }, 1);
             });
@@ -132,8 +165,7 @@ export class PlayerEntity extends Entity {
 
     updateStats(): void {
         calcPlayerStats(this);
-        Statistics.calcGlobalStats();
-        Statistics.updateStats(this.name, this.stats);
+        this.onStatsUpdate.invoke(this);
         clearTimeout(this.updateId);
     }
 }
@@ -143,9 +175,9 @@ export class MinionEntity extends Entity {
     constructor(name: string) {
         super(name);
     }
+    protected get canAttack() { return true; }
     updateStats(): void {
         calcMinionStats(this);
-        Statistics.updateStats(this.name, this.stats);
-        clearTimeout(this.updateId);
+        this.onStatsUpdate.invoke(this);
     }
 }

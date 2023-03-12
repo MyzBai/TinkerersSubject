@@ -184,8 +184,6 @@ class Slot {
     }
 
     setMinion(minion?: Minion) {
-        this._minion?.disable();
-
         this._minion = minion;
         this.element.querySelectorForce('[data-name]').textContent = minion ? minion.rank.config.name : '[Empty]';
         this.minions.fixStuff();
@@ -253,18 +251,18 @@ class Minion extends MinionEntity {
     enable() {
         this.applyModifiers();
         this.beginAutoAttack();
+        Game.entityHandler.addEntity(this);
         this._enabled = true;
-        Statistics.updateStats(this.name, this.stats);
     }
 
     disable() {
         if (!this._enabled) {
             return;
         }
+        this._enabled = false;
         this._modDB.clear();
         this.stopAttacking();
-        this._enabled = false;
-        Statistics.removeStats(this.name);
+        Game.entityHandler.removeEntity(this);
     }
 
     private applyModifiers() {

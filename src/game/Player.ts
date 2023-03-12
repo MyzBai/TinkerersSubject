@@ -1,16 +1,14 @@
 import { Modifier } from "./mods";
 import { querySelector } from "@src/utils/helpers";
 import Game, { Save } from './Game';
-import Statistics, { EntityStatistics, PlayerStatistics, Statistic, StatisticSave } from './Statistics';
+import Statistics, { PlayerStatistics, StatisticSave } from './Statistics';
 import { PlayerEntity } from "./Entity";
-import { calcPlayerStats } from "./calc/calcMod";
 
 
 export class Player extends PlayerEntity {
     private readonly manaBar = querySelector<HTMLProgressElement>('.p-game [data-mana-bar]');
     constructor() {
         super();
-
     }
 
     init() {
@@ -18,8 +16,6 @@ export class Player extends PlayerEntity {
         Game.onSave.listen(this.save.bind(this));
 
         this.loadStats(Game.saveObj?.player?.stats as Record<keyof PlayerStatistics['stats'], StatisticSave>);
-
-        Statistics.updateStats(this.name, this.stats);
 
         if (Game.config!.player) {
             Game.config!.player.modList.forEach(x => {
@@ -46,15 +42,15 @@ export class Player extends PlayerEntity {
 
         this._attackTime = Game.saveObj?.player?.attackTime || 0;
 
-        calcPlayerStats(this);
+        Game.entityHandler.addEntity(this);
+        this.updateStats();
     }
 
     get attackTime() { return this._attackTime; }
     get attackWaitTime() { return this._attackWaitTime; }
 
     reset() {
-        this.modDB.clear();
-        this.onStatsUpdate.removeAllListeners();
+        super.reset();
     }
 
     async setup() {

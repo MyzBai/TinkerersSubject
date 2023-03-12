@@ -11,12 +11,14 @@ import type Component from "./components/Component";
 import { componentConfigs, ComponentName, ComponentsConfig, ItemsSave, loadComponent, MinionsSave, MissionsSave, PassivesSave } from "./components/componentHandler";
 import customAlert from "@src/utils/alert";
 import type { SkillsSave } from "./components/skills/Skills";
+import { EntityHandler } from "./Entity";
 
 export class Game {
     readonly page = querySelector('.p-game');
     readonly gameLoop = new Loop();
     readonly visiblityObserver: VisibilityObserver;
     readonly componentsList: Component[] = [];
+    readonly entityHandler = new EntityHandler();
     readonly onSave = new EventEmitter<Save>();
     private _config: GameConfig | undefined;
     private _saveObj?: DeepPartial<Save>;
@@ -103,7 +105,7 @@ export class Game {
         this.onSave.removeAllListeners();
         this.disposeComponents();
         this.visiblityObserver.disconnectAll();
-
+        this.entityHandler.reset();
         this.gameLoop.reset();
         Player.reset();
         Statistics.reset();
