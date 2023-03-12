@@ -13,6 +13,7 @@ export default class Minions extends Component {
     private readonly dataSlotListContainer: HTMLElement;
     readonly slots: Slot[] = [];
     activeSlot?: Slot;
+    private activeMinion?: Minion;
     private readonly view: View;
     constructor(readonly config: MinionsConfig) {
         super('minions');
@@ -36,6 +37,9 @@ export default class Minions extends Component {
         Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
                 this.updateCounter();
+                if(this.activeMinion){
+                    this.view.show(this.activeMinion, -1);
+                }
             }
         });
 
@@ -127,6 +131,7 @@ export default class Minions extends Component {
     }
 
     private selectListItem(minion?: Minion) {
+        this.activeMinion = minion;
         if (minion) {
             this.page.querySelectorAll('[data-list] [data-name]').forEach(x => {
                 x.classList.toggle('selected', x.getAttribute('data-name') === minion.ranks[0]!.config.name);
@@ -340,7 +345,7 @@ class View {
 
     show(minion: Minion, rankIndex?: number) {
         if (typeof rankIndex === 'number') {
-            this.rankIndex = rankIndex;
+            this.rankIndex = rankIndex === -1 ? this.rankIndex : rankIndex;
         } else {
             this.rankIndex = minion.rankIndex;
         }
