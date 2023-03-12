@@ -521,6 +521,9 @@
                         &.selected{
                             background-color: #131518;
                         }
+                        &.suppressed{
+                            opacity: 0.5;
+                        }
                     }
                 }
             }
