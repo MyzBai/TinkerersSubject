@@ -155,25 +155,28 @@ export default class SkillViewer {
         this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
 
 
-        this.removeButton.classList.toggle('hidden', skill instanceof AttackSkill || activeSkillSlot.skill?.rank !== rank);
-        this.removeButton.disabled = !activeSkillSlot.canRemove;
+
 
 
         this.triggerButton.classList.add('hidden');
         this.cancelButton.classList.add('hidden');
         this.automateButton.classList.add('hidden');
+        this.removeButton.classList.add('hidden');
 
         if(activeSkillSlot instanceof BuffSkillSlot && activeSkillSlot.skill?.rank === rank){
 
             this.triggerButton.classList.toggle('hidden', activeSkillSlot.running);
+            this.triggerButton.disabled = !activeSkillSlot.canTrigger;
             this.cancelButton.classList.toggle('hidden', !activeSkillSlot.running);
             this.cancelButton.disabled = activeSkillSlot.automate;
-            this.automateButton.classList.toggle('hidden', !activeSkillSlot.running);
             
             this.automateButton.classList.remove('hidden');
             this.automateButton.disabled = !activeSkillSlot.canAutomate;
             this.automateButton.textContent = `Auto ${activeSkillSlot.automate ? 'On' : 'Off'}`;
             this.automateButton.setAttribute('data-role', activeSkillSlot.automate ? 'confirm' : 'cancel');
+
+            this.removeButton.classList.toggle('hidden', activeSkillSlot.skill?.rank !== rank);
+            this.removeButton.disabled = !activeSkillSlot.canRemove;
         }
     }
 

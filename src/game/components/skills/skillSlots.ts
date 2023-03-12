@@ -92,9 +92,8 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
     private _time = 0;
     private _duration = 0;
     private _running = false;
-    private _cancelled = false;
 
-    constructor(skills: Skills) {
+    constructor(private readonly skills: Skills) {
         this.element = this.createElement();
         this.progressBar = this.element.querySelectorForce<HTMLProgressElement>('progress');
         this.setSkill(undefined);
@@ -179,7 +178,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
             return;
         }
         const loopEval = () => {
-            if (this._cancelled || !this._automate) {
+            if (!this._automate) {
                 Player.stats["Current Mana"].removeListener('change', loopEval);
                 return;
             }
@@ -204,7 +203,6 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         calcDuration(Player.stats["Skill Duration Multiplier"].get());
         this._time = this._time > 0 ? this._time : this._duration;
         this._running = true;
-        this._cancelled = false;
         Player.stats["Skill Duration Multiplier"].addListener('change', calcDuration);
         this.applyModifiers();
         const loopId = Game.gameLoop.subscribe((dt) => {
@@ -212,7 +210,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
                 return;
             }
 
-            if (this._time <= 0) {
+            if (this._time <= 0 || !this._running) {
                 this._time = 0;
                 Game.gameLoop.unsubscribe(loopId);
                 Player.stats["Skill Duration Multiplier"].removeListener('change', calcDuration);
@@ -231,16 +229,19 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
 
         this.removeModifiers();
         this.progressBar.value = 0;
-
         this._running = false;
+      
         if (this._automate) {
             this.tryTriggerLoop();
+        }
+                
+        if(this === this.skills.activeSkillSlot){
+            this.skills.skillViewer.createView(this._skill);
         }
     }
 
     cancel() {
-        this._cancelled = true;
-        this.stop();
+        this._running = false;
     }
 
     private removeModifiers() {
