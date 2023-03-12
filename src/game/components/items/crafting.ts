@@ -136,7 +136,7 @@ export const craftTemplates = {
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Elemental').modList
     },
     removeMinion: {
-        desc: 'Remove an [minion] modifier',
+        desc: 'Remove a [minion] modifier',
         validate: (data: CraftData) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, 'Minion'),
         getItemMods: (data: CraftData) => new Crafter(data.itemModList).removeWithTag('Minion').modList
     },
