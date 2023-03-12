@@ -48,6 +48,7 @@ export default class CraftPresets {
     private createDefaultPreset() {
         const preset = this.newPreset('Default');
         preset.editable = false;
+        this.selectPreset(preset);
     }
 
     newPreset(name = 'New', ids: CraftId[] = this.items.data.craftList.map(x => x.id)) {
