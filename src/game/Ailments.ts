@@ -29,29 +29,19 @@ const isBleedInstance = (instance: AilmentInstance): instance is BleedInstance =
 
 export default class Ailments {
     private tickId?: string;
-    // readonly instances: AilmentInstance[] = [];
     private readonly sources = new Map<Entity, AilmentInstance[]>;
     private readonly ailmentListContainer = querySelector('.p-combat [data-ailment-list]');
     constructor() {
-
         this.updateInstances = this.updateInstances.bind(this);
-
     }
 
     init() {
+        this.ailmentListContainer.replaceChildren();
         Game.visiblityObserver.registerLoop(querySelector('.p-game .p-combat'), visible => {
             if (visible) {
                 this.updateElements();
             }
         });
-    }
-
-    setup() {
-
-    }
-
-    reset() {
-
     }
 
     addAilments(source: Entity, ...ailments: AilmentData[]) {
