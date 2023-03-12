@@ -34,16 +34,10 @@ export class Statistic extends Value {
 export class GameStatistics implements StatisticsObject {
     readonly stats = {
         'Time Played': new Statistic({ format: 'time' }),
-        'Level': new Statistic({ defaultValue: 1, sticky: true }),
+        'Level': new Statistic({ sticky: true }),
         'Gold': new Statistic({ sticky: true, formatColor: 'gold' }),
         'Gold Generation': new Statistic({ sticky: true, format: 'seconds' }),
         'Gold Generated': new Statistic(),
-        //Accumulation
-        'Total Damage': new Statistic(),
-        'Total Physical Damage': new Statistic(),
-        'Total Elemental Damage': new Statistic(),
-        'Total Bleed Damage': new Statistic(),
-        'Total Burn Damage': new Statistic(),
     } as const;
 }
 

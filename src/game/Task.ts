@@ -27,14 +27,14 @@ export default class Task {
     constructor(text: string) {
         this.taskValidators = [
             new Validator(/^Reach Level {(\d+)}$/, Statistics.gameStats.Level),
-            new Validator(/^Deal Damage {(\d+)}$/, Statistics.gameStats["Total Damage"]),
-            new Validator(/^Deal Physical Damage {(\d+)}$/, Statistics.gameStats["Total Physical Damage"]),
-            new Validator(/^Deal Elemental Damage {(\d+)}$/, Statistics.gameStats["Total Elemental Damage"]),
-            new Validator(/^Deal Bleed Damage {(\d+)}$/, Statistics.gameStats["Total Bleed Damage"]),
-            new Validator(/^Deal Burn Damage {(\d+)}$/, Statistics.gameStats["Total Burn Damage"]),
+            new Validator(/^Generate Gold {(\d+)}$/, Statistics.gameStats["Gold Generated"]),
+            new Validator(/^Deal Damage {(\d+)}$/, Player.stats["Total Damage"]),
+            new Validator(/^Deal Physical Damage {(\d+)}$/, Player.stats["Total Physical Damage"]),
+            new Validator(/^Deal Elemental Damage {(\d+)}$/, Player.stats["Total Elemental Damage"]),
+            new Validator(/^Deal Bleed Damage {(\d+)}$/, Player.stats["Total Bleed Damage"]),
+            new Validator(/^Deal Burn Damage {(\d+)}$/, Player.stats["Total Burn Damage"]),
             new Validator(/^Perform Hits {(\d+)}$/, Player.stats.Hits),
             new Validator(/^Perform Critical Hits {(\d+)}$/, Player.stats["Critical Hits"]),
-            new Validator(/^Generate Gold {(\d+)}$/, Statistics.gameStats["Gold Generated"]),
             new Validator(/^Regenerate Mana {(\d+)}$/, Player.stats["Mana Generated"]),
         ];
         this.text = text;
