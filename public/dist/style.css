@@ -1,5 +1,4 @@
 @charset "UTF-8";
-/*#region Global*/
 .g-alert-window {
   position: fixed;
   inset: 0;
@@ -104,13 +103,15 @@
 }
 .g-accordion .header {
   display: flex;
-  background-color: rgba(255, 255, 255, 0.0509803922);
+  background-color: #161b22;
   padding: 0.3em;
+  margin-bottom: 1px;
   cursor: default;
   user-select: none;
 }
-.g-accordion .header * {
+.g-accordion .header > * {
   pointer-events: none;
+  user-select: all;
 }
 .g-accordion .header:hover {
   background-color: rgba(255, 255, 255, 0.1019607843);
@@ -234,7 +235,7 @@
 }
 
 [data-highlight-notification] {
-  border-left: 0.2em solid #bd7044 !important;
+  box-shadow: inset 3px 0 0 #bd7044 !important;
 }
 
 .g-text-small {
@@ -245,7 +246,12 @@
   color: rgb(209, 173, 75);
 }
 
-/*#endregion Global*/
+.g-progress-bar.small {
+  display: block;
+  width: 100%;
+  height: 5px;
+}
+
 *,
 *::before,
 *::after {
@@ -453,6 +459,10 @@ progress[value]::-webkit-progress-value {
 }
 
 /*#endregion Scroll Bar*/
+[data-tag=gold] {
+  color: rgb(209, 173, 75);
+}
+
 [data-mod-tag=physical] {
   color: #a8a8a8;
 }
@@ -560,7 +570,7 @@ progress[value]::-webkit-progress-value {
 
 .p-game {
   display: grid;
-  grid-template-columns: minmax(10em, min-content) 1fr minmax(12em, min-content);
+  grid-template-columns: minmax(10em, min-content) 1fr minmax(15em, min-content);
   grid-template-rows: auto 1fr;
   grid-auto-flow: column;
   grid-template-areas: "home progressbars title" "menu main stats";
@@ -637,7 +647,7 @@ progress[value]::-webkit-progress-value {
 .p-game [data-main-view] .p-skills {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 0.5fr;
+  grid-template-rows: 1fr 0.7fr;
   min-height: 0;
   flex: 1;
 }
@@ -648,6 +658,7 @@ progress[value]::-webkit-progress-value {
 .p-game [data-main-view] .p-skills .s-skill-slots .s-skill-slot {
   display: block;
   width: 100%;
+  pointer-events: all;
 }
 .p-game [data-main-view] .p-skills .s-skill-slots .s-skill-slot progress {
   display: block;
@@ -676,9 +687,6 @@ progress[value]::-webkit-progress-value {
   padding-bottom: 0.3em;
   text-align: center;
   justify-content: space-between;
-}
-.p-game [data-main-view] .p-skills .s-skill-info header .title {
-  align-self: center;
 }
 .p-game [data-main-view] .p-skills .s-skill-info header [data-type] {
   background-color: #1f6feb;
@@ -914,10 +922,6 @@ progress[value]::-webkit-progress-value {
 .p-game [data-main-view] .p-achievements ul {
   overflow-y: auto;
 }
-.p-game [data-main-view] .p-achievements .g-accordion .header {
-  padding: 0.3em;
-  margin-bottom: 1px;
-}
 .p-game [data-main-view] .p-achievements .g-accordion .header var {
   color: #eb8686;
 }
@@ -927,6 +931,91 @@ progress[value]::-webkit-progress-value {
 .p-game [data-main-view] .p-achievements .g-accordion .content {
   padding-left: 0.6em;
 }
+.p-game [data-main-view] .p-minions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 0.7fr;
+  grid-auto-flow: column;
+}
+.p-game [data-main-view] .p-minions .wrapper .s-toolbar {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+}
+.p-game [data-main-view] .p-minions .wrapper .s-toolbar span {
+  text-align: center;
+  align-self: center;
+}
+.p-game [data-main-view] .p-minions .wrapper [data-slots] {
+  min-height: 0;
+  overflow-y: auto;
+}
+.p-game [data-main-view] .p-minions .wrapper [data-slots] li {
+  display: block;
+  width: 100%;
+}
+.p-game [data-main-view] .p-minions .wrapper [data-slots] li progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+}
+.p-game [data-main-view] .p-minions [data-list] {
+  grid-column: 1/4;
+  grid-row: 2/3;
+  border-top: 1px solid #333333;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: 0.3em;
+}
+.p-game [data-main-view] .p-minions [data-view] {
+  grid-row: 1/2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.p-game [data-main-view] .p-minions [data-view] header {
+  display: flex;
+  padding-bottom: 0.3em;
+  text-align: center;
+  justify-content: space-between;
+}
+.p-game [data-main-view] .p-minions [data-view] header [data-title] {
+  align-self: center;
+}
+.p-game [data-main-view] .p-minions [data-view] header [data-decrement],
+.p-game [data-main-view] .p-minions [data-view] header [data-increment] {
+  background-color: #1f6feb;
+  padding-left: 0.7em;
+  padding-right: 0.7em;
+  font-family: monospace;
+}
+.p-game [data-main-view] .p-minions [data-view] header [data-decrement]:hover,
+.p-game [data-main-view] .p-minions [data-view] header [data-increment]:hover {
+  background-color: #1a51a3;
+}
+.p-game [data-main-view] .p-minions [data-view] header [data-decrement]:active,
+.p-game [data-main-view] .p-minions [data-view] header [data-increment]:active {
+  background-color: #154183;
+}
+.p-game [data-main-view] .p-minions [data-view] [data-stats] {
+  border-collapse: separate;
+  border-spacing: 0.3em;
+  border-top: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  border-spacing: 0.3em;
+}
+.p-game [data-main-view] .p-minions [data-view] [data-stats] td:last-child {
+  text-align: end;
+}
+.p-game [data-main-view] .p-minions [data-view] [data-mods] {
+  min-height: 0;
+  overflow-y: auto;
+  flex: 1;
+  text-align: center;
+  padding-top: 0.3em;
+}
+.p-game [data-main-view] .p-minions [data-view] [data-enable] {
+  width: 100%;
+}
 .p-game [data-main-view] .p-statistics {
   min-height: 0;
   display: grid;
@@ -934,31 +1023,40 @@ progress[value]::-webkit-progress-value {
 .p-game [data-main-view] .p-statistics ul {
   overflow-y: auto;
 }
-.p-game [data-main-view] .p-statistics ul li {
-  display: flex;
+.p-game [data-main-view] .p-statistics ul .g-accordion .header {
+  margin-bottom: 1px;
+}
+.p-game [data-main-view] .p-statistics ul .g-accordion li {
   pointer-events: all;
-  border-bottom: 1px solid #333333;
-  padding-top: 0.1em;
-  padding-bottom: 0.1em;
-  padding-left: 0.3em;
-  padding-right: 0.3em;
 }
-.p-game [data-main-view] .p-statistics ul li [data-label] {
-  flex: 1;
+.p-game [data-main-view] .p-statistics ul .g-accordion li.selected {
+  background-color: #131518;
 }
-.p-game [data-main-view] .p-statistics ul li [data-stat] {
-  padding-left: 1em;
+.p-game [data-main-view] .p-statistics ul .g-accordion li.suppressed {
+  opacity: 0.5;
 }
 .p-game .s-stats {
   grid-area: stats;
   display: flex;
   flex-direction: column;
-  max-width: 15em;
   white-space: nowrap;
+  min-height: 0;
 }
-.p-game .s-stats li {
-  padding: 0.1em;
-  border-bottom: 1px solid #333333;
+.p-game .s-stats ul {
+  min-height: 0;
+  overflow-y: auto;
+}
+.p-game .s-stats ul .g-accordion {
+  padding: 0;
+}
+.p-game .s-stats ul .g-accordion .content {
+  padding-right: 0;
+  padding-top: 0;
+  pointer-events: none;
+}
+.p-game .s-stats ul .g-accordion .content li {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 :root {

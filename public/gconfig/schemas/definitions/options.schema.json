@@ -19,12 +19,12 @@
                         "body": {
                             "type": "string",
                             "maxLength": 512,
-                            "$ref": "../gameConfig.schema.json#/definitions/text"
+                            "$ref": "./definitions.schema.json#/definitions/text"
                         },
                         "footer": {
                             "type": "string",
                             "maxLength": 128,
-                            "$ref": "../gameConfig.schema.json#/definitions/text"
+                            "$ref": "./definitions.schema.json#/definitions/text"
                         }
                     }
                 }

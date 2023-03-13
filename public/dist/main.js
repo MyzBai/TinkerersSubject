@@ -50,6 +50,2143 @@
     return value;
   };
 
+  // node_modules/localforage/dist/localforage.js
+  var require_localforage = __commonJS({
+    "node_modules/localforage/dist/localforage.js"(exports, module) {
+      (function(f) {
+        if (typeof exports === "object" && typeof module !== "undefined") {
+          module.exports = f();
+        } else if (typeof define === "function" && define.amd) {
+          define([], f);
+        } else {
+          var g;
+          if (typeof window !== "undefined") {
+            g = window;
+          } else if (typeof global !== "undefined") {
+            g = global;
+          } else if (typeof self !== "undefined") {
+            g = self;
+          } else {
+            g = this;
+          }
+          g.localforage = f();
+        }
+      })(function() {
+        var define2, module2, exports2;
+        return function e(t, n, r) {
+          function s(o2, u) {
+            if (!n[o2]) {
+              if (!t[o2]) {
+                var a = typeof __require == "function" && __require;
+                if (!u && a)
+                  return a(o2, true);
+                if (i)
+                  return i(o2, true);
+                var f = new Error("Cannot find module '" + o2 + "'");
+                throw f.code = "MODULE_NOT_FOUND", f;
+              }
+              var l = n[o2] = { exports: {} };
+              t[o2][0].call(l.exports, function(e2) {
+                var n2 = t[o2][1][e2];
+                return s(n2 ? n2 : e2);
+              }, l, l.exports, e, t, n, r);
+            }
+            return n[o2].exports;
+          }
+          var i = typeof __require == "function" && __require;
+          for (var o = 0; o < r.length; o++)
+            s(r[o]);
+          return s;
+        }({ 1: [function(_dereq_, module3, exports3) {
+          (function(global2) {
+            "use strict";
+            var Mutation = global2.MutationObserver || global2.WebKitMutationObserver;
+            var scheduleDrain;
+            {
+              if (Mutation) {
+                var called = 0;
+                var observer = new Mutation(nextTick);
+                var element = global2.document.createTextNode("");
+                observer.observe(element, {
+                  characterData: true
+                });
+                scheduleDrain = function() {
+                  element.data = called = ++called % 2;
+                };
+              } else if (!global2.setImmediate && typeof global2.MessageChannel !== "undefined") {
+                var channel = new global2.MessageChannel();
+                channel.port1.onmessage = nextTick;
+                scheduleDrain = function() {
+                  channel.port2.postMessage(0);
+                };
+              } else if ("document" in global2 && "onreadystatechange" in global2.document.createElement("script")) {
+                scheduleDrain = function() {
+                  var scriptEl = global2.document.createElement("script");
+                  scriptEl.onreadystatechange = function() {
+                    nextTick();
+                    scriptEl.onreadystatechange = null;
+                    scriptEl.parentNode.removeChild(scriptEl);
+                    scriptEl = null;
+                  };
+                  global2.document.documentElement.appendChild(scriptEl);
+                };
+              } else {
+                scheduleDrain = function() {
+                  setTimeout(nextTick, 0);
+                };
+              }
+            }
+            var draining;
+            var queue = [];
+            function nextTick() {
+              draining = true;
+              var i, oldQueue;
+              var len = queue.length;
+              while (len) {
+                oldQueue = queue;
+                queue = [];
+                i = -1;
+                while (++i < len) {
+                  oldQueue[i]();
+                }
+                len = queue.length;
+              }
+              draining = false;
+            }
+            module3.exports = immediate;
+            function immediate(task) {
+              if (queue.push(task) === 1 && !draining) {
+                scheduleDrain();
+              }
+            }
+          }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+        }, {}], 2: [function(_dereq_, module3, exports3) {
+          "use strict";
+          var immediate = _dereq_(1);
+          function INTERNAL() {
+          }
+          var handlers = {};
+          var REJECTED = ["REJECTED"];
+          var FULFILLED = ["FULFILLED"];
+          var PENDING = ["PENDING"];
+          module3.exports = Promise2;
+          function Promise2(resolver) {
+            if (typeof resolver !== "function") {
+              throw new TypeError("resolver must be a function");
+            }
+            this.state = PENDING;
+            this.queue = [];
+            this.outcome = void 0;
+            if (resolver !== INTERNAL) {
+              safelyResolveThenable(this, resolver);
+            }
+          }
+          Promise2.prototype["catch"] = function(onRejected) {
+            return this.then(null, onRejected);
+          };
+          Promise2.prototype.then = function(onFulfilled, onRejected) {
+            if (typeof onFulfilled !== "function" && this.state === FULFILLED || typeof onRejected !== "function" && this.state === REJECTED) {
+              return this;
+            }
+            var promise = new this.constructor(INTERNAL);
+            if (this.state !== PENDING) {
+              var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
+              unwrap(promise, resolver, this.outcome);
+            } else {
+              this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
+            }
+            return promise;
+          };
+          function QueueItem(promise, onFulfilled, onRejected) {
+            this.promise = promise;
+            if (typeof onFulfilled === "function") {
+              this.onFulfilled = onFulfilled;
+              this.callFulfilled = this.otherCallFulfilled;
+            }
+            if (typeof onRejected === "function") {
+              this.onRejected = onRejected;
+              this.callRejected = this.otherCallRejected;
+            }
+          }
+          QueueItem.prototype.callFulfilled = function(value) {
+            handlers.resolve(this.promise, value);
+          };
+          QueueItem.prototype.otherCallFulfilled = function(value) {
+            unwrap(this.promise, this.onFulfilled, value);
+          };
+          QueueItem.prototype.callRejected = function(value) {
+            handlers.reject(this.promise, value);
+          };
+          QueueItem.prototype.otherCallRejected = function(value) {
+            unwrap(this.promise, this.onRejected, value);
+          };
+          function unwrap(promise, func, value) {
+            immediate(function() {
+              var returnValue;
+              try {
+                returnValue = func(value);
+              } catch (e) {
+                return handlers.reject(promise, e);
+              }
+              if (returnValue === promise) {
+                handlers.reject(promise, new TypeError("Cannot resolve promise with itself"));
+              } else {
+                handlers.resolve(promise, returnValue);
+              }
+            });
+          }
+          handlers.resolve = function(self2, value) {
+            var result = tryCatch(getThen, value);
+            if (result.status === "error") {
+              return handlers.reject(self2, result.value);
+            }
+            var thenable = result.value;
+            if (thenable) {
+              safelyResolveThenable(self2, thenable);
+            } else {
+              self2.state = FULFILLED;
+              self2.outcome = value;
+              var i = -1;
+              var len = self2.queue.length;
+              while (++i < len) {
+                self2.queue[i].callFulfilled(value);
+              }
+            }
+            return self2;
+          };
+          handlers.reject = function(self2, error) {
+            self2.state = REJECTED;
+            self2.outcome = error;
+            var i = -1;
+            var len = self2.queue.length;
+            while (++i < len) {
+              self2.queue[i].callRejected(error);
+            }
+            return self2;
+          };
+          function getThen(obj) {
+            var then = obj && obj.then;
+            if (obj && (typeof obj === "object" || typeof obj === "function") && typeof then === "function") {
+              return function appyThen() {
+                then.apply(obj, arguments);
+              };
+            }
+          }
+          function safelyResolveThenable(self2, thenable) {
+            var called = false;
+            function onError(value) {
+              if (called) {
+                return;
+              }
+              called = true;
+              handlers.reject(self2, value);
+            }
+            function onSuccess(value) {
+              if (called) {
+                return;
+              }
+              called = true;
+              handlers.resolve(self2, value);
+            }
+            function tryToUnwrap() {
+              thenable(onSuccess, onError);
+            }
+            var result = tryCatch(tryToUnwrap);
+            if (result.status === "error") {
+              onError(result.value);
+            }
+          }
+          function tryCatch(func, value) {
+            var out = {};
+            try {
+              out.value = func(value);
+              out.status = "success";
+            } catch (e) {
+              out.status = "error";
+              out.value = e;
+            }
+            return out;
+          }
+          Promise2.resolve = resolve;
+          function resolve(value) {
+            if (value instanceof this) {
+              return value;
+            }
+            return handlers.resolve(new this(INTERNAL), value);
+          }
+          Promise2.reject = reject;
+          function reject(reason) {
+            var promise = new this(INTERNAL);
+            return handlers.reject(promise, reason);
+          }
+          Promise2.all = all;
+          function all(iterable) {
+            var self2 = this;
+            if (Object.prototype.toString.call(iterable) !== "[object Array]") {
+              return this.reject(new TypeError("must be an array"));
+            }
+            var len = iterable.length;
+            var called = false;
+            if (!len) {
+              return this.resolve([]);
+            }
+            var values = new Array(len);
+            var resolved = 0;
+            var i = -1;
+            var promise = new this(INTERNAL);
+            while (++i < len) {
+              allResolver(iterable[i], i);
+            }
+            return promise;
+            function allResolver(value, i2) {
+              self2.resolve(value).then(resolveFromAll, function(error) {
+                if (!called) {
+                  called = true;
+                  handlers.reject(promise, error);
+                }
+              });
+              function resolveFromAll(outValue) {
+                values[i2] = outValue;
+                if (++resolved === len && !called) {
+                  called = true;
+                  handlers.resolve(promise, values);
+                }
+              }
+            }
+          }
+          Promise2.race = race;
+          function race(iterable) {
+            var self2 = this;
+            if (Object.prototype.toString.call(iterable) !== "[object Array]") {
+              return this.reject(new TypeError("must be an array"));
+            }
+            var len = iterable.length;
+            var called = false;
+            if (!len) {
+              return this.resolve([]);
+            }
+            var i = -1;
+            var promise = new this(INTERNAL);
+            while (++i < len) {
+              resolver(iterable[i]);
+            }
+            return promise;
+            function resolver(value) {
+              self2.resolve(value).then(function(response) {
+                if (!called) {
+                  called = true;
+                  handlers.resolve(promise, response);
+                }
+              }, function(error) {
+                if (!called) {
+                  called = true;
+                  handlers.reject(promise, error);
+                }
+              });
+            }
+          }
+        }, { "1": 1 }], 3: [function(_dereq_, module3, exports3) {
+          (function(global2) {
+            "use strict";
+            if (typeof global2.Promise !== "function") {
+              global2.Promise = _dereq_(2);
+            }
+          }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
+        }, { "2": 2 }], 4: [function(_dereq_, module3, exports3) {
+          "use strict";
+          var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(obj) {
+            return typeof obj;
+          } : function(obj) {
+            return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+          };
+          function _classCallCheck(instance, Constructor) {
+            if (!(instance instanceof Constructor)) {
+              throw new TypeError("Cannot call a class as a function");
+            }
+          }
+          function getIDB() {
+            try {
+              if (typeof indexedDB !== "undefined") {
+                return indexedDB;
+              }
+              if (typeof webkitIndexedDB !== "undefined") {
+                return webkitIndexedDB;
+              }
+              if (typeof mozIndexedDB !== "undefined") {
+                return mozIndexedDB;
+              }
+              if (typeof OIndexedDB !== "undefined") {
+                return OIndexedDB;
+              }
+              if (typeof msIndexedDB !== "undefined") {
+                return msIndexedDB;
+              }
+            } catch (e) {
+              return;
+            }
+          }
+          var idb = getIDB();
+          function isIndexedDBValid() {
+            try {
+              if (!idb || !idb.open) {
+                return false;
+              }
+              var isSafari = typeof openDatabase !== "undefined" && /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) && !/BlackBerry/.test(navigator.platform);
+              var hasFetch = typeof fetch === "function" && fetch.toString().indexOf("[native code") !== -1;
+              return (!isSafari || hasFetch) && typeof indexedDB !== "undefined" && typeof IDBKeyRange !== "undefined";
+            } catch (e) {
+              return false;
+            }
+          }
+          function createBlob(parts, properties) {
+            parts = parts || [];
+            properties = properties || {};
+            try {
+              return new Blob(parts, properties);
+            } catch (e) {
+              if (e.name !== "TypeError") {
+                throw e;
+              }
+              var Builder = typeof BlobBuilder !== "undefined" ? BlobBuilder : typeof MSBlobBuilder !== "undefined" ? MSBlobBuilder : typeof MozBlobBuilder !== "undefined" ? MozBlobBuilder : WebKitBlobBuilder;
+              var builder = new Builder();
+              for (var i = 0; i < parts.length; i += 1) {
+                builder.append(parts[i]);
+              }
+              return builder.getBlob(properties.type);
+            }
+          }
+          if (typeof Promise === "undefined") {
+            _dereq_(3);
+          }
+          var Promise$1 = Promise;
+          function executeCallback(promise, callback) {
+            if (callback) {
+              promise.then(function(result) {
+                callback(null, result);
+              }, function(error) {
+                callback(error);
+              });
+            }
+          }
+          function executeTwoCallbacks(promise, callback, errorCallback) {
+            if (typeof callback === "function") {
+              promise.then(callback);
+            }
+            if (typeof errorCallback === "function") {
+              promise["catch"](errorCallback);
+            }
+          }
+          function normalizeKey(key2) {
+            if (typeof key2 !== "string") {
+              console.warn(key2 + " used as a key, but it is not a string.");
+              key2 = String(key2);
+            }
+            return key2;
+          }
+          function getCallback() {
+            if (arguments.length && typeof arguments[arguments.length - 1] === "function") {
+              return arguments[arguments.length - 1];
+            }
+          }
+          var DETECT_BLOB_SUPPORT_STORE = "local-forage-detect-blob-support";
+          var supportsBlobs = void 0;
+          var dbContexts = {};
+          var toString = Object.prototype.toString;
+          var READ_ONLY = "readonly";
+          var READ_WRITE = "readwrite";
+          function _binStringToArrayBuffer(bin) {
+            var length2 = bin.length;
+            var buf = new ArrayBuffer(length2);
+            var arr = new Uint8Array(buf);
+            for (var i = 0; i < length2; i++) {
+              arr[i] = bin.charCodeAt(i);
+            }
+            return buf;
+          }
+          function _checkBlobSupportWithoutCaching(idb2) {
+            return new Promise$1(function(resolve) {
+              var txn = idb2.transaction(DETECT_BLOB_SUPPORT_STORE, READ_WRITE);
+              var blob = createBlob([""]);
+              txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(blob, "key");
+              txn.onabort = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                resolve(false);
+              };
+              txn.oncomplete = function() {
+                var matchedChrome = navigator.userAgent.match(/Chrome\/(\d+)/);
+                var matchedEdge = navigator.userAgent.match(/Edge\//);
+                resolve(matchedEdge || !matchedChrome || parseInt(matchedChrome[1], 10) >= 43);
+              };
+            })["catch"](function() {
+              return false;
+            });
+          }
+          function _checkBlobSupport(idb2) {
+            if (typeof supportsBlobs === "boolean") {
+              return Promise$1.resolve(supportsBlobs);
+            }
+            return _checkBlobSupportWithoutCaching(idb2).then(function(value) {
+              supportsBlobs = value;
+              return supportsBlobs;
+            });
+          }
+          function _deferReadiness(dbInfo) {
+            var dbContext = dbContexts[dbInfo.name];
+            var deferredOperation = {};
+            deferredOperation.promise = new Promise$1(function(resolve, reject) {
+              deferredOperation.resolve = resolve;
+              deferredOperation.reject = reject;
+            });
+            dbContext.deferredOperations.push(deferredOperation);
+            if (!dbContext.dbReady) {
+              dbContext.dbReady = deferredOperation.promise;
+            } else {
+              dbContext.dbReady = dbContext.dbReady.then(function() {
+                return deferredOperation.promise;
+              });
+            }
+          }
+          function _advanceReadiness(dbInfo) {
+            var dbContext = dbContexts[dbInfo.name];
+            var deferredOperation = dbContext.deferredOperations.pop();
+            if (deferredOperation) {
+              deferredOperation.resolve();
+              return deferredOperation.promise;
+            }
+          }
+          function _rejectReadiness(dbInfo, err) {
+            var dbContext = dbContexts[dbInfo.name];
+            var deferredOperation = dbContext.deferredOperations.pop();
+            if (deferredOperation) {
+              deferredOperation.reject(err);
+              return deferredOperation.promise;
+            }
+          }
+          function _getConnection(dbInfo, upgradeNeeded) {
+            return new Promise$1(function(resolve, reject) {
+              dbContexts[dbInfo.name] = dbContexts[dbInfo.name] || createDbContext();
+              if (dbInfo.db) {
+                if (upgradeNeeded) {
+                  _deferReadiness(dbInfo);
+                  dbInfo.db.close();
+                } else {
+                  return resolve(dbInfo.db);
+                }
+              }
+              var dbArgs = [dbInfo.name];
+              if (upgradeNeeded) {
+                dbArgs.push(dbInfo.version);
+              }
+              var openreq = idb.open.apply(idb, dbArgs);
+              if (upgradeNeeded) {
+                openreq.onupgradeneeded = function(e) {
+                  var db = openreq.result;
+                  try {
+                    db.createObjectStore(dbInfo.storeName);
+                    if (e.oldVersion <= 1) {
+                      db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
+                    }
+                  } catch (ex) {
+                    if (ex.name === "ConstraintError") {
+                      console.warn('The database "' + dbInfo.name + '" has been upgraded from version ' + e.oldVersion + " to version " + e.newVersion + ', but the storage "' + dbInfo.storeName + '" already exists.');
+                    } else {
+                      throw ex;
+                    }
+                  }
+                };
+              }
+              openreq.onerror = function(e) {
+                e.preventDefault();
+                reject(openreq.error);
+              };
+              openreq.onsuccess = function() {
+                var db = openreq.result;
+                db.onversionchange = function(e) {
+                  e.target.close();
+                };
+                resolve(db);
+                _advanceReadiness(dbInfo);
+              };
+            });
+          }
+          function _getOriginalConnection(dbInfo) {
+            return _getConnection(dbInfo, false);
+          }
+          function _getUpgradedConnection(dbInfo) {
+            return _getConnection(dbInfo, true);
+          }
+          function _isUpgradeNeeded(dbInfo, defaultVersion) {
+            if (!dbInfo.db) {
+              return true;
+            }
+            var isNewStore = !dbInfo.db.objectStoreNames.contains(dbInfo.storeName);
+            var isDowngrade = dbInfo.version < dbInfo.db.version;
+            var isUpgrade = dbInfo.version > dbInfo.db.version;
+            if (isDowngrade) {
+              if (dbInfo.version !== defaultVersion) {
+                console.warn('The database "' + dbInfo.name + `" can't be downgraded from version ` + dbInfo.db.version + " to version " + dbInfo.version + ".");
+              }
+              dbInfo.version = dbInfo.db.version;
+            }
+            if (isUpgrade || isNewStore) {
+              if (isNewStore) {
+                var incVersion = dbInfo.db.version + 1;
+                if (incVersion > dbInfo.version) {
+                  dbInfo.version = incVersion;
+                }
+              }
+              return true;
+            }
+            return false;
+          }
+          function _encodeBlob(blob) {
+            return new Promise$1(function(resolve, reject) {
+              var reader = new FileReader();
+              reader.onerror = reject;
+              reader.onloadend = function(e) {
+                var base64 = btoa(e.target.result || "");
+                resolve({
+                  __local_forage_encoded_blob: true,
+                  data: base64,
+                  type: blob.type
+                });
+              };
+              reader.readAsBinaryString(blob);
+            });
+          }
+          function _decodeBlob(encodedBlob) {
+            var arrayBuff = _binStringToArrayBuffer(atob(encodedBlob.data));
+            return createBlob([arrayBuff], { type: encodedBlob.type });
+          }
+          function _isEncodedBlob(value) {
+            return value && value.__local_forage_encoded_blob;
+          }
+          function _fullyReady(callback) {
+            var self2 = this;
+            var promise = self2._initReady().then(function() {
+              var dbContext = dbContexts[self2._dbInfo.name];
+              if (dbContext && dbContext.dbReady) {
+                return dbContext.dbReady;
+              }
+            });
+            executeTwoCallbacks(promise, callback, callback);
+            return promise;
+          }
+          function _tryReconnect(dbInfo) {
+            _deferReadiness(dbInfo);
+            var dbContext = dbContexts[dbInfo.name];
+            var forages = dbContext.forages;
+            for (var i = 0; i < forages.length; i++) {
+              var forage = forages[i];
+              if (forage._dbInfo.db) {
+                forage._dbInfo.db.close();
+                forage._dbInfo.db = null;
+              }
+            }
+            dbInfo.db = null;
+            return _getOriginalConnection(dbInfo).then(function(db) {
+              dbInfo.db = db;
+              if (_isUpgradeNeeded(dbInfo)) {
+                return _getUpgradedConnection(dbInfo);
+              }
+              return db;
+            }).then(function(db) {
+              dbInfo.db = dbContext.db = db;
+              for (var i2 = 0; i2 < forages.length; i2++) {
+                forages[i2]._dbInfo.db = db;
+              }
+            })["catch"](function(err) {
+              _rejectReadiness(dbInfo, err);
+              throw err;
+            });
+          }
+          function createTransaction(dbInfo, mode, callback, retries) {
+            if (retries === void 0) {
+              retries = 1;
+            }
+            try {
+              var tx = dbInfo.db.transaction(dbInfo.storeName, mode);
+              callback(null, tx);
+            } catch (err) {
+              if (retries > 0 && (!dbInfo.db || err.name === "InvalidStateError" || err.name === "NotFoundError")) {
+                return Promise$1.resolve().then(function() {
+                  if (!dbInfo.db || err.name === "NotFoundError" && !dbInfo.db.objectStoreNames.contains(dbInfo.storeName) && dbInfo.version <= dbInfo.db.version) {
+                    if (dbInfo.db) {
+                      dbInfo.version = dbInfo.db.version + 1;
+                    }
+                    return _getUpgradedConnection(dbInfo);
+                  }
+                }).then(function() {
+                  return _tryReconnect(dbInfo).then(function() {
+                    createTransaction(dbInfo, mode, callback, retries - 1);
+                  });
+                })["catch"](callback);
+              }
+              callback(err);
+            }
+          }
+          function createDbContext() {
+            return {
+              forages: [],
+              db: null,
+              dbReady: null,
+              deferredOperations: []
+            };
+          }
+          function _initStorage(options) {
+            var self2 = this;
+            var dbInfo = {
+              db: null
+            };
+            if (options) {
+              for (var i in options) {
+                dbInfo[i] = options[i];
+              }
+            }
+            var dbContext = dbContexts[dbInfo.name];
+            if (!dbContext) {
+              dbContext = createDbContext();
+              dbContexts[dbInfo.name] = dbContext;
+            }
+            dbContext.forages.push(self2);
+            if (!self2._initReady) {
+              self2._initReady = self2.ready;
+              self2.ready = _fullyReady;
+            }
+            var initPromises = [];
+            function ignoreErrors() {
+              return Promise$1.resolve();
+            }
+            for (var j = 0; j < dbContext.forages.length; j++) {
+              var forage = dbContext.forages[j];
+              if (forage !== self2) {
+                initPromises.push(forage._initReady()["catch"](ignoreErrors));
+              }
+            }
+            var forages = dbContext.forages.slice(0);
+            return Promise$1.all(initPromises).then(function() {
+              dbInfo.db = dbContext.db;
+              return _getOriginalConnection(dbInfo);
+            }).then(function(db) {
+              dbInfo.db = db;
+              if (_isUpgradeNeeded(dbInfo, self2._defaultConfig.version)) {
+                return _getUpgradedConnection(dbInfo);
+              }
+              return db;
+            }).then(function(db) {
+              dbInfo.db = dbContext.db = db;
+              self2._dbInfo = dbInfo;
+              for (var k = 0; k < forages.length; k++) {
+                var forage2 = forages[k];
+                if (forage2 !== self2) {
+                  forage2._dbInfo.db = dbInfo.db;
+                  forage2._dbInfo.version = dbInfo.version;
+                }
+              }
+            });
+          }
+          function getItem(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.get(key2);
+                    req.onsuccess = function() {
+                      var value = req.result;
+                      if (value === void 0) {
+                        value = null;
+                      }
+                      if (_isEncodedBlob(value)) {
+                        value = _decodeBlob(value);
+                      }
+                      resolve(value);
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function iterate(iterator, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.openCursor();
+                    var iterationNumber = 1;
+                    req.onsuccess = function() {
+                      var cursor = req.result;
+                      if (cursor) {
+                        var value = cursor.value;
+                        if (_isEncodedBlob(value)) {
+                          value = _decodeBlob(value);
+                        }
+                        var result = iterator(value, cursor.key, iterationNumber++);
+                        if (result !== void 0) {
+                          resolve(result);
+                        } else {
+                          cursor["continue"]();
+                        }
+                      } else {
+                        resolve();
+                      }
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function setItem(key2, value, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              var dbInfo;
+              self2.ready().then(function() {
+                dbInfo = self2._dbInfo;
+                if (toString.call(value) === "[object Blob]") {
+                  return _checkBlobSupport(dbInfo.db).then(function(blobSupport) {
+                    if (blobSupport) {
+                      return value;
+                    }
+                    return _encodeBlob(value);
+                  });
+                }
+                return value;
+              }).then(function(value2) {
+                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    if (value2 === null) {
+                      value2 = void 0;
+                    }
+                    var req = store.put(value2, key2);
+                    transaction.oncomplete = function() {
+                      if (value2 === void 0) {
+                        value2 = null;
+                      }
+                      resolve(value2);
+                    };
+                    transaction.onabort = transaction.onerror = function() {
+                      var err2 = req.error ? req.error : req.transaction.error;
+                      reject(err2);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function removeItem(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store["delete"](key2);
+                    transaction.oncomplete = function() {
+                      resolve();
+                    };
+                    transaction.onerror = function() {
+                      reject(req.error);
+                    };
+                    transaction.onabort = function() {
+                      var err2 = req.error ? req.error : req.transaction.error;
+                      reject(err2);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function clear(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.clear();
+                    transaction.oncomplete = function() {
+                      resolve();
+                    };
+                    transaction.onabort = transaction.onerror = function() {
+                      var err2 = req.error ? req.error : req.transaction.error;
+                      reject(err2);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function length(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.count();
+                    req.onsuccess = function() {
+                      resolve(req.result);
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function key(n, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              if (n < 0) {
+                resolve(null);
+                return;
+              }
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var advanced = false;
+                    var req = store.openKeyCursor();
+                    req.onsuccess = function() {
+                      var cursor = req.result;
+                      if (!cursor) {
+                        resolve(null);
+                        return;
+                      }
+                      if (n === 0) {
+                        resolve(cursor.key);
+                      } else {
+                        if (!advanced) {
+                          advanced = true;
+                          cursor.advance(n);
+                        } else {
+                          resolve(cursor.key);
+                        }
+                      }
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function keys(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  try {
+                    var store = transaction.objectStore(self2._dbInfo.storeName);
+                    var req = store.openKeyCursor();
+                    var keys2 = [];
+                    req.onsuccess = function() {
+                      var cursor = req.result;
+                      if (!cursor) {
+                        resolve(keys2);
+                        return;
+                      }
+                      keys2.push(cursor.key);
+                      cursor["continue"]();
+                    };
+                    req.onerror = function() {
+                      reject(req.error);
+                    };
+                  } catch (e) {
+                    reject(e);
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function dropInstance(options, callback) {
+            callback = getCallback.apply(this, arguments);
+            var currentConfig = this.config();
+            options = typeof options !== "function" && options || {};
+            if (!options.name) {
+              options.name = options.name || currentConfig.name;
+              options.storeName = options.storeName || currentConfig.storeName;
+            }
+            var self2 = this;
+            var promise;
+            if (!options.name) {
+              promise = Promise$1.reject("Invalid arguments");
+            } else {
+              var isCurrentDb = options.name === currentConfig.name && self2._dbInfo.db;
+              var dbPromise = isCurrentDb ? Promise$1.resolve(self2._dbInfo.db) : _getOriginalConnection(options).then(function(db) {
+                var dbContext = dbContexts[options.name];
+                var forages = dbContext.forages;
+                dbContext.db = db;
+                for (var i = 0; i < forages.length; i++) {
+                  forages[i]._dbInfo.db = db;
+                }
+                return db;
+              });
+              if (!options.storeName) {
+                promise = dbPromise.then(function(db) {
+                  _deferReadiness(options);
+                  var dbContext = dbContexts[options.name];
+                  var forages = dbContext.forages;
+                  db.close();
+                  for (var i = 0; i < forages.length; i++) {
+                    var forage = forages[i];
+                    forage._dbInfo.db = null;
+                  }
+                  var dropDBPromise = new Promise$1(function(resolve, reject) {
+                    var req = idb.deleteDatabase(options.name);
+                    req.onerror = function() {
+                      var db2 = req.result;
+                      if (db2) {
+                        db2.close();
+                      }
+                      reject(req.error);
+                    };
+                    req.onblocked = function() {
+                      console.warn('dropInstance blocked for database "' + options.name + '" until all open connections are closed');
+                    };
+                    req.onsuccess = function() {
+                      var db2 = req.result;
+                      if (db2) {
+                        db2.close();
+                      }
+                      resolve(db2);
+                    };
+                  });
+                  return dropDBPromise.then(function(db2) {
+                    dbContext.db = db2;
+                    for (var i2 = 0; i2 < forages.length; i2++) {
+                      var _forage = forages[i2];
+                      _advanceReadiness(_forage._dbInfo);
+                    }
+                  })["catch"](function(err) {
+                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function() {
+                    });
+                    throw err;
+                  });
+                });
+              } else {
+                promise = dbPromise.then(function(db) {
+                  if (!db.objectStoreNames.contains(options.storeName)) {
+                    return;
+                  }
+                  var newVersion = db.version + 1;
+                  _deferReadiness(options);
+                  var dbContext = dbContexts[options.name];
+                  var forages = dbContext.forages;
+                  db.close();
+                  for (var i = 0; i < forages.length; i++) {
+                    var forage = forages[i];
+                    forage._dbInfo.db = null;
+                    forage._dbInfo.version = newVersion;
+                  }
+                  var dropObjectPromise = new Promise$1(function(resolve, reject) {
+                    var req = idb.open(options.name, newVersion);
+                    req.onerror = function(err) {
+                      var db2 = req.result;
+                      db2.close();
+                      reject(err);
+                    };
+                    req.onupgradeneeded = function() {
+                      var db2 = req.result;
+                      db2.deleteObjectStore(options.storeName);
+                    };
+                    req.onsuccess = function() {
+                      var db2 = req.result;
+                      db2.close();
+                      resolve(db2);
+                    };
+                  });
+                  return dropObjectPromise.then(function(db2) {
+                    dbContext.db = db2;
+                    for (var j = 0; j < forages.length; j++) {
+                      var _forage2 = forages[j];
+                      _forage2._dbInfo.db = db2;
+                      _advanceReadiness(_forage2._dbInfo);
+                    }
+                  })["catch"](function(err) {
+                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function() {
+                    });
+                    throw err;
+                  });
+                });
+              }
+            }
+            executeCallback(promise, callback);
+            return promise;
+          }
+          var asyncStorage = {
+            _driver: "asyncStorage",
+            _initStorage,
+            _support: isIndexedDBValid(),
+            iterate,
+            getItem,
+            setItem,
+            removeItem,
+            clear,
+            length,
+            key,
+            keys,
+            dropInstance
+          };
+          function isWebSQLValid() {
+            return typeof openDatabase === "function";
+          }
+          var BASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+          var BLOB_TYPE_PREFIX = "~~local_forage_type~";
+          var BLOB_TYPE_PREFIX_REGEX = /^~~local_forage_type~([^~]+)~/;
+          var SERIALIZED_MARKER = "__lfsc__:";
+          var SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER.length;
+          var TYPE_ARRAYBUFFER = "arbf";
+          var TYPE_BLOB = "blob";
+          var TYPE_INT8ARRAY = "si08";
+          var TYPE_UINT8ARRAY = "ui08";
+          var TYPE_UINT8CLAMPEDARRAY = "uic8";
+          var TYPE_INT16ARRAY = "si16";
+          var TYPE_INT32ARRAY = "si32";
+          var TYPE_UINT16ARRAY = "ur16";
+          var TYPE_UINT32ARRAY = "ui32";
+          var TYPE_FLOAT32ARRAY = "fl32";
+          var TYPE_FLOAT64ARRAY = "fl64";
+          var TYPE_SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER_LENGTH + TYPE_ARRAYBUFFER.length;
+          var toString$1 = Object.prototype.toString;
+          function stringToBuffer(serializedString) {
+            var bufferLength = serializedString.length * 0.75;
+            var len = serializedString.length;
+            var i;
+            var p = 0;
+            var encoded1, encoded2, encoded3, encoded4;
+            if (serializedString[serializedString.length - 1] === "=") {
+              bufferLength--;
+              if (serializedString[serializedString.length - 2] === "=") {
+                bufferLength--;
+              }
+            }
+            var buffer = new ArrayBuffer(bufferLength);
+            var bytes = new Uint8Array(buffer);
+            for (i = 0; i < len; i += 4) {
+              encoded1 = BASE_CHARS.indexOf(serializedString[i]);
+              encoded2 = BASE_CHARS.indexOf(serializedString[i + 1]);
+              encoded3 = BASE_CHARS.indexOf(serializedString[i + 2]);
+              encoded4 = BASE_CHARS.indexOf(serializedString[i + 3]);
+              bytes[p++] = encoded1 << 2 | encoded2 >> 4;
+              bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
+              bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
+            }
+            return buffer;
+          }
+          function bufferToString(buffer) {
+            var bytes = new Uint8Array(buffer);
+            var base64String = "";
+            var i;
+            for (i = 0; i < bytes.length; i += 3) {
+              base64String += BASE_CHARS[bytes[i] >> 2];
+              base64String += BASE_CHARS[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
+              base64String += BASE_CHARS[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
+              base64String += BASE_CHARS[bytes[i + 2] & 63];
+            }
+            if (bytes.length % 3 === 2) {
+              base64String = base64String.substring(0, base64String.length - 1) + "=";
+            } else if (bytes.length % 3 === 1) {
+              base64String = base64String.substring(0, base64String.length - 2) + "==";
+            }
+            return base64String;
+          }
+          function serialize(value, callback) {
+            var valueType = "";
+            if (value) {
+              valueType = toString$1.call(value);
+            }
+            if (value && (valueType === "[object ArrayBuffer]" || value.buffer && toString$1.call(value.buffer) === "[object ArrayBuffer]")) {
+              var buffer;
+              var marker = SERIALIZED_MARKER;
+              if (value instanceof ArrayBuffer) {
+                buffer = value;
+                marker += TYPE_ARRAYBUFFER;
+              } else {
+                buffer = value.buffer;
+                if (valueType === "[object Int8Array]") {
+                  marker += TYPE_INT8ARRAY;
+                } else if (valueType === "[object Uint8Array]") {
+                  marker += TYPE_UINT8ARRAY;
+                } else if (valueType === "[object Uint8ClampedArray]") {
+                  marker += TYPE_UINT8CLAMPEDARRAY;
+                } else if (valueType === "[object Int16Array]") {
+                  marker += TYPE_INT16ARRAY;
+                } else if (valueType === "[object Uint16Array]") {
+                  marker += TYPE_UINT16ARRAY;
+                } else if (valueType === "[object Int32Array]") {
+                  marker += TYPE_INT32ARRAY;
+                } else if (valueType === "[object Uint32Array]") {
+                  marker += TYPE_UINT32ARRAY;
+                } else if (valueType === "[object Float32Array]") {
+                  marker += TYPE_FLOAT32ARRAY;
+                } else if (valueType === "[object Float64Array]") {
+                  marker += TYPE_FLOAT64ARRAY;
+                } else {
+                  callback(new Error("Failed to get type for BinaryArray"));
+                }
+              }
+              callback(marker + bufferToString(buffer));
+            } else if (valueType === "[object Blob]") {
+              var fileReader = new FileReader();
+              fileReader.onload = function() {
+                var str = BLOB_TYPE_PREFIX + value.type + "~" + bufferToString(this.result);
+                callback(SERIALIZED_MARKER + TYPE_BLOB + str);
+              };
+              fileReader.readAsArrayBuffer(value);
+            } else {
+              try {
+                callback(JSON.stringify(value));
+              } catch (e) {
+                console.error("Couldn't convert value into a JSON string: ", value);
+                callback(null, e);
+              }
+            }
+          }
+          function deserialize(value) {
+            if (value.substring(0, SERIALIZED_MARKER_LENGTH) !== SERIALIZED_MARKER) {
+              return JSON.parse(value);
+            }
+            var serializedString = value.substring(TYPE_SERIALIZED_MARKER_LENGTH);
+            var type = value.substring(SERIALIZED_MARKER_LENGTH, TYPE_SERIALIZED_MARKER_LENGTH);
+            var blobType;
+            if (type === TYPE_BLOB && BLOB_TYPE_PREFIX_REGEX.test(serializedString)) {
+              var matcher = serializedString.match(BLOB_TYPE_PREFIX_REGEX);
+              blobType = matcher[1];
+              serializedString = serializedString.substring(matcher[0].length);
+            }
+            var buffer = stringToBuffer(serializedString);
+            switch (type) {
+              case TYPE_ARRAYBUFFER:
+                return buffer;
+              case TYPE_BLOB:
+                return createBlob([buffer], { type: blobType });
+              case TYPE_INT8ARRAY:
+                return new Int8Array(buffer);
+              case TYPE_UINT8ARRAY:
+                return new Uint8Array(buffer);
+              case TYPE_UINT8CLAMPEDARRAY:
+                return new Uint8ClampedArray(buffer);
+              case TYPE_INT16ARRAY:
+                return new Int16Array(buffer);
+              case TYPE_UINT16ARRAY:
+                return new Uint16Array(buffer);
+              case TYPE_INT32ARRAY:
+                return new Int32Array(buffer);
+              case TYPE_UINT32ARRAY:
+                return new Uint32Array(buffer);
+              case TYPE_FLOAT32ARRAY:
+                return new Float32Array(buffer);
+              case TYPE_FLOAT64ARRAY:
+                return new Float64Array(buffer);
+              default:
+                throw new Error("Unkown type: " + type);
+            }
+          }
+          var localforageSerializer = {
+            serialize,
+            deserialize,
+            stringToBuffer,
+            bufferToString
+          };
+          function createDbTable(t, dbInfo, callback, errorCallback) {
+            t.executeSql("CREATE TABLE IF NOT EXISTS " + dbInfo.storeName + " (id INTEGER PRIMARY KEY, key unique, value)", [], callback, errorCallback);
+          }
+          function _initStorage$1(options) {
+            var self2 = this;
+            var dbInfo = {
+              db: null
+            };
+            if (options) {
+              for (var i in options) {
+                dbInfo[i] = typeof options[i] !== "string" ? options[i].toString() : options[i];
+              }
+            }
+            var dbInfoPromise = new Promise$1(function(resolve, reject) {
+              try {
+                dbInfo.db = openDatabase(dbInfo.name, String(dbInfo.version), dbInfo.description, dbInfo.size);
+              } catch (e) {
+                return reject(e);
+              }
+              dbInfo.db.transaction(function(t) {
+                createDbTable(t, dbInfo, function() {
+                  self2._dbInfo = dbInfo;
+                  resolve();
+                }, function(t2, error) {
+                  reject(error);
+                });
+              }, reject);
+            });
+            dbInfo.serializer = localforageSerializer;
+            return dbInfoPromise;
+          }
+          function tryExecuteSql(t, dbInfo, sqlStatement, args, callback, errorCallback) {
+            t.executeSql(sqlStatement, args, callback, function(t2, error) {
+              if (error.code === error.SYNTAX_ERR) {
+                t2.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [dbInfo.storeName], function(t3, results) {
+                  if (!results.rows.length) {
+                    createDbTable(t3, dbInfo, function() {
+                      t3.executeSql(sqlStatement, args, callback, errorCallback);
+                    }, errorCallback);
+                  } else {
+                    errorCallback(t3, error);
+                  }
+                }, errorCallback);
+              } else {
+                errorCallback(t2, error);
+              }
+            }, errorCallback);
+          }
+          function getItem$1(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT * FROM " + dbInfo.storeName + " WHERE key = ? LIMIT 1", [key2], function(t2, results) {
+                    var result = results.rows.length ? results.rows.item(0).value : null;
+                    if (result) {
+                      result = dbInfo.serializer.deserialize(result);
+                    }
+                    resolve(result);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function iterate$1(iterator, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT * FROM " + dbInfo.storeName, [], function(t2, results) {
+                    var rows = results.rows;
+                    var length2 = rows.length;
+                    for (var i = 0; i < length2; i++) {
+                      var item = rows.item(i);
+                      var result = item.value;
+                      if (result) {
+                        result = dbInfo.serializer.deserialize(result);
+                      }
+                      result = iterator(result, item.key, i + 1);
+                      if (result !== void 0) {
+                        resolve(result);
+                        return;
+                      }
+                    }
+                    resolve();
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function _setItem(key2, value, callback, retriesLeft) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                if (value === void 0) {
+                  value = null;
+                }
+                var originalValue = value;
+                var dbInfo = self2._dbInfo;
+                dbInfo.serializer.serialize(value, function(value2, error) {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    dbInfo.db.transaction(function(t) {
+                      tryExecuteSql(t, dbInfo, "INSERT OR REPLACE INTO " + dbInfo.storeName + " (key, value) VALUES (?, ?)", [key2, value2], function() {
+                        resolve(originalValue);
+                      }, function(t2, error2) {
+                        reject(error2);
+                      });
+                    }, function(sqlError) {
+                      if (sqlError.code === sqlError.QUOTA_ERR) {
+                        if (retriesLeft > 0) {
+                          resolve(_setItem.apply(self2, [key2, originalValue, callback, retriesLeft - 1]));
+                          return;
+                        }
+                        reject(sqlError);
+                      }
+                    });
+                  }
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function setItem$1(key2, value, callback) {
+            return _setItem.apply(this, [key2, value, callback, 1]);
+          }
+          function removeItem$1(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "DELETE FROM " + dbInfo.storeName + " WHERE key = ?", [key2], function() {
+                    resolve();
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function clear$1(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "DELETE FROM " + dbInfo.storeName, [], function() {
+                    resolve();
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function length$1(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT COUNT(key) as c FROM " + dbInfo.storeName, [], function(t2, results) {
+                    var result = results.rows.item(0).c;
+                    resolve(result);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function key$1(n, callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT key FROM " + dbInfo.storeName + " WHERE id = ? LIMIT 1", [n + 1], function(t2, results) {
+                    var result = results.rows.length ? results.rows.item(0).key : null;
+                    resolve(result);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function keys$1(callback) {
+            var self2 = this;
+            var promise = new Promise$1(function(resolve, reject) {
+              self2.ready().then(function() {
+                var dbInfo = self2._dbInfo;
+                dbInfo.db.transaction(function(t) {
+                  tryExecuteSql(t, dbInfo, "SELECT key FROM " + dbInfo.storeName, [], function(t2, results) {
+                    var keys2 = [];
+                    for (var i = 0; i < results.rows.length; i++) {
+                      keys2.push(results.rows.item(i).key);
+                    }
+                    resolve(keys2);
+                  }, function(t2, error) {
+                    reject(error);
+                  });
+                });
+              })["catch"](reject);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function getAllStoreNames(db) {
+            return new Promise$1(function(resolve, reject) {
+              db.transaction(function(t) {
+                t.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'", [], function(t2, results) {
+                  var storeNames = [];
+                  for (var i = 0; i < results.rows.length; i++) {
+                    storeNames.push(results.rows.item(i).name);
+                  }
+                  resolve({
+                    db,
+                    storeNames
+                  });
+                }, function(t2, error) {
+                  reject(error);
+                });
+              }, function(sqlError) {
+                reject(sqlError);
+              });
+            });
+          }
+          function dropInstance$1(options, callback) {
+            callback = getCallback.apply(this, arguments);
+            var currentConfig = this.config();
+            options = typeof options !== "function" && options || {};
+            if (!options.name) {
+              options.name = options.name || currentConfig.name;
+              options.storeName = options.storeName || currentConfig.storeName;
+            }
+            var self2 = this;
+            var promise;
+            if (!options.name) {
+              promise = Promise$1.reject("Invalid arguments");
+            } else {
+              promise = new Promise$1(function(resolve) {
+                var db;
+                if (options.name === currentConfig.name) {
+                  db = self2._dbInfo.db;
+                } else {
+                  db = openDatabase(options.name, "", "", 0);
+                }
+                if (!options.storeName) {
+                  resolve(getAllStoreNames(db));
+                } else {
+                  resolve({
+                    db,
+                    storeNames: [options.storeName]
+                  });
+                }
+              }).then(function(operationInfo) {
+                return new Promise$1(function(resolve, reject) {
+                  operationInfo.db.transaction(function(t) {
+                    function dropTable(storeName) {
+                      return new Promise$1(function(resolve2, reject2) {
+                        t.executeSql("DROP TABLE IF EXISTS " + storeName, [], function() {
+                          resolve2();
+                        }, function(t2, error) {
+                          reject2(error);
+                        });
+                      });
+                    }
+                    var operations = [];
+                    for (var i = 0, len = operationInfo.storeNames.length; i < len; i++) {
+                      operations.push(dropTable(operationInfo.storeNames[i]));
+                    }
+                    Promise$1.all(operations).then(function() {
+                      resolve();
+                    })["catch"](function(e) {
+                      reject(e);
+                    });
+                  }, function(sqlError) {
+                    reject(sqlError);
+                  });
+                });
+              });
+            }
+            executeCallback(promise, callback);
+            return promise;
+          }
+          var webSQLStorage = {
+            _driver: "webSQLStorage",
+            _initStorage: _initStorage$1,
+            _support: isWebSQLValid(),
+            iterate: iterate$1,
+            getItem: getItem$1,
+            setItem: setItem$1,
+            removeItem: removeItem$1,
+            clear: clear$1,
+            length: length$1,
+            key: key$1,
+            keys: keys$1,
+            dropInstance: dropInstance$1
+          };
+          function isLocalStorageValid() {
+            try {
+              return typeof localStorage !== "undefined" && "setItem" in localStorage && !!localStorage.setItem;
+            } catch (e) {
+              return false;
+            }
+          }
+          function _getKeyPrefix(options, defaultConfig) {
+            var keyPrefix = options.name + "/";
+            if (options.storeName !== defaultConfig.storeName) {
+              keyPrefix += options.storeName + "/";
+            }
+            return keyPrefix;
+          }
+          function checkIfLocalStorageThrows() {
+            var localStorageTestKey = "_localforage_support_test";
+            try {
+              localStorage.setItem(localStorageTestKey, true);
+              localStorage.removeItem(localStorageTestKey);
+              return false;
+            } catch (e) {
+              return true;
+            }
+          }
+          function _isLocalStorageUsable() {
+            return !checkIfLocalStorageThrows() || localStorage.length > 0;
+          }
+          function _initStorage$2(options) {
+            var self2 = this;
+            var dbInfo = {};
+            if (options) {
+              for (var i in options) {
+                dbInfo[i] = options[i];
+              }
+            }
+            dbInfo.keyPrefix = _getKeyPrefix(options, self2._defaultConfig);
+            if (!_isLocalStorageUsable()) {
+              return Promise$1.reject();
+            }
+            self2._dbInfo = dbInfo;
+            dbInfo.serializer = localforageSerializer;
+            return Promise$1.resolve();
+          }
+          function clear$2(callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var keyPrefix = self2._dbInfo.keyPrefix;
+              for (var i = localStorage.length - 1; i >= 0; i--) {
+                var key2 = localStorage.key(i);
+                if (key2.indexOf(keyPrefix) === 0) {
+                  localStorage.removeItem(key2);
+                }
+              }
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function getItem$2(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var result = localStorage.getItem(dbInfo.keyPrefix + key2);
+              if (result) {
+                result = dbInfo.serializer.deserialize(result);
+              }
+              return result;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function iterate$2(iterator, callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var keyPrefix = dbInfo.keyPrefix;
+              var keyPrefixLength = keyPrefix.length;
+              var length2 = localStorage.length;
+              var iterationNumber = 1;
+              for (var i = 0; i < length2; i++) {
+                var key2 = localStorage.key(i);
+                if (key2.indexOf(keyPrefix) !== 0) {
+                  continue;
+                }
+                var value = localStorage.getItem(key2);
+                if (value) {
+                  value = dbInfo.serializer.deserialize(value);
+                }
+                value = iterator(value, key2.substring(keyPrefixLength), iterationNumber++);
+                if (value !== void 0) {
+                  return value;
+                }
+              }
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function key$2(n, callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var result;
+              try {
+                result = localStorage.key(n);
+              } catch (error) {
+                result = null;
+              }
+              if (result) {
+                result = result.substring(dbInfo.keyPrefix.length);
+              }
+              return result;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function keys$2(callback) {
+            var self2 = this;
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              var length2 = localStorage.length;
+              var keys2 = [];
+              for (var i = 0; i < length2; i++) {
+                var itemKey = localStorage.key(i);
+                if (itemKey.indexOf(dbInfo.keyPrefix) === 0) {
+                  keys2.push(itemKey.substring(dbInfo.keyPrefix.length));
+                }
+              }
+              return keys2;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function length$2(callback) {
+            var self2 = this;
+            var promise = self2.keys().then(function(keys2) {
+              return keys2.length;
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function removeItem$2(key2, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = self2.ready().then(function() {
+              var dbInfo = self2._dbInfo;
+              localStorage.removeItem(dbInfo.keyPrefix + key2);
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function setItem$2(key2, value, callback) {
+            var self2 = this;
+            key2 = normalizeKey(key2);
+            var promise = self2.ready().then(function() {
+              if (value === void 0) {
+                value = null;
+              }
+              var originalValue = value;
+              return new Promise$1(function(resolve, reject) {
+                var dbInfo = self2._dbInfo;
+                dbInfo.serializer.serialize(value, function(value2, error) {
+                  if (error) {
+                    reject(error);
+                  } else {
+                    try {
+                      localStorage.setItem(dbInfo.keyPrefix + key2, value2);
+                      resolve(originalValue);
+                    } catch (e) {
+                      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
+                        reject(e);
+                      }
+                      reject(e);
+                    }
+                  }
+                });
+              });
+            });
+            executeCallback(promise, callback);
+            return promise;
+          }
+          function dropInstance$2(options, callback) {
+            callback = getCallback.apply(this, arguments);
+            options = typeof options !== "function" && options || {};
+            if (!options.name) {
+              var currentConfig = this.config();
+              options.name = options.name || currentConfig.name;
+              options.storeName = options.storeName || currentConfig.storeName;
+            }
+            var self2 = this;
+            var promise;
+            if (!options.name) {
+              promise = Promise$1.reject("Invalid arguments");
+            } else {
+              promise = new Promise$1(function(resolve) {
+                if (!options.storeName) {
+                  resolve(options.name + "/");
+                } else {
+                  resolve(_getKeyPrefix(options, self2._defaultConfig));
+                }
+              }).then(function(keyPrefix) {
+                for (var i = localStorage.length - 1; i >= 0; i--) {
+                  var key2 = localStorage.key(i);
+                  if (key2.indexOf(keyPrefix) === 0) {
+                    localStorage.removeItem(key2);
+                  }
+                }
+              });
+            }
+            executeCallback(promise, callback);
+            return promise;
+          }
+          var localStorageWrapper = {
+            _driver: "localStorageWrapper",
+            _initStorage: _initStorage$2,
+            _support: isLocalStorageValid(),
+            iterate: iterate$2,
+            getItem: getItem$2,
+            setItem: setItem$2,
+            removeItem: removeItem$2,
+            clear: clear$2,
+            length: length$2,
+            key: key$2,
+            keys: keys$2,
+            dropInstance: dropInstance$2
+          };
+          var sameValue = function sameValue2(x, y) {
+            return x === y || typeof x === "number" && typeof y === "number" && isNaN(x) && isNaN(y);
+          };
+          var includes = function includes2(array, searchElement) {
+            var len = array.length;
+            var i = 0;
+            while (i < len) {
+              if (sameValue(array[i], searchElement)) {
+                return true;
+              }
+              i++;
+            }
+            return false;
+          };
+          var isArray = Array.isArray || function(arg) {
+            return Object.prototype.toString.call(arg) === "[object Array]";
+          };
+          var DefinedDrivers = {};
+          var DriverSupport = {};
+          var DefaultDrivers = {
+            INDEXEDDB: asyncStorage,
+            WEBSQL: webSQLStorage,
+            LOCALSTORAGE: localStorageWrapper
+          };
+          var DefaultDriverOrder = [DefaultDrivers.INDEXEDDB._driver, DefaultDrivers.WEBSQL._driver, DefaultDrivers.LOCALSTORAGE._driver];
+          var OptionalDriverMethods = ["dropInstance"];
+          var LibraryMethods = ["clear", "getItem", "iterate", "key", "keys", "length", "removeItem", "setItem"].concat(OptionalDriverMethods);
+          var DefaultConfig = {
+            description: "",
+            driver: DefaultDriverOrder.slice(),
+            name: "localforage",
+            size: 4980736,
+            storeName: "keyvaluepairs",
+            version: 1
+          };
+          function callWhenReady(localForageInstance, libraryMethod) {
+            localForageInstance[libraryMethod] = function() {
+              var _args = arguments;
+              return localForageInstance.ready().then(function() {
+                return localForageInstance[libraryMethod].apply(localForageInstance, _args);
+              });
+            };
+          }
+          function extend() {
+            for (var i = 1; i < arguments.length; i++) {
+              var arg = arguments[i];
+              if (arg) {
+                for (var _key in arg) {
+                  if (arg.hasOwnProperty(_key)) {
+                    if (isArray(arg[_key])) {
+                      arguments[0][_key] = arg[_key].slice();
+                    } else {
+                      arguments[0][_key] = arg[_key];
+                    }
+                  }
+                }
+              }
+            }
+            return arguments[0];
+          }
+          var LocalForage = function() {
+            function LocalForage2(options) {
+              _classCallCheck(this, LocalForage2);
+              for (var driverTypeKey in DefaultDrivers) {
+                if (DefaultDrivers.hasOwnProperty(driverTypeKey)) {
+                  var driver = DefaultDrivers[driverTypeKey];
+                  var driverName = driver._driver;
+                  this[driverTypeKey] = driverName;
+                  if (!DefinedDrivers[driverName]) {
+                    this.defineDriver(driver);
+                  }
+                }
+              }
+              this._defaultConfig = extend({}, DefaultConfig);
+              this._config = extend({}, this._defaultConfig, options);
+              this._driverSet = null;
+              this._initDriver = null;
+              this._ready = false;
+              this._dbInfo = null;
+              this._wrapLibraryMethodsWithReady();
+              this.setDriver(this._config.driver)["catch"](function() {
+              });
+            }
+            LocalForage2.prototype.config = function config(options) {
+              if ((typeof options === "undefined" ? "undefined" : _typeof(options)) === "object") {
+                if (this._ready) {
+                  return new Error("Can't call config() after localforage has been used.");
+                }
+                for (var i in options) {
+                  if (i === "storeName") {
+                    options[i] = options[i].replace(/\W/g, "_");
+                  }
+                  if (i === "version" && typeof options[i] !== "number") {
+                    return new Error("Database version must be a number.");
+                  }
+                  this._config[i] = options[i];
+                }
+                if ("driver" in options && options.driver) {
+                  return this.setDriver(this._config.driver);
+                }
+                return true;
+              } else if (typeof options === "string") {
+                return this._config[options];
+              } else {
+                return this._config;
+              }
+            };
+            LocalForage2.prototype.defineDriver = function defineDriver(driverObject, callback, errorCallback) {
+              var promise = new Promise$1(function(resolve, reject) {
+                try {
+                  var driverName = driverObject._driver;
+                  var complianceError = new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");
+                  if (!driverObject._driver) {
+                    reject(complianceError);
+                    return;
+                  }
+                  var driverMethods = LibraryMethods.concat("_initStorage");
+                  for (var i = 0, len = driverMethods.length; i < len; i++) {
+                    var driverMethodName = driverMethods[i];
+                    var isRequired = !includes(OptionalDriverMethods, driverMethodName);
+                    if ((isRequired || driverObject[driverMethodName]) && typeof driverObject[driverMethodName] !== "function") {
+                      reject(complianceError);
+                      return;
+                    }
+                  }
+                  var configureMissingMethods = function configureMissingMethods2() {
+                    var methodNotImplementedFactory = function methodNotImplementedFactory2(methodName) {
+                      return function() {
+                        var error = new Error("Method " + methodName + " is not implemented by the current driver");
+                        var promise2 = Promise$1.reject(error);
+                        executeCallback(promise2, arguments[arguments.length - 1]);
+                        return promise2;
+                      };
+                    };
+                    for (var _i = 0, _len = OptionalDriverMethods.length; _i < _len; _i++) {
+                      var optionalDriverMethod = OptionalDriverMethods[_i];
+                      if (!driverObject[optionalDriverMethod]) {
+                        driverObject[optionalDriverMethod] = methodNotImplementedFactory(optionalDriverMethod);
+                      }
+                    }
+                  };
+                  configureMissingMethods();
+                  var setDriverSupport = function setDriverSupport2(support) {
+                    if (DefinedDrivers[driverName]) {
+                      console.info("Redefining LocalForage driver: " + driverName);
+                    }
+                    DefinedDrivers[driverName] = driverObject;
+                    DriverSupport[driverName] = support;
+                    resolve();
+                  };
+                  if ("_support" in driverObject) {
+                    if (driverObject._support && typeof driverObject._support === "function") {
+                      driverObject._support().then(setDriverSupport, reject);
+                    } else {
+                      setDriverSupport(!!driverObject._support);
+                    }
+                  } else {
+                    setDriverSupport(true);
+                  }
+                } catch (e) {
+                  reject(e);
+                }
+              });
+              executeTwoCallbacks(promise, callback, errorCallback);
+              return promise;
+            };
+            LocalForage2.prototype.driver = function driver() {
+              return this._driver || null;
+            };
+            LocalForage2.prototype.getDriver = function getDriver(driverName, callback, errorCallback) {
+              var getDriverPromise = DefinedDrivers[driverName] ? Promise$1.resolve(DefinedDrivers[driverName]) : Promise$1.reject(new Error("Driver not found."));
+              executeTwoCallbacks(getDriverPromise, callback, errorCallback);
+              return getDriverPromise;
+            };
+            LocalForage2.prototype.getSerializer = function getSerializer(callback) {
+              var serializerPromise = Promise$1.resolve(localforageSerializer);
+              executeTwoCallbacks(serializerPromise, callback);
+              return serializerPromise;
+            };
+            LocalForage2.prototype.ready = function ready(callback) {
+              var self2 = this;
+              var promise = self2._driverSet.then(function() {
+                if (self2._ready === null) {
+                  self2._ready = self2._initDriver();
+                }
+                return self2._ready;
+              });
+              executeTwoCallbacks(promise, callback, callback);
+              return promise;
+            };
+            LocalForage2.prototype.setDriver = function setDriver(drivers, callback, errorCallback) {
+              var self2 = this;
+              if (!isArray(drivers)) {
+                drivers = [drivers];
+              }
+              var supportedDrivers = this._getSupportedDrivers(drivers);
+              function setDriverToConfig() {
+                self2._config.driver = self2.driver();
+              }
+              function extendSelfWithDriver(driver) {
+                self2._extend(driver);
+                setDriverToConfig();
+                self2._ready = self2._initStorage(self2._config);
+                return self2._ready;
+              }
+              function initDriver(supportedDrivers2) {
+                return function() {
+                  var currentDriverIndex = 0;
+                  function driverPromiseLoop() {
+                    while (currentDriverIndex < supportedDrivers2.length) {
+                      var driverName = supportedDrivers2[currentDriverIndex];
+                      currentDriverIndex++;
+                      self2._dbInfo = null;
+                      self2._ready = null;
+                      return self2.getDriver(driverName).then(extendSelfWithDriver)["catch"](driverPromiseLoop);
+                    }
+                    setDriverToConfig();
+                    var error = new Error("No available storage method found.");
+                    self2._driverSet = Promise$1.reject(error);
+                    return self2._driverSet;
+                  }
+                  return driverPromiseLoop();
+                };
+              }
+              var oldDriverSetDone = this._driverSet !== null ? this._driverSet["catch"](function() {
+                return Promise$1.resolve();
+              }) : Promise$1.resolve();
+              this._driverSet = oldDriverSetDone.then(function() {
+                var driverName = supportedDrivers[0];
+                self2._dbInfo = null;
+                self2._ready = null;
+                return self2.getDriver(driverName).then(function(driver) {
+                  self2._driver = driver._driver;
+                  setDriverToConfig();
+                  self2._wrapLibraryMethodsWithReady();
+                  self2._initDriver = initDriver(supportedDrivers);
+                });
+              })["catch"](function() {
+                setDriverToConfig();
+                var error = new Error("No available storage method found.");
+                self2._driverSet = Promise$1.reject(error);
+                return self2._driverSet;
+              });
+              executeTwoCallbacks(this._driverSet, callback, errorCallback);
+              return this._driverSet;
+            };
+            LocalForage2.prototype.supports = function supports(driverName) {
+              return !!DriverSupport[driverName];
+            };
+            LocalForage2.prototype._extend = function _extend(libraryMethodsAndProperties) {
+              extend(this, libraryMethodsAndProperties);
+            };
+            LocalForage2.prototype._getSupportedDrivers = function _getSupportedDrivers(drivers) {
+              var supportedDrivers = [];
+              for (var i = 0, len = drivers.length; i < len; i++) {
+                var driverName = drivers[i];
+                if (this.supports(driverName)) {
+                  supportedDrivers.push(driverName);
+                }
+              }
+              return supportedDrivers;
+            };
+            LocalForage2.prototype._wrapLibraryMethodsWithReady = function _wrapLibraryMethodsWithReady() {
+              for (var i = 0, len = LibraryMethods.length; i < len; i++) {
+                callWhenReady(this, LibraryMethods[i]);
+              }
+            };
+            LocalForage2.prototype.createInstance = function createInstance(options) {
+              return new LocalForage2(options);
+            };
+            return LocalForage2;
+          }();
+          var localforage_js = new LocalForage();
+          module3.exports = localforage_js;
+        }, { "3": 3 }] }, {}, [4])(4);
+      });
+    }
+  });
+
   // node_modules/ajv/dist/compile/codegen/code.js
   var require_code = __commonJS({
     "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
@@ -212,9 +2349,9 @@
       exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
       var code_1 = require_code();
       var ValueError = class extends Error {
-        constructor(name2) {
-          super(`CodeGen: "code" for ${name2} not defined`);
-          this.value = name2.value;
+        constructor(name) {
+          super(`CodeGen: "code" for ${name} not defined`);
+          this.value = name.value;
         }
       };
       var UsedValueState;
@@ -281,8 +2418,8 @@
           var _a;
           if (value.ref === void 0)
             throw new Error("CodeGen: ref must be passed in value");
-          const name2 = this.toName(nameOrPrefix);
-          const { prefix } = name2;
+          const name = this.toName(nameOrPrefix);
+          const { prefix } = name;
           const valueKey = (_a = value.key) !== null && _a !== void 0 ? _a : value.ref;
           let vs = this._values[prefix];
           if (vs) {
@@ -292,12 +2429,12 @@
           } else {
             vs = this._values[prefix] = /* @__PURE__ */ new Map();
           }
-          vs.set(valueKey, name2);
+          vs.set(valueKey, name);
           const s = this._scope[prefix] || (this._scope[prefix] = []);
           const itemIndex = s.length;
           s[itemIndex] = value.ref;
-          name2.setValue(value, { property: prefix, itemIndex });
-          return name2;
+          name.setValue(value, { property: prefix, itemIndex });
+          return name;
         }
         getValue(prefix, keyOrRef) {
           const vs = this._values[prefix];
@@ -306,17 +2443,17 @@
           return vs.get(keyOrRef);
         }
         scopeRefs(scopeName, values = this._values) {
-          return this._reduceValues(values, (name2) => {
-            if (name2.scopePath === void 0)
-              throw new Error(`CodeGen: name "${name2}" has no value`);
-            return (0, code_1._)`${scopeName}${name2.scopePath}`;
+          return this._reduceValues(values, (name) => {
+            if (name.scopePath === void 0)
+              throw new Error(`CodeGen: name "${name}" has no value`);
+            return (0, code_1._)`${scopeName}${name.scopePath}`;
           });
         }
         scopeCode(values = this._values, usedValues, getCode) {
-          return this._reduceValues(values, (name2) => {
-            if (name2.value === void 0)
-              throw new Error(`CodeGen: name "${name2}" has no value`);
-            return name2.value.code;
+          return this._reduceValues(values, (name) => {
+            if (name.value === void 0)
+              throw new Error(`CodeGen: name "${name}" has no value`);
+            return name.value.code;
           }, usedValues, getCode);
         }
         _reduceValues(values, valueCode, usedValues = {}, getCode) {
@@ -326,20 +2463,20 @@
             if (!vs)
               continue;
             const nameSet = usedValues[prefix] = usedValues[prefix] || /* @__PURE__ */ new Map();
-            vs.forEach((name2) => {
-              if (nameSet.has(name2))
+            vs.forEach((name) => {
+              if (nameSet.has(name))
                 return;
-              nameSet.set(name2, UsedValueState.Started);
-              let c = valueCode(name2);
+              nameSet.set(name, UsedValueState.Started);
+              let c = valueCode(name);
               if (c) {
                 const def = this.opts.es5 ? exports.varKinds.var : exports.varKinds.const;
-                code = (0, code_1._)`${code}${def} ${name2} = ${c};${this.opts._n}`;
-              } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name2)) {
+                code = (0, code_1._)`${code}${def} ${name} = ${c};${this.opts._n}`;
+              } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name)) {
                 code = (0, code_1._)`${code}${c}${this.opts._n}`;
               } else {
-                throw new ValueError(name2);
+                throw new ValueError(name);
               }
-              nameSet.set(name2, UsedValueState.Completed);
+              nameSet.set(name, UsedValueState.Completed);
             });
           }
           return code;
@@ -416,10 +2553,10 @@
         }
       };
       var Def = class extends Node {
-        constructor(varKind, name2, rhs) {
+        constructor(varKind, name, rhs) {
           super();
           this.varKind = varKind;
-          this.name = name2;
+          this.name = name;
           this.rhs = rhs;
         }
         render({ es5, _n }) {
@@ -639,17 +2776,17 @@
         }
       };
       var ForRange = class extends For {
-        constructor(varKind, name2, from, to) {
+        constructor(varKind, name, from, to) {
           super();
           this.varKind = varKind;
-          this.name = name2;
+          this.name = name;
           this.from = from;
           this.to = to;
         }
         render(opts) {
           const varKind = opts.es5 ? scope_1.varKinds.var : this.varKind;
-          const { name: name2, from, to } = this;
-          return `for(${varKind} ${name2}=${from}; ${name2}<${to}; ${name2}++)` + super.render(opts);
+          const { name, from, to } = this;
+          return `for(${varKind} ${name}=${from}; ${name}<${to}; ${name}++)` + super.render(opts);
         }
         get names() {
           const names = addExprNames(super.names, this.from);
@@ -657,11 +2794,11 @@
         }
       };
       var ForIter = class extends For {
-        constructor(loop, varKind, name2, iterable) {
+        constructor(loop, varKind, name, iterable) {
           super();
           this.loop = loop;
           this.varKind = varKind;
-          this.name = name2;
+          this.name = name;
           this.iterable = iterable;
         }
         render(opts) {
@@ -678,9 +2815,9 @@
         }
       };
       var Func = class extends BlockNode {
-        constructor(name2, args, async) {
+        constructor(name, args, async) {
           super();
-          this.name = name2;
+          this.name = name;
           this.args = args;
           this.async = async;
         }
@@ -764,10 +2901,10 @@
           return this._extScope.name(prefix);
         }
         scopeValue(prefixOrName, value) {
-          const name2 = this._extScope.value(prefixOrName, value);
-          const vs = this._values[name2.prefix] || (this._values[name2.prefix] = /* @__PURE__ */ new Set());
-          vs.add(name2);
-          return name2;
+          const name = this._extScope.value(prefixOrName, value);
+          const vs = this._values[name.prefix] || (this._values[name.prefix] = /* @__PURE__ */ new Set());
+          vs.add(name);
+          return name;
         }
         getScopeValue(prefix, keyOrRef) {
           return this._extScope.getValue(prefix, keyOrRef);
@@ -779,11 +2916,11 @@
           return this._extScope.scopeCode(this._values);
         }
         _def(varKind, nameOrPrefix, rhs, constant) {
-          const name2 = this._scope.toName(nameOrPrefix);
+          const name = this._scope.toName(nameOrPrefix);
           if (rhs !== void 0 && constant)
-            this._constants[name2.str] = rhs;
-          this._leafNode(new Def(varKind, name2, rhs));
-          return name2;
+            this._constants[name.str] = rhs;
+          this._leafNode(new Def(varKind, name, rhs));
+          return name;
         }
         const(nameOrPrefix, rhs, _constant) {
           return this._def(scope_1.varKinds.const, nameOrPrefix, rhs, _constant);
@@ -851,26 +2988,26 @@
           return this._for(new ForLoop(iteration), forBody);
         }
         forRange(nameOrPrefix, from, to, forBody, varKind = this.opts.es5 ? scope_1.varKinds.var : scope_1.varKinds.let) {
-          const name2 = this._scope.toName(nameOrPrefix);
-          return this._for(new ForRange(varKind, name2, from, to), () => forBody(name2));
+          const name = this._scope.toName(nameOrPrefix);
+          return this._for(new ForRange(varKind, name, from, to), () => forBody(name));
         }
         forOf(nameOrPrefix, iterable, forBody, varKind = scope_1.varKinds.const) {
-          const name2 = this._scope.toName(nameOrPrefix);
+          const name = this._scope.toName(nameOrPrefix);
           if (this.opts.es5) {
             const arr = iterable instanceof code_1.Name ? iterable : this.var("_arr", iterable);
             return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i) => {
-              this.var(name2, (0, code_1._)`${arr}[${i}]`);
-              forBody(name2);
+              this.var(name, (0, code_1._)`${arr}[${i}]`);
+              forBody(name);
             });
           }
-          return this._for(new ForIter("of", varKind, name2, iterable), () => forBody(name2));
+          return this._for(new ForIter("of", varKind, name, iterable), () => forBody(name));
         }
         forIn(nameOrPrefix, obj, forBody, varKind = this.opts.es5 ? scope_1.varKinds.var : scope_1.varKinds.const) {
           if (this.opts.ownProperties) {
             return this.forOf(nameOrPrefix, (0, code_1._)`Object.keys(${obj})`, forBody);
           }
-          const name2 = this._scope.toName(nameOrPrefix);
-          return this._for(new ForIter("in", varKind, name2, obj), () => forBody(name2));
+          const name = this._scope.toName(nameOrPrefix);
+          return this._for(new ForIter("in", varKind, name, obj), () => forBody(name));
         }
         endFor() {
           return this._endBlockNode(For);
@@ -926,8 +3063,8 @@
           this._nodes.length = len;
           return this;
         }
-        func(name2, args = code_1.nil, async, funcBody) {
-          this._blockNode(new Func(name2, args, async));
+        func(name, args = code_1.nil, async, funcBody) {
+          this._blockNode(new Func(name, args, async));
           if (funcBody)
             this.code(funcBody).endFunc();
           return this;
@@ -3993,9 +6130,9 @@
             if (mailtoComponents.body)
               headers["body"] = mailtoComponents.body;
             var fields = [];
-            for (var name2 in headers) {
-              if (headers[name2] !== O[name2]) {
-                fields.push(name2.replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFNAME, pctEncChar) + "=" + headers[name2].replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFVALUE, pctEncChar));
+            for (var name in headers) {
+              if (headers[name] !== O[name]) {
+                fields.push(name.replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFNAME, pctEncChar) + "=" + headers[name].replace(PCT_ENCODED, decodeUnreserved).replace(PCT_ENCODED, toUpperCase).replace(NOT_HFVALUE, pctEncChar));
               }
             }
             if (fields.length) {
@@ -4463,10 +6600,10 @@
           }
           return this;
         }
-        addFormat(name2, format) {
+        addFormat(name, format) {
           if (typeof format == "string")
             format = new RegExp(format);
-          this.formats[name2] = format;
+          this.formats[name] = format;
           return this;
         }
         errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
@@ -4583,10 +6720,10 @@
             this.addSchema(optsSchemas[key], key);
       }
       function addInitialFormats() {
-        for (const name2 in this.opts.formats) {
-          const format = this.opts.formats[name2];
+        for (const name in this.opts.formats) {
+          const format = this.opts.formats[name];
           if (format)
-            this.addFormat(name2, format);
+            this.addFormat(name, format);
         }
       }
       function addInitialKeywords(defs) {
@@ -6704,2144 +8841,23 @@
     }
   });
 
-  // node_modules/localforage/dist/localforage.js
-  var require_localforage = __commonJS({
-    "node_modules/localforage/dist/localforage.js"(exports, module) {
-      (function(f) {
-        if (typeof exports === "object" && typeof module !== "undefined") {
-          module.exports = f();
-        } else if (typeof define === "function" && define.amd) {
-          define([], f);
-        } else {
-          var g;
-          if (typeof window !== "undefined") {
-            g = window;
-          } else if (typeof global !== "undefined") {
-            g = global;
-          } else if (typeof self !== "undefined") {
-            g = self;
-          } else {
-            g = this;
-          }
-          g.localforage = f();
-        }
-      })(function() {
-        var define2, module2, exports2;
-        return function e(t, n, r) {
-          function s(o2, u) {
-            if (!n[o2]) {
-              if (!t[o2]) {
-                var a = typeof __require == "function" && __require;
-                if (!u && a)
-                  return a(o2, true);
-                if (i)
-                  return i(o2, true);
-                var f = new Error("Cannot find module '" + o2 + "'");
-                throw f.code = "MODULE_NOT_FOUND", f;
-              }
-              var l = n[o2] = { exports: {} };
-              t[o2][0].call(l.exports, function(e2) {
-                var n2 = t[o2][1][e2];
-                return s(n2 ? n2 : e2);
-              }, l, l.exports, e, t, n, r);
-            }
-            return n[o2].exports;
-          }
-          var i = typeof __require == "function" && __require;
-          for (var o = 0; o < r.length; o++)
-            s(r[o]);
-          return s;
-        }({ 1: [function(_dereq_, module3, exports3) {
-          (function(global2) {
-            "use strict";
-            var Mutation = global2.MutationObserver || global2.WebKitMutationObserver;
-            var scheduleDrain;
-            {
-              if (Mutation) {
-                var called = 0;
-                var observer = new Mutation(nextTick);
-                var element = global2.document.createTextNode("");
-                observer.observe(element, {
-                  characterData: true
-                });
-                scheduleDrain = function() {
-                  element.data = called = ++called % 2;
-                };
-              } else if (!global2.setImmediate && typeof global2.MessageChannel !== "undefined") {
-                var channel = new global2.MessageChannel();
-                channel.port1.onmessage = nextTick;
-                scheduleDrain = function() {
-                  channel.port2.postMessage(0);
-                };
-              } else if ("document" in global2 && "onreadystatechange" in global2.document.createElement("script")) {
-                scheduleDrain = function() {
-                  var scriptEl = global2.document.createElement("script");
-                  scriptEl.onreadystatechange = function() {
-                    nextTick();
-                    scriptEl.onreadystatechange = null;
-                    scriptEl.parentNode.removeChild(scriptEl);
-                    scriptEl = null;
-                  };
-                  global2.document.documentElement.appendChild(scriptEl);
-                };
-              } else {
-                scheduleDrain = function() {
-                  setTimeout(nextTick, 0);
-                };
-              }
-            }
-            var draining;
-            var queue = [];
-            function nextTick() {
-              draining = true;
-              var i, oldQueue;
-              var len = queue.length;
-              while (len) {
-                oldQueue = queue;
-                queue = [];
-                i = -1;
-                while (++i < len) {
-                  oldQueue[i]();
-                }
-                len = queue.length;
-              }
-              draining = false;
-            }
-            module3.exports = immediate;
-            function immediate(task) {
-              if (queue.push(task) === 1 && !draining) {
-                scheduleDrain();
-              }
-            }
-          }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
-        }, {}], 2: [function(_dereq_, module3, exports3) {
-          "use strict";
-          var immediate = _dereq_(1);
-          function INTERNAL() {
-          }
-          var handlers = {};
-          var REJECTED = ["REJECTED"];
-          var FULFILLED = ["FULFILLED"];
-          var PENDING = ["PENDING"];
-          module3.exports = Promise2;
-          function Promise2(resolver) {
-            if (typeof resolver !== "function") {
-              throw new TypeError("resolver must be a function");
-            }
-            this.state = PENDING;
-            this.queue = [];
-            this.outcome = void 0;
-            if (resolver !== INTERNAL) {
-              safelyResolveThenable(this, resolver);
-            }
-          }
-          Promise2.prototype["catch"] = function(onRejected) {
-            return this.then(null, onRejected);
-          };
-          Promise2.prototype.then = function(onFulfilled, onRejected) {
-            if (typeof onFulfilled !== "function" && this.state === FULFILLED || typeof onRejected !== "function" && this.state === REJECTED) {
-              return this;
-            }
-            var promise = new this.constructor(INTERNAL);
-            if (this.state !== PENDING) {
-              var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
-              unwrap(promise, resolver, this.outcome);
-            } else {
-              this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
-            }
-            return promise;
-          };
-          function QueueItem(promise, onFulfilled, onRejected) {
-            this.promise = promise;
-            if (typeof onFulfilled === "function") {
-              this.onFulfilled = onFulfilled;
-              this.callFulfilled = this.otherCallFulfilled;
-            }
-            if (typeof onRejected === "function") {
-              this.onRejected = onRejected;
-              this.callRejected = this.otherCallRejected;
-            }
-          }
-          QueueItem.prototype.callFulfilled = function(value) {
-            handlers.resolve(this.promise, value);
-          };
-          QueueItem.prototype.otherCallFulfilled = function(value) {
-            unwrap(this.promise, this.onFulfilled, value);
-          };
-          QueueItem.prototype.callRejected = function(value) {
-            handlers.reject(this.promise, value);
-          };
-          QueueItem.prototype.otherCallRejected = function(value) {
-            unwrap(this.promise, this.onRejected, value);
-          };
-          function unwrap(promise, func, value) {
-            immediate(function() {
-              var returnValue;
-              try {
-                returnValue = func(value);
-              } catch (e) {
-                return handlers.reject(promise, e);
-              }
-              if (returnValue === promise) {
-                handlers.reject(promise, new TypeError("Cannot resolve promise with itself"));
-              } else {
-                handlers.resolve(promise, returnValue);
-              }
-            });
-          }
-          handlers.resolve = function(self2, value) {
-            var result = tryCatch(getThen, value);
-            if (result.status === "error") {
-              return handlers.reject(self2, result.value);
-            }
-            var thenable = result.value;
-            if (thenable) {
-              safelyResolveThenable(self2, thenable);
-            } else {
-              self2.state = FULFILLED;
-              self2.outcome = value;
-              var i = -1;
-              var len = self2.queue.length;
-              while (++i < len) {
-                self2.queue[i].callFulfilled(value);
-              }
-            }
-            return self2;
-          };
-          handlers.reject = function(self2, error) {
-            self2.state = REJECTED;
-            self2.outcome = error;
-            var i = -1;
-            var len = self2.queue.length;
-            while (++i < len) {
-              self2.queue[i].callRejected(error);
-            }
-            return self2;
-          };
-          function getThen(obj) {
-            var then = obj && obj.then;
-            if (obj && (typeof obj === "object" || typeof obj === "function") && typeof then === "function") {
-              return function appyThen() {
-                then.apply(obj, arguments);
-              };
-            }
-          }
-          function safelyResolveThenable(self2, thenable) {
-            var called = false;
-            function onError(value) {
-              if (called) {
-                return;
-              }
-              called = true;
-              handlers.reject(self2, value);
-            }
-            function onSuccess(value) {
-              if (called) {
-                return;
-              }
-              called = true;
-              handlers.resolve(self2, value);
-            }
-            function tryToUnwrap() {
-              thenable(onSuccess, onError);
-            }
-            var result = tryCatch(tryToUnwrap);
-            if (result.status === "error") {
-              onError(result.value);
-            }
-          }
-          function tryCatch(func, value) {
-            var out = {};
-            try {
-              out.value = func(value);
-              out.status = "success";
-            } catch (e) {
-              out.status = "error";
-              out.value = e;
-            }
-            return out;
-          }
-          Promise2.resolve = resolve;
-          function resolve(value) {
-            if (value instanceof this) {
-              return value;
-            }
-            return handlers.resolve(new this(INTERNAL), value);
-          }
-          Promise2.reject = reject;
-          function reject(reason) {
-            var promise = new this(INTERNAL);
-            return handlers.reject(promise, reason);
-          }
-          Promise2.all = all;
-          function all(iterable) {
-            var self2 = this;
-            if (Object.prototype.toString.call(iterable) !== "[object Array]") {
-              return this.reject(new TypeError("must be an array"));
-            }
-            var len = iterable.length;
-            var called = false;
-            if (!len) {
-              return this.resolve([]);
-            }
-            var values = new Array(len);
-            var resolved = 0;
-            var i = -1;
-            var promise = new this(INTERNAL);
-            while (++i < len) {
-              allResolver(iterable[i], i);
-            }
-            return promise;
-            function allResolver(value, i2) {
-              self2.resolve(value).then(resolveFromAll, function(error) {
-                if (!called) {
-                  called = true;
-                  handlers.reject(promise, error);
-                }
-              });
-              function resolveFromAll(outValue) {
-                values[i2] = outValue;
-                if (++resolved === len && !called) {
-                  called = true;
-                  handlers.resolve(promise, values);
-                }
-              }
-            }
-          }
-          Promise2.race = race;
-          function race(iterable) {
-            var self2 = this;
-            if (Object.prototype.toString.call(iterable) !== "[object Array]") {
-              return this.reject(new TypeError("must be an array"));
-            }
-            var len = iterable.length;
-            var called = false;
-            if (!len) {
-              return this.resolve([]);
-            }
-            var i = -1;
-            var promise = new this(INTERNAL);
-            while (++i < len) {
-              resolver(iterable[i]);
-            }
-            return promise;
-            function resolver(value) {
-              self2.resolve(value).then(function(response) {
-                if (!called) {
-                  called = true;
-                  handlers.resolve(promise, response);
-                }
-              }, function(error) {
-                if (!called) {
-                  called = true;
-                  handlers.reject(promise, error);
-                }
-              });
-            }
-          }
-        }, { "1": 1 }], 3: [function(_dereq_, module3, exports3) {
-          (function(global2) {
-            "use strict";
-            if (typeof global2.Promise !== "function") {
-              global2.Promise = _dereq_(2);
-            }
-          }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
-        }, { "2": 2 }], 4: [function(_dereq_, module3, exports3) {
-          "use strict";
-          var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function(obj) {
-            return typeof obj;
-          } : function(obj) {
-            return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-          };
-          function _classCallCheck(instance, Constructor) {
-            if (!(instance instanceof Constructor)) {
-              throw new TypeError("Cannot call a class as a function");
-            }
-          }
-          function getIDB() {
-            try {
-              if (typeof indexedDB !== "undefined") {
-                return indexedDB;
-              }
-              if (typeof webkitIndexedDB !== "undefined") {
-                return webkitIndexedDB;
-              }
-              if (typeof mozIndexedDB !== "undefined") {
-                return mozIndexedDB;
-              }
-              if (typeof OIndexedDB !== "undefined") {
-                return OIndexedDB;
-              }
-              if (typeof msIndexedDB !== "undefined") {
-                return msIndexedDB;
-              }
-            } catch (e) {
-              return;
-            }
-          }
-          var idb = getIDB();
-          function isIndexedDBValid() {
-            try {
-              if (!idb || !idb.open) {
-                return false;
-              }
-              var isSafari = typeof openDatabase !== "undefined" && /(Safari|iPhone|iPad|iPod)/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) && !/BlackBerry/.test(navigator.platform);
-              var hasFetch = typeof fetch === "function" && fetch.toString().indexOf("[native code") !== -1;
-              return (!isSafari || hasFetch) && typeof indexedDB !== "undefined" && typeof IDBKeyRange !== "undefined";
-            } catch (e) {
-              return false;
-            }
-          }
-          function createBlob(parts, properties) {
-            parts = parts || [];
-            properties = properties || {};
-            try {
-              return new Blob(parts, properties);
-            } catch (e) {
-              if (e.name !== "TypeError") {
-                throw e;
-              }
-              var Builder = typeof BlobBuilder !== "undefined" ? BlobBuilder : typeof MSBlobBuilder !== "undefined" ? MSBlobBuilder : typeof MozBlobBuilder !== "undefined" ? MozBlobBuilder : WebKitBlobBuilder;
-              var builder = new Builder();
-              for (var i = 0; i < parts.length; i += 1) {
-                builder.append(parts[i]);
-              }
-              return builder.getBlob(properties.type);
-            }
-          }
-          if (typeof Promise === "undefined") {
-            _dereq_(3);
-          }
-          var Promise$1 = Promise;
-          function executeCallback(promise, callback) {
-            if (callback) {
-              promise.then(function(result) {
-                callback(null, result);
-              }, function(error) {
-                callback(error);
-              });
-            }
-          }
-          function executeTwoCallbacks(promise, callback, errorCallback) {
-            if (typeof callback === "function") {
-              promise.then(callback);
-            }
-            if (typeof errorCallback === "function") {
-              promise["catch"](errorCallback);
-            }
-          }
-          function normalizeKey(key2) {
-            if (typeof key2 !== "string") {
-              console.warn(key2 + " used as a key, but it is not a string.");
-              key2 = String(key2);
-            }
-            return key2;
-          }
-          function getCallback() {
-            if (arguments.length && typeof arguments[arguments.length - 1] === "function") {
-              return arguments[arguments.length - 1];
-            }
-          }
-          var DETECT_BLOB_SUPPORT_STORE = "local-forage-detect-blob-support";
-          var supportsBlobs = void 0;
-          var dbContexts = {};
-          var toString = Object.prototype.toString;
-          var READ_ONLY = "readonly";
-          var READ_WRITE = "readwrite";
-          function _binStringToArrayBuffer(bin) {
-            var length2 = bin.length;
-            var buf = new ArrayBuffer(length2);
-            var arr = new Uint8Array(buf);
-            for (var i = 0; i < length2; i++) {
-              arr[i] = bin.charCodeAt(i);
-            }
-            return buf;
-          }
-          function _checkBlobSupportWithoutCaching(idb2) {
-            return new Promise$1(function(resolve) {
-              var txn = idb2.transaction(DETECT_BLOB_SUPPORT_STORE, READ_WRITE);
-              var blob = createBlob([""]);
-              txn.objectStore(DETECT_BLOB_SUPPORT_STORE).put(blob, "key");
-              txn.onabort = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                resolve(false);
-              };
-              txn.oncomplete = function() {
-                var matchedChrome = navigator.userAgent.match(/Chrome\/(\d+)/);
-                var matchedEdge = navigator.userAgent.match(/Edge\//);
-                resolve(matchedEdge || !matchedChrome || parseInt(matchedChrome[1], 10) >= 43);
-              };
-            })["catch"](function() {
-              return false;
-            });
-          }
-          function _checkBlobSupport(idb2) {
-            if (typeof supportsBlobs === "boolean") {
-              return Promise$1.resolve(supportsBlobs);
-            }
-            return _checkBlobSupportWithoutCaching(idb2).then(function(value) {
-              supportsBlobs = value;
-              return supportsBlobs;
-            });
-          }
-          function _deferReadiness(dbInfo) {
-            var dbContext = dbContexts[dbInfo.name];
-            var deferredOperation = {};
-            deferredOperation.promise = new Promise$1(function(resolve, reject) {
-              deferredOperation.resolve = resolve;
-              deferredOperation.reject = reject;
-            });
-            dbContext.deferredOperations.push(deferredOperation);
-            if (!dbContext.dbReady) {
-              dbContext.dbReady = deferredOperation.promise;
-            } else {
-              dbContext.dbReady = dbContext.dbReady.then(function() {
-                return deferredOperation.promise;
-              });
-            }
-          }
-          function _advanceReadiness(dbInfo) {
-            var dbContext = dbContexts[dbInfo.name];
-            var deferredOperation = dbContext.deferredOperations.pop();
-            if (deferredOperation) {
-              deferredOperation.resolve();
-              return deferredOperation.promise;
-            }
-          }
-          function _rejectReadiness(dbInfo, err) {
-            var dbContext = dbContexts[dbInfo.name];
-            var deferredOperation = dbContext.deferredOperations.pop();
-            if (deferredOperation) {
-              deferredOperation.reject(err);
-              return deferredOperation.promise;
-            }
-          }
-          function _getConnection(dbInfo, upgradeNeeded) {
-            return new Promise$1(function(resolve, reject) {
-              dbContexts[dbInfo.name] = dbContexts[dbInfo.name] || createDbContext();
-              if (dbInfo.db) {
-                if (upgradeNeeded) {
-                  _deferReadiness(dbInfo);
-                  dbInfo.db.close();
-                } else {
-                  return resolve(dbInfo.db);
-                }
-              }
-              var dbArgs = [dbInfo.name];
-              if (upgradeNeeded) {
-                dbArgs.push(dbInfo.version);
-              }
-              var openreq = idb.open.apply(idb, dbArgs);
-              if (upgradeNeeded) {
-                openreq.onupgradeneeded = function(e) {
-                  var db = openreq.result;
-                  try {
-                    db.createObjectStore(dbInfo.storeName);
-                    if (e.oldVersion <= 1) {
-                      db.createObjectStore(DETECT_BLOB_SUPPORT_STORE);
-                    }
-                  } catch (ex) {
-                    if (ex.name === "ConstraintError") {
-                      console.warn('The database "' + dbInfo.name + '" has been upgraded from version ' + e.oldVersion + " to version " + e.newVersion + ', but the storage "' + dbInfo.storeName + '" already exists.');
-                    } else {
-                      throw ex;
-                    }
-                  }
-                };
-              }
-              openreq.onerror = function(e) {
-                e.preventDefault();
-                reject(openreq.error);
-              };
-              openreq.onsuccess = function() {
-                var db = openreq.result;
-                db.onversionchange = function(e) {
-                  e.target.close();
-                };
-                resolve(db);
-                _advanceReadiness(dbInfo);
-              };
-            });
-          }
-          function _getOriginalConnection(dbInfo) {
-            return _getConnection(dbInfo, false);
-          }
-          function _getUpgradedConnection(dbInfo) {
-            return _getConnection(dbInfo, true);
-          }
-          function _isUpgradeNeeded(dbInfo, defaultVersion) {
-            if (!dbInfo.db) {
-              return true;
-            }
-            var isNewStore = !dbInfo.db.objectStoreNames.contains(dbInfo.storeName);
-            var isDowngrade = dbInfo.version < dbInfo.db.version;
-            var isUpgrade = dbInfo.version > dbInfo.db.version;
-            if (isDowngrade) {
-              if (dbInfo.version !== defaultVersion) {
-                console.warn('The database "' + dbInfo.name + `" can't be downgraded from version ` + dbInfo.db.version + " to version " + dbInfo.version + ".");
-              }
-              dbInfo.version = dbInfo.db.version;
-            }
-            if (isUpgrade || isNewStore) {
-              if (isNewStore) {
-                var incVersion = dbInfo.db.version + 1;
-                if (incVersion > dbInfo.version) {
-                  dbInfo.version = incVersion;
-                }
-              }
-              return true;
-            }
-            return false;
-          }
-          function _encodeBlob(blob) {
-            return new Promise$1(function(resolve, reject) {
-              var reader = new FileReader();
-              reader.onerror = reject;
-              reader.onloadend = function(e) {
-                var base64 = btoa(e.target.result || "");
-                resolve({
-                  __local_forage_encoded_blob: true,
-                  data: base64,
-                  type: blob.type
-                });
-              };
-              reader.readAsBinaryString(blob);
-            });
-          }
-          function _decodeBlob(encodedBlob) {
-            var arrayBuff = _binStringToArrayBuffer(atob(encodedBlob.data));
-            return createBlob([arrayBuff], { type: encodedBlob.type });
-          }
-          function _isEncodedBlob(value) {
-            return value && value.__local_forage_encoded_blob;
-          }
-          function _fullyReady(callback) {
-            var self2 = this;
-            var promise = self2._initReady().then(function() {
-              var dbContext = dbContexts[self2._dbInfo.name];
-              if (dbContext && dbContext.dbReady) {
-                return dbContext.dbReady;
-              }
-            });
-            executeTwoCallbacks(promise, callback, callback);
-            return promise;
-          }
-          function _tryReconnect(dbInfo) {
-            _deferReadiness(dbInfo);
-            var dbContext = dbContexts[dbInfo.name];
-            var forages = dbContext.forages;
-            for (var i = 0; i < forages.length; i++) {
-              var forage = forages[i];
-              if (forage._dbInfo.db) {
-                forage._dbInfo.db.close();
-                forage._dbInfo.db = null;
-              }
-            }
-            dbInfo.db = null;
-            return _getOriginalConnection(dbInfo).then(function(db) {
-              dbInfo.db = db;
-              if (_isUpgradeNeeded(dbInfo)) {
-                return _getUpgradedConnection(dbInfo);
-              }
-              return db;
-            }).then(function(db) {
-              dbInfo.db = dbContext.db = db;
-              for (var i2 = 0; i2 < forages.length; i2++) {
-                forages[i2]._dbInfo.db = db;
-              }
-            })["catch"](function(err) {
-              _rejectReadiness(dbInfo, err);
-              throw err;
-            });
-          }
-          function createTransaction(dbInfo, mode, callback, retries) {
-            if (retries === void 0) {
-              retries = 1;
-            }
-            try {
-              var tx = dbInfo.db.transaction(dbInfo.storeName, mode);
-              callback(null, tx);
-            } catch (err) {
-              if (retries > 0 && (!dbInfo.db || err.name === "InvalidStateError" || err.name === "NotFoundError")) {
-                return Promise$1.resolve().then(function() {
-                  if (!dbInfo.db || err.name === "NotFoundError" && !dbInfo.db.objectStoreNames.contains(dbInfo.storeName) && dbInfo.version <= dbInfo.db.version) {
-                    if (dbInfo.db) {
-                      dbInfo.version = dbInfo.db.version + 1;
-                    }
-                    return _getUpgradedConnection(dbInfo);
-                  }
-                }).then(function() {
-                  return _tryReconnect(dbInfo).then(function() {
-                    createTransaction(dbInfo, mode, callback, retries - 1);
-                  });
-                })["catch"](callback);
-              }
-              callback(err);
-            }
-          }
-          function createDbContext() {
-            return {
-              forages: [],
-              db: null,
-              dbReady: null,
-              deferredOperations: []
-            };
-          }
-          function _initStorage(options) {
-            var self2 = this;
-            var dbInfo = {
-              db: null
-            };
-            if (options) {
-              for (var i in options) {
-                dbInfo[i] = options[i];
-              }
-            }
-            var dbContext = dbContexts[dbInfo.name];
-            if (!dbContext) {
-              dbContext = createDbContext();
-              dbContexts[dbInfo.name] = dbContext;
-            }
-            dbContext.forages.push(self2);
-            if (!self2._initReady) {
-              self2._initReady = self2.ready;
-              self2.ready = _fullyReady;
-            }
-            var initPromises = [];
-            function ignoreErrors() {
-              return Promise$1.resolve();
-            }
-            for (var j = 0; j < dbContext.forages.length; j++) {
-              var forage = dbContext.forages[j];
-              if (forage !== self2) {
-                initPromises.push(forage._initReady()["catch"](ignoreErrors));
-              }
-            }
-            var forages = dbContext.forages.slice(0);
-            return Promise$1.all(initPromises).then(function() {
-              dbInfo.db = dbContext.db;
-              return _getOriginalConnection(dbInfo);
-            }).then(function(db) {
-              dbInfo.db = db;
-              if (_isUpgradeNeeded(dbInfo, self2._defaultConfig.version)) {
-                return _getUpgradedConnection(dbInfo);
-              }
-              return db;
-            }).then(function(db) {
-              dbInfo.db = dbContext.db = db;
-              self2._dbInfo = dbInfo;
-              for (var k = 0; k < forages.length; k++) {
-                var forage2 = forages[k];
-                if (forage2 !== self2) {
-                  forage2._dbInfo.db = dbInfo.db;
-                  forage2._dbInfo.version = dbInfo.version;
-                }
-              }
-            });
-          }
-          function getItem(key2, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    var req = store.get(key2);
-                    req.onsuccess = function() {
-                      var value = req.result;
-                      if (value === void 0) {
-                        value = null;
-                      }
-                      if (_isEncodedBlob(value)) {
-                        value = _decodeBlob(value);
-                      }
-                      resolve(value);
-                    };
-                    req.onerror = function() {
-                      reject(req.error);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function iterate(iterator, callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    var req = store.openCursor();
-                    var iterationNumber = 1;
-                    req.onsuccess = function() {
-                      var cursor = req.result;
-                      if (cursor) {
-                        var value = cursor.value;
-                        if (_isEncodedBlob(value)) {
-                          value = _decodeBlob(value);
-                        }
-                        var result = iterator(value, cursor.key, iterationNumber++);
-                        if (result !== void 0) {
-                          resolve(result);
-                        } else {
-                          cursor["continue"]();
-                        }
-                      } else {
-                        resolve();
-                      }
-                    };
-                    req.onerror = function() {
-                      reject(req.error);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function setItem(key2, value, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = new Promise$1(function(resolve, reject) {
-              var dbInfo;
-              self2.ready().then(function() {
-                dbInfo = self2._dbInfo;
-                if (toString.call(value) === "[object Blob]") {
-                  return _checkBlobSupport(dbInfo.db).then(function(blobSupport) {
-                    if (blobSupport) {
-                      return value;
-                    }
-                    return _encodeBlob(value);
-                  });
-                }
-                return value;
-              }).then(function(value2) {
-                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    if (value2 === null) {
-                      value2 = void 0;
-                    }
-                    var req = store.put(value2, key2);
-                    transaction.oncomplete = function() {
-                      if (value2 === void 0) {
-                        value2 = null;
-                      }
-                      resolve(value2);
-                    };
-                    transaction.onabort = transaction.onerror = function() {
-                      var err2 = req.error ? req.error : req.transaction.error;
-                      reject(err2);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function removeItem(key2, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    var req = store["delete"](key2);
-                    transaction.oncomplete = function() {
-                      resolve();
-                    };
-                    transaction.onerror = function() {
-                      reject(req.error);
-                    };
-                    transaction.onabort = function() {
-                      var err2 = req.error ? req.error : req.transaction.error;
-                      reject(err2);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function clear(callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                createTransaction(self2._dbInfo, READ_WRITE, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    var req = store.clear();
-                    transaction.oncomplete = function() {
-                      resolve();
-                    };
-                    transaction.onabort = transaction.onerror = function() {
-                      var err2 = req.error ? req.error : req.transaction.error;
-                      reject(err2);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function length(callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    var req = store.count();
-                    req.onsuccess = function() {
-                      resolve(req.result);
-                    };
-                    req.onerror = function() {
-                      reject(req.error);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function key(n, callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              if (n < 0) {
-                resolve(null);
-                return;
-              }
-              self2.ready().then(function() {
-                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    var advanced = false;
-                    var req = store.openKeyCursor();
-                    req.onsuccess = function() {
-                      var cursor = req.result;
-                      if (!cursor) {
-                        resolve(null);
-                        return;
-                      }
-                      if (n === 0) {
-                        resolve(cursor.key);
-                      } else {
-                        if (!advanced) {
-                          advanced = true;
-                          cursor.advance(n);
-                        } else {
-                          resolve(cursor.key);
-                        }
-                      }
-                    };
-                    req.onerror = function() {
-                      reject(req.error);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function keys(callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                createTransaction(self2._dbInfo, READ_ONLY, function(err, transaction) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  try {
-                    var store = transaction.objectStore(self2._dbInfo.storeName);
-                    var req = store.openKeyCursor();
-                    var keys2 = [];
-                    req.onsuccess = function() {
-                      var cursor = req.result;
-                      if (!cursor) {
-                        resolve(keys2);
-                        return;
-                      }
-                      keys2.push(cursor.key);
-                      cursor["continue"]();
-                    };
-                    req.onerror = function() {
-                      reject(req.error);
-                    };
-                  } catch (e) {
-                    reject(e);
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function dropInstance(options, callback) {
-            callback = getCallback.apply(this, arguments);
-            var currentConfig = this.config();
-            options = typeof options !== "function" && options || {};
-            if (!options.name) {
-              options.name = options.name || currentConfig.name;
-              options.storeName = options.storeName || currentConfig.storeName;
-            }
-            var self2 = this;
-            var promise;
-            if (!options.name) {
-              promise = Promise$1.reject("Invalid arguments");
-            } else {
-              var isCurrentDb = options.name === currentConfig.name && self2._dbInfo.db;
-              var dbPromise = isCurrentDb ? Promise$1.resolve(self2._dbInfo.db) : _getOriginalConnection(options).then(function(db) {
-                var dbContext = dbContexts[options.name];
-                var forages = dbContext.forages;
-                dbContext.db = db;
-                for (var i = 0; i < forages.length; i++) {
-                  forages[i]._dbInfo.db = db;
-                }
-                return db;
-              });
-              if (!options.storeName) {
-                promise = dbPromise.then(function(db) {
-                  _deferReadiness(options);
-                  var dbContext = dbContexts[options.name];
-                  var forages = dbContext.forages;
-                  db.close();
-                  for (var i = 0; i < forages.length; i++) {
-                    var forage = forages[i];
-                    forage._dbInfo.db = null;
-                  }
-                  var dropDBPromise = new Promise$1(function(resolve, reject) {
-                    var req = idb.deleteDatabase(options.name);
-                    req.onerror = function() {
-                      var db2 = req.result;
-                      if (db2) {
-                        db2.close();
-                      }
-                      reject(req.error);
-                    };
-                    req.onblocked = function() {
-                      console.warn('dropInstance blocked for database "' + options.name + '" until all open connections are closed');
-                    };
-                    req.onsuccess = function() {
-                      var db2 = req.result;
-                      if (db2) {
-                        db2.close();
-                      }
-                      resolve(db2);
-                    };
-                  });
-                  return dropDBPromise.then(function(db2) {
-                    dbContext.db = db2;
-                    for (var i2 = 0; i2 < forages.length; i2++) {
-                      var _forage = forages[i2];
-                      _advanceReadiness(_forage._dbInfo);
-                    }
-                  })["catch"](function(err) {
-                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function() {
-                    });
-                    throw err;
-                  });
-                });
-              } else {
-                promise = dbPromise.then(function(db) {
-                  if (!db.objectStoreNames.contains(options.storeName)) {
-                    return;
-                  }
-                  var newVersion = db.version + 1;
-                  _deferReadiness(options);
-                  var dbContext = dbContexts[options.name];
-                  var forages = dbContext.forages;
-                  db.close();
-                  for (var i = 0; i < forages.length; i++) {
-                    var forage = forages[i];
-                    forage._dbInfo.db = null;
-                    forage._dbInfo.version = newVersion;
-                  }
-                  var dropObjectPromise = new Promise$1(function(resolve, reject) {
-                    var req = idb.open(options.name, newVersion);
-                    req.onerror = function(err) {
-                      var db2 = req.result;
-                      db2.close();
-                      reject(err);
-                    };
-                    req.onupgradeneeded = function() {
-                      var db2 = req.result;
-                      db2.deleteObjectStore(options.storeName);
-                    };
-                    req.onsuccess = function() {
-                      var db2 = req.result;
-                      db2.close();
-                      resolve(db2);
-                    };
-                  });
-                  return dropObjectPromise.then(function(db2) {
-                    dbContext.db = db2;
-                    for (var j = 0; j < forages.length; j++) {
-                      var _forage2 = forages[j];
-                      _forage2._dbInfo.db = db2;
-                      _advanceReadiness(_forage2._dbInfo);
-                    }
-                  })["catch"](function(err) {
-                    (_rejectReadiness(options, err) || Promise$1.resolve())["catch"](function() {
-                    });
-                    throw err;
-                  });
-                });
-              }
-            }
-            executeCallback(promise, callback);
-            return promise;
-          }
-          var asyncStorage = {
-            _driver: "asyncStorage",
-            _initStorage,
-            _support: isIndexedDBValid(),
-            iterate,
-            getItem,
-            setItem,
-            removeItem,
-            clear,
-            length,
-            key,
-            keys,
-            dropInstance
-          };
-          function isWebSQLValid() {
-            return typeof openDatabase === "function";
-          }
-          var BASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-          var BLOB_TYPE_PREFIX = "~~local_forage_type~";
-          var BLOB_TYPE_PREFIX_REGEX = /^~~local_forage_type~([^~]+)~/;
-          var SERIALIZED_MARKER = "__lfsc__:";
-          var SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER.length;
-          var TYPE_ARRAYBUFFER = "arbf";
-          var TYPE_BLOB = "blob";
-          var TYPE_INT8ARRAY = "si08";
-          var TYPE_UINT8ARRAY = "ui08";
-          var TYPE_UINT8CLAMPEDARRAY = "uic8";
-          var TYPE_INT16ARRAY = "si16";
-          var TYPE_INT32ARRAY = "si32";
-          var TYPE_UINT16ARRAY = "ur16";
-          var TYPE_UINT32ARRAY = "ui32";
-          var TYPE_FLOAT32ARRAY = "fl32";
-          var TYPE_FLOAT64ARRAY = "fl64";
-          var TYPE_SERIALIZED_MARKER_LENGTH = SERIALIZED_MARKER_LENGTH + TYPE_ARRAYBUFFER.length;
-          var toString$1 = Object.prototype.toString;
-          function stringToBuffer(serializedString) {
-            var bufferLength = serializedString.length * 0.75;
-            var len = serializedString.length;
-            var i;
-            var p = 0;
-            var encoded1, encoded2, encoded3, encoded4;
-            if (serializedString[serializedString.length - 1] === "=") {
-              bufferLength--;
-              if (serializedString[serializedString.length - 2] === "=") {
-                bufferLength--;
-              }
-            }
-            var buffer = new ArrayBuffer(bufferLength);
-            var bytes = new Uint8Array(buffer);
-            for (i = 0; i < len; i += 4) {
-              encoded1 = BASE_CHARS.indexOf(serializedString[i]);
-              encoded2 = BASE_CHARS.indexOf(serializedString[i + 1]);
-              encoded3 = BASE_CHARS.indexOf(serializedString[i + 2]);
-              encoded4 = BASE_CHARS.indexOf(serializedString[i + 3]);
-              bytes[p++] = encoded1 << 2 | encoded2 >> 4;
-              bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
-              bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
-            }
-            return buffer;
-          }
-          function bufferToString(buffer) {
-            var bytes = new Uint8Array(buffer);
-            var base64String = "";
-            var i;
-            for (i = 0; i < bytes.length; i += 3) {
-              base64String += BASE_CHARS[bytes[i] >> 2];
-              base64String += BASE_CHARS[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
-              base64String += BASE_CHARS[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
-              base64String += BASE_CHARS[bytes[i + 2] & 63];
-            }
-            if (bytes.length % 3 === 2) {
-              base64String = base64String.substring(0, base64String.length - 1) + "=";
-            } else if (bytes.length % 3 === 1) {
-              base64String = base64String.substring(0, base64String.length - 2) + "==";
-            }
-            return base64String;
-          }
-          function serialize(value, callback) {
-            var valueType = "";
-            if (value) {
-              valueType = toString$1.call(value);
-            }
-            if (value && (valueType === "[object ArrayBuffer]" || value.buffer && toString$1.call(value.buffer) === "[object ArrayBuffer]")) {
-              var buffer;
-              var marker = SERIALIZED_MARKER;
-              if (value instanceof ArrayBuffer) {
-                buffer = value;
-                marker += TYPE_ARRAYBUFFER;
-              } else {
-                buffer = value.buffer;
-                if (valueType === "[object Int8Array]") {
-                  marker += TYPE_INT8ARRAY;
-                } else if (valueType === "[object Uint8Array]") {
-                  marker += TYPE_UINT8ARRAY;
-                } else if (valueType === "[object Uint8ClampedArray]") {
-                  marker += TYPE_UINT8CLAMPEDARRAY;
-                } else if (valueType === "[object Int16Array]") {
-                  marker += TYPE_INT16ARRAY;
-                } else if (valueType === "[object Uint16Array]") {
-                  marker += TYPE_UINT16ARRAY;
-                } else if (valueType === "[object Int32Array]") {
-                  marker += TYPE_INT32ARRAY;
-                } else if (valueType === "[object Uint32Array]") {
-                  marker += TYPE_UINT32ARRAY;
-                } else if (valueType === "[object Float32Array]") {
-                  marker += TYPE_FLOAT32ARRAY;
-                } else if (valueType === "[object Float64Array]") {
-                  marker += TYPE_FLOAT64ARRAY;
-                } else {
-                  callback(new Error("Failed to get type for BinaryArray"));
-                }
-              }
-              callback(marker + bufferToString(buffer));
-            } else if (valueType === "[object Blob]") {
-              var fileReader = new FileReader();
-              fileReader.onload = function() {
-                var str = BLOB_TYPE_PREFIX + value.type + "~" + bufferToString(this.result);
-                callback(SERIALIZED_MARKER + TYPE_BLOB + str);
-              };
-              fileReader.readAsArrayBuffer(value);
-            } else {
-              try {
-                callback(JSON.stringify(value));
-              } catch (e) {
-                console.error("Couldn't convert value into a JSON string: ", value);
-                callback(null, e);
-              }
-            }
-          }
-          function deserialize(value) {
-            if (value.substring(0, SERIALIZED_MARKER_LENGTH) !== SERIALIZED_MARKER) {
-              return JSON.parse(value);
-            }
-            var serializedString = value.substring(TYPE_SERIALIZED_MARKER_LENGTH);
-            var type = value.substring(SERIALIZED_MARKER_LENGTH, TYPE_SERIALIZED_MARKER_LENGTH);
-            var blobType;
-            if (type === TYPE_BLOB && BLOB_TYPE_PREFIX_REGEX.test(serializedString)) {
-              var matcher = serializedString.match(BLOB_TYPE_PREFIX_REGEX);
-              blobType = matcher[1];
-              serializedString = serializedString.substring(matcher[0].length);
-            }
-            var buffer = stringToBuffer(serializedString);
-            switch (type) {
-              case TYPE_ARRAYBUFFER:
-                return buffer;
-              case TYPE_BLOB:
-                return createBlob([buffer], { type: blobType });
-              case TYPE_INT8ARRAY:
-                return new Int8Array(buffer);
-              case TYPE_UINT8ARRAY:
-                return new Uint8Array(buffer);
-              case TYPE_UINT8CLAMPEDARRAY:
-                return new Uint8ClampedArray(buffer);
-              case TYPE_INT16ARRAY:
-                return new Int16Array(buffer);
-              case TYPE_UINT16ARRAY:
-                return new Uint16Array(buffer);
-              case TYPE_INT32ARRAY:
-                return new Int32Array(buffer);
-              case TYPE_UINT32ARRAY:
-                return new Uint32Array(buffer);
-              case TYPE_FLOAT32ARRAY:
-                return new Float32Array(buffer);
-              case TYPE_FLOAT64ARRAY:
-                return new Float64Array(buffer);
-              default:
-                throw new Error("Unkown type: " + type);
-            }
-          }
-          var localforageSerializer = {
-            serialize,
-            deserialize,
-            stringToBuffer,
-            bufferToString
-          };
-          function createDbTable(t, dbInfo, callback, errorCallback) {
-            t.executeSql("CREATE TABLE IF NOT EXISTS " + dbInfo.storeName + " (id INTEGER PRIMARY KEY, key unique, value)", [], callback, errorCallback);
-          }
-          function _initStorage$1(options) {
-            var self2 = this;
-            var dbInfo = {
-              db: null
-            };
-            if (options) {
-              for (var i in options) {
-                dbInfo[i] = typeof options[i] !== "string" ? options[i].toString() : options[i];
-              }
-            }
-            var dbInfoPromise = new Promise$1(function(resolve, reject) {
-              try {
-                dbInfo.db = openDatabase(dbInfo.name, String(dbInfo.version), dbInfo.description, dbInfo.size);
-              } catch (e) {
-                return reject(e);
-              }
-              dbInfo.db.transaction(function(t) {
-                createDbTable(t, dbInfo, function() {
-                  self2._dbInfo = dbInfo;
-                  resolve();
-                }, function(t2, error) {
-                  reject(error);
-                });
-              }, reject);
-            });
-            dbInfo.serializer = localforageSerializer;
-            return dbInfoPromise;
-          }
-          function tryExecuteSql(t, dbInfo, sqlStatement, args, callback, errorCallback) {
-            t.executeSql(sqlStatement, args, callback, function(t2, error) {
-              if (error.code === error.SYNTAX_ERR) {
-                t2.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [dbInfo.storeName], function(t3, results) {
-                  if (!results.rows.length) {
-                    createDbTable(t3, dbInfo, function() {
-                      t3.executeSql(sqlStatement, args, callback, errorCallback);
-                    }, errorCallback);
-                  } else {
-                    errorCallback(t3, error);
-                  }
-                }, errorCallback);
-              } else {
-                errorCallback(t2, error);
-              }
-            }, errorCallback);
-          }
-          function getItem$1(key2, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                var dbInfo = self2._dbInfo;
-                dbInfo.db.transaction(function(t) {
-                  tryExecuteSql(t, dbInfo, "SELECT * FROM " + dbInfo.storeName + " WHERE key = ? LIMIT 1", [key2], function(t2, results) {
-                    var result = results.rows.length ? results.rows.item(0).value : null;
-                    if (result) {
-                      result = dbInfo.serializer.deserialize(result);
-                    }
-                    resolve(result);
-                  }, function(t2, error) {
-                    reject(error);
-                  });
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function iterate$1(iterator, callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                var dbInfo = self2._dbInfo;
-                dbInfo.db.transaction(function(t) {
-                  tryExecuteSql(t, dbInfo, "SELECT * FROM " + dbInfo.storeName, [], function(t2, results) {
-                    var rows = results.rows;
-                    var length2 = rows.length;
-                    for (var i = 0; i < length2; i++) {
-                      var item = rows.item(i);
-                      var result = item.value;
-                      if (result) {
-                        result = dbInfo.serializer.deserialize(result);
-                      }
-                      result = iterator(result, item.key, i + 1);
-                      if (result !== void 0) {
-                        resolve(result);
-                        return;
-                      }
-                    }
-                    resolve();
-                  }, function(t2, error) {
-                    reject(error);
-                  });
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function _setItem(key2, value, callback, retriesLeft) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                if (value === void 0) {
-                  value = null;
-                }
-                var originalValue = value;
-                var dbInfo = self2._dbInfo;
-                dbInfo.serializer.serialize(value, function(value2, error) {
-                  if (error) {
-                    reject(error);
-                  } else {
-                    dbInfo.db.transaction(function(t) {
-                      tryExecuteSql(t, dbInfo, "INSERT OR REPLACE INTO " + dbInfo.storeName + " (key, value) VALUES (?, ?)", [key2, value2], function() {
-                        resolve(originalValue);
-                      }, function(t2, error2) {
-                        reject(error2);
-                      });
-                    }, function(sqlError) {
-                      if (sqlError.code === sqlError.QUOTA_ERR) {
-                        if (retriesLeft > 0) {
-                          resolve(_setItem.apply(self2, [key2, originalValue, callback, retriesLeft - 1]));
-                          return;
-                        }
-                        reject(sqlError);
-                      }
-                    });
-                  }
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function setItem$1(key2, value, callback) {
-            return _setItem.apply(this, [key2, value, callback, 1]);
-          }
-          function removeItem$1(key2, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                var dbInfo = self2._dbInfo;
-                dbInfo.db.transaction(function(t) {
-                  tryExecuteSql(t, dbInfo, "DELETE FROM " + dbInfo.storeName + " WHERE key = ?", [key2], function() {
-                    resolve();
-                  }, function(t2, error) {
-                    reject(error);
-                  });
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function clear$1(callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                var dbInfo = self2._dbInfo;
-                dbInfo.db.transaction(function(t) {
-                  tryExecuteSql(t, dbInfo, "DELETE FROM " + dbInfo.storeName, [], function() {
-                    resolve();
-                  }, function(t2, error) {
-                    reject(error);
-                  });
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function length$1(callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                var dbInfo = self2._dbInfo;
-                dbInfo.db.transaction(function(t) {
-                  tryExecuteSql(t, dbInfo, "SELECT COUNT(key) as c FROM " + dbInfo.storeName, [], function(t2, results) {
-                    var result = results.rows.item(0).c;
-                    resolve(result);
-                  }, function(t2, error) {
-                    reject(error);
-                  });
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function key$1(n, callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                var dbInfo = self2._dbInfo;
-                dbInfo.db.transaction(function(t) {
-                  tryExecuteSql(t, dbInfo, "SELECT key FROM " + dbInfo.storeName + " WHERE id = ? LIMIT 1", [n + 1], function(t2, results) {
-                    var result = results.rows.length ? results.rows.item(0).key : null;
-                    resolve(result);
-                  }, function(t2, error) {
-                    reject(error);
-                  });
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function keys$1(callback) {
-            var self2 = this;
-            var promise = new Promise$1(function(resolve, reject) {
-              self2.ready().then(function() {
-                var dbInfo = self2._dbInfo;
-                dbInfo.db.transaction(function(t) {
-                  tryExecuteSql(t, dbInfo, "SELECT key FROM " + dbInfo.storeName, [], function(t2, results) {
-                    var keys2 = [];
-                    for (var i = 0; i < results.rows.length; i++) {
-                      keys2.push(results.rows.item(i).key);
-                    }
-                    resolve(keys2);
-                  }, function(t2, error) {
-                    reject(error);
-                  });
-                });
-              })["catch"](reject);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function getAllStoreNames(db) {
-            return new Promise$1(function(resolve, reject) {
-              db.transaction(function(t) {
-                t.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'", [], function(t2, results) {
-                  var storeNames = [];
-                  for (var i = 0; i < results.rows.length; i++) {
-                    storeNames.push(results.rows.item(i).name);
-                  }
-                  resolve({
-                    db,
-                    storeNames
-                  });
-                }, function(t2, error) {
-                  reject(error);
-                });
-              }, function(sqlError) {
-                reject(sqlError);
-              });
-            });
-          }
-          function dropInstance$1(options, callback) {
-            callback = getCallback.apply(this, arguments);
-            var currentConfig = this.config();
-            options = typeof options !== "function" && options || {};
-            if (!options.name) {
-              options.name = options.name || currentConfig.name;
-              options.storeName = options.storeName || currentConfig.storeName;
-            }
-            var self2 = this;
-            var promise;
-            if (!options.name) {
-              promise = Promise$1.reject("Invalid arguments");
-            } else {
-              promise = new Promise$1(function(resolve) {
-                var db;
-                if (options.name === currentConfig.name) {
-                  db = self2._dbInfo.db;
-                } else {
-                  db = openDatabase(options.name, "", "", 0);
-                }
-                if (!options.storeName) {
-                  resolve(getAllStoreNames(db));
-                } else {
-                  resolve({
-                    db,
-                    storeNames: [options.storeName]
-                  });
-                }
-              }).then(function(operationInfo) {
-                return new Promise$1(function(resolve, reject) {
-                  operationInfo.db.transaction(function(t) {
-                    function dropTable(storeName) {
-                      return new Promise$1(function(resolve2, reject2) {
-                        t.executeSql("DROP TABLE IF EXISTS " + storeName, [], function() {
-                          resolve2();
-                        }, function(t2, error) {
-                          reject2(error);
-                        });
-                      });
-                    }
-                    var operations = [];
-                    for (var i = 0, len = operationInfo.storeNames.length; i < len; i++) {
-                      operations.push(dropTable(operationInfo.storeNames[i]));
-                    }
-                    Promise$1.all(operations).then(function() {
-                      resolve();
-                    })["catch"](function(e) {
-                      reject(e);
-                    });
-                  }, function(sqlError) {
-                    reject(sqlError);
-                  });
-                });
-              });
-            }
-            executeCallback(promise, callback);
-            return promise;
-          }
-          var webSQLStorage = {
-            _driver: "webSQLStorage",
-            _initStorage: _initStorage$1,
-            _support: isWebSQLValid(),
-            iterate: iterate$1,
-            getItem: getItem$1,
-            setItem: setItem$1,
-            removeItem: removeItem$1,
-            clear: clear$1,
-            length: length$1,
-            key: key$1,
-            keys: keys$1,
-            dropInstance: dropInstance$1
-          };
-          function isLocalStorageValid() {
-            try {
-              return typeof localStorage !== "undefined" && "setItem" in localStorage && !!localStorage.setItem;
-            } catch (e) {
-              return false;
-            }
-          }
-          function _getKeyPrefix(options, defaultConfig) {
-            var keyPrefix = options.name + "/";
-            if (options.storeName !== defaultConfig.storeName) {
-              keyPrefix += options.storeName + "/";
-            }
-            return keyPrefix;
-          }
-          function checkIfLocalStorageThrows() {
-            var localStorageTestKey = "_localforage_support_test";
-            try {
-              localStorage.setItem(localStorageTestKey, true);
-              localStorage.removeItem(localStorageTestKey);
-              return false;
-            } catch (e) {
-              return true;
-            }
-          }
-          function _isLocalStorageUsable() {
-            return !checkIfLocalStorageThrows() || localStorage.length > 0;
-          }
-          function _initStorage$2(options) {
-            var self2 = this;
-            var dbInfo = {};
-            if (options) {
-              for (var i in options) {
-                dbInfo[i] = options[i];
-              }
-            }
-            dbInfo.keyPrefix = _getKeyPrefix(options, self2._defaultConfig);
-            if (!_isLocalStorageUsable()) {
-              return Promise$1.reject();
-            }
-            self2._dbInfo = dbInfo;
-            dbInfo.serializer = localforageSerializer;
-            return Promise$1.resolve();
-          }
-          function clear$2(callback) {
-            var self2 = this;
-            var promise = self2.ready().then(function() {
-              var keyPrefix = self2._dbInfo.keyPrefix;
-              for (var i = localStorage.length - 1; i >= 0; i--) {
-                var key2 = localStorage.key(i);
-                if (key2.indexOf(keyPrefix) === 0) {
-                  localStorage.removeItem(key2);
-                }
-              }
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function getItem$2(key2, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = self2.ready().then(function() {
-              var dbInfo = self2._dbInfo;
-              var result = localStorage.getItem(dbInfo.keyPrefix + key2);
-              if (result) {
-                result = dbInfo.serializer.deserialize(result);
-              }
-              return result;
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function iterate$2(iterator, callback) {
-            var self2 = this;
-            var promise = self2.ready().then(function() {
-              var dbInfo = self2._dbInfo;
-              var keyPrefix = dbInfo.keyPrefix;
-              var keyPrefixLength = keyPrefix.length;
-              var length2 = localStorage.length;
-              var iterationNumber = 1;
-              for (var i = 0; i < length2; i++) {
-                var key2 = localStorage.key(i);
-                if (key2.indexOf(keyPrefix) !== 0) {
-                  continue;
-                }
-                var value = localStorage.getItem(key2);
-                if (value) {
-                  value = dbInfo.serializer.deserialize(value);
-                }
-                value = iterator(value, key2.substring(keyPrefixLength), iterationNumber++);
-                if (value !== void 0) {
-                  return value;
-                }
-              }
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function key$2(n, callback) {
-            var self2 = this;
-            var promise = self2.ready().then(function() {
-              var dbInfo = self2._dbInfo;
-              var result;
-              try {
-                result = localStorage.key(n);
-              } catch (error) {
-                result = null;
-              }
-              if (result) {
-                result = result.substring(dbInfo.keyPrefix.length);
-              }
-              return result;
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function keys$2(callback) {
-            var self2 = this;
-            var promise = self2.ready().then(function() {
-              var dbInfo = self2._dbInfo;
-              var length2 = localStorage.length;
-              var keys2 = [];
-              for (var i = 0; i < length2; i++) {
-                var itemKey = localStorage.key(i);
-                if (itemKey.indexOf(dbInfo.keyPrefix) === 0) {
-                  keys2.push(itemKey.substring(dbInfo.keyPrefix.length));
-                }
-              }
-              return keys2;
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function length$2(callback) {
-            var self2 = this;
-            var promise = self2.keys().then(function(keys2) {
-              return keys2.length;
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function removeItem$2(key2, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = self2.ready().then(function() {
-              var dbInfo = self2._dbInfo;
-              localStorage.removeItem(dbInfo.keyPrefix + key2);
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function setItem$2(key2, value, callback) {
-            var self2 = this;
-            key2 = normalizeKey(key2);
-            var promise = self2.ready().then(function() {
-              if (value === void 0) {
-                value = null;
-              }
-              var originalValue = value;
-              return new Promise$1(function(resolve, reject) {
-                var dbInfo = self2._dbInfo;
-                dbInfo.serializer.serialize(value, function(value2, error) {
-                  if (error) {
-                    reject(error);
-                  } else {
-                    try {
-                      localStorage.setItem(dbInfo.keyPrefix + key2, value2);
-                      resolve(originalValue);
-                    } catch (e) {
-                      if (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED") {
-                        reject(e);
-                      }
-                      reject(e);
-                    }
-                  }
-                });
-              });
-            });
-            executeCallback(promise, callback);
-            return promise;
-          }
-          function dropInstance$2(options, callback) {
-            callback = getCallback.apply(this, arguments);
-            options = typeof options !== "function" && options || {};
-            if (!options.name) {
-              var currentConfig = this.config();
-              options.name = options.name || currentConfig.name;
-              options.storeName = options.storeName || currentConfig.storeName;
-            }
-            var self2 = this;
-            var promise;
-            if (!options.name) {
-              promise = Promise$1.reject("Invalid arguments");
-            } else {
-              promise = new Promise$1(function(resolve) {
-                if (!options.storeName) {
-                  resolve(options.name + "/");
-                } else {
-                  resolve(_getKeyPrefix(options, self2._defaultConfig));
-                }
-              }).then(function(keyPrefix) {
-                for (var i = localStorage.length - 1; i >= 0; i--) {
-                  var key2 = localStorage.key(i);
-                  if (key2.indexOf(keyPrefix) === 0) {
-                    localStorage.removeItem(key2);
-                  }
-                }
-              });
-            }
-            executeCallback(promise, callback);
-            return promise;
-          }
-          var localStorageWrapper = {
-            _driver: "localStorageWrapper",
-            _initStorage: _initStorage$2,
-            _support: isLocalStorageValid(),
-            iterate: iterate$2,
-            getItem: getItem$2,
-            setItem: setItem$2,
-            removeItem: removeItem$2,
-            clear: clear$2,
-            length: length$2,
-            key: key$2,
-            keys: keys$2,
-            dropInstance: dropInstance$2
-          };
-          var sameValue = function sameValue2(x, y) {
-            return x === y || typeof x === "number" && typeof y === "number" && isNaN(x) && isNaN(y);
-          };
-          var includes = function includes2(array, searchElement) {
-            var len = array.length;
-            var i = 0;
-            while (i < len) {
-              if (sameValue(array[i], searchElement)) {
-                return true;
-              }
-              i++;
-            }
-            return false;
-          };
-          var isArray = Array.isArray || function(arg) {
-            return Object.prototype.toString.call(arg) === "[object Array]";
-          };
-          var DefinedDrivers = {};
-          var DriverSupport = {};
-          var DefaultDrivers = {
-            INDEXEDDB: asyncStorage,
-            WEBSQL: webSQLStorage,
-            LOCALSTORAGE: localStorageWrapper
-          };
-          var DefaultDriverOrder = [DefaultDrivers.INDEXEDDB._driver, DefaultDrivers.WEBSQL._driver, DefaultDrivers.LOCALSTORAGE._driver];
-          var OptionalDriverMethods = ["dropInstance"];
-          var LibraryMethods = ["clear", "getItem", "iterate", "key", "keys", "length", "removeItem", "setItem"].concat(OptionalDriverMethods);
-          var DefaultConfig = {
-            description: "",
-            driver: DefaultDriverOrder.slice(),
-            name: "localforage",
-            size: 4980736,
-            storeName: "keyvaluepairs",
-            version: 1
-          };
-          function callWhenReady(localForageInstance, libraryMethod) {
-            localForageInstance[libraryMethod] = function() {
-              var _args = arguments;
-              return localForageInstance.ready().then(function() {
-                return localForageInstance[libraryMethod].apply(localForageInstance, _args);
-              });
-            };
-          }
-          function extend() {
-            for (var i = 1; i < arguments.length; i++) {
-              var arg = arguments[i];
-              if (arg) {
-                for (var _key in arg) {
-                  if (arg.hasOwnProperty(_key)) {
-                    if (isArray(arg[_key])) {
-                      arguments[0][_key] = arg[_key].slice();
-                    } else {
-                      arguments[0][_key] = arg[_key];
-                    }
-                  }
-                }
-              }
-            }
-            return arguments[0];
-          }
-          var LocalForage = function() {
-            function LocalForage2(options) {
-              _classCallCheck(this, LocalForage2);
-              for (var driverTypeKey in DefaultDrivers) {
-                if (DefaultDrivers.hasOwnProperty(driverTypeKey)) {
-                  var driver = DefaultDrivers[driverTypeKey];
-                  var driverName = driver._driver;
-                  this[driverTypeKey] = driverName;
-                  if (!DefinedDrivers[driverName]) {
-                    this.defineDriver(driver);
-                  }
-                }
-              }
-              this._defaultConfig = extend({}, DefaultConfig);
-              this._config = extend({}, this._defaultConfig, options);
-              this._driverSet = null;
-              this._initDriver = null;
-              this._ready = false;
-              this._dbInfo = null;
-              this._wrapLibraryMethodsWithReady();
-              this.setDriver(this._config.driver)["catch"](function() {
-              });
-            }
-            LocalForage2.prototype.config = function config(options) {
-              if ((typeof options === "undefined" ? "undefined" : _typeof(options)) === "object") {
-                if (this._ready) {
-                  return new Error("Can't call config() after localforage has been used.");
-                }
-                for (var i in options) {
-                  if (i === "storeName") {
-                    options[i] = options[i].replace(/\W/g, "_");
-                  }
-                  if (i === "version" && typeof options[i] !== "number") {
-                    return new Error("Database version must be a number.");
-                  }
-                  this._config[i] = options[i];
-                }
-                if ("driver" in options && options.driver) {
-                  return this.setDriver(this._config.driver);
-                }
-                return true;
-              } else if (typeof options === "string") {
-                return this._config[options];
-              } else {
-                return this._config;
-              }
-            };
-            LocalForage2.prototype.defineDriver = function defineDriver(driverObject, callback, errorCallback) {
-              var promise = new Promise$1(function(resolve, reject) {
-                try {
-                  var driverName = driverObject._driver;
-                  var complianceError = new Error("Custom driver not compliant; see https://mozilla.github.io/localForage/#definedriver");
-                  if (!driverObject._driver) {
-                    reject(complianceError);
-                    return;
-                  }
-                  var driverMethods = LibraryMethods.concat("_initStorage");
-                  for (var i = 0, len = driverMethods.length; i < len; i++) {
-                    var driverMethodName = driverMethods[i];
-                    var isRequired = !includes(OptionalDriverMethods, driverMethodName);
-                    if ((isRequired || driverObject[driverMethodName]) && typeof driverObject[driverMethodName] !== "function") {
-                      reject(complianceError);
-                      return;
-                    }
-                  }
-                  var configureMissingMethods = function configureMissingMethods2() {
-                    var methodNotImplementedFactory = function methodNotImplementedFactory2(methodName) {
-                      return function() {
-                        var error = new Error("Method " + methodName + " is not implemented by the current driver");
-                        var promise2 = Promise$1.reject(error);
-                        executeCallback(promise2, arguments[arguments.length - 1]);
-                        return promise2;
-                      };
-                    };
-                    for (var _i = 0, _len = OptionalDriverMethods.length; _i < _len; _i++) {
-                      var optionalDriverMethod = OptionalDriverMethods[_i];
-                      if (!driverObject[optionalDriverMethod]) {
-                        driverObject[optionalDriverMethod] = methodNotImplementedFactory(optionalDriverMethod);
-                      }
-                    }
-                  };
-                  configureMissingMethods();
-                  var setDriverSupport = function setDriverSupport2(support) {
-                    if (DefinedDrivers[driverName]) {
-                      console.info("Redefining LocalForage driver: " + driverName);
-                    }
-                    DefinedDrivers[driverName] = driverObject;
-                    DriverSupport[driverName] = support;
-                    resolve();
-                  };
-                  if ("_support" in driverObject) {
-                    if (driverObject._support && typeof driverObject._support === "function") {
-                      driverObject._support().then(setDriverSupport, reject);
-                    } else {
-                      setDriverSupport(!!driverObject._support);
-                    }
-                  } else {
-                    setDriverSupport(true);
-                  }
-                } catch (e) {
-                  reject(e);
-                }
-              });
-              executeTwoCallbacks(promise, callback, errorCallback);
-              return promise;
-            };
-            LocalForage2.prototype.driver = function driver() {
-              return this._driver || null;
-            };
-            LocalForage2.prototype.getDriver = function getDriver(driverName, callback, errorCallback) {
-              var getDriverPromise = DefinedDrivers[driverName] ? Promise$1.resolve(DefinedDrivers[driverName]) : Promise$1.reject(new Error("Driver not found."));
-              executeTwoCallbacks(getDriverPromise, callback, errorCallback);
-              return getDriverPromise;
-            };
-            LocalForage2.prototype.getSerializer = function getSerializer(callback) {
-              var serializerPromise = Promise$1.resolve(localforageSerializer);
-              executeTwoCallbacks(serializerPromise, callback);
-              return serializerPromise;
-            };
-            LocalForage2.prototype.ready = function ready(callback) {
-              var self2 = this;
-              var promise = self2._driverSet.then(function() {
-                if (self2._ready === null) {
-                  self2._ready = self2._initDriver();
-                }
-                return self2._ready;
-              });
-              executeTwoCallbacks(promise, callback, callback);
-              return promise;
-            };
-            LocalForage2.prototype.setDriver = function setDriver(drivers, callback, errorCallback) {
-              var self2 = this;
-              if (!isArray(drivers)) {
-                drivers = [drivers];
-              }
-              var supportedDrivers = this._getSupportedDrivers(drivers);
-              function setDriverToConfig() {
-                self2._config.driver = self2.driver();
-              }
-              function extendSelfWithDriver(driver) {
-                self2._extend(driver);
-                setDriverToConfig();
-                self2._ready = self2._initStorage(self2._config);
-                return self2._ready;
-              }
-              function initDriver(supportedDrivers2) {
-                return function() {
-                  var currentDriverIndex = 0;
-                  function driverPromiseLoop() {
-                    while (currentDriverIndex < supportedDrivers2.length) {
-                      var driverName = supportedDrivers2[currentDriverIndex];
-                      currentDriverIndex++;
-                      self2._dbInfo = null;
-                      self2._ready = null;
-                      return self2.getDriver(driverName).then(extendSelfWithDriver)["catch"](driverPromiseLoop);
-                    }
-                    setDriverToConfig();
-                    var error = new Error("No available storage method found.");
-                    self2._driverSet = Promise$1.reject(error);
-                    return self2._driverSet;
-                  }
-                  return driverPromiseLoop();
-                };
-              }
-              var oldDriverSetDone = this._driverSet !== null ? this._driverSet["catch"](function() {
-                return Promise$1.resolve();
-              }) : Promise$1.resolve();
-              this._driverSet = oldDriverSetDone.then(function() {
-                var driverName = supportedDrivers[0];
-                self2._dbInfo = null;
-                self2._ready = null;
-                return self2.getDriver(driverName).then(function(driver) {
-                  self2._driver = driver._driver;
-                  setDriverToConfig();
-                  self2._wrapLibraryMethodsWithReady();
-                  self2._initDriver = initDriver(supportedDrivers);
-                });
-              })["catch"](function() {
-                setDriverToConfig();
-                var error = new Error("No available storage method found.");
-                self2._driverSet = Promise$1.reject(error);
-                return self2._driverSet;
-              });
-              executeTwoCallbacks(this._driverSet, callback, errorCallback);
-              return this._driverSet;
-            };
-            LocalForage2.prototype.supports = function supports(driverName) {
-              return !!DriverSupport[driverName];
-            };
-            LocalForage2.prototype._extend = function _extend(libraryMethodsAndProperties) {
-              extend(this, libraryMethodsAndProperties);
-            };
-            LocalForage2.prototype._getSupportedDrivers = function _getSupportedDrivers(drivers) {
-              var supportedDrivers = [];
-              for (var i = 0, len = drivers.length; i < len; i++) {
-                var driverName = drivers[i];
-                if (this.supports(driverName)) {
-                  supportedDrivers.push(driverName);
-                }
-              }
-              return supportedDrivers;
-            };
-            LocalForage2.prototype._wrapLibraryMethodsWithReady = function _wrapLibraryMethodsWithReady() {
-              for (var i = 0, len = LibraryMethods.length; i < len; i++) {
-                callWhenReady(this, LibraryMethods[i]);
-              }
-            };
-            LocalForage2.prototype.createInstance = function createInstance(options) {
-              return new LocalForage2(options);
-            };
-            return LocalForage2;
-          }();
-          var localforage_js = new LocalForage();
-          module3.exports = localforage_js;
-        }, { "3": 3 }] }, {}, [4])(4);
-      });
+  // src/utils/CustomError.ts
+  var CustomError = class extends Error {
+    constructor(msg) {
+      super(msg);
     }
-  });
+  };
 
   // src/utils/helpers.ts
+  HTMLElement.prototype.querySelectorForce = function(selectors) {
+    const element = this.querySelector(selectors);
+    if (!element) {
+      throw new CustomError(`HTMLElement with selectors ${selectors} could not be found!`);
+    }
+    return element;
+  };
+  var hasFlags = (a, b) => (a & b) === b;
+  var hasAnyFlag = (a, ...b) => b.some((x) => (a & x) === x);
   var avg = (a, b) => (a + b) / 2;
   var randomRange = (min, max) => Math.random() * (max - min) + min;
   var clamp = (value, min, max) => Math.max(min, Math.min(value, max));
@@ -8849,10 +8865,10 @@
   var invLerp = (a, b, v) => (v - a) / (b - a);
   var remap = (iMin, iMax, oMin, oMax, v) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
   var isLocalHost = () => location.hostname === "localhost" || location.hostname === "127.0.0.1";
-  function querySelector(selectors, parent) {
-    const element = (parent || document).querySelector(selectors);
+  function querySelector(selectors) {
+    const element = document.querySelector(selectors);
     if (!element) {
-      throw Error(`HTMLElement with selectors ${selectors} could not be found!`);
+      throw new CustomError(`HTMLElement with selectors ${selectors} could not be found!`);
     }
     return element;
   }
@@ -8913,600 +8929,6 @@
     element.addEventListener(trigger, listener);
   }
 
-  // src/utils/validateConfig.ts
-  var import_ajv = __toESM(require_ajv(), 1);
-
-  // public/gconfig/schemas/gameConfig.schema.json
-  var gameConfig_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema#",
-    $id: "schemas/gconfig/gameConfig.schema.json",
-    required: ["enemies"],
-    type: "object",
-    properties: {
-      options: {
-        $ref: "definitions/options.schema.json#/definitions/options"
-      },
-      enemies: {
-        $ref: "definitions/enemies.schema.json#/definitions/enemies"
-      },
-      player: {
-        $ref: "definitions/player.schema.json#/definitions/player"
-      },
-      components: {
-        $ref: "definitions/components/components.schema.json#/definitions/components"
-      }
-    },
-    definitions: {
-      name: {
-        type: "string",
-        pattern: "^[A-Za-z 0-9]{3,16}$"
-      },
-      text: {
-        type: "string",
-        maxLength: 2048,
-        pattern: "^[A-Za-z 0-9 .,!*\\[\\]()/=%&{}?\\-:;'\\s]*$"
-      },
-      levelReq: {
-        type: "integer",
-        default: 1,
-        minimum: 1
-      },
-      goldCost: {
-        type: "integer",
-        default: 0,
-        minimum: 0
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/player.schema.json
-  var player_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/player.schema.json",
-    type: "object",
-    definitions: {
-      player: {
-        type: "object",
-        properties: {
-          modList: {
-            type: "array",
-            anyOf: [
-              {
-                items: {
-                  oneOf: [
-                    {
-                      $ref: "mods.schema.json#/definitions/mod"
-                    },
-                    {
-                      type: "string",
-                      oneOf: [
-                        {
-                          description: "Base duration in seconds",
-                          enum: ["+{#} Bleed Duration", "+{#} Burn Duration", "+{#} Poison Duration"]
-                        },
-                        { pattern: "^\\+\\{(\\d+)\\} (Bleed|Burn|Poison) Duration$" }
-                      ],
-                      pattern: "^[^#]*$"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/enemies.schema.json
-  var enemies_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/enemies.schema.json",
-    type: "object",
-    definitions: {
-      enemies: {
-        type: "object",
-        required: ["enemyList"],
-        properties: {
-          enemyList: {
-            type: "array",
-            minItems: 1,
-            description: "Each element represents a level. The length should be maxLevel - 1 because the enemy at maxLevel cannot be killed. E.g. [1] when killed increments the level to 2",
-            items: {
-              type: "integer",
-              minimum: 1
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/options.schema.json
-  var options_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/options.schema.json",
-    type: "object",
-    definitions: {
-      options: {
-        type: "object",
-        properties: {
-          endPrompt: {
-            type: "object",
-            required: ["title", "body"],
-            properties: {
-              title: {
-                type: "string",
-                maxLength: 32,
-                minLength: 3,
-                pattern: "^[A-Za-z 0-9!]+$"
-              },
-              body: {
-                type: "string",
-                maxLength: 512,
-                $ref: "../gameConfig.schema.json#/definitions/text"
-              },
-              footer: {
-                type: "string",
-                maxLength: 128,
-                $ref: "../gameConfig.schema.json#/definitions/text"
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/tasks.schema.json
-  var tasks_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/tasks.schema.json",
-    type: "object",
-    definitions: {
-      tasks: {
-        type: "string",
-        anyOf: [
-          { enum: ["Reach Level {#}"] },
-          { pattern: "^Reach Level \\{\\d+\\}$" },
-          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}"] },
-          { pattern: "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
-          { enum: ["Generate Gold {#}"] },
-          { pattern: "^Generate Gold \\{\\d+\\}$" },
-          { enum: ["Regenerate Mana {#}"] },
-          { pattern: "^Regenerate Mana \\{\\d+\\}$" },
-          { enum: ["Perform Hits {#}"] },
-          { pattern: "^Perform Hits \\{\\d+\\}$" },
-          { enum: ["Perform Critical Hits {#}"] },
-          { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
-        ],
-        pattern: "^[^#]*$"
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/mods.schema.json
-  var mods_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/mods.schema.json",
-    type: "object",
-    definitions: {
-      mod: {
-        type: "string",
-        oneOf: [
-          { enum: ["Adds {#} To {#} Physical Damage", "Adds {#} To {#} Elemental Damage"] },
-          { pattern: "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} (Physical|Elemental) Damage$" },
-          { enum: ["{#}% Increased Physical Damage", "{#}% Increased Elemental Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Physical|Elemental) Damage$" },
-          { enum: ["{#}% More Physical Damage", "{#}% More Elemental Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Physical|Elemental) Damage$" },
-          { enum: ["{#}% More Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
-          { enum: ["+{#}% Hit Chance"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$" },
-          { enum: ["{#}% Increased Attack Speed"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$" },
-          { enum: ["{#}% More Attack Speed"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Attack Speed$" },
-          { enum: ["+{#}% Critical Hit Chance"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$" },
-          { enum: ["+{#}% Critical Hit Multiplier"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$" },
-          { enum: ["+{#} Maximum Mana"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
-          { enum: ["{#}% Increased Maximum Mana"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
-          { enum: ["+{#} Mana Regeneration"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
-          { enum: ["+{#} Gold Generation"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Generation$" },
-          { enum: ["{#}% Increased Gold Generation"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Generation$" },
-          { enum: ["+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
-          { enum: ["+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack"] },
-          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
-          { enum: ["{#}% Increased Bleed Damage", "{#}% Increased Burn Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
-          { enum: ["{#}% More Bleed Damage", "{#}% More Burn Damage"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
-          { enum: ["{#}% Increased Bleed Duration", "{#}% Increased Burn Duration"] },
-          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" }
-        ],
-        pattern: "^[^#]*$"
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/components/components.schema.json
-  var components_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/components/components.schema.json",
-    type: "object",
-    definitions: {
-      components: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          skills: { $ref: "skills.schema.json#/definitions/skills" },
-          passives: { $ref: "passives.schema.json#/definitions/passives" },
-          items: { $ref: "items.schema.json#/definitions/items" },
-          missions: { $ref: "missions.schema.json#/definitions/missions" },
-          achievements: { $ref: "achievements.schema.json#/definitions/achievements" }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/components/skills.schema.json
-  var skills_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/components/skills.schema.json",
-    type: "object",
-    definitions: {
-      skills: {
-        type: "object",
-        required: ["attackSkills"],
-        properties: {
-          attackSkills: {
-            type: "object",
-            required: ["skillList"],
-            properties: {
-              skillList: {
-                type: "array",
-                minItems: 1,
-                items: {
-                  oneOf: [
-                    {
-                      $ref: "#/definitions/attackSkill"
-                    },
-                    {
-                      type: "array",
-                      items: [
-                        {
-                          $ref: "#/definitions/attackSkill"
-                        }
-                      ],
-                      minItems: 1,
-                      additionalItems: {
-                        allOf: [
-                          {
-                            $ref: "#/definitions/attackSkill"
-                          },
-                          {
-                            type: "object",
-                            required: ["attackCountReq"],
-                            properties: {
-                              attackCountReq: {
-                                type: "integer",
-                                minimum: 0
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          buffSkills: {
-            type: "object",
-            required: ["skillList", "skillSlots"],
-            properties: {
-              skillSlots: {
-                type: "array",
-                minItems: 1,
-                items: {
-                  type: "object",
-                  required: ["levelReq"],
-                  properties: {
-                    levelReq: {
-                      type: "integer",
-                      minimum: 1
-                    }
-                  }
-                }
-              },
-              skillList: {
-                type: "array",
-                minItems: 1,
-                items: {
-                  oneOf: [
-                    {
-                      $ref: "#/definitions/buffSkill"
-                    },
-                    {
-                      type: "array",
-                      items: [
-                        {
-                          $ref: "#/definitions/buffSkill"
-                        }
-                      ],
-                      minItems: 1,
-                      additionalItems: {
-                        allOf: [
-                          {
-                            $ref: "#/definitions/buffSkill"
-                          },
-                          {
-                            type: "object",
-                            required: ["triggerCountReq"],
-                            properties: {
-                              triggerCountReq: {
-                                type: "integer",
-                                minimum: 0
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      attackSkill: {
-        type: "object",
-        required: ["name", "attackSpeed", "manaCost", "baseDamageMultiplier"],
-        properties: {
-          name: { type: "string" },
-          levelReq: { type: "integer", minimum: 1, default: 1, description: "Required player level\nNote - At least one skill must have a value of 1" },
-          attackSpeed: { type: "number", minimum: 1e-3, maximum: 10, default: 1, description: "Number of attacks per second" },
-          manaCost: { type: "integer", minimum: 0 },
-          baseDamageMultiplier: { type: "integer", minimum: 1, default: 100, description: "A multiplier used to balance the skill. A value of 100 is 100% of base damage." },
-          mods: {
-            type: "array",
-            items: { $ref: "../mods.schema.json#/definitions/mod" }
-          }
-        }
-      },
-      buffSkill: {
-        type: "object",
-        required: ["name", "baseDuration"],
-        properties: {
-          name: { type: "string" },
-          levelReq: { type: "number" },
-          baseDuration: { type: "integer" },
-          manaCost: { type: "integer" },
-          mods: {
-            type: "array",
-            items: { $ref: "../mods.schema.json#/definitions/mod" }
-          }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/components/passives.schema.json
-  var passives_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/components/passives.schema.json",
-    type: "object",
-    definitions: {
-      passives: {
-        type: "object",
-        required: ["pointsPerLevel", "passiveLists"],
-        properties: {
-          pointsPerLevel: {
-            type: "number",
-            minimum: 1e-3,
-            default: 1
-          },
-          passiveLists: {
-            type: "array",
-            minItems: 1,
-            items: {
-              type: "array",
-              minItems: 1,
-              items: {
-                type: "object",
-                required: ["levelReq", "mod", "points"],
-                properties: {
-                  levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
-                  mod: { $ref: "../mods.schema.json#/definitions/mod" },
-                  points: { type: "integer", minimum: 1 }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/components/items.schema.json
-  var items_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/components/items.schema.json",
-    type: "object",
-    definitions: {
-      items: {
-        type: "object",
-        required: ["levelReq", "itemList", "craftList", "modLists"],
-        properties: {
-          levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
-          itemList: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                levelReq: { type: "integer", minimum: 0 }
-              }
-            }
-          },
-          craftList: {
-            type: "array",
-            minItems: 1,
-            items: {
-              type: "object",
-              required: ["id", "levelReq", "cost"],
-              properties: {
-                id: {
-                  enum: [
-                    "reforge",
-                    "reforgeIncludePhysical",
-                    "reforgeIncludeElemental",
-                    "reforgeIncludeCritical",
-                    "reforgeIncludeMana",
-                    "reforgeIncludeBleed",
-                    "reforgeIncludeBurn",
-                    "reforgeHigherChanceSameMods",
-                    "reforgeLowerChanceSameMods",
-                    "addRandom",
-                    "addPhysical",
-                    "addElemental",
-                    "addCritical",
-                    "addMana",
-                    "addBleed",
-                    "addBurn",
-                    "removeRandom",
-                    "removePhysical",
-                    "removeElemental",
-                    "removeCritical",
-                    "removeMana",
-                    "removeBleed",
-                    "removeBurn",
-                    "removeRandomAddPhysical",
-                    "removeRandomAddElemental",
-                    "removeRandomAddCritical",
-                    "removeRandomAddMana",
-                    "removeRandomAddBleed",
-                    "removeRandomAddBurn"
-                  ]
-                },
-                levelReq: { type: "integer", minimum: 0 },
-                cost: { type: "integer", minimum: 0 }
-              }
-            }
-          },
-          modLists: {
-            type: "array",
-            items: {
-              type: "array",
-              items: {
-                type: "object",
-                required: ["weight", "levelReq", "mod"],
-                properties: {
-                  weight: { type: "integer", minimum: 0 },
-                  levelReq: { type: "integer", minimum: 0 },
-                  mod: { $ref: "../mods.schema.json#/definitions/mod" }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/components/missions.schema.json
-  var missions_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/components/missions.schema.json",
-    type: "object",
-    definitions: {
-      missions: {
-        type: "object",
-        required: ["levelReq", "slots", "missionLists"],
-        properties: {
-          levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
-          goldCost: { $ref: "../../gameConfig.schema.json#/definitions/goldCost" },
-          slots: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
-                goldCost: { $ref: "../../gameConfig.schema.json#/definitions/goldCost" }
-              }
-            }
-          },
-          missionLists: {
-            type: "array",
-            items: {
-              type: "array",
-              items: {
-                type: "object",
-                required: ["levelReq", "goldAmount", "description"],
-                properties: {
-                  levelReq: { $ref: "../../gameConfig.schema.json#/definitions/levelReq" },
-                  goldAmount: { type: "integer" },
-                  description: {
-                    $ref: "../tasks.schema.json#/definitions/tasks"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // public/gconfig/schemas/definitions/components/achievements.schema.json
-  var achievements_schema_default = {
-    $schema: "http://json-schema.org/draft-07/schema",
-    $id: "schemas/gconfig/definitions/components/achievements.schema.json",
-    type: "object",
-    definitions: {
-      achievements: {
-        type: "object",
-        required: ["list"],
-        properties: {
-          list: {
-            type: "array",
-            items: {
-              type: "object",
-              required: ["description"],
-              properties: {
-                description: {
-                  $ref: "../tasks.schema.json#/definitions/tasks"
-                },
-                modList: {
-                  type: "array",
-                  minItems: 1,
-                  description: "Each mod will be applied upon completing the achievement",
-                  items: {
-                    $ref: "../mods.schema.json#/definitions/mod"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-
-  // src/utils/validateConfig.ts
-  var configValidator = new import_ajv.default({ strictTuples: false, schemas: [player_schema_default, enemies_schema_default, options_schema_default, tasks_schema_default, mods_schema_default, components_schema_default, skills_schema_default, passives_schema_default, items_schema_default, missions_schema_default, achievements_schema_default] }).compile(gameConfig_schema_default);
-
   // src/utils/EventEmitter.ts
   var EventEmitter = class {
     constructor() {
@@ -9536,176 +8958,51 @@
   };
 
   // src/game/mods.ts
-  var StatModifierFlags = /* @__PURE__ */ ((StatModifierFlags2) => {
-    StatModifierFlags2[StatModifierFlags2["None"] = 0] = "None";
-    StatModifierFlags2[StatModifierFlags2["Attack"] = 1] = "Attack";
-    StatModifierFlags2[StatModifierFlags2["Physical"] = 2] = "Physical";
-    StatModifierFlags2[StatModifierFlags2["Elemental"] = 4] = "Elemental";
-    StatModifierFlags2[StatModifierFlags2["Chaos"] = 8] = "Chaos";
-    StatModifierFlags2[StatModifierFlags2["Skill"] = 16] = "Skill";
-    StatModifierFlags2[StatModifierFlags2["Bleed"] = 32] = "Bleed";
-    StatModifierFlags2[StatModifierFlags2["Burn"] = 64] = "Burn";
-    StatModifierFlags2[StatModifierFlags2["Ailment"] = 96] = "Ailment";
-    StatModifierFlags2[StatModifierFlags2["Damage"] = 128] = "Damage";
-    return StatModifierFlags2;
-  })(StatModifierFlags || {});
+  var StatModifierFlag = /* @__PURE__ */ ((StatModifierFlag2) => {
+    StatModifierFlag2[StatModifierFlag2["None"] = 0] = "None";
+    StatModifierFlag2[StatModifierFlag2["Attack"] = 1] = "Attack";
+    StatModifierFlag2[StatModifierFlag2["Physical"] = 2] = "Physical";
+    StatModifierFlag2[StatModifierFlag2["Elemental"] = 4] = "Elemental";
+    StatModifierFlag2[StatModifierFlag2["Chaos"] = 8] = "Chaos";
+    StatModifierFlag2[StatModifierFlag2["Skill"] = 16] = "Skill";
+    StatModifierFlag2[StatModifierFlag2["Bleed"] = 32] = "Bleed";
+    StatModifierFlag2[StatModifierFlag2["Burn"] = 64] = "Burn";
+    return StatModifierFlag2;
+  })(StatModifierFlag || {});
   var modTemplates = [
-    {
-      desc: "#% Increased Physical Damage",
-      tags: ["Damage", "Physical"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 2 /* Physical */ }]
-    },
-    {
-      desc: "#% Increased Elemental Damage",
-      tags: ["Damage", "Elemental"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 4 /* Elemental */ }]
-    },
-    {
-      desc: "#% More Physical Damage",
-      tags: ["Damage", "Physical"],
-      stats: [{ name: "Damage", valueType: "More", flags: 2 /* Physical */ }]
-    },
-    {
-      desc: "#% More Elemental Damage",
-      tags: ["Damage", "Elemental"],
-      stats: [{ name: "Damage", valueType: "More", flags: 4 /* Elemental */ }]
-    },
-    {
-      desc: "#% More Bleed Damage",
-      tags: ["Damage", "Bleed", "Physical", "Ailment"],
-      stats: [{ name: "Damage", valueType: "More", flags: 2 /* Physical */ | 32 /* Bleed */ }]
-    },
-    {
-      desc: "#% More Burn Damage",
-      tags: ["Damage", "Burn", "Elemental", "Ailment"],
-      stats: [{ name: "Damage", valueType: "More", flags: 4 /* Elemental */ | 64 /* Burn */ }]
-    },
-    {
-      desc: "#% More Damage",
-      tags: ["Damage"],
-      stats: [{ name: "Damage", valueType: "More" }]
-    },
-    {
-      desc: "Adds # To # Physical Damage",
-      tags: ["Damage", "Physical"],
-      stats: [
-        { name: "MinDamage", valueType: "Base", flags: 2 /* Physical */ },
-        { name: "MaxDamage", valueType: "Base", flags: 2 /* Physical */ }
-      ]
-    },
-    {
-      desc: "Adds # To # Elemental Damage",
-      tags: ["Damage", "Elemental"],
-      stats: [
-        { name: "MinDamage", valueType: "Base", flags: 4 /* Elemental */ },
-        { name: "MaxDamage", valueType: "Base", flags: 4 /* Elemental */ }
-      ]
-    },
-    {
-      desc: "#% Increased Bleed Damage",
-      tags: ["Damage", "Bleed", "Physical", "Ailment"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 2 /* Physical */ | 32 /* Bleed */ }]
-    },
-    {
-      desc: "#% Increased Burn Damage",
-      tags: ["Damage", "Burn", "Elemental", "Ailment"],
-      stats: [{ name: "Damage", valueType: "Inc", flags: 4 /* Elemental */ | 64 /* Burn */ }]
-    },
-    {
-      desc: "+#% Hit Chance",
-      tags: ["Attack"],
-      stats: [{ name: "HitChance", valueType: "Base" }]
-    },
-    {
-      desc: "#% Increased Attack Speed",
-      tags: ["Attack", "Speed"],
-      stats: [{ name: "AttackSpeed", valueType: "Inc" }]
-    },
-    {
-      desc: "#% More Attack Speed",
-      tags: ["Attack", "Speed"],
-      stats: [{ name: "AttackSpeed", valueType: "More" }]
-    },
-    {
-      desc: "#% Increased Maximum Mana",
-      tags: ["Mana"],
-      stats: [{ name: "MaxMana", valueType: "Inc" }]
-    },
-    {
-      desc: "+# Maximum Mana",
-      tags: ["Mana"],
-      stats: [{ name: "MaxMana", valueType: "Base" }]
-    },
-    {
-      desc: "+# Mana Regeneration",
-      tags: ["Mana"],
-      stats: [{ name: "ManaRegen", valueType: "Base" }]
-    },
-    {
-      desc: "+#% Critical Hit Chance",
-      tags: ["Critical", "Attack"],
-      stats: [{ name: "CritChance", valueType: "Base" }]
-    },
-    {
-      desc: "+#% Critical Hit Multiplier",
-      tags: ["Critical", "Attack"],
-      stats: [{ name: "CritMulti", valueType: "Base" }]
-    },
-    {
-      desc: "+# Gold Generation",
-      tags: ["Gold"],
-      stats: [{ name: "GoldGeneration", valueType: "Base" }]
-    },
-    {
-      desc: "#% Increased Gold Generation",
-      tags: ["Gold"],
-      stats: [{ name: "GoldGeneration", valueType: "Inc" }]
-    },
-    {
-      desc: "#% Increased Skill Duration",
-      tags: ["Skill"],
-      stats: [{ name: "Duration", valueType: "Inc", flags: 16 /* Skill */ }]
-    },
-    {
-      desc: "+#% Chance To Bleed",
-      tags: ["Attack", "Bleed", "Physical", "Ailment"],
-      stats: [{ name: "BleedChance", valueType: "Base", flags: 32 /* Bleed */ }]
-    },
-    {
-      desc: "+#% Chance To Burn",
-      tags: ["Attack", "Burn", "Elemental", "Ailment"],
-      stats: [{ name: "BurnChance", valueType: "Base", flags: 64 /* Burn */ }]
-    },
-    {
-      desc: "+# Bleed Duration",
-      tags: ["Duration", "Bleed", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Base", flags: 32 /* Bleed */ }]
-    },
-    {
-      desc: "#% Increased Bleed Duration",
-      tags: ["Duration", "Bleed", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Inc", flags: 32 /* Bleed */ }]
-    },
-    {
-      desc: "+# Burn Duration",
-      tags: ["Duration", "Burn", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Base", flags: 64 /* Burn */ }]
-    },
-    {
-      desc: "#% Increased Burn Duration",
-      tags: ["Duration", "Burn", "Ailment"],
-      stats: [{ name: "Duration", valueType: "Inc", flags: 64 /* Burn */ }]
-    },
-    {
-      desc: "+# Maximum Bleed Stack",
-      tags: ["Bleed", "Ailment"],
-      stats: [{ name: "AilmentStack", valueType: "Base", flags: 32 /* Bleed */ }]
-    },
-    {
-      desc: "+# Maximum Burn Stack",
-      tags: ["Burn", "Ailment"],
-      stats: [{ name: "AilmentStack", valueType: "Base", flags: 64 /* Burn */ }]
-    }
+    { desc: "#% Increased Physical Damage", tags: ["Damage", "Physical"], stats: [{ name: "Damage", valueType: "Inc", flags: 2 /* Physical */ }] },
+    { desc: "#% Increased Elemental Damage", tags: ["Damage", "Elemental"], stats: [{ name: "Damage", valueType: "Inc", flags: 4 /* Elemental */ }] },
+    { desc: "#% More Physical Damage", tags: ["Damage", "Physical"], stats: [{ name: "Damage", valueType: "More", flags: 2 /* Physical */ }] },
+    { desc: "#% More Elemental Damage", tags: ["Damage", "Elemental"], stats: [{ name: "Damage", valueType: "More", flags: 4 /* Elemental */ }] },
+    { desc: "#% More Bleed Damage", tags: ["Damage", "Bleed", "Physical", "Ailment"], stats: [{ name: "Damage", valueType: "More", flags: 2 /* Physical */ | 32 /* Bleed */ }] },
+    { desc: "#% More Burn Damage", tags: ["Damage", "Burn", "Elemental", "Ailment"], stats: [{ name: "Damage", valueType: "More", flags: 4 /* Elemental */ | 64 /* Burn */ }] },
+    { desc: "#% More Damage", tags: ["Damage"], stats: [{ name: "Damage", valueType: "More" }] },
+    { desc: "Adds # To # Physical Damage", tags: ["Damage", "Physical"], stats: [{ name: "MinDamage", valueType: "Base", flags: 2 /* Physical */ }, { name: "MaxDamage", valueType: "Base", flags: 2 /* Physical */ }] },
+    { desc: "Adds # To # Elemental Damage", tags: ["Damage", "Elemental"], stats: [{ name: "MinDamage", valueType: "Base", flags: 4 /* Elemental */ }, { name: "MaxDamage", valueType: "Base", flags: 4 /* Elemental */ }] },
+    { desc: "#% Increased Bleed Damage", tags: ["Damage", "Bleed", "Physical", "Ailment"], stats: [{ name: "Damage", valueType: "Inc", flags: 2 /* Physical */ | 32 /* Bleed */ }] },
+    { desc: "#% Increased Burn Damage", tags: ["Damage", "Burn", "Elemental", "Ailment"], stats: [{ name: "Damage", valueType: "Inc", flags: 4 /* Elemental */ | 64 /* Burn */ }] },
+    { desc: "#% Increased Attack Speed", tags: ["Attack", "Speed"], stats: [{ name: "AttackSpeed", valueType: "Inc" }] },
+    { desc: "#% Increased Maximum Mana", tags: ["Mana"], stats: [{ name: "MaxMana", valueType: "Inc" }] },
+    { desc: "+# Maximum Mana", tags: ["Mana"], stats: [{ name: "MaxMana", valueType: "Base" }] },
+    { desc: "+# Mana Regeneration", tags: ["Mana"], stats: [{ name: "ManaRegen", valueType: "Base" }] },
+    { desc: "+# Gold Generation", tags: ["Gold", "Global"], stats: [{ name: "GoldGeneration", valueType: "Base", keywords: 1 /* Global */ }] },
+    { desc: "#% Increased Gold Generation", tags: ["Gold", "Global"], stats: [{ name: "GoldGeneration", valueType: "Inc", keywords: 1 /* Global */ }] },
+    { desc: "#% Increased Skill Duration", tags: ["Skill"], stats: [{ name: "Duration", valueType: "Inc", flags: 16 /* Skill */ }] },
+    { desc: "+#% Chance To Bleed", tags: ["Attack", "Bleed", "Physical", "Ailment"], stats: [{ name: "BleedChance", valueType: "Base", flags: 32 /* Bleed */ }] },
+    { desc: "+#% Chance To Burn", tags: ["Attack", "Burn", "Elemental", "Ailment"], stats: [{ name: "BurnChance", valueType: "Base", flags: 64 /* Burn */ }] },
+    { desc: "# Bleed Duration", tags: ["Duration", "Bleed", "Ailment", "Global"], stats: [{ name: "Duration", valueType: "Base", flags: 32 /* Bleed */, keywords: 1 /* Global */ }] },
+    { desc: "# Burn Duration", tags: ["Duration", "Burn", "Ailment"], stats: [{ name: "Duration", valueType: "Base", flags: 64 /* Burn */ }] },
+    { desc: "#% Increased Bleed Duration", tags: ["Duration", "Bleed", "Ailment", "Global"], stats: [{ name: "Duration", valueType: "Inc", flags: 32 /* Bleed */, keywords: 1 /* Global */ }] },
+    { desc: "#% Increased Burn Duration", tags: ["Duration", "Burn", "Ailment", "Global"], stats: [{ name: "Duration", valueType: "Inc", flags: 64 /* Burn */, keywords: 1 /* Global */ }] },
+    { desc: "+# Maximum Bleed Stack", tags: ["Bleed", "Ailment", "Global"], stats: [{ name: "AilmentStack", valueType: "Base", flags: 32 /* Bleed */, keywords: 1 /* Global */ }] },
+    { desc: "+# Maximum Burn Stack", tags: ["Burn", "Ailment", "Global"], stats: [{ name: "AilmentStack", valueType: "Base", flags: 64 /* Burn */, keywords: 1 /* Global */ }] },
+    { desc: "+#% Critical Hit Chance", tags: ["Critical", "Attack"], stats: [{ name: "CritChance", valueType: "Base" }] },
+    { desc: "+#% Critical Hit Multiplier", tags: ["Critical", "Attack"], stats: [{ name: "CritMulti", valueType: "Base" }] },
+    { desc: "#% More Attack Speed", tags: ["Attack", "Speed"], stats: [{ name: "AttackSpeed", valueType: "More" }] },
+    { desc: "+#% Hit Chance", tags: ["Attack"], stats: [{ name: "HitChance", valueType: "Base" }] },
+    { desc: "+# Maximum Minions", tags: ["Minion", "Global"], stats: [{ name: "MinionCount", valueType: "Base", keywords: 1 /* Global */ }] },
+    { desc: "#% Increased Minion Damage", tags: ["Minion", "Damage"], stats: [{ name: "Damage", valueType: "Inc", keywords: 2 /* Minion */ }] },
+    { desc: "#% More Minion Damage", tags: ["Minion", "Damage"], stats: [{ name: "Damage", valueType: "More", keywords: 2 /* Minion */ }] }
   ];
   var Modifier = class {
     constructor(text) {
@@ -9752,7 +9049,15 @@
         const min = parseFloat(v1);
         const max = v2 ? parseFloat(v2) : min;
         const value = min;
-        stats.push(new StatModifier({ name: statTemplate.name, valueType: statTemplate.valueType, value, min, max, flags: statTemplate.flags || 0 }));
+        stats.push(new StatModifier({
+          name: statTemplate.name,
+          valueType: statTemplate.valueType,
+          value,
+          min,
+          max,
+          flags: statTemplate.flags || 0,
+          keywords: statTemplate.keywords
+        }));
       }
       return { template, stats };
     }
@@ -9782,10 +9087,11 @@
       __publicField(this, "name");
       __publicField(this, "valueType");
       __publicField(this, "value");
-      __publicField(this, "flags");
       __publicField(this, "min");
       __publicField(this, "max");
       __publicField(this, "source");
+      __publicField(this, "flags");
+      __publicField(this, "keywords");
       this.name = data.name;
       this.valueType = data.valueType;
       this.value = data.value;
@@ -9793,166 +9099,502 @@
       this.min = data.min || this.value;
       this.max = data.max || this.value || this.min;
       this.source = data.source;
+      this.keywords = data.keywords || 0;
     }
     randomizeValue() {
       this.value = Math.random() * (this.max - this.min) + this.min;
     }
+    copy() {
+      return new StatModifier(this);
+    }
   };
   var ModDB = class {
     constructor() {
-      __publicField(this, "_modList");
-      __publicField(this, "onChange");
+      __publicField(this, "_modList", []);
+      __publicField(this, "onChange", new EventEmitter());
       this._modList = [];
-      this.onChange = new EventEmitter();
     }
     get modList() {
       return this._modList;
     }
-    add(statMods, source) {
-      statMods.forEach((x) => x.source = source);
-      this.modList.push(...statMods);
-      this.onChange.invoke([...this.modList]);
+    add(source, ...statMods) {
+      this.modList.push(...statMods.map((x) => {
+        const copy = x.copy();
+        copy.source = source;
+        Object.freeze(copy);
+        return copy;
+      }));
+      this.onChange.invoke(void 0);
     }
     removeBySource(source) {
       this._modList = this.modList.filter((x) => x.source !== source);
-      this.onChange.invoke([...this.modList]);
+      this.onChange.invoke(void 0);
     }
     clear() {
       this._modList = [];
-      this.onChange.invoke([...this.modList]);
+      this.onChange.removeAllListeners();
     }
   };
 
-  // src/game/calc/calcMod.ts
-  function calcPlayerStats(game) {
-    const player = game.player;
-    const statistics = game.statistics.statistics;
-    const config = {
-      statModList: player.modDB.modList,
-      flags: 0
-    };
-    const hitChance = calcModTotal("HitChance", config) / 100;
-    statistics["Hit Chance"].set(hitChance);
-    const clampedHitChance = clamp(hitChance, 0, 1);
-    const attackSpeed = calcModTotal("AttackSpeed", config);
-    statistics["Attack Speed"].set(attackSpeed);
-    const maxMana = calcModTotal("MaxMana", config);
-    statistics["Maximum Mana"].set(maxMana);
-    const manaRegen = calcModTotal("ManaRegen", config);
-    statistics["Mana Regeneration"].set(manaRegen);
-    const attackManaCost = calcModTotal("AttackManaCost", config);
-    statistics["Attack Mana Cost"].set(attackManaCost);
-    const critChance = calcModTotal("CritChance", config) / 100;
-    statistics["Critical Hit Chance"].set(critChance);
-    const clampedCritChance = clamp(critChance, 0, 1);
-    const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
-    statistics["Critical Hit Multiplier"].set(critMulti);
-    let attackDps = 0;
-    {
-      config.flags = 1 /* Attack */;
-      const baseDamageResult = calcBaseDamage(config, avg);
-      const critDamageMultiplier = 1 + clampedCritChance * critMulti;
-      attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier;
-      statistics["Attack Dps"].set(attackDps);
-      statistics["Average Attack Damage"].set(baseDamageResult.totalBaseDamage);
-      statistics["Average Physical Attack Damage"].set(baseDamageResult.physicalDamage);
-      statistics["Average Elemental Attack Damage"].set(baseDamageResult.elementalDamage);
+  // src/utils/Value.ts
+  var Value = class {
+    constructor(defaultValue) {
+      this.defaultValue = defaultValue;
+      __publicField(this, "value");
+      __publicField(this, "listeners", /* @__PURE__ */ new Map([
+        ["change", new EventEmitter()],
+        ["set", new EventEmitter()],
+        ["add", new EventEmitter()],
+        ["subtract", new EventEmitter()]
+      ]));
+      this.value = defaultValue;
     }
-    let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
-    {
-      config.flags = 2 /* Physical */ | 32 /* Bleed */;
-      bleedChance = calcModTotal("BleedChance", config) / 100;
-      maxBleedStacks = calcModTotal("AilmentStack", config);
-      bleedDuration = calcModTotal("Duration", config);
-      if (bleedChance > 0) {
-        const { min, max } = calcAilmentBaseDamage("Physical", config);
-        const baseDamage = avg(min, max);
-        const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
-        const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
-        bleedDps = baseDamage * maxStacks;
+    set(v) {
+      var _a, _b;
+      this.value = v;
+      (_a = this.listeners.get("set")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    get() {
+      return this.value;
+    }
+    add(v) {
+      var _a, _b;
+      this.value += v;
+      (_a = this.listeners.get("add")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    subtract(v) {
+      var _a, _b;
+      this.value -= v;
+      (_a = this.listeners.get("subtract")) == null ? void 0 : _a.invoke(this.value);
+      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
+    }
+    reset() {
+      this.value = this.defaultValue;
+      this.listeners.forEach((x) => x.removeAllListeners());
+    }
+    addListener(type, callback) {
+      var _a;
+      (_a = this.listeners.get(type)) == null ? void 0 : _a.listen(callback);
+    }
+    removeListener(type, callback) {
+      var _a;
+      (_a = this.listeners.get(type)) == null ? void 0 : _a.removeListener(callback);
+    }
+    registerCallback(targetValue, callback) {
+      if (targetValue <= this.value) {
+        callback(this.value);
+        return;
       }
-      statistics["Bleed Dps"].set(bleedDps);
-      statistics["Bleed Chance"].set(bleedChance);
-      statistics["Maximum Bleed Stacks"].set(maxBleedStacks);
-      statistics["Bleed Duration"].set(bleedDuration);
+      const listener = () => {
+        if (this.value >= targetValue) {
+          callback(this.value);
+          this.removeListener("change", listener);
+        }
+      };
+      this.addListener("change", listener);
     }
-    let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
-    {
-      config.flags = 4 /* Elemental */ | 64 /* Burn */;
-      burnChance = calcModTotal("BurnChance", config) / 100;
-      maxBurnStacks = calcModTotal("AilmentStack", config);
-      burnDuration = calcModTotal("Duration", config);
-      if (burnChance > 0) {
-        const { min, max } = calcAilmentBaseDamage("Elemental", config);
-        const baseDamage = avg(min, max);
-        const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
-        const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
-        burnDps = baseDamage * maxStacks;
+  };
+
+  // src/game/Ailments.ts
+  var isBleedInstance = (instance) => instance.type === "Bleed";
+  var Ailments = class {
+    constructor() {
+      __publicField(this, "tickId");
+      __publicField(this, "sources", /* @__PURE__ */ new Map());
+      __publicField(this, "ailmentListContainer", querySelector(".p-combat [data-ailment-list]"));
+      this.updateInstances = this.updateInstances.bind(this);
+    }
+    init() {
+      this.ailmentListContainer.replaceChildren();
+      Game_default.visiblityObserver.registerLoop(querySelector(".p-game .p-combat"), (visible) => {
+        if (visible) {
+          this.updateElements();
+        }
+      });
+    }
+    addAilments(source, ...ailments) {
+      if (!this.sources.has(source)) {
+        this.sources.set(source, []);
+        source.onStatsUpdate.listen(this.updateInstances);
       }
-      statistics["Burn Dps"].set(burnDps);
-      statistics["Burn Chance"].set(burnChance);
-      statistics["Maximum Burn Stacks"].set(maxBurnStacks);
-      statistics["Burn Duration"].set(burnDuration);
-    }
-    const ailmentDps = bleedDps + burnDps;
-    const dps = attackDps + ailmentDps;
-    statistics["Dps"].set(dps);
-    const skillDurationMultiplier = calcModIncMore("Duration", 1, Object.assign({}, config, { flags: 16 /* Skill */ }));
-    statistics["Skill Duration Multiplier"].set(skillDurationMultiplier);
-    const goldGeneration = calcModTotal("GoldGeneration", config);
-    statistics["Gold Generation"].set(goldGeneration);
-  }
-  function calcModBase(modName, config) {
-    return calcModSum("Base", modName, config);
-  }
-  function calcModInc(modName, config) {
-    return Math.max(0, 1 + calcModSum("Inc", modName, config) / 100);
-  }
-  function calcModMore(modName, config) {
-    return Math.max(0, calcModSum("More", modName, config));
-  }
-  function calcModIncMore(modName, base, config) {
-    if (base <= 0)
-      return 0;
-    const inc = calcModInc(modName, config);
-    const more = calcModMore(modName, config);
-    return base * inc * more;
-  }
-  function calcModTotal(modName, config) {
-    const base = calcModBase(modName, config);
-    if (base === 0) {
-      return 0;
-    }
-    const inc = calcModInc(modName, config);
-    const more = calcModMore(modName, config);
-    return base * inc * more;
-  }
-  function calcModSum(valueType, name2, config) {
-    name2 = Array.isArray(name2) ? name2 : [name2];
-    let result = valueType === "More" ? 1 : 0;
-    const hasFlag = (a, b) => {
-      return (a & b) === b;
-    };
-    const filteredModList = config.statModList.filter((x) => {
-      if (!name2.includes(x.name)) {
-        return false;
+      const instances = this.sources.get(source) || this.sources.set(source, []).get(source);
+      if (!instances) {
+        return;
       }
-      if (x.valueType !== valueType)
-        return false;
-      if (!hasFlag(config.flags, x.flags || 0))
-        return false;
+      for (const ailment of ailments) {
+        const hasAilmentType = [...this.sources.values()].some((x) => x.some((y) => y.type === ailment.type));
+        if (!hasAilmentType) {
+          this.createElement(ailment.type);
+        }
+        instances == null ? void 0 : instances.push(__spreadProps(__spreadValues({}, ailment), { time: ailment.duration }));
+      }
+      this.updateInstances(source);
+      if (!this.tickId) {
+        this.tickId = Game_default.gameLoop.subscribe((dt) => {
+          this.tick(dt);
+        });
+      }
+    }
+    createElement(type) {
+      const li = document.createElement("li");
+      li.setAttribute("data-type", type);
+      li.insertAdjacentHTML("beforeend", `<div data-label>${type} <span data-time></span>s (<span data-count></span>)</div>`);
+      const progressBar = document.createElement("progress");
+      progressBar.max = 1;
+      progressBar.value = 0;
+      li.appendChild(progressBar);
+      this.ailmentListContainer.appendChild(li);
+    }
+    removeElement(type) {
+      var _a;
+      (_a = this.ailmentListContainer.querySelector(`[data-type="${type}"]`)) == null ? void 0 : _a.remove();
+    }
+    updateElements() {
+      const elements = this.ailmentListContainer.querySelectorAll("[data-type]");
+      for (const element of elements) {
+        const timeSpan = element.querySelector("[data-time]");
+        const countSpan = element.querySelector("[data-count]");
+        if (!timeSpan || !countSpan) {
+          return;
+        }
+        const type = element.getAttribute("data-type");
+        const instances = [...this.sources.values()].flatMap((x) => x.filter((x2) => x2.type === type));
+        const maxTime = Math.max(...instances.map((x) => x.time));
+        const count = instances.length;
+        timeSpan.textContent = maxTime.toFixed();
+        countSpan.textContent = count.toFixed();
+        const progressBar = element.querySelector("progress");
+        if (progressBar) {
+          const maxDuration = Math.max(...instances.map((x) => x.duration));
+          const pct = maxTime / maxDuration;
+          progressBar.value = pct;
+        }
+      }
+    }
+    updateInstances(source) {
+      this.updateDuration(source);
+      this.updateDamage(source);
+    }
+    removeAilment(ailment) {
+      var _a;
+      const instances = this.sources.get(ailment.source);
+      if (!instances) {
+        return;
+      }
+      const index = instances.indexOf(ailment);
+      if (index !== -1) {
+        instances.splice(index, 1);
+        if (instances.length === 0) {
+          this.sources.delete(ailment.source);
+        }
+        (_a = ailment.detachCallback) == null ? void 0 : _a.call(ailment, ailment);
+      }
+      if (![...this.sources.values()].some((x) => x.length > 0)) {
+        Game_default.gameLoop.unsubscribe(this.tickId);
+        this.tickId = void 0;
+      }
+      if (instances.length === 0) {
+        ailment.source.onStatsUpdate.removeListener(this.updateInstances);
+      }
+    }
+    updateDuration(source) {
+      const instances = this.sources.get(source);
+      if (!instances) {
+        return;
+      }
+      {
+        const bleedDuration = calcAilmentDuration(source, "Bleed");
+        instances.filter((x) => x.type === "Bleed").forEach((x) => x.duration = bleedDuration);
+      }
+    }
+    updateDamage(source) {
+      const instances = this.sources.get(source);
+      if (!instances) {
+        return;
+      }
+      {
+        const bleedInstances = instances.filter(isBleedInstance);
+        if (bleedInstances) {
+          const { min, max } = calcAilmentDamage(source, "Bleed");
+          const avgDamage = (min + max) / 2;
+          bleedInstances.forEach((x) => x.damage = avgDamage * x.damageFac);
+        }
+      }
+    }
+    tick(dt) {
+      for (const [source, instances] of this.sources) {
+        for (let i = instances.length - 1; i >= 0; i--) {
+          const instance = instances[i];
+          if ("damage" in instance) {
+            if (instance.damage) {
+              const damage = instance.damage * dt;
+              this.dealDamage(source, damage, instance.type);
+              instance.source.stats["Total Physical Damage"].add(damage);
+              instance.source.stats["Total Bleed Damage"].add(damage);
+              instance.source.stats["Total Damage"].add(damage);
+            }
+          }
+          instance.time -= dt;
+          if (instance.time <= 0) {
+            this.removeAilment(instance);
+            if (instances.filter((x) => x.type === instance.type).length === 0) {
+              this.removeElement(instance.type);
+            }
+          }
+        }
+      }
+    }
+    dealDamage(source, damage, type) {
+      Enemy_default.dealDamageOverTime(damage);
+      source.stats[`Total ${type} Damage`].add(damage);
+    }
+  };
+
+  // src/game/Enemy.ts
+  var Enemy = class {
+    constructor() {
+      __publicField(this, "ailments");
+      __publicField(this, "_index");
+      __publicField(this, "healthList", []);
+      __publicField(this, "_health", 0);
+      __publicField(this, "healthBar");
+      this.ailments = new Ailments();
+      this._index = 0;
+      this.healthBar = querySelector("[data-health-bar]");
+    }
+    get index() {
+      return this._index;
+    }
+    get maxIndex() {
+      return this.healthList.length - 1;
+    }
+    get maxHealth() {
+      return this.healthList[this.index] || 1;
+    }
+    get health() {
+      return this._health;
+    }
+    set health(v) {
+      this._health = clamp(v, 0, this.maxHealth);
+    }
+    init() {
+      var _a, _b;
+      Game_default.onSave.listen(this.save.bind(this));
+      Game_default.gameLoop.subscribeAnim(() => {
+        this.updateHealthBar();
+      });
+      Statistics_default.gameStats.Level.addListener("change", (level) => {
+        this._index = clamp(level, 1, this.maxIndex + 1) - 1;
+        this.spawn();
+      });
+      this.healthList = Game_default.config.enemies.enemyList;
+      this._index = ((_b = (_a = Game_default.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.index) || 0;
+      this.ailments.init();
+    }
+    setup() {
+      var _a, _b;
+      this.spawn();
+      this.health = ((_b = (_a = Game_default.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.health) || this.maxHealth;
+      this.updateHealthBar();
+    }
+    setIndex(index) {
+      this._index = index;
+    }
+    spawn() {
+      this.health = this.maxHealth;
+      if (this.index === this.maxIndex + 1) {
+        this.healthBar.textContent = "Dummy (Cannot die)";
+      }
+    }
+    dealDamage(amount) {
+      if (this.index === this.maxIndex + 1) {
+        return;
+      }
+      this.health -= amount;
+      if (this.health <= 0) {
+        this.health = 0;
+        this._index++;
+        Statistics_default.gameStats.Level.add(1);
+      }
+    }
+    dealDamageOverTime(damage) {
+      this.dealDamage(damage);
+    }
+    applyAilments(source, ...instances) {
+      this.ailments.addAilments(source, ...instances);
+    }
+    save(saveObj) {
+      saveObj.enemy = {
+        index: this.index,
+        health: this.health,
+        dummyDamage: 0
+      };
+    }
+    updateHealthBar() {
+      const pct = this.health / this.maxHealth;
+      this.healthBar.value = pct;
+    }
+  };
+  var Enemy_default = new Enemy();
+
+  // src/game/Entity.ts
+  var EntityHandler = class {
+    constructor() {
+      __publicField(this, "onEntityChanged", new EventEmitter());
+      __publicField(this, "_entities", /* @__PURE__ */ new Map());
+    }
+    get entities() {
+      return Object.values(this._entities);
+    }
+    addEntity(entity) {
+      this._entities.set(entity.name, entity);
+      this.onEntityChanged.invoke(entity);
+    }
+    removeEntity(entity) {
+      this._entities.delete(entity.name);
+      this.onEntityChanged.invoke(entity);
+    }
+    has(name) {
+      return this._entities.has(name);
+    }
+    reset() {
+      this._entities.clear();
+      this.onEntityChanged.removeAllListeners();
+    }
+  };
+  var Entity = class {
+    constructor(name) {
+      this.name = name;
+      __publicField(this, "_modDB", new ModDB());
+      __publicField(this, "onStatsUpdate", new EventEmitter());
+      __publicField(this, "attackId");
+      __publicField(this, "_attackTime", 0);
+      __publicField(this, "_attackWaitTime", Number.POSITIVE_INFINITY);
+      __publicField(this, "ailments", []);
+    }
+    get modDB() {
+      return this._modDB;
+    }
+    get attackTime() {
+      return this._attackTime;
+    }
+    get attackWaitTime() {
+      return this._attackWaitTime;
+    }
+    reset() {
+      this._modDB.clear();
+      this.onStatsUpdate.removeAllListeners();
+      Object.values(this.stats).forEach((x) => x.reset());
+    }
+    calcWaitTime() {
+      const time = 1 / this.stats["Attack Speed"].get();
+      if (Number.isNaN(time)) {
+        return Number.POSITIVE_INFINITY;
+      }
+      return time;
+    }
+    loadStats(savedStats) {
+      if (savedStats) {
+        Object.entries(savedStats).forEach(([key, value]) => {
+          const stat = this.stats[key];
+          if (stat) {
+            stat.set(value.value || stat.defaultValue);
+            stat.sticky = value.sticky || false;
+          }
+        });
+      }
+    }
+    beginAutoAttack() {
+      this.stats["Attack Speed"].addListener("change", () => {
+        this._attackWaitTime = this.calcWaitTime();
+      });
+      this._attackWaitTime = this.calcWaitTime();
+      this.attackId = Game_default.gameLoop.subscribe((dt) => {
+        this._attackTime += dt;
+        if (this._attackTime >= this._attackWaitTime) {
+          if (this.canAttack) {
+            this.performAttack();
+            this._attackTime = 0;
+          }
+        }
+      });
+    }
+    performAttack() {
+      const result = calcAttack(this);
+      if (!result) {
+        return;
+      }
+      this.stats.Hits.add(1);
+      this.stats["Total Damage"].add(result.totalDamage);
+      this.stats["Total Physical Damage"].add(result.totalPhysicalDamage);
+      this.stats["Total Elemental Damage"].add(result.totalElementalDamage);
+      if (result.crit) {
+        this.stats["Critical Hits"].add(1);
+      }
+      Enemy_default.dealDamage(result.totalDamage);
+      if (result.ailments.length > 0) {
+        for (const ailment of result.ailments) {
+          ailment.detachCallback = () => {
+            const index = this.ailments.indexOf(ailment);
+            if (index !== -1) {
+              this.ailments.splice(index, 1);
+            }
+          };
+        }
+        this.ailments.push(...result.ailments);
+        Enemy_default.applyAilments(this, ...result.ailments);
+      }
+    }
+    stopAttacking() {
+      Game_default.gameLoop.unsubscribe(this.attackId);
+    }
+  };
+  var PlayerEntity = class extends Entity {
+    constructor() {
+      super("Player");
+      __publicField(this, "stats", new PlayerStatistics().stats);
+      __publicField(this, "updateId", -1);
+    }
+    get canAttack() {
+      return this.stats["Current Mana"].get() >= this.stats["Attack Mana Cost"].get();
+    }
+    init() {
+      this.modDB.onChange.listen(async () => {
+        return new Promise((resolve) => {
+          clearTimeout(this.updateId);
+          this.updateId = window.setTimeout(async () => {
+            this.updateStats();
+            resolve();
+          }, 1);
+        });
+      });
+    }
+    performAttack() {
+      const manaCost = this.stats["Attack Mana Cost"].get();
+      this.stats["Current Mana"].subtract(manaCost);
+      super.performAttack();
+    }
+    updateStats() {
+      calcPlayerStats(this);
+      this.onStatsUpdate.invoke(this);
+      clearTimeout(this.updateId);
+    }
+  };
+  var MinionEntity = class extends Entity {
+    constructor(name) {
+      super(name);
+      __publicField(this, "stats", new MinionStatistics().stats);
+    }
+    get canAttack() {
       return true;
-    });
-    for (const mod of filteredModList) {
-      let value = mod.value;
-      if (valueType === "More") {
-        result *= 1 + value / 100;
-      } else {
-        result += value;
-      }
     }
-    return Math.max(0, result);
-  }
+    updateStats() {
+      calcMinionStats(this);
+      this.onStatsUpdate.invoke(this);
+    }
+  };
 
   // src/game/calc/calcDamage.ts
   var DamageTypeFlags = {
@@ -9975,19 +9617,23 @@
     }
     return names;
   })();
-  function calcAttack(statModList) {
+  function calcAttack(source) {
     const config = {
-      statModList,
-      flags: 1 /* Attack */
+      statModList: [...source.modDB.modList],
+      source,
+      flags: 1 /* Attack */,
+      keywords: 1 /* Global */
     };
+    if (source instanceof MinionEntity) {
+      config.keywords |= 2 /* Minion */;
+    }
     const hitChance = calcModTotal("HitChance", config) / 100;
     const hitFac = randomRange(0, 1);
     const hit = hitChance >= hitFac;
     if (!hit) {
       return false;
     }
-    config.flags = 1 /* Attack */;
-    const baseDamage = calcBaseDamage(config, randomRange);
+    const baseDamage = calcBaseAttackDamage(config, randomRange);
     const critChance = Math.min(calcModTotal("CritChance", config), 100) / 100;
     const critFac = randomRange(0, 1);
     const crit = critChance >= critFac;
@@ -10001,18 +9647,14 @@
     const totalElementalDamage = baseDamage.elementalDamage * finalMultiplier;
     const ailments = [];
     {
-      config.flags = 96 /* Ailment */ | 32 /* Bleed */ | 2 /* Physical */;
+      config.flags |= 32 /* Bleed */ | 2 /* Physical */;
       const bleedChance = calcModTotal("BleedChance", config) / 100;
       if (bleedChance >= randomRange(0, 1)) {
         const damageFac = randomRange(0, 1);
-        ailments.push({ damageFac, type: "Bleed" });
+        const duration = calcModTotal("Duration", config);
+        ailments.push({ damageFac, type: "Bleed", source, duration });
       }
-      config.flags = 96 /* Ailment */ | 64 /* Burn */ | 4 /* Elemental */;
-      const burnChance = calcModTotal("BurnChance", config) / 100;
-      if (burnChance >= randomRange(0, 1)) {
-        const damageFac = randomRange(0, 1);
-        ailments.push({ damageFac, type: "Burn" });
-      }
+      config.flags &= ~(32 /* Bleed */ | 2 /* Physical */);
     }
     return {
       hit,
@@ -10023,7 +9665,7 @@
       ailments
     };
   }
-  function calcBaseDamage(config, calcMinMax) {
+  function calcBaseAttackDamage(config, calcMinMax) {
     const conversionTable = generateConversionTable(config);
     const output = {
       totalBaseDamage: 0,
@@ -10040,7 +9682,7 @@
     let totalBaseDamage = 0;
     const baseDamageMultiplier = calcModBase("BaseDamageMultiplier", config) / 100;
     for (const damageType of Object.keys(DamageTypeFlags)) {
-      const bit = StatModifierFlags[damageType];
+      const bit = StatModifierFlag[damageType];
       config.flags |= bit;
       let { min, max } = calcDamage(damageType, config, conversionTable);
       min *= baseDamageMultiplier;
@@ -10054,6 +9696,36 @@
     }
     output.totalBaseDamage = totalBaseDamage;
     return output;
+  }
+  function calcAilmentDamage(source, type) {
+    const config = {
+      statModList: [...source.modDB.modList],
+      source,
+      flags: 0,
+      keywords: 1 /* Global */
+    };
+    if (source instanceof MinionEntity) {
+      config.keywords |= 2 /* Minion */;
+    }
+    if (type === "Bleed") {
+      config.flags = 32 /* Bleed */ | 2 /* Physical */;
+      const { min, max } = calcAilmentBaseDamage("Physical", config);
+      return { min, max };
+    }
+    throw Error();
+  }
+  function calcAilmentDuration(source, type) {
+    const config = {
+      statModList: [...source.modDB.modList],
+      source,
+      flags: 0,
+      keywords: 1 /* Global */
+    };
+    if (type === "Bleed") {
+      config.flags |= 32 /* Bleed */;
+      return calcModTotal("Duration", config);
+    }
+    return 0;
   }
   function calcDamage(damageType, config, conversionTable, damageFlag = 0) {
     damageFlag |= DamageTypeFlags[damageType];
@@ -10120,471 +9792,548 @@
       conversionValues.multi = 1 - Math.min((globalTotal + skillTotal) / 100, 1);
       conversionTable[damageType] = conversionValues;
     }
-    conversionTable["Chaos"] = { multi: 1 };
+    conversionTable.Chaos = { multi: 1 };
     return conversionTable;
   }
 
-  // src/game/Player.ts
-  var Player = class {
-    constructor(game) {
-      this.game = game;
-      __publicField(this, "manaBar");
-      __publicField(this, "modDB", new ModDB());
-      __publicField(this, "_attackProgressPct", 0);
-      this.manaBar = querySelector("[data-mana-bar]", this.game.page);
+  // src/game/calc/calcMod.ts
+  function calculateEntityStats(config) {
+    const statistics = config.source.stats;
+    const hitChance = calcModTotal("HitChance", config) / 100;
+    statistics["Hit Chance"].set(hitChance);
+    const clampedHitChance = clamp(hitChance, 0, 1);
+    const attackSpeed = calcModTotal("AttackSpeed", config);
+    statistics["Attack Speed"].set(attackSpeed);
+    const critChance = calcModTotal("CritChance", config) / 100;
+    statistics["Critical Hit Chance"].set(critChance);
+    const clampedCritChance = clamp(critChance, 0, 1);
+    const critMulti = Math.max(calcModTotal("CritMulti", config), 100) / 100;
+    statistics["Critical Hit Multiplier"].set(critMulti);
+    let attackDps = 0;
+    {
+      config.flags = 1 /* Attack */;
+      const baseDamageResult = calcBaseAttackDamage(config, avg);
+      const critDamageMultiplier = 1 + clampedCritChance * critMulti;
+      attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier;
+      statistics["Attack Dps"].set(attackDps);
+      statistics["Attack Damage"].set(baseDamageResult.totalBaseDamage);
+      statistics["Physical Attack Damage"].set(baseDamageResult.physicalDamage);
+      statistics["Elemental Attack Damage"].set(baseDamageResult.elementalDamage);
     }
-    get attackProgressPct() {
-      return this._attackProgressPct;
-    }
-    init() {
-      var _a, _b;
-      this.game.onSave.listen(this.save.bind(this));
-      if (this.game.config.player) {
-        this.game.config.player.modList.forEach((x) => {
-          this.modDB.add(new Modifier(x).stats, "Player");
-        });
+    let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
+    {
+      config.flags = 2 /* Physical */ | 32 /* Bleed */;
+      bleedChance = calcModTotal("BleedChance", config) / 100;
+      maxBleedStacks = calcModTotal("AilmentStack", config);
+      bleedDuration = calcModTotal("Duration", config);
+      if (bleedChance > 0) {
+        const { min, max } = calcAilmentBaseDamage("Physical", config);
+        const baseDamage = avg(min, max);
+        const stacksPerSecond = clampedHitChance * bleedChance * attackSpeed;
+        const maxStacks = Math.min(stacksPerSecond * bleedDuration, maxBleedStacks);
+        bleedDps = baseDamage * maxStacks;
       }
-      this.game.gameLoop.subscribeAnim(() => {
-        this.updateManaBar();
-      });
-      this.game.statistics.statistics["Current Mana"].addListener("change", (curMana) => {
-        const maxMana = this.game.statistics.statistics["Maximum Mana"].get();
-        if (curMana > maxMana) {
-          this.game.statistics.statistics["Current Mana"].set(maxMana);
-        }
-      });
-      this.game.gameLoop.subscribe(() => {
-        const amount = this.game.statistics.statistics["Gold Generation"].get();
-        this.game.statistics.statistics.Gold.add(amount);
-        this.game.statistics.statistics["Gold Generated"].add(amount);
-      }, { intervalMilliseconds: 1e3 });
-      this.game.gameLoop.subscribe((dt) => {
-        const manaRegen = this.game.statistics.statistics["Mana Regeneration"].get() * dt;
-        this.game.statistics.statistics["Current Mana"].add(manaRegen);
-        this.game.statistics.statistics["Mana Generated"].add(manaRegen);
-      });
-      this._attackProgressPct = ((_b = (_a = this.game.saveObj) == null ? void 0 : _a.player) == null ? void 0 : _b.attackTimePct) || 0;
+      statistics["Bleed Dps"].set(bleedDps);
+      statistics["Bleed Chance"].set(bleedChance);
+      statistics["Maximum Bleed Stacks"].set(maxBleedStacks);
+      statistics["Bleed Duration"].set(bleedDuration);
+    }
+    let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
+    {
+      config.flags = 4 /* Elemental */ | 64 /* Burn */;
+      burnChance = calcModTotal("BurnChance", config) / 100;
+      maxBurnStacks = calcModTotal("AilmentStack", config);
+      burnDuration = calcModTotal("Duration", config);
+      if (burnChance > 0) {
+        const { min, max } = calcAilmentBaseDamage("Elemental", config);
+        const baseDamage = avg(min, max);
+        const stacksPerSecond = clampedHitChance * burnChance * attackSpeed;
+        const maxStacks = Math.min(stacksPerSecond * burnDuration, maxBurnStacks);
+        burnDps = baseDamage * maxStacks;
+      }
+      statistics["Burn Dps"].set(burnDps);
+      statistics["Burn Chance"].set(burnChance);
+      statistics["Maximum Burn Stacks"].set(maxBurnStacks);
+      statistics["Burn Duration"].set(burnDuration);
+    }
+    const ailmentDps = bleedDps + burnDps;
+    const dps = attackDps + ailmentDps;
+    statistics.Dps.set(dps);
+  }
+  function calcPlayerStats(player) {
+    const statistics = player.stats;
+    const config = {
+      statModList: Player_default.modDB.modList,
+      flags: 0,
+      source: player,
+      keywords: 1 /* Global */
+    };
+    const maxMana = calcModTotal("MaxMana", config);
+    statistics["Maximum Mana"].set(maxMana);
+    const manaRegen = calcModTotal("ManaRegen", config);
+    statistics["Mana Regeneration"].set(manaRegen);
+    const attackManaCost = calcModTotal("AttackManaCost", config);
+    statistics["Attack Mana Cost"].set(attackManaCost);
+    calculateEntityStats(config);
+    config.flags |= 16 /* Skill */;
+    const skillDurationMultiplier = calcModIncMore("Duration", 1, config);
+    config.flags &= ~16 /* Skill */;
+    statistics["Skill Duration Multiplier"].set(skillDurationMultiplier);
+    const maxMinions = calcModBase("MinionCount", config);
+    statistics["Maximum Minions"].set(maxMinions);
+  }
+  function calcMinionStats(minion) {
+    const config = {
+      statModList: minion.modDB.modList,
+      flags: 0,
+      source: minion,
+      keywords: 1 /* Global */ | 2 /* Minion */
+    };
+    calculateEntityStats(config);
+  }
+  function calcModBase(modName, config) {
+    return calcModSum("Base", modName, config);
+  }
+  function calcModInc(modName, config) {
+    return Math.max(0, 1 + calcModSum("Inc", modName, config) / 100);
+  }
+  function calcModMore(modName, config) {
+    return Math.max(0, calcModSum("More", modName, config));
+  }
+  function calcModIncMore(modName, base, config) {
+    if (base <= 0)
+      return 0;
+    const inc = calcModInc(modName, config);
+    const more = calcModMore(modName, config);
+    return base * inc * more;
+  }
+  function calcModTotal(modName, config) {
+    const base = calcModBase(modName, config);
+    if (base === 0) {
+      return 0;
+    }
+    const inc = calcModInc(modName, config);
+    const more = calcModMore(modName, config);
+    return base * inc * more;
+  }
+  function calcModSum(valueType, name, config) {
+    name = Array.isArray(name) ? name : [name];
+    let result = valueType === "More" ? 1 : 0;
+    const filteredModList = config.statModList.filter((x) => {
+      if (!name.includes(x.name)) {
+        return false;
+      }
+      if (x.valueType !== valueType)
+        return false;
+      if (!hasFlags(config.keywords, x.keywords)) {
+        return false;
+      }
+      if (!hasFlags(config.flags, x.flags || 0))
+        return false;
+      return true;
+    });
+    for (const mod of filteredModList) {
+      const value = mod.value;
+      if (valueType === "More") {
+        result *= 1 + value / 100;
+      } else {
+        result += value;
+      }
+    }
+    return Math.max(0, result);
+  }
+
+  // src/game/Statistics.ts
+  var Statistic2 = class extends Value {
+    constructor(opts = {}) {
+      super((opts == null ? void 0 : opts.defaultValue) || 0);
+      this.opts = opts;
+      __publicField(this, "sticky");
+      this.sticky = opts.sticky || false;
     }
     reset() {
-      this.modDB.clear();
+      super.reset();
+      this.sticky = this.opts.sticky || false;
+    }
+  };
+  var GameStatistics = class {
+    constructor() {
+      __publicField(this, "stats", {
+        "Time Played": new Statistic2({ format: "time" }),
+        "Level": new Statistic2({ sticky: true }),
+        "Gold": new Statistic2({ sticky: true, formatColor: "gold" }),
+        "Gold Generation": new Statistic2({ sticky: true, format: "seconds" }),
+        "Gold Generated": new Statistic2()
+      });
+    }
+  };
+  var EntityStatistics2 = class {
+    constructor() {
+      __publicField(this, "stats", {
+        "Dps": new Statistic2({ sticky: true }),
+        "Hit Chance": new Statistic2({ sticky: true, format: "pct" }),
+        "Attack Speed": new Statistic2({ sticky: true, decimals: 2 }),
+        "Attack Dps": new Statistic2(),
+        "Attack Damage": new Statistic2(),
+        "Physical Attack Damage": new Statistic2(),
+        "Elemental Attack Damage": new Statistic2(),
+        "Critical Hit Chance": new Statistic2({ format: "pct" }),
+        "Critical Hit Multiplier": new Statistic2({ defaultValue: 1, format: "pct" }),
+        "Bleed Chance": new Statistic2({ format: "pct" }),
+        "Bleed Dps": new Statistic2(),
+        "Bleed Duration": new Statistic2({ format: "seconds" }),
+        "Maximum Bleed Stacks": new Statistic2(),
+        "Burn Chance": new Statistic2({ format: "pct" }),
+        "Burn Dps": new Statistic2(),
+        "Burn Duration": new Statistic2({ format: "seconds" }),
+        "Maximum Burn Stacks": new Statistic2(),
+        "Hits": new Statistic2(),
+        "Critical Hits": new Statistic2(),
+        "Total Damage": new Statistic2(),
+        "Total Physical Damage": new Statistic2(),
+        "Total Elemental Damage": new Statistic2(),
+        "Total Bleed Damage": new Statistic2(),
+        "Total Burn Damage": new Statistic2()
+      });
+    }
+  };
+  var PlayerStatistics = class {
+    constructor() {
+      __publicField(this, "stats", __spreadProps(__spreadValues({}, new EntityStatistics2().stats), {
+        "Current Mana": new Statistic2(),
+        "Maximum Mana": new Statistic2(),
+        "Mana Regeneration": new Statistic2(),
+        "Attack Mana Cost": new Statistic2(),
+        "Skill Duration Multiplier": new Statistic2({ format: "pct" }),
+        "Mana Generated": new Statistic2(),
+        "Maximum Minions": new Statistic2()
+      }));
+    }
+  };
+  var MinionStatistics = class {
+    constructor() {
+      __publicField(this, "stats", __spreadValues({}, new EntityStatistics2().stats));
+    }
+  };
+  var Statistics = class {
+    constructor() {
+      __publicField(this, "page", querySelector(".p-game .p-statistics"));
+      __publicField(this, "pageListContainer");
+      __publicField(this, "sideListContainer");
+      __publicField(this, "gameStats", new GameStatistics().stats);
+      __publicField(this, "statisticsGroups", /* @__PURE__ */ new Map());
+      __publicField(this, "updateStatsCallback", (x) => this.updateGroup(x.name, x.stats));
+      this.pageListContainer = this.page.querySelectorForce("ul");
+      this.sideListContainer = querySelector(".p-game .s-stats ul");
+    }
+    init() {
+      var _a, _b, _c, _d;
+      Game_default.onSave.listen(this.save.bind(this));
+      this.gameStats.Level.set(1);
+      if ((_b = (_a = Game_default.saveObj) == null ? void 0 : _a.statistics) == null ? void 0 : _b.gameStatistics) {
+        Object.entries((_d = (_c = Game_default.saveObj) == null ? void 0 : _c.statistics) == null ? void 0 : _d.gameStatistics).forEach(([key, value]) => {
+          const stat = this.gameStats[key];
+          if (stat) {
+            stat.set((value == null ? void 0 : value.value) || stat.defaultValue);
+            stat.sticky = (value == null ? void 0 : value.sticky) || false;
+          }
+        });
+      }
+      Game_default.visiblityObserver.register(this.page, (visible) => {
+        if (visible) {
+          for (const key of this.statisticsGroups.keys()) {
+            this.updatePageGroup(key);
+          }
+        }
+      });
+      Player_default.onStatsUpdate.listen(() => {
+        this.calcGlobalStats();
+        this.updateGroup("Global", this.gameStats);
+      });
+      Game_default.entityHandler.onEntityChanged.listen((x) => {
+        if (Game_default.entityHandler.has(x.name)) {
+          x.onStatsUpdate.listen(this.updateStatsCallback);
+          this.createGroup(x.name, x.stats);
+        } else {
+          x.onStatsUpdate.removeListener(this.updateStatsCallback);
+          this.removeGroup(x.name);
+        }
+      });
+      this.createGroup("Global", this.gameStats);
+    }
+    updateAll() {
+      this.updateGroup("Global", this.gameStats);
+      Game_default.entityHandler.entities.forEach((x) => {
+        this.updateGroup(x.name, x.stats);
+      });
+    }
+    createGroup(name, stats) {
+      var _a, _b, _c, _d, _e, _f, _g;
+      if (this.statisticsGroups.has(name)) {
+        return;
+      }
+      const pageGroup = this.createPageListGroup(name, stats);
+      const sideGroup = this.createSideListGroup(name, stats);
+      if (!pageGroup || !sideGroup) {
+        throw Error();
+      }
+      pageGroup.classList.remove("hidden");
+      sideGroup.classList.remove("hidden");
+      if ((_a = Game_default.saveObj) == null ? void 0 : _a.statistics) {
+        (_d = this.pageListContainer.querySelector(`[data-name="${name}"] .header`)) == null ? void 0 : _d.toggleAttribute("data-open", (_c = (_b = Game_default.saveObj.statistics.groups) == null ? void 0 : _b[name]) == null ? void 0 : _c.pageHeader);
+        (_g = this.sideListContainer.querySelector(`[data-name="${name}"] .header`)) == null ? void 0 : _g.toggleAttribute("data-open", (_f = (_e = Game_default.saveObj.statistics.groups) == null ? void 0 : _e[name]) == null ? void 0 : _f.sideHeader);
+      }
+      this.statisticsGroups.set(name, { pageGroup, sideGroup, stats });
+      this.updateGroup(name, stats);
+    }
+    updateGroup(name, stats) {
+      if (!this.statisticsGroups.has(name)) {
+        const pageGroup = this.pageListContainer.querySelector(`[data-name="${name}"]`);
+        const sideGroup = this.sideListContainer.querySelector(`[data-name="${name}"]`);
+        if (!pageGroup || !sideGroup) {
+          this.createGroup(name, stats);
+          return;
+        }
+        this.statisticsGroups.set(name, { pageGroup, sideGroup, stats });
+      }
+      if (!this.page.classList.contains("hidden")) {
+        this.updatePageGroup(name);
+      }
+      this.updateSideGroup(name);
+    }
+    removeGroup(name) {
+      const group = this.statisticsGroups.get(name);
+      group == null ? void 0 : group.pageGroup.classList.add("hidden");
+      group == null ? void 0 : group.sideGroup.classList.add("hidden");
+      this.statisticsGroups.delete(name);
+    }
+    calcGlobalStats() {
+      const config = {
+        statModList: Player_default.modDB.modList.filter((x) => x.keywords === 1 /* Global */),
+        flags: 0,
+        keywords: 1 /* Global */
+      };
+      const v = calcModTotal("GoldGeneration", config);
+      this.gameStats["Gold Generation"].set(v);
+    }
+    reset() {
+      Object.values(this.gameStats).forEach((x) => x.reset());
+      this.statisticsGroups.clear();
+      this.pageListContainer.replaceChildren();
+      this.sideListContainer.replaceChildren();
+    }
+    createPageListGroup(label, stats) {
+      const group = this.createAccordion(label, stats) || null;
+      if (group) {
+        this.pageListContainer.appendChild(group);
+      }
+      group == null ? void 0 : group.querySelectorAll(`[data-stat]`).forEach((element) => {
+        const statName = element.getAttribute("data-stat");
+        const stat = stats[statName];
+        if (!stat) {
+          return;
+        }
+        element.classList.toggle("selected", stat.sticky);
+        element.addEventListener("click", () => {
+          var _a;
+          if (!stat) {
+            return;
+          }
+          stat.sticky = !stat.sticky;
+          element.classList.toggle("selected", stat.sticky);
+          const stats2 = (_a = this.statisticsGroups.get(label)) == null ? void 0 : _a.stats;
+          if (stats2)
+            this.updateGroup(label, stats2);
+        });
+      });
+      return group;
+    }
+    createSideListGroup(label, stats) {
+      const group = this.createAccordion(label, stats) || null;
+      if (group) {
+        this.sideListContainer.appendChild(group);
+      }
+      return group;
+    }
+    createAccordion(label, stats) {
+      const accordion = document.createElement("li");
+      accordion.classList.add("g-accordion");
+      accordion.setAttribute("data-name", label);
+      const header = document.createElement("div");
+      accordion.appendChild(header);
+      header.classList.add("header");
+      header.insertAdjacentHTML("beforeend", `<div data-label>${label}</div>`);
+      const content = document.createElement("ul");
+      accordion.appendChild(content);
+      content.classList.add("content");
+      for (const [key, value] of Object.entries(stats)) {
+        const element = document.createElement("li");
+        element.classList.add("g-field", "g-list-item");
+        element.setAttribute("data-stat", key);
+        element.insertAdjacentHTML("beforeend", `<div>${key}</div>`);
+        element.insertAdjacentHTML("beforeend", `<var data-format="${value.opts.format}"></var>`);
+        if (value.opts.formatColor) {
+          element.querySelectorForce("var").setAttribute("data-tag", value.opts.formatColor || "");
+        }
+        switch (value.opts.format) {
+          case "pct":
+            element.insertAdjacentHTML("beforeend", "%");
+            break;
+          case "seconds":
+            element.insertAdjacentHTML("beforeend", "s");
+            break;
+        }
+        content.appendChild(element);
+      }
+      header.insertAdjacentHTML("beforeend", `<i></i>`);
+      header.addEventListener("click", () => {
+        header.toggleAttribute("data-open");
+        const group = this.statisticsGroups.get(label);
+        if (group) {
+          this.updatePageGroup(label);
+          this.updateSideGroup(label);
+        }
+      });
+      header.click();
+      return accordion;
+    }
+    updatePageGroup(name) {
+      if (this.page.classList.contains("hidden")) {
+        return;
+      }
+      const group = this.statisticsGroups.get(name);
+      if (!group) {
+        return;
+      }
+      for (const [key, stat] of Object.entries(group.stats)) {
+        const element = group.pageGroup.querySelector(`[data-stat="${key}"]`);
+        const varElement = element == null ? void 0 : element.querySelector("var");
+        if (!element || !varElement) {
+          return;
+        }
+        element.classList.toggle("suppressed", stat.get() === stat.defaultValue);
+        varElement.textContent = this.formatVariableText(stat);
+      }
+    }
+    updateSideGroup(name) {
+      const group = this.statisticsGroups.get(name);
+      if (!group) {
+        return;
+      }
+      for (const [key, stat] of Object.entries(group.stats)) {
+        const element = group.sideGroup.querySelector(`[data-stat="${key}"]`);
+        const varElement = element == null ? void 0 : element.querySelector("var");
+        if (!element || !varElement) {
+          return;
+        }
+        element.classList.toggle("hidden", !stat.sticky);
+        varElement.textContent = this.formatVariableText(stat);
+      }
+    }
+    formatVariableText(statistic) {
+      const value = statistic.get();
+      const { format, decimals } = statistic.opts;
+      let text = value.toFixed(decimals);
+      switch (format) {
+        case "time":
+          {
+            const date = new Date(0);
+            date.setSeconds(value);
+            text = date.toISOString().substring(11, 19);
+          }
+          break;
+        case "pct":
+          text = (value * 100).toFixed(decimals);
+          break;
+      }
+      return text;
+    }
+    save(saveObj) {
+      saveObj.statistics = {
+        gameStatistics: this.createStatsSaveObj(this.gameStats),
+        groups: [...this.statisticsGroups.entries()].reduce((a, [key, group]) => {
+          a[key] = {
+            pageHeader: group.pageGroup.querySelector(".header[data-open]") !== null,
+            sideHeader: group.sideGroup.querySelector(".header[data-open]") !== null
+          };
+          return a;
+        }, {})
+      };
+    }
+    createStatsSaveObj(stats) {
+      return Object.entries(stats).reduce((a, [key, value]) => {
+        a[key] = { value: value.get(), sticky: value.sticky };
+        return a;
+      }, {});
+    }
+  };
+  var Statistics_default = new Statistics();
+
+  // src/game/Player.ts
+  var Player = class extends PlayerEntity {
+    constructor() {
+      super();
+      __publicField(this, "manaBar", querySelector(".p-game [data-mana-bar]"));
+    }
+    init() {
+      var _a, _b, _c, _d;
+      super.init();
+      Game_default.onSave.listen(this.save.bind(this));
+      this.loadStats((_b = (_a = Game_default.saveObj) == null ? void 0 : _a.player) == null ? void 0 : _b.stats);
+      if (Game_default.config.player) {
+        Game_default.config.player.modList.forEach((x) => {
+          this.modDB.add("Player", ...new Modifier(x).stats);
+        });
+      }
+      Game_default.gameLoop.subscribeAnim(() => {
+        this.updateManaBar();
+      });
+      this.stats["Current Mana"].addListener("change", (curMana) => {
+        const maxMana = this.stats["Maximum Mana"].get();
+        if (curMana > maxMana) {
+          this.stats["Current Mana"].set(maxMana);
+        }
+      });
+      Game_default.gameLoop.subscribe((dt) => {
+        const manaRegen = this.stats["Mana Regeneration"].get() * dt;
+        this.stats["Current Mana"].add(manaRegen);
+        this.stats["Mana Generated"].add(manaRegen);
+      });
+      this._attackTime = ((_d = (_c = Game_default.saveObj) == null ? void 0 : _c.player) == null ? void 0 : _d.attackTime) || 0;
+      Game_default.entityHandler.addEntity(this);
+      this.updateStats();
+    }
+    get attackTime() {
+      return this._attackTime;
+    }
+    get attackWaitTime() {
+      return this._attackWaitTime;
+    }
+    reset() {
+      super.reset();
     }
     async setup() {
       var _a, _b;
-      this.game.statistics.statistics["Current Mana"].set(((_b = (_a = this.game.saveObj) == null ? void 0 : _a.player) == null ? void 0 : _b.curMana) || this.game.statistics.statistics["Maximum Mana"].get());
+      this.updateStats();
+      this.stats["Current Mana"].set(((_b = (_a = Game_default.saveObj) == null ? void 0 : _a.player) == null ? void 0 : _b.curMana) || this.stats["Maximum Mana"].get());
       this.updateManaBar();
-      this.startAutoAttack();
+      this.beginAutoAttack();
     }
     updateManaBar() {
-      if (this.game.statistics.statistics["Maximum Mana"].get() <= 0) {
+      if (this.stats["Maximum Mana"].get() <= 0) {
         return;
       }
-      const pct = this.game.statistics.statistics["Current Mana"].get() / this.game.statistics.statistics["Maximum Mana"].get();
+      const pct = this.stats["Current Mana"].get() / this.stats["Maximum Mana"].get();
       this.manaBar.value = pct;
-    }
-    startAutoAttack() {
-      const calcWaitTime = () => 1 / this.game.statistics.statistics["Attack Speed"].get();
-      this.game.statistics.statistics["Attack Speed"].addListener("change", () => {
-        waitTimeSeconds = calcWaitTime();
-        time = waitTimeSeconds * this._attackProgressPct;
-      });
-      let waitTimeSeconds = calcWaitTime();
-      let time = 0;
-      this.game.gameLoop.subscribe((dt) => {
-        this._attackProgressPct = Math.min(invLerp(0, waitTimeSeconds, time), 1);
-        time += dt;
-        if (time >= waitTimeSeconds) {
-          const curMana = this.game.statistics.statistics["Current Mana"].get();
-          const manaCost = this.game.statistics.statistics["Attack Mana Cost"].get();
-          if (curMana > manaCost) {
-            this.game.statistics.statistics["Current Mana"].subtract(manaCost);
-            this.performAttack();
-            waitTimeSeconds = calcWaitTime();
-            time = 0;
-          }
-        }
-      });
-    }
-    performAttack() {
-      const result = calcAttack(this.modDB.modList);
-      if (!result) {
-        return;
-      }
-      this.game.statistics.statistics.Hits.add(1);
-      this.game.statistics.statistics["Total Damage"].add(result.totalDamage);
-      this.game.statistics.statistics["Total Physical Damage"].add(result.totalPhysicalDamage);
-      this.game.statistics.statistics["Total Elemental Damage"].add(result.totalElementalDamage);
-      if (result.crit) {
-        this.game.statistics.statistics["Critical Hits"].add(1);
-      }
-      this.game.enemy.dealDamage(result.totalDamage);
-      this.game.enemy.applyAilments(result.ailments);
     }
     save(saveObj) {
       saveObj.player = {
-        level: this.game.statistics.statistics.Level.get(),
-        gold: this.game.statistics.statistics.Gold.get(),
-        curMana: this.game.statistics.statistics["Current Mana"].get(),
-        attackTimePct: this.attackProgressPct
+        attackTime: this._attackTime,
+        stats: Statistics_default.createStatsSaveObj(this.stats)
       };
     }
   };
-
-  // src/game/Ailments.ts
-  var AilmentHandler = class {
-    constructor(game, type) {
-      this.game = game;
-      this.type = type;
-      __publicField(this, "instances", []);
-      __publicField(this, "loopId");
-      __publicField(this, "ailmentsListContainer");
-      __publicField(this, "element");
-      __publicField(this, "progressBar");
-      __publicField(this, "timeSpan");
-      __publicField(this, "countSpan");
-      __publicField(this, "time", 0);
-      __publicField(this, "duration", 0);
-      __publicField(this, "maxNumActiveInstances", 0);
-      this.ailmentsListContainer = querySelector(".p-combat [data-ailment-list]", game.page);
-    }
-    get numActiveInstances() {
-      return Math.min(this.instances.length, this.maxNumActiveInstances);
-    }
-    setup() {
-      this.removeElement();
-      this.instances.splice(0);
-    }
-    updateDamage() {
-    }
-    addAilment(ailment) {
-      if (this.instances.length === 0) {
-        this.loopId = this.game.player.game.gameLoop.subscribe((dt) => {
-          this.tick(dt);
-        });
-        this.createElement();
-      }
-      const instance = __spreadProps(__spreadValues({}, ailment), { damage: 0, time: this.duration });
-      this.instances.push(instance);
-      this.updateDamage();
-      this.time = this.duration;
-      this.updateElement();
-      this.updateProgressBar();
-      return instance;
-    }
-    tick(dt) {
-      if (this.instances.length === 0) {
-        this.game.gameLoop.unsubscribe(this.loopId);
-        this.removeElement();
-        return;
-      }
-      this.time -= dt;
-      for (let i = this.instances.length - 1; i >= 0; i--) {
-        const instance = this.instances[i];
-        if (!instance) {
-          throw Error();
-        }
-        instance.time -= dt;
-        if (instance.time <= 0) {
-          this.instances.splice(i, 1);
-        }
-      }
-    }
-    reset() {
-      this.instances.splice(0);
-      this.removeElement();
-    }
-    createElement() {
-      const li = document.createElement("li");
-      li.insertAdjacentHTML("beforeend", `<div data-label>${this.type} <span data-time></span>s (<span data-count></span>)</div>`);
-      this.progressBar = document.createElement("progress");
-      this.progressBar.max = 1;
-      this.progressBar.value = 0;
-      li.appendChild(this.progressBar);
-      this.element = li;
-      this.ailmentsListContainer.appendChild(li);
-      this.timeSpan = querySelector("[data-time]", li);
-      this.countSpan = querySelector("[data-count]", li);
-    }
-    removeElement() {
-      var _a;
-      (_a = this.element) == null ? void 0 : _a.remove();
-    }
-    updateElement() {
-      if (!this.timeSpan || !this.countSpan) {
-        return;
-      }
-      this.timeSpan.textContent = this.time.toFixed();
-      this.countSpan.textContent = this.numActiveInstances.toFixed();
-    }
-    updateProgressBar() {
-      if (!this.progressBar) {
-        throw Error();
-      }
-      if (this.duration <= 0) {
-        throw Error("ailment has no duration");
-      }
-      this.progressBar.value = this.time / this.duration;
-    }
-    calcDamage() {
-      let damage = 0;
-      for (let i = 0; i < this.instances.length; i++) {
-        const instance = this.instances[i];
-        if (!instance) {
-          throw Error();
-        }
-        if (i < this.maxNumActiveInstances) {
-          damage += instance.damage;
-        }
-      }
-      return damage;
-    }
-  };
-  var BleedHandler = class extends AilmentHandler {
-    constructor(game) {
-      super(game, "Bleed");
-      this.game = game;
-    }
-    setup() {
-      super.setup();
-      this.game.statistics.statistics["Bleed Duration"].addListener("change", (amount) => {
-        const durationFac = amount / this.duration;
-        this.time *= durationFac;
-        this.instances.forEach((x) => x.time *= durationFac);
-        this.duration = amount;
-      });
-      this.game.statistics.statistics["Maximum Bleed Stacks"].addListener("change", (amount) => {
-        this.maxNumActiveInstances = amount;
-      });
-      this.duration = this.game.statistics.statistics["Bleed Duration"].get();
-      this.maxNumActiveInstances = this.game.statistics.statistics["Maximum Bleed Stacks"].get();
-    }
-    updateDamage() {
-      const config = {
-        statModList: this.game.player.modDB.modList,
-        flags: 32 /* Bleed */ | 2 /* Physical */ | 96 /* Ailment */
-      };
-      const { min, max } = calcAilmentBaseDamage("Physical", config);
-      this.instances.forEach((x) => x.damage = (min + max) / 2 * x.damageFac);
-      this.instances.sort((a, b) => b.damage - a.damage);
-    }
-    tick(dt) {
-      const damage = this.calcDamage() * dt;
-      this.game.enemy.dealDamageOverTime(damage);
-      this.game.statistics.statistics["Total Damage"].add(damage);
-      this.game.statistics.statistics["Total Bleed Damage"].add(damage);
-      this.game.statistics.statistics["Total Physical Damage"].add(damage);
-      super.tick(dt);
-    }
-  };
-  var BurnHandler = class extends AilmentHandler {
-    constructor(game) {
-      super(game, "Burn");
-      this.game = game;
-    }
-    setup() {
-      super.setup();
-      this.game.statistics.statistics["Burn Duration"].addListener("change", (amount) => {
-        const durationFac = amount / this.duration;
-        this.time *= durationFac;
-        this.instances.forEach((x) => x.time *= durationFac);
-        this.duration = amount;
-      });
-      this.game.statistics.statistics["Maximum Burn Stacks"].addListener("change", (amount) => {
-        this.maxNumActiveInstances = amount;
-      });
-      this.duration = this.game.statistics.statistics["Burn Duration"].get();
-      this.maxNumActiveInstances = this.game.statistics.statistics["Maximum Burn Stacks"].get();
-    }
-    updateDamage() {
-      const config = {
-        statModList: this.game.player.modDB.modList,
-        flags: 64 /* Burn */ | 4 /* Elemental */ | 96 /* Ailment */
-      };
-      const { min, max } = calcAilmentBaseDamage("Elemental", config);
-      this.instances.forEach((x) => x.damage = lerp(min, max, x.damageFac));
-      this.instances.sort((a, b) => b.damage - a.damage);
-    }
-    tick(dt) {
-      const damage = this.calcDamage() * dt;
-      this.game.enemy.dealDamageOverTime(damage);
-      this.game.statistics.statistics["Total Damage"].add(damage);
-      this.game.statistics.statistics["Total Burn Damage"].add(damage);
-      this.game.statistics.statistics["Total Elemental Damage"].add(damage);
-      super.tick(dt);
-    }
-  };
-  var Ailments = class {
-    constructor(game) {
-      this.game = game;
-      __publicField(this, "handlers", []);
-      __publicField(this, "combatPage");
-      this.combatPage = querySelector(".p-game .p-combat");
-      this.handlers.push(new BleedHandler(game));
-      this.handlers.push(new BurnHandler(game));
-    }
-    setup() {
-      this.handlers.forEach((x) => x.setup());
-      this.game.player.modDB.onChange.listen(() => {
-        this.handlers.forEach((x) => {
-          if (x.instances.length === 0) {
-            return;
-          }
-          x.updateDamage();
-        });
-      });
-      this.game.visiblityObserver.registerLoop(this.combatPage, (visible) => {
-        if (visible) {
-          for (const handler of this.handlers) {
-            if (handler.instances.length === 0) {
-              continue;
-            }
-            handler.updateProgressBar();
-          }
-        }
-      });
-      this.game.visiblityObserver.registerLoop(this.combatPage, (visible) => {
-        if (visible) {
-          for (const handler of this.handlers) {
-            if (handler.instances.length === 0) {
-              continue;
-            }
-            handler.updateElement();
-          }
-        }
-      }, { intervalMilliseconds: 1e3 });
-      this.tryLoad();
-    }
-    reset() {
-      this.handlers.forEach((x) => {
-        x.reset();
-      });
-    }
-    get(type) {
-      return this.handlers[type];
-    }
-    add(ailment) {
-      const handler = this.handlers.find((x) => x.type === ailment.type);
-      if (!handler) {
-        throw Error();
-      }
-      handler.addAilment(ailment);
-    }
-    tryLoad() {
-      try {
-        this.handlers.forEach((x) => {
-          var _a, _b, _c;
-          const save2 = (_c = (_b = (_a = this.game.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.ailments) == null ? void 0 : _c.find((y) => y && y.type === x.type);
-          if (!save2) {
-            return;
-          }
-          let time = 0;
-          for (const savedInstance of save2.instances || []) {
-            const instance = x.addAilment({ damageFac: (savedInstance == null ? void 0 : savedInstance.damageFac) || 1, type: x.type });
-            instance.time = (savedInstance == null ? void 0 : savedInstance.time) || 0;
-            time = Math.max(time, instance.time);
-          }
-          x.time = time;
-        });
-      } catch (e) {
-        throw Error("failed loading ailments");
-      }
-    }
-  };
-
-  // src/game/Enemy.ts
-  var Enemy = class {
-    constructor(game) {
-      this.game = game;
-      __publicField(this, "ailments");
-      __publicField(this, "_index");
-      __publicField(this, "healthList", []);
-      __publicField(this, "_health", 0);
-      __publicField(this, "healthBar");
-      this.ailments = new Ailments(this.game);
-      this._index = 0;
-      this.healthBar = querySelector("[data-health-bar]", this.game.page);
-    }
-    get index() {
-      return this._index;
-    }
-    get maxIndex() {
-      return this.healthList.length - 1;
-    }
-    get maxHealth() {
-      return this.healthList[this.index] || 1;
-    }
-    get health() {
-      return this._health;
-    }
-    set health(v) {
-      this._health = clamp(v, 0, this.maxHealth);
-    }
-    init() {
-      var _a, _b;
-      this.game.onSave.listen(this.save.bind(this));
-      this.game.gameLoop.subscribeAnim(() => {
-        this.updateHealthBar();
-      });
-      this.game.statistics.statistics.Level.addListener("change", (level) => {
-        this._index = clamp(level, 1, this.maxIndex + 1) - 1;
-        this.spawn();
-      });
-      this.healthList = this.game.config.enemies.enemyList;
-      this._index = ((_b = (_a = this.game.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.index) || 0;
-    }
-    setup() {
-      var _a, _b;
-      this.spawn();
-      this.health = ((_b = (_a = this.game.saveObj) == null ? void 0 : _a.enemy) == null ? void 0 : _b.health) || this.maxHealth;
-      this.updateHealthBar();
-      this.ailments.setup();
-    }
-    reset() {
-    }
-    setIndex(index) {
-      this._index = index;
-    }
-    spawn() {
-      this.health = this.maxHealth;
-      if (this.index === this.maxIndex + 1) {
-        this.healthBar.textContent = "Dummy (Cannot die)";
-      }
-      this.ailments.reset();
-    }
-    dealDamage(amount) {
-      if (this.index === this.maxIndex + 1) {
-        return;
-      }
-      this.health -= amount;
-      if (this.health <= 0) {
-        this.health = 0;
-        this._index++;
-        this.game.statistics.statistics.Level.add(1);
-      }
-    }
-    dealDamageOverTime(damage) {
-      this.dealDamage(damage);
-    }
-    applyAilments(instances) {
-      for (const instance of instances) {
-        this.ailments.add(instance);
-      }
-    }
-    save(saveObj) {
-      saveObj.enemy = {
-        index: this.index,
-        health: this.health,
-        dummyDamage: 0,
-        ailments: this.ailments.handlers.reduce((a, c) => {
-          a == null ? void 0 : a.push({ type: c.type, instances: c.instances.map((x) => ({ time: x.time, damageFac: x.damageFac })) });
-          return a;
-        }, [])
-      };
-    }
-    updateHealthBar() {
-      const pct = this.health / this.maxHealth;
-      this.healthBar.value = pct;
-    }
-  };
+  var Player_default = new Player();
 
   // src/utils/Loop.ts
   var TARGET_FRAME_TIME = 1e3 / 30;
@@ -10647,7 +10396,7 @@
             this.instances.forEach((instance) => {
               var _a;
               instance.time += TARGET_FRAME_TIME;
-              let ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
+              const ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
               if (instance.time > ms) {
                 instance.callback(DELTA_TIME_SECONDS);
                 instance.time -= ms || instance.time;
@@ -10672,7 +10421,7 @@
         this.animInstances.forEach((instance) => {
           var _a;
           instance.time += dt;
-          let ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
+          const ms = ((_a = instance.options) == null ? void 0 : _a.intervalMilliseconds) || 0;
           if (instance.time > ms) {
             instance.callback(dt / 1e3);
             instance.time = 0;
@@ -10684,275 +10433,6 @@
       this.animLoopId = requestAnimationFrame(loop);
     }
   };
-
-  // src/utils/Value.ts
-  var Value = class {
-    constructor(defaultValue) {
-      this.defaultValue = defaultValue;
-      __publicField(this, "value");
-      __publicField(this, "listeners", /* @__PURE__ */ new Map([
-        ["change", new EventEmitter()],
-        ["set", new EventEmitter()],
-        ["add", new EventEmitter()],
-        ["subtract", new EventEmitter()]
-      ]));
-      this.value = defaultValue;
-    }
-    set(v) {
-      var _a, _b;
-      this.value = v;
-      (_a = this.listeners.get("set")) == null ? void 0 : _a.invoke(this.value);
-      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
-    }
-    get() {
-      return this.value;
-    }
-    add(v) {
-      var _a, _b;
-      this.value += v;
-      (_a = this.listeners.get("add")) == null ? void 0 : _a.invoke(this.value);
-      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
-    }
-    subtract(v) {
-      var _a, _b;
-      this.value -= v;
-      (_a = this.listeners.get("subtract")) == null ? void 0 : _a.invoke(this.value);
-      (_b = this.listeners.get("change")) == null ? void 0 : _b.invoke(this.value);
-    }
-    reset() {
-      this.value = this.defaultValue;
-      this.listeners.forEach((x) => x.removeAllListeners());
-    }
-    addListener(type, callback) {
-      var _a;
-      (_a = this.listeners.get(type)) == null ? void 0 : _a.listen(callback);
-    }
-    removeListener(type, callback) {
-      var _a;
-      (_a = this.listeners.get(type)) == null ? void 0 : _a.removeListener(callback);
-    }
-    registerCallback(targetValue, callback) {
-      if (targetValue <= this.value) {
-        callback(this.value);
-        return;
-      }
-      const listener = () => {
-        if (this.value >= targetValue) {
-          callback(this.value);
-          this.removeListener("change", listener);
-        }
-      };
-      this.addListener("change", listener);
-    }
-  };
-
-  // src/game/Statistics.ts
-  var Statistic = class extends Value {
-    constructor(args) {
-      super((args == null ? void 0 : args.defaultValue) || 0);
-      this.args = args;
-      __publicField(this, "sticky");
-      __publicField(this, "decimals");
-      __publicField(this, "format");
-      __publicField(this, "save");
-      this.sticky = (args == null ? void 0 : args.sticky) || false;
-      this.format = (args == null ? void 0 : args.format) || "none";
-      this.decimals = (args == null ? void 0 : args.decimals) || 0;
-      this.save = (args == null ? void 0 : args.save) || false;
-    }
-    reset() {
-      var _a;
-      super.reset();
-      this.sticky = ((_a = this.args) == null ? void 0 : _a.sticky) || false;
-    }
-  };
-  var Statistics = class {
-    constructor(game) {
-      this.game = game;
-      __publicField(this, "statistics", {
-        "Level": new Statistic({ defaultValue: 1, sticky: true, save: true }),
-        "Gold": new Statistic({ defaultValue: 0, sticky: true, save: true }),
-        "Gold Generation": new Statistic({ defaultValue: 0, sticky: true, format: "seconds" }),
-        "Dps": new Statistic({ sticky: true }),
-        "Hit Chance": new Statistic({ sticky: true, format: "pct" }),
-        "Attack Speed": new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
-        "Attack Dps": new Statistic(),
-        "Average Attack Damage": new Statistic(),
-        "Average Physical Attack Damage": new Statistic(),
-        "Average Elemental Attack Damage": new Statistic(),
-        "Critical Hit Chance": new Statistic({ format: "pct" }),
-        "Critical Hit Multiplier": new Statistic({ format: "pct" }),
-        "Maximum Mana": new Statistic(),
-        "Mana Regeneration": new Statistic(),
-        "Attack Mana Cost": new Statistic(),
-        "Current Mana": new Statistic({ save: false }),
-        "Bleed Chance": new Statistic({ format: "pct" }),
-        "Bleed Dps": new Statistic(),
-        "Bleed Duration": new Statistic({ format: "seconds" }),
-        "Maximum Bleed Stacks": new Statistic(),
-        "Burn Chance": new Statistic({ format: "pct" }),
-        "Burn Dps": new Statistic(),
-        "Burn Duration": new Statistic({ format: "seconds" }),
-        "Maximum Burn Stacks": new Statistic(),
-        "Skill Duration Multiplier": new Statistic({ format: "pct" }),
-        "Time Played": new Statistic({ save: true, format: "time" }),
-        "Gold Generated": new Statistic({ save: true }),
-        "Mana Generated": new Statistic({ save: true }),
-        "Hits": new Statistic({ save: true }),
-        "Critical Hits": new Statistic({ save: true }),
-        "Total Damage": new Statistic({ save: true }),
-        "Total Physical Damage": new Statistic({ save: true }),
-        "Total Elemental Damage": new Statistic({ save: true }),
-        "Total Bleed Damage": new Statistic({ save: true }),
-        "Total Burn Damage": new Statistic({ save: true })
-      });
-      __publicField(this, "page", querySelector(".p-game .p-statistics"));
-      __publicField(this, "pageListContainer");
-      __publicField(this, "sideListContainer");
-      __publicField(this, "statsUpdateId", -1);
-      this.pageListContainer = querySelector("ul", this.page);
-      this.sideListContainer = querySelector(".s-stats", this.game.page);
-      this.createStatisticsElements();
-      this.createSideListItems();
-      game.player.modDB.onChange.listen(async () => {
-        return new Promise((resolve) => {
-          clearTimeout(this.statsUpdateId);
-          this.statsUpdateId = window.setTimeout(async () => {
-            calcPlayerStats(this.game);
-            resolve();
-          }, 1);
-        });
-      });
-    }
-    init() {
-      var _a, _b, _c;
-      this.game.onSave.listen(this.save.bind(this));
-      (_c = (_b = (_a = this.game.saveObj) == null ? void 0 : _a.statistics) == null ? void 0 : _b.statistics) == null ? void 0 : _c.forEach((x) => {
-        var _a2;
-        if (!x) {
-          return;
-        }
-        const key = x.name;
-        const statistic = (_a2 = Object.entries(this.statistics).find((x2) => x2[0] === key)) == null ? void 0 : _a2[1];
-        if (!statistic) {
-          return;
-        }
-        statistic.set(x.value || statistic.defaultValue);
-        statistic.sticky = x.sticky || false;
-      });
-      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
-        if (visible) {
-          this.updatePageStatisticsUI();
-        }
-      }, { intervalMilliseconds: 1e3 });
-      this.game.visiblityObserver.registerLoop(this.game.page, (visible) => {
-        if (visible) {
-          this.updateSideStatisticsUI();
-        }
-      });
-      this.statistics.Gold.addListener("change", () => {
-        this.updateSideStatisticsUI();
-      });
-      calcPlayerStats(this.game);
-    }
-    setup() {
-      calcPlayerStats(this.game);
-      this.updatePageStatisticsUI();
-      this.updateSideStatisticsUI();
-    }
-    reset() {
-      Object.values(this.statistics).forEach((x) => x.reset());
-    }
-    createStatisticsElements() {
-      const elements = [];
-      for (const [key, value] of Object.entries(this.statistics)) {
-        const element = document.createElement("li");
-        element.classList.add("g-field", "g-list-item");
-        element.setAttribute("data-stat", key);
-        element.insertAdjacentHTML("beforeend", `<div>${key}</div>`);
-        element.insertAdjacentHTML("beforeend", `<var data-format="${value.format}"></var>`);
-        switch (value.format) {
-          case "pct":
-            element.insertAdjacentHTML("beforeend", "%");
-            break;
-          case "seconds":
-            element.insertAdjacentHTML("beforeend", "s");
-            break;
-        }
-        if (value.format === "pct") {
-        }
-        element.addEventListener("click", () => {
-          value.sticky = !value.sticky;
-          this.updatePageStatisticsUI();
-          this.updateSideStatisticsUI();
-        });
-        elements.push(element);
-      }
-      this.pageListContainer.replaceChildren(...elements);
-    }
-    createSideListItems() {
-      const elements = [];
-      for (const [key, value] of Object.entries(this.statistics)) {
-        const element = document.createElement("li");
-        element.classList.add("g-field");
-        element.setAttribute("data-stat", key);
-        element.insertAdjacentHTML("beforeend", `<div>${key}</div>`);
-        element.insertAdjacentHTML("beforeend", `<var data-format="${value.format}"></var>`);
-        if (value.format === "pct") {
-          element.insertAdjacentHTML("beforeend", "%");
-        }
-        elements.push(element);
-      }
-      this.sideListContainer.replaceChildren(...elements);
-    }
-    updatePageStatisticsUI() {
-      for (const [key, statistic] of Object.entries(this.statistics)) {
-        const element = querySelector(`li[data-stat="${key}"]`, this.pageListContainer);
-        element.classList.toggle("selected", statistic.sticky);
-        this.updateListItem(element, statistic);
-      }
-    }
-    updateSideStatisticsUI() {
-      for (const [key, statistic] of Object.entries(this.statistics)) {
-        const element = querySelector(`li[data-stat="${key}"]`, this.sideListContainer);
-        element.classList.toggle("hidden", !statistic.sticky);
-        if (!statistic.sticky) {
-          continue;
-        }
-        this.updateListItem(element, statistic);
-      }
-    }
-    updateListItem(element, statistic) {
-      const variableElement = querySelector("var", element);
-      const type = variableElement.getAttribute("data-format");
-      let value = statistic.get();
-      switch (type) {
-        case "time":
-          const date = new Date(0);
-          date.setSeconds(value);
-          const str = date.toISOString().substring(11, 19);
-          value = str;
-          break;
-        case "pct":
-          value *= 100;
-          break;
-        default:
-          value = value.toFixed(statistic.decimals);
-      }
-      variableElement.textContent = typeof value === "number" ? value.toFixed(statistic.decimals) : value;
-    }
-    save(saveObj) {
-      saveObj.statistics = {
-        statistics: Object.entries(this.statistics).reduce((a, c) => {
-          a.push({ name: c[0], sticky: c[1].sticky, value: c[1].get() });
-          return a;
-        }, [])
-      };
-    }
-  };
-
-  // src/webComponents/html/game.html
-  var game_default = '<main class="p-game hidden" data-tab-content="game">\n\n    <div class="s-home-button">\n        <button class="g-button" data-target="home">Home</button>\n    </div>\n    <menu class="s-menu g-list-v" data-main-menu>\n        <li class="g-list-item" data-tab-target="combat">Combat</li>\n        <div class="s-components"></div>\n        <li class="g-list-item" data-tab-target="statistics">Statistics</li>\n    </menu>\n    <div class="s-progress-bars">\n        <progress data-health-bar value="1" max="1"></progress>\n        <progress data-mana-bar value="1" max="1"></progress>\n    </div>\n    <div class="s-title">\n        <span data-config-name>Tinkerers Subject</span>\n    </div>\n    <div data-main-view>\n        <div class="p-combat" data-tab-content="combat">\n            <ul data-ailment-list></ul>\n        </div>\n        <div class="p-statistics hidden" data-tab-content="statistics">\n            <ul> </ul>\n        </div>\n    </div>\n\n    <aside class="s-stats" data-player-stats>\n        <ul></ul>\n    </aside>\n</main>';
 
   // src/utils/saveManager.ts
   var import_localforage = __toESM(require_localforage(), 1);
@@ -10970,12 +10450,13 @@
   async function load(type) {
     try {
       switch (type) {
-        case "Game":
+        case "Game": {
           const blob = await loadBlob("ts-game");
           if (blob) {
             return new Map(Object.entries(blob));
           }
           return null;
+        }
         default:
           return null;
       }
@@ -11050,13 +10531,12 @@
 
   // src/game/components/Component.ts
   var Component = class {
-    constructor(game, name2) {
-      this.game = game;
-      this.name = name2;
+    constructor(name) {
+      this.name = name;
       __publicField(this, "_page");
       __publicField(this, "_menuItem");
-      this._page = querySelector(`.p-game .p-${name2}`);
-      this._menuItem = querySelector(`.p-game [data-main-menu] [data-tab-target="${name2}"]`);
+      this._page = querySelector(`.p-game .p-${name}`);
+      this._menuItem = querySelector(`.p-game [data-main-menu] [data-tab-target="${name}"]`);
       highlightHTMLElement(this._menuItem, "click");
     }
     get page() {
@@ -11070,21 +10550,13 @@
   // src/game/components/skills/skillSlots.ts
   var AttackSkillSlot = class {
     constructor(skills) {
-      this.skills = skills;
       __publicField(this, "element");
       __publicField(this, "progressBar");
       __publicField(this, "_skill");
-      var _a, _b, _c;
       this.element = this.createElement();
-      this.progressBar = querySelector("progress", this.element);
-      this.rankProgressCallback = this.rankProgressCallback.bind(this);
-      querySelector("[data-attack-skill-slot]", skills.page).appendChild(this.element);
+      this.progressBar = this.element.querySelectorForce("progress");
+      skills.page.querySelectorForce("[data-attack-skill-slot]").appendChild(this.element);
       this._skill = skills.attackSkills[0];
-      const saveData = (_a = skills.game.saveObj) == null ? void 0 : _a.skills;
-      const savedAttackSkillName = (_b = saveData == null ? void 0 : saveData.attackSkillSlot) == null ? void 0 : _b.name;
-      const savedAttackSkill = savedAttackSkillName ? skills.attackSkills.find((x) => x.name === savedAttackSkillName) : void 0;
-      savedAttackSkill == null ? void 0 : savedAttackSkill.setRankByIndex(((_c = saveData == null ? void 0 : saveData.attackSkillSlot) == null ? void 0 : _c.rankIndex) || 0);
-      this.setSkill(savedAttackSkill || skills.attackSkills[0]);
     }
     get canEnable() {
       return true;
@@ -11101,57 +10573,32 @@
     get skill() {
       return this._skill;
     }
-    rankProgressCallback() {
-      if (!this.skill) {
-        return;
-      }
-      const nextRank = this.skill.getNextRank();
-      if (nextRank) {
-        nextRank.incrementProgress();
-        if (!this.skills.page.classList.contains("hidden") && this.skills.activeSkillSlot === this) {
-          this.skills.skillViewer.updateView();
-        }
-        if (nextRank.unlocked) {
-          this.skills.game.statistics.statistics["Hits"].removeListener("add", this.rankProgressCallback);
-          highlightHTMLElement(this.skills.menuItem, "click");
-          highlightHTMLElement(this.element, "mouseover", true);
-        }
-      }
-    }
     setSkill(skill) {
       this.removeModifiers();
       this._skill = skill;
-      querySelector("[data-skill-name]", this.element).textContent = skill.rank.config.name || "unknown";
-      const nextRank = skill.getNextRank();
-      this.skills.game.statistics.statistics["Hits"].removeListener("add", this.rankProgressCallback);
-      if (nextRank && !nextRank.unlocked) {
-        this.skills.game.statistics.statistics["Hits"].addListener("add", this.rankProgressCallback);
-      }
+      this.element.querySelectorForce("[data-skill-name]").textContent = skill.rank.config.name || "unknown";
       this.applyModifiers();
     }
     removeModifiers() {
-      this.skills.game.player.modDB.removeBySource(this._skill.sourceName);
+      var _a;
+      Player_default.modDB.removeBySource((_a = this._skill) == null ? void 0 : _a.sourceName);
     }
     applyModifiers() {
-      this.skills.game.player.modDB.add([new StatModifier({ name: "BaseDamageMultiplier", valueType: "Base", value: this._skill.rank.config.baseDamageMultiplier })], this._skill.sourceName);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackSpeed", valueType: "Base", value: this._skill.rank.config.attackSpeed })], this._skill.sourceName);
-      this.skills.game.player.modDB.add([new StatModifier({ name: "AttackManaCost", valueType: "Base", value: this._skill.rank.config.manaCost || 0 })], this._skill.sourceName);
-      this.skills.game.player.modDB.add(this._skill.rank.mods.flatMap((x) => x.copy().stats), this._skill.sourceName);
+      Player_default.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: "BaseDamageMultiplier", valueType: "Base", value: this._skill.rank.config.baseDamageMultiplier })]);
+      Player_default.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: "AttackSpeed", valueType: "Base", value: this._skill.rank.config.attackSpeed })]);
+      Player_default.modDB.add(this._skill.sourceName, ...[new StatModifier({ name: "AttackManaCost", valueType: "Base", value: this._skill.rank.config.manaCost || 0 })]);
+      Player_default.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap((x) => x.copy().stats));
     }
-    updateProgressBar(attackProgressPct) {
-      this.progressBar.value = attackProgressPct > 1 ? 0 : attackProgressPct;
+    updateProgressBar() {
+      const pct = Player_default.attackTime / Player_default.attackWaitTime;
+      this.progressBar.value = pct > 1 ? 0 : pct;
     }
     createElement() {
       const li = document.createElement("li");
       li.classList.add("s-skill-slot", "g-list-item");
       li.setAttribute("data-tab-target", "attack");
       li.insertAdjacentHTML("beforeend", "<div data-skill-name></div>");
-      {
-        const progressBar = document.createElement("progress");
-        progressBar.max = 1;
-        progressBar.value = 0;
-        li.appendChild(progressBar);
-      }
+      li.insertAdjacentHTML("beforeend", `<progress value="0" max="1"></progress>`);
       return li;
     }
   };
@@ -11165,21 +10612,25 @@
       __publicField(this, "_time", 0);
       __publicField(this, "_duration", 0);
       __publicField(this, "_running", false);
-      var _a, _b, _c;
+      var _a, _b;
       this.element = this.createElement();
-      this.progressBar = querySelector("progress", this.element);
+      this.progressBar = this.element.querySelectorForce("progress");
       this.setSkill(void 0);
-      const savedSkillSlotData = (_c = (_b = (_a = skills.game.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.buffSkillSlotList) == null ? void 0 : _c.find((x) => x && x.index === skills.buffSkillSlots.length);
-      if (savedSkillSlotData) {
-        const skill = skills.buffSkills.find((x) => x.firstRank.config.name === savedSkillSlotData.name);
-        if (skill) {
-          this.setSkill(skill);
-          this._time = savedSkillSlotData.time || 0;
-          this._automate = savedSkillSlotData.automate || false;
-          if (savedSkillSlotData.running) {
-            this.loop();
-          } else {
-            this.tryTriggerLoop();
+      const savedSlots = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.buffSkillSlotList;
+      if (savedSlots) {
+        const savedSlot = savedSlots.find((x) => (x == null ? void 0 : x.index) === skills.buffSkillSlots.length);
+        if (savedSlot) {
+          const skill = skills.buffSkills.find((x) => x.name === savedSlot.name);
+          if (skill) {
+            skill.setRankByIndex(savedSlot.rankIndex || 0);
+            this.setSkill(skill);
+            this._time = savedSlot.time || 0;
+            this._automate = savedSlot.automate || false;
+            if (savedSlot.running) {
+              this.loop();
+            } else {
+              this.tryTriggerLoop();
+            }
           }
         }
       }
@@ -11200,7 +10651,7 @@
     }
     get sufficientMana() {
       var _a;
-      return this.skills.game.statistics.statistics["Current Mana"].get() > (((_a = this.skill) == null ? void 0 : _a.rank.config.manaCost) || 0);
+      return Player_default.stats["Current Mana"].get() > (((_a = this.skill) == null ? void 0 : _a.rank.config.manaCost) || 0);
     }
     get automate() {
       return this._automate;
@@ -11217,25 +10668,13 @@
     setSkill(skill) {
       this._skill = skill;
       this._automate = false;
-      querySelector("[data-skill-name]", this.element).textContent = (skill == null ? void 0 : skill.rank.config.name) || "[Empty Slot]";
+      this.element.querySelectorForce("[data-skill-name]").textContent = (skill == null ? void 0 : skill.rank.config.name) || "[Empty Slot]";
     }
     trigger() {
-      var _a;
       if (!this._skill || !this.canTrigger) {
         return;
       }
-      const nextRank = (_a = this._skill) == null ? void 0 : _a.getNextRank();
-      if (nextRank) {
-        nextRank.incrementProgress();
-        if (!this.skills.page.classList.contains("hidden") && this.skills.activeSkillSlot === this) {
-          this.skills.skillViewer.updateView();
-        }
-        if (nextRank.unlocked) {
-          highlightHTMLElement(this.skills.menuItem, "click");
-          highlightHTMLElement(this.element, "mouseover", true);
-        }
-      }
-      this.skills.game.statistics.statistics["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
+      Player_default.stats["Current Mana"].subtract(this._skill.rank.config.manaCost || 0);
       this.loop();
       return true;
     }
@@ -11251,15 +10690,15 @@
       }
       const loopEval = () => {
         if (!this._automate) {
-          this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
+          Player_default.stats["Current Mana"].removeListener("change", loopEval);
           return;
         }
         if (this.canTrigger) {
-          this.skills.game.statistics.statistics["Current Mana"].removeListener("change", loopEval);
+          Player_default.stats["Current Mana"].removeListener("change", loopEval);
           this.trigger();
         }
       };
-      this.skills.game.statistics.statistics["Current Mana"].addListener("change", loopEval);
+      Player_default.stats["Current Mana"].addListener("change", loopEval);
       loopEval();
     }
     loop() {
@@ -11271,19 +10710,19 @@
         const baseDuration = ((_a = this.skill) == null ? void 0 : _a.rank.config.baseDuration) || 0;
         this._duration = baseDuration * multiplier;
       };
-      calcDuration(this.skills.game.statistics.statistics["Skill Duration Multiplier"].get());
+      calcDuration(Player_default.stats["Skill Duration Multiplier"].get());
       this._time = this._time > 0 ? this._time : this._duration;
       this._running = true;
-      this.skills.game.statistics.statistics["Skill Duration Multiplier"].addListener("change", calcDuration);
+      Player_default.stats["Skill Duration Multiplier"].addListener("change", calcDuration);
       this.applyModifiers();
-      const loopId = this.skills.game.gameLoop.subscribe((dt) => {
+      const loopId = Game_default.gameLoop.subscribe((dt) => {
         if (!this.skill) {
           return;
         }
-        if (this._time <= 0) {
+        if (this._time <= 0 || !this._running) {
           this._time = 0;
-          this.skills.game.gameLoop.unsubscribe(loopId);
-          this.skills.game.statistics.statistics["Skill Duration Multiplier"].removeListener("change", calcDuration);
+          Game_default.gameLoop.unsubscribe(loopId);
+          Player_default.stats["Skill Duration Multiplier"].removeListener("change", calcDuration);
           this.stop();
           return;
         }
@@ -11291,27 +10730,30 @@
       });
     }
     stop() {
-      if (!this.skill) {
+      if (!this._skill) {
         throw Error();
       }
-      this.skills.game.player.modDB.removeBySource(this.skill.sourceName);
+      this.removeModifiers();
       this.progressBar.value = 0;
       this._running = false;
       if (this._automate) {
         this.tryTriggerLoop();
       }
-      if (!this.skills.page.classList.contains("hidden") && this === this.skills.activeSkillSlot) {
-        this.skills.skillViewer.updateView();
+      if (this === this.skills.activeSkillSlot) {
+        this.skills.skillViewer.createView(this._skill);
       }
+    }
+    cancel() {
+      this._running = false;
     }
     removeModifiers() {
       if (this._skill) {
-        this.skills.game.player.modDB.removeBySource(this._skill.sourceName);
+        Player_default.modDB.removeBySource(this._skill.sourceName);
       }
     }
     applyModifiers() {
       if (this._skill) {
-        this.skills.game.player.modDB.add(this._skill.rank.mods.flatMap((x) => x.copy().stats), this._skill.sourceName);
+        Player_default.modDB.add(this._skill.sourceName, ...this._skill.rank.mods.flatMap((x) => x.copy().stats));
       }
     }
     updateProgressBar() {
@@ -11325,12 +10767,7 @@
       li.classList.add("s-skill-slot", "g-list-item");
       li.setAttribute("data-tab-target", "buff");
       li.insertAdjacentHTML("beforeend", "<div data-skill-name></div>");
-      {
-        const progressBar = document.createElement("progress");
-        progressBar.max = 1;
-        progressBar.value = 0;
-        li.appendChild(progressBar);
-      }
+      li.insertAdjacentHTML("beforeend", `<progress class="small" value="0" max="1"></progress>`);
       return li;
     }
   };
@@ -11339,6 +10776,7 @@
   var SkillViewer = class {
     constructor(skills) {
       this.skills = skills;
+      __publicField(this, "rankIndex", 0);
       __publicField(this, "container");
       __publicField(this, "decrementRankButton");
       __publicField(this, "incrementRankButton");
@@ -11346,89 +10784,105 @@
       __publicField(this, "triggerButton");
       __publicField(this, "automateButton");
       __publicField(this, "removeButton");
-      __publicField(this, "rankProgress");
-      __publicField(this, "skillViewInfo", { rankIndex: 0 });
-      this.container = querySelector("[data-skill-info]", skills.page);
-      this.decrementRankButton = querySelector('header [data-type="decrement"]', this.container);
-      this.incrementRankButton = querySelector('header [data-type="increment"]', this.container);
-      this.enableButton = querySelector("[data-enable]", this.container);
-      this.triggerButton = querySelector("[data-trigger]", this.container);
-      this.automateButton = querySelector("[data-automate]", this.container);
-      this.removeButton = querySelector("[data-remove]", this.container);
+      __publicField(this, "unlockButton");
+      __publicField(this, "cancelButton");
+      this.container = skills.page.querySelectorForce("[data-skill-info]");
+      this.decrementRankButton = this.container.querySelectorForce('header [data-type="decrement"]');
+      this.incrementRankButton = this.container.querySelectorForce('header [data-type="increment"]');
+      this.enableButton = this.container.querySelectorForce("[data-enable]");
+      this.triggerButton = this.container.querySelectorForce("[data-trigger]");
+      this.automateButton = this.container.querySelectorForce("[data-automate]");
+      this.removeButton = this.container.querySelectorForce("[data-remove]");
+      this.unlockButton = this.container.querySelectorForce("[data-unlock]");
+      this.cancelButton = this.container.querySelectorForce("[data-cancel]");
       this.decrementRankButton.addEventListener("click", () => {
-        this.createView(skills.activeSkill, this.skillViewInfo.rankIndex - 1);
+        this.createView(skills.activeSkill, this.rankIndex - 1);
       });
       this.incrementRankButton.addEventListener("click", () => {
-        this.createView(skills.activeSkill, this.skillViewInfo.rankIndex + 1);
+        this.createView(skills.activeSkill, this.rankIndex + 1);
       });
       this.enableButton.addEventListener("click", () => {
-        skills.activeSkill.setRankByIndex(this.skillViewInfo.rankIndex);
+        skills.activeSkill.setRankByIndex(this.rankIndex);
         skills.activeSkillSlot.setSkill(skills.activeSkill);
-        this.createView(skills.activeSkill, this.skillViewInfo.rankIndex);
+        this.createView(skills.activeSkill, this.rankIndex);
       });
       this.removeButton.addEventListener("click", () => {
         if (skills.activeSkillSlot.canRemove) {
           skills.activeSkillSlot.setSkill(void 0);
-          this.createView(skills.activeSkill, this.skillViewInfo.rankIndex);
+          this.createView(skills.activeSkill, this.rankIndex);
         }
       });
       this.triggerButton.addEventListener("click", () => {
         if (skills.activeSkillSlot.canTrigger) {
           skills.activeSkillSlot.trigger();
-          this.createView(skills.activeSkillSlot.skill, this.skillViewInfo.rankIndex);
+          this.createView(skills.activeSkillSlot.skill, this.rankIndex);
         }
       });
       this.automateButton.addEventListener("click", () => {
         const skillSlot = skills.activeSkillSlot;
         if (skillSlot instanceof BuffSkillSlot && skillSlot.skill) {
           skillSlot.toggleAutomate();
-          this.createView(skillSlot.skill, this.skillViewInfo.rankIndex);
+          this.createView(skillSlot.skill, this.rankIndex);
+        }
+      });
+      this.unlockButton.addEventListener("click", () => {
+        var _a;
+        const rank = (_a = this.skills.activeSkill) == null ? void 0 : _a.ranks[this.rankIndex];
+        if (rank) {
+          Statistics_default.gameStats.Gold.subtract(rank.config.goldCost || 0);
+          rank.unlocked = true;
+          this.createView(this.skills.activeSkill, this.rankIndex);
+        }
+      });
+      this.cancelButton.addEventListener("click", () => {
+        if (this.skills.activeSkillSlot instanceof BuffSkillSlot) {
+          this.skills.activeSkillSlot.cancel();
+          this.createView(this.skills.activeSkill, this.rankIndex);
+        }
+      });
+      Statistics_default.gameStats.Gold.addListener("change", (x) => {
+        if (this.skills.page.classList.contains("hidden")) {
+          return;
+        }
+        const rank = this.skills.activeSkill.ranks[this.rankIndex];
+        if (rank && !rank.unlocked) {
+          if (rank.config.goldCost <= x) {
+            this.unlockButton.disabled = false;
+          }
         }
       });
     }
     createView(skill, rankIndex) {
-      rankIndex = typeof rankIndex === "number" ? rankIndex : skill.ranks.indexOf(skill.rank);
-      this.skillViewInfo.skill = skill;
-      this.skillViewInfo.rankIndex = rankIndex;
-      const rank = skill.ranks[rankIndex];
+      var _a, _b, _c, _d, _e, _f;
+      if (typeof rankIndex === "number") {
+        this.rankIndex = rankIndex;
+      } else {
+        this.rankIndex = skill.rankIndex;
+      }
+      const rank = skill.ranks[this.rankIndex];
       if (!rank) {
-        throw Error();
+        throw RangeError("rank index out of bounds");
       }
       {
-        const header = querySelector("header", this.container);
-        querySelector(".title", header).textContent = rank.config.name;
-        if (skill.ranks.length === 1) {
-          this.decrementRankButton.style.visibility = "hidden";
-          this.incrementRankButton.style.visibility = "hidden";
-        } else {
+        this.container.querySelectorForce("[data-title]").textContent = rank.config.name;
+        this.decrementRankButton.style.visibility = "hidden";
+        this.incrementRankButton.style.visibility = "hidden";
+        if (skill.ranks.length > 1) {
           this.decrementRankButton.style.visibility = "visible";
           this.incrementRankButton.style.visibility = "visible";
-          this.decrementRankButton.disabled = rankIndex <= 0;
-          this.incrementRankButton.disabled = rankIndex >= skill.ranks.length - 1;
+          this.decrementRankButton.disabled = this.rankIndex <= 0;
+          this.incrementRankButton.disabled = !rank.unlocked || this.rankIndex >= skill.ranks.length - 1;
         }
-        querySelector("header .title", this.container).textContent = rank.config.name;
       }
       {
-        const table = querySelector("table", this.container);
+        const table = this.container.querySelectorForce("table");
         table.replaceChildren();
-        table.appendChild(this.createTableRow("Mana Cost", (rank.config.manaCost || 0).toFixed()));
+        table.insertAdjacentHTML("beforeend", `<tr><td>Mana Cost</td><td>${rank == null ? void 0 : rank.config.manaCost.toFixed()}</td></tr>`);
         if (skill instanceof AttackSkill) {
-          table.appendChild(this.createTableRow("Attack Speed", skill.ranks[rankIndex].config.attackSpeed.toFixed(2)));
-          table.appendChild(this.createTableRow("Base Damage", skill.ranks[rankIndex].config.baseDamageMultiplier.toFixed() + "%"));
+          table.insertAdjacentHTML("beforeend", `<tr><td>Attack Speed</td><td>${(_a = skill.ranks[this.rankIndex]) == null ? void 0 : _a.config.attackSpeed.toFixed(2)}</td></tr>`);
+          table.insertAdjacentHTML("beforeend", `<tr><td>Base Damage Multiplier</td><td>${(_b = skill.ranks[this.rankIndex]) == null ? void 0 : _b.config.baseDamageMultiplier.toFixed()}%</td></tr>`);
         } else if (skill instanceof BuffSkill) {
-          table.appendChild(this.createTableRow("Duration", skill.ranks[rankIndex].config.baseDuration.toFixed() + "s"));
-        }
-        this.rankProgress = void 0;
-        if (rankIndex > 0) {
-          let prefix = skill instanceof AttackSkill ? "Attacks" : "Triggers";
-          const rank2 = skill.ranks[rankIndex];
-          const target = rank2 == null ? void 0 : rank2.progress.target;
-          const row = this.createTableRow(
-            prefix,
-            `<var data-rank-progress></var>/<span>${target}</span>`
-          );
-          this.rankProgress = row.querySelector("[data-rank-progress]") || void 0;
-          table.appendChild(row);
+          table.insertAdjacentHTML("beforeend", `<tr><td>Duration</td><td>${(_c = skill.ranks[this.rankIndex]) == null ? void 0 : _c.config.baseDuration.toFixed()}s</td></tr>`);
         }
       }
       if (rank.config.mods) {
@@ -11439,54 +10893,61 @@
           modElement.textContent = mod.desc;
           modElements.push(modElement);
         }
-        querySelector(".s-mods", this.container).replaceChildren(...modElements);
+        this.container.querySelectorForce(".s-mods").replaceChildren(...modElements);
       }
-      this.updateView();
-    }
-    updateView() {
-      const { skill, rankIndex } = this.skillViewInfo;
-      const rank = skill == null ? void 0 : skill.ranks[rankIndex];
-      if (!rank) {
-        throw RangeError();
+      const activeSkillSlot = this.skills.activeSkillSlot;
+      this.enableButton.disabled = !this.validateEnableButton(skill, rank);
+      this.enableButton.classList.toggle("hidden", !rank.unlocked);
+      if (rank.unlocked && activeSkillSlot instanceof BuffSkillSlot) {
+        if (((_d = activeSkillSlot.skill) == null ? void 0 : _d.rank) === rank) {
+          this.enableButton.classList.add("hidden");
+        }
       }
-      const hideExtraButtons = skill instanceof AttackSkill || this.skills.activeSkillSlot.skill !== skill;
-      this.removeButton.classList.toggle("hidden", hideExtraButtons);
-      this.triggerButton.classList.toggle("hidden", hideExtraButtons);
-      this.automateButton.classList.toggle("hidden", hideExtraButtons);
-      const sameSkillAndRank = this.skills.activeSkillSlot.skill === skill && this.skills.activeSkillSlot.skill.rank === rank;
-      const anotherAlreadyEnabled = [this.skills.attackSkillSlot, ...this.skills.buffSkillSlots].filter((x) => x !== this.skills.activeSkillSlot).some((x) => x.skill === skill);
-      const canEnable = this.skills.activeSkillSlot.canEnable && rank.unlocked && !sameSkillAndRank && !anotherAlreadyEnabled;
-      this.enableButton.disabled = !canEnable;
-      if (skill instanceof BuffSkill && this.skills.activeSkillSlot instanceof BuffSkillSlot && this.skills.activeSkillSlot.skill === skill) {
-        this.removeButton.disabled = !this.skills.activeSkillSlot.canRemove || !sameSkillAndRank;
-        this.triggerButton.disabled = !this.skills.activeSkillSlot.canTrigger || !sameSkillAndRank;
-        this.automateButton.disabled = !this.skills.activeSkillSlot.canAutomate;
-        this.automateButton.setAttribute("data-role", this.skills.activeSkillSlot.automate ? "confirm" : "cancel");
-      } else {
-        this.removeButton.disabled = true;
-        this.triggerButton.disabled = true;
-        this.automateButton.disabled = true;
-      }
-      if (this.rankProgress) {
-        this.rankProgress.textContent = Math.min(rank.progress.current, rank.progress.target).toFixed();
+      this.unlockButton.classList.toggle("hidden", rank.unlocked);
+      this.unlockButton.disabled = Statistics_default.gameStats.Gold.get() < rank.config.goldCost;
+      this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
+      this.triggerButton.classList.add("hidden");
+      this.cancelButton.classList.add("hidden");
+      this.automateButton.classList.add("hidden");
+      this.removeButton.classList.add("hidden");
+      if (activeSkillSlot instanceof BuffSkillSlot && ((_e = activeSkillSlot.skill) == null ? void 0 : _e.rank) === rank) {
+        this.triggerButton.classList.toggle("hidden", activeSkillSlot.running);
+        this.triggerButton.disabled = !activeSkillSlot.canTrigger;
+        this.cancelButton.classList.toggle("hidden", !activeSkillSlot.running);
+        this.cancelButton.disabled = activeSkillSlot.automate;
+        this.automateButton.classList.remove("hidden");
+        this.automateButton.disabled = !activeSkillSlot.canAutomate;
+        this.automateButton.textContent = `Auto ${activeSkillSlot.automate ? "On" : "Off"}`;
+        this.automateButton.setAttribute("data-role", activeSkillSlot.automate ? "confirm" : "cancel");
+        this.removeButton.classList.toggle("hidden", ((_f = activeSkillSlot.skill) == null ? void 0 : _f.rank) !== rank);
+        this.removeButton.disabled = !activeSkillSlot.canRemove;
       }
     }
-    createTableRow(label, value) {
-      const row = document.createElement("tr");
-      row.insertAdjacentHTML("beforeend", `<td>${label}</td>`);
-      row.insertAdjacentHTML("beforeend", `<td>${value}</td>`);
-      return row;
+    validateEnableButton(skill, rank) {
+      var _a;
+      if (!rank.unlocked) {
+        return false;
+      }
+      if (((_a = this.skills.activeSkillSlot.skill) == null ? void 0 : _a.rank) === rank) {
+        return false;
+      }
+      if (skill instanceof BuffSkill) {
+        if (this.skills.buffSkillSlots.filter((x) => x !== this.skills.activeSkillSlot).some((x) => x.skill === skill)) {
+          return false;
+        }
+      }
+      return this.skills.activeSkillSlot.canEnable;
     }
   };
 
   // src/game/components/skills/Skills.ts
   var Skills = class extends Component {
-    constructor(game, config) {
-      super(game, "skills");
-      this.game = game;
+    constructor(config) {
+      var _a, _b;
+      super("skills");
       this.config = config;
       __publicField(this, "activeSkill");
-      __publicField(this, "attackSkills");
+      __publicField(this, "attackSkills", []);
       __publicField(this, "buffSkills", []);
       __publicField(this, "activeSkillSlot");
       __publicField(this, "attackSkillSlot");
@@ -11494,30 +10955,42 @@
       __publicField(this, "skillViewer");
       this.skillViewer = new SkillViewer(this);
       {
-        this.attackSkills = [...this.config.attackSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1))].map((x) => new AttackSkill(this, x));
-        Object.seal(this.attackSkills);
         this.attackSkillSlot = new AttackSkillSlot(this);
         this.activeSkillSlot = this.attackSkillSlot;
-        this.activeSkill = this.attackSkillSlot.skill;
-        const attackSkillListContainer = querySelector("[data-attack-skill-list]", this.page);
+        const attackSkillListContainer = this.page.querySelectorForce("[data-attack-skill-list]");
         this.attackSkillSlot.element.addEventListener("click", () => {
           this.activeSkillSlot = this.attackSkillSlot;
           this.selectSkillListItem(this.attackSkillSlot.skill, attackSkillListContainer);
-          this.selectSkillListItemByName(this.attackSkillSlot.skill.firstRank.config.name, attackSkillListContainer);
         });
-        for (const skill of this.attackSkills) {
-          this.game.statistics.statistics.Level.registerCallback(skill.rank.config.levelReq || 1, () => {
-            this.addSkillListItem(skill, attackSkillListContainer);
+        for (const skill of config.attackSkills.skillList) {
+          const levelReq = Array.isArray(skill) ? skill[0].levelReq : skill.levelReq;
+          Statistics_default.gameStats.Level.registerCallback(levelReq || 1, () => {
+            const attackSkill = new AttackSkill(skill);
+            this.attackSkills.push(attackSkill);
+            this.addSkillListItem(attackSkill, attackSkillListContainer);
           });
         }
+        const savedAttackSkillSlot = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.attackSkillSlot;
+        if (savedAttackSkillSlot) {
+          const savedAttackSkill = this.attackSkills.find((x) => x.name === savedAttackSkillSlot.name);
+          if (savedAttackSkill) {
+            savedAttackSkill == null ? void 0 : savedAttackSkill.setRankByIndex(savedAttackSkillSlot.rankIndex || 0);
+            this.attackSkillSlot.setSkill(savedAttackSkill);
+          }
+        }
+        if (!this.attackSkillSlot.skill) {
+          this.attackSkillSlot.setSkill(this.attackSkills[0]);
+        }
+        this.attackSkillSlot.element.click();
+        this.activeSkill = this.attackSkillSlot.skill;
       }
       if (config.buffSkills) {
-        this.buffSkills = [...config.buffSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1)).map((x) => new BuffSkill(this, x))];
+        this.buffSkills = [...config.buffSkills.skillList.sort((a, b) => (a.levelReq || 1) - (b.levelReq || 1)).map((x) => new BuffSkill(x))];
         Object.seal(this.buffSkills);
-        const buffSkillSlotContainer = querySelector(".s-skill-slots [data-buff-skill-slots]", this.page);
-        const buffSkillListContainer = querySelector("[data-buff-skill-list]", this.page);
+        const buffSkillSlotContainer = this.page.querySelectorForce(".s-skill-slots [data-buff-skill-slots]");
+        const buffSkillListContainer = this.page.querySelectorForce("[data-buff-skill-list]");
         for (const buffSkillConfig of config.buffSkills.skillSlots) {
-          game.statistics.statistics.Level.registerCallback(buffSkillConfig.levelReq, () => {
+          Statistics_default.gameStats.Level.registerCallback(buffSkillConfig.levelReq, () => {
             const slot = new BuffSkillSlot(this);
             slot.element.setAttribute("data-tab-target", "buff");
             slot.element.addEventListener("click", () => {
@@ -11529,25 +11002,25 @@
           });
         }
         for (const skill of this.buffSkills) {
-          game.statistics.statistics.Level.registerCallback(skill.firstRank.config.levelReq || 1, () => {
+          Statistics_default.gameStats.Level.registerCallback(skill.firstRank.config.levelReq || 1, () => {
             this.addSkillListItem(skill, buffSkillListContainer);
           });
         }
       }
-      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
+      Game_default.visiblityObserver.registerLoop(this.page, (visible) => {
         if (visible) {
-          this.attackSkillSlot.updateProgressBar(this.game.player.attackProgressPct);
+          this.attackSkillSlot.updateProgressBar();
           for (const buffSkillSlot of this.buffSkillSlots) {
             buffSkillSlot.updateProgressBar();
           }
         }
       });
-      this.game.visiblityObserver.register(this.page, (visible) => {
+      Game_default.visiblityObserver.register(this.page, (visible) => {
         if (visible) {
-          this.skillViewer.updateView();
+          this.skillViewer.createView(this.activeSkill);
         }
       });
-      registerTabs(querySelector(".s-skill-slots", this.page), querySelector(".s-skill-list", this.page));
+      registerTabs(this.page.querySelectorForce(".s-skill-slots"), this.page.querySelectorForce(".s-skill-list"));
       this.attackSkillSlot.element.click();
     }
     addSkillListItem(skill, container) {
@@ -11563,7 +11036,7 @@
       container.appendChild(li);
     }
     selectSkillListItem(skill, container) {
-      const skillInfoContainer = querySelector("[data-skill-info]");
+      const skillInfoContainer = this.page.querySelectorForce("[data-skill-info]");
       skillInfoContainer.classList.toggle("hidden", container.childElementCount === 0);
       if (skill) {
         this.activeSkill = skill;
@@ -11574,10 +11047,6 @@
         element == null ? void 0 : element.click();
       }
     }
-    selectSkillListItemByName(name2, container) {
-      var _a;
-      (_a = container.querySelector(`[data-name="${name2}"]`)) == null ? void 0 : _a.click();
-    }
     save(saveObj) {
       var _a;
       saveObj.skills = {
@@ -11586,7 +11055,12 @@
           rankIndex: this.attackSkillSlot.skill.ranks.indexOf(this.attackSkillSlot.skill.rank)
         },
         attackSkillList: this.attackSkills.reduce((a, c) => {
-          a.push(...c.ranks.map((x) => ({ name: x.config.name, rankProgress: x.rankProgress })).filter((x) => x.rankProgress > 0));
+          for (const rank of c.ranks) {
+            if (!rank.unlocked) {
+              continue;
+            }
+            a.push({ name: rank.config.name });
+          }
           return a;
         }, []),
         buffSkillSlotList: this.buffSkillSlots.reduce((a, c) => {
@@ -11595,36 +11069,22 @@
             return a;
           }
           const { automate, time, running } = c;
-          const name2 = (_a2 = c.skill) == null ? void 0 : _a2.name;
+          const name = (_a2 = c.skill) == null ? void 0 : _a2.name;
           const index = this.buffSkillSlots.indexOf(c);
           const rankIndex = c.skill.ranks.indexOf(c.skill.rank);
-          a.push({ automate, index, name: name2, rankIndex, time, running });
+          a.push({ automate, index, name, rankIndex, time, running });
           return a;
         }, []),
         buffSkillList: this.buffSkills.reduce((a, c) => {
-          a.push(...c.ranks.map((x) => ({ name: x.config.name, rankProgress: x.rankProgress })).filter((x) => x.rankProgress > 0));
+          for (const rank of c.ranks) {
+            if (!rank.unlocked) {
+              continue;
+            }
+            a.push({ name: rank.config.name });
+          }
           return a;
         }, [])
       };
-    }
-  };
-  var Rank = class {
-    constructor(config, progress, mods) {
-      this.config = config;
-      this.progress = progress;
-      this.mods = mods;
-      __publicField(this, "_unlocked");
-      this._unlocked = progress.current >= progress.target;
-    }
-    get unlocked() {
-      return this._unlocked;
-    }
-    get rankProgress() {
-      return this.progress.current;
-    }
-    incrementProgress() {
-      this.progress.current++;
-      this._unlocked = this.progress.current >= this.progress.target;
     }
   };
   var Skill2 = class {
@@ -11640,6 +11100,9 @@
     get name() {
       return this.firstRank.config.name;
     }
+    get rankIndex() {
+      return this._rankIndex;
+    }
     setRankByIndex(index) {
       const rank = this.ranks[index];
       this._rankIndex = index;
@@ -11651,42 +11114,37 @@
     getNextRank() {
       return this.ranks[this._rankIndex + 1];
     }
-    incrementRank() {
-      this._rankIndex++;
-      this.setRankByIndex(this._rankIndex);
-    }
-    decrementRank() {
-      this._rankIndex--;
-      this.setRankByIndex(this._rankIndex);
-    }
   };
   var AttackSkill = class extends Skill2 {
-    constructor(skills, configs) {
-      var _a, _b, _c, _d, _e;
+    constructor(configs) {
+      var _a, _b, _c;
       super();
       __publicField(this, "ranks", []);
       __publicField(this, "rank");
       configs = Array.isArray(configs) ? configs : [configs];
       for (const config of configs) {
-        const rankProgress = ((_d = (_c = (_b = (_a = skills.game.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.attackSkillList) == null ? void 0 : _c.find((x) => x && x.name === config.name)) == null ? void 0 : _d.rankProgress) || 0;
-        const mods = ((_e = config.mods) == null ? void 0 : _e.map((x) => new Modifier(x))) || [];
-        const rank = new Rank(config, { current: rankProgress, target: config.attackCountReq || 0 }, mods);
-        this.ranks.push(rank);
+        this.ranks.push({
+          config,
+          mods: config.mods.map((x) => new Modifier(x)),
+          unlocked: !!((_c = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.attackSkillList) == null ? void 0 : _c.find((x) => (x == null ? void 0 : x.name) === config.name)) || config.goldCost === 0
+        });
       }
       this.rank = this.firstRank;
     }
   };
   var BuffSkill = class extends Skill2 {
-    constructor(skills, configs) {
-      var _a, _b, _c, _d, _e;
+    constructor(configs) {
+      var _a, _b, _c;
       super();
       __publicField(this, "ranks", []);
       __publicField(this, "rank");
       configs = Array.isArray(configs) ? configs : [configs];
       for (const config of configs) {
-        const rankProgress = ((_d = (_c = (_b = (_a = skills.game.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.buffSkillList) == null ? void 0 : _c.find((x) => x && x.name === config.name)) == null ? void 0 : _d.rankProgress) || 0;
-        const mods = ((_e = config.mods) == null ? void 0 : _e.map((x) => new Modifier(x))) || [];
-        this.ranks.push(new Rank(config, { current: rankProgress, target: config.triggerCountReq || 0 }, mods));
+        this.ranks.push({
+          config,
+          mods: config.mods.map((x) => new Modifier(x)),
+          unlocked: !!((_c = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.skills) == null ? void 0 : _b.buffSkillList) == null ? void 0 : _c.find((x) => (x == null ? void 0 : x.name) === config.name)) || config.goldCost === 0
+        });
       }
       this.rank = this.firstRank;
     }
@@ -11726,6 +11184,16 @@
       desc: "Reforge the item with new random modifiers, including a [bleed] modifier",
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Bleed"),
       getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Bleed").addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
+    reforgeIncludeBurn: {
+      desc: "Reforge the item with new random modifiers, including a [burn] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Burn"),
+      getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Burn").addMultiple(data.modList, generateReforgeModCount(1)).modList
+    },
+    reforgeIncludeMinion: {
+      desc: "Reforge the item with new random modifiers, including a [minion] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).modsContainsTag(data.modList, "Minion"),
+      getItemMods: (data) => new Crafter().addOneByTag(data.modList, "Minion").addMultiple(data.modList, generateReforgeModCount(1)).modList
     },
     reforgeHigherChanceSameMods: {
       desc: "Reforge the item with a higher chance of receiving the same modifiers",
@@ -11790,6 +11258,11 @@
       validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Burn"),
       getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Burn").modList
     },
+    addMinion: {
+      desc: "Add a [minion] modifier",
+      validate: (data) => new CraftValidator().modsIsNotEmpty(data.modList).itemHasSpaceForMods(data.itemModList).itemCanCraftModWithTag(data.itemModList, data.modList, "Minion"),
+      getItemMods: (data) => new Crafter(data.itemModList).addOneByTag(data.modList, "Minion").modList
+    },
     removeRandom: {
       desc: "Remove a random modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList),
@@ -11804,6 +11277,11 @@
       desc: "Remove an [elemental] modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, "Elemental"),
       getItemMods: (data) => new Crafter(data.itemModList).removeWithTag("Elemental").modList
+    },
+    removeMinion: {
+      desc: "Remove a [minion] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.itemModList, "Minion"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeWithTag("Minion").modList
     },
     removeRandomAddRandom: {
       desc: "Remove a random modifier and add a new random modifier",
@@ -11839,6 +11317,11 @@
       desc: "Remove a random modifier and add a new [burn] modifier",
       validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Burn").itemCanCraftModWithTag(data.itemModList, data.modList, "Burn"),
       getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Burn").modList
+    },
+    removeRandomAddMinion: {
+      desc: "Remove a random modifier and add a new [minion] modifier",
+      validate: (data) => new CraftValidator().itemHasModifiers(data.itemModList).modsContainsTag(data.modList, "Minion").itemCanCraftModWithTag(data.itemModList, data.modList, "Minion"),
+      getItemMods: (data) => new Crafter(data.itemModList).removeRandom().addOneByTag(data.modList, "Minion").modList
     }
   };
   var CraftValidator = class {
@@ -11954,39 +11437,41 @@
       __publicField(this, "presets", []);
       __publicField(this, "activePreset");
       __publicField(this, "modal");
-      var _a, _b, _c;
-      this.modal = querySelector(".p-game .p-items [data-preset-modal]", this.items.page);
-      querySelector(".s-preset-container [data-new]", this.items.page).addEventListener("click", () => {
+      var _a, _b;
+      this.modal = this.items.page.querySelectorForce(".p-game .p-items [data-preset-modal]");
+      querySelector(".s-preset-container [data-new]").addEventListener("click", () => {
         const preset = this.newPreset();
         this.editActivePreset();
         preset.element.click();
       });
-      querySelector(".s-preset-container [data-edit]", this.items.page).addEventListener("click", () => this.editActivePreset());
-      querySelector("[data-apply]", this.modal).addEventListener("click", () => {
+      querySelector(".s-preset-container [data-edit]").addEventListener("click", () => this.editActivePreset());
+      this.modal.querySelectorForce("[data-apply]").addEventListener("click", () => {
         if (!this.activePreset) {
           return;
         }
         const newIds = [...this.modal.querySelectorAll("[data-craft-list] table [data-id]")].filter((x) => x.classList.contains("selected")).map((x) => x.getAttribute("data-id"));
         this.activePreset.ids = newIds;
-        const name2 = querySelector("input[data-name]", this.modal).value;
-        if (name2 !== this.activePreset.name) {
-          this.activePreset.name = name2;
+        const name = this.modal.querySelector("input[data-name]").value;
+        if (name !== this.activePreset.name) {
+          this.activePreset.name = name;
         }
         this.selectPreset(this.activePreset);
       });
-      querySelector("[data-delete]", this.modal).addEventListener("click", () => this.deleteActivePreset());
-      if ((_b = (_a = items.game.saveObj) == null ? void 0 : _a.items) == null ? void 0 : _b.craftPresets) {
-        for (const savedPreset of (_c = items.game.saveObj.items) == null ? void 0 : _c.craftPresets) {
-          if ((savedPreset == null ? void 0 : savedPreset.name) && savedPreset.ids) {
-            this.newPreset(savedPreset.name, savedPreset.ids);
-          }
+      this.modal.querySelectorForce("[data-delete]").addEventListener("click", () => this.deleteActivePreset());
+      this.createDefaultPreset();
+      for (const savedPreset of ((_b = (_a = Game_default.saveObj) == null ? void 0 : _a.items) == null ? void 0 : _b.craftPresets) || []) {
+        if ((savedPreset == null ? void 0 : savedPreset.name) && savedPreset.ids) {
+          this.newPreset(savedPreset.name, savedPreset.ids);
         }
-      } else {
-        this.newPreset("Default", items.data.craftList.map((x) => x.id));
       }
     }
-    newPreset(name2 = "New", ids = this.items.data.craftList.map((x) => x.id)) {
-      const preset = new CraftPreset(name2, ids);
+    createDefaultPreset() {
+      const preset = this.newPreset("Default");
+      preset.editable = false;
+      this.selectPreset(preset);
+    }
+    newPreset(name = "New", ids = this.items.data.craftList.map((x) => x.id)) {
+      const preset = new CraftPreset(name, ids);
       preset.element.addEventListener("click", () => {
         this.presets.forEach((x) => x.element.classList.toggle("selected", x === preset));
         this.selectPreset(preset);
@@ -12000,7 +11485,8 @@
       var _a;
       this.activePreset = preset;
       this.items.updateCraftList((_a = this.activePreset) == null ? void 0 : _a.ids);
-      querySelector(".s-preset-container [data-edit]", this.items.page).disabled = typeof this.activePreset === "undefined";
+      const canEdit = typeof this.activePreset !== "undefined" && this.activePreset.editable;
+      this.items.page.querySelector(".s-preset-container [data-edit]").disabled = !canEdit;
     }
     editActivePreset() {
       var _a;
@@ -12008,8 +11494,8 @@
         return;
       }
       const modal = querySelector(".p-game .p-items [data-preset-modal]");
-      querySelector("input[data-name]", modal).value = (_a = this.activePreset) == null ? void 0 : _a.name;
-      const filteredCraftList = this.items.data.craftList.filter((x) => x.levelReq <= this.items.game.statistics.statistics.Level.get());
+      modal.querySelector("input[data-name]").value = (_a = this.activePreset) == null ? void 0 : _a.name;
+      const filteredCraftList = this.items.data.craftList.filter((x) => x.levelReq <= Statistics_default.gameStats.Level.get());
       const rows = [];
       for (const craftData of filteredCraftList) {
         const label = this.items.craftDescToHtml(craftData.id);
@@ -12020,13 +11506,13 @@
         row.insertAdjacentHTML("beforeend", `
                 <td>${label}</td>
                 <td>${craftData.levelReq}</td>
-                <td class="g-gold">${craftData.cost}</td>`);
+                <td class="g-gold">${craftData.goldCost}</td>`);
         row.addEventListener("click", () => {
           row.classList.toggle("selected", !row.classList.contains("selected"));
         });
         rows.push(row);
       }
-      querySelector("[data-craft-list] table tbody", modal).replaceChildren(...rows);
+      modal.querySelector("[data-craft-list] table tbody").replaceChildren(...rows);
       modal.showModal();
     }
     deleteActivePreset() {
@@ -12049,6 +11535,7 @@
       this._name = _name;
       this.ids = ids;
       __publicField(this, "element");
+      __publicField(this, "editable", true);
       this.element = this.createElement();
     }
     get name() {
@@ -12068,17 +11555,16 @@
 
   // src/game/components/items/Items.ts
   var Items = class extends Component {
-    constructor(game, data) {
+    constructor(data) {
       var _a;
-      super(game, "items");
-      this.game = game;
+      super("items");
       this.data = data;
       __publicField(this, "itemsPage", querySelector(".p-game .p-items"));
-      __publicField(this, "itemListContainer", querySelector("[data-item-list]", this.itemsPage));
-      __publicField(this, "itemModListContainer", querySelector("[data-mod-list]", this.itemsPage));
-      __publicField(this, "itemCraftTableContainer", querySelector(".s-craft-container [data-craft-list] table", this.itemsPage));
-      __publicField(this, "craftButton", querySelector(".s-craft-container [data-craft-button]", this.itemsPage));
-      __publicField(this, "craftMessageElement", querySelector("[data-craft-message]", this.itemsPage));
+      __publicField(this, "itemListContainer", this.itemsPage.querySelectorForce("[data-item-list]"));
+      __publicField(this, "itemModListContainer", this.itemsPage.querySelectorForce("[data-mod-list]"));
+      __publicField(this, "itemCraftTableContainer", this.itemsPage.querySelectorForce(".s-craft-container [data-craft-list] table"));
+      __publicField(this, "craftButton", this.itemsPage.querySelectorForce(".s-craft-container [data-craft-button]"));
+      __publicField(this, "craftMessageElement", this.itemsPage.querySelectorForce("[data-craft-message]"));
       __publicField(this, "items", []);
       __publicField(this, "activeItem");
       __publicField(this, "activeCraftId");
@@ -12099,18 +11585,18 @@
       this.activeItem.element.click();
       this.createCraftListItems(data.craftList);
       this.updateCraftList((_a = this.presets.activePreset) == null ? void 0 : _a.ids);
-      this.game.visiblityObserver.register(this.page, (visible) => {
+      Game_default.visiblityObserver.register(this.page, (visible) => {
         if (visible) {
           this.updateCraftButton();
         }
       });
-      this.game.statistics.statistics.Gold.addListener("change", () => {
+      Statistics_default.gameStats.Gold.addListener("change", () => {
         if (this.page.classList.contains("hidden")) {
           return;
         }
         this.updateCraftButton();
       });
-      game.statistics.statistics.Level.addListener("change", () => {
+      Statistics_default.gameStats.Level.addListener("change", () => {
         var _a2;
         return this.updateCraftList((_a2 = this.presets.activePreset) == null ? void 0 : _a2.ids);
       });
@@ -12119,10 +11605,17 @@
     save(saveObj) {
       saveObj.items = {
         items: this.items.reduce((a, c) => {
-          a.push({ name: c.name, modList: c.mods.map((x) => ({ text: x.templateDesc, values: x.stats.map((x2) => x2.value) })) });
+          a.push({
+            name: c.name,
+            modList: c.mods.map((x) => ({
+              text: x.templateDesc,
+              groupIndex: x.groupIndex,
+              values: x.stats.map((x2) => x2.value)
+            }))
+          });
           return a;
         }, []),
-        craftPresets: this.presets.presets.reduce((a, c) => {
+        craftPresets: [...this.presets.presets].slice(1).reduce((a, c) => {
           a.push({ name: c.name, ids: c.ids });
           return a;
         }, [])
@@ -12146,7 +11639,7 @@
     }
     createItems() {
       for (const itemData of this.data.itemList) {
-        this.game.statistics.statistics.Level.registerCallback(itemData.levelReq, () => {
+        Statistics_default.gameStats.Level.registerCallback(itemData.levelReq, () => {
           const item = new Item(this, itemData.name);
           this.items.push(item);
           this.itemListContainer.appendChild(item.element);
@@ -12159,21 +11652,22 @@
       var _a;
       const rows = [];
       for (const craftData of craftDataList) {
-        const { cost, id, levelReq } = craftData;
+        const { goldCost, id, levelReq } = craftData;
         const tr = document.createElement("tr");
         tr.classList.add("g-list-item", "hidden");
         tr.setAttribute("data-id", id);
-        tr.setAttribute("data-cost", cost.toFixed());
+        tr.setAttribute("data-cost", goldCost.toFixed());
         const label = this.craftDescToHtml(id);
-        tr.insertAdjacentHTML("beforeend", `<tr><td>${label}</td><td class="g-gold" data-cost>${cost}</td></tr>`);
+        tr.insertAdjacentHTML("beforeend", `<tr><td>${label}</td><td class="g-gold" data-cost>${goldCost}</td></tr>`);
         tr.addEventListener("click", () => {
           rows.forEach((x) => x.classList.toggle("selected", x === tr));
           this.activeCraftId = id;
           this.updateCraftButton();
         });
-        this.game.statistics.statistics.Level.registerCallback(levelReq, () => {
+        Statistics_default.gameStats.Level.registerCallback(levelReq, () => {
           tr.setAttribute("data-enabled", "");
           highlightHTMLElement(this.menuItem, "click");
+          highlightHTMLElement(this.presets.presets[0].element, "mouseover");
           highlightHTMLElement(tr, "mouseover");
         });
         rows.push(tr);
@@ -12197,7 +11691,7 @@
     generateCraftData() {
       return {
         itemModList: this.activeItem.mods,
-        modList: this.modLists.filter((x) => x.levelReq <= this.game.statistics.statistics.Level.get())
+        modList: this.modLists.filter((x) => x.levelReq <= Statistics_default.gameStats.Level.get())
       };
     }
     updateCraftButton() {
@@ -12207,7 +11701,7 @@
         }
         const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute("data-cost");
         const cost = Number(costAttr);
-        if (cost > this.game.statistics.statistics.Gold.get()) {
+        if (cost > Statistics_default.gameStats.Gold.get()) {
           return "Not Enough Gold";
         }
         const template = craftTemplates[this.activeCraftId];
@@ -12227,7 +11721,7 @@
       if (!this.activeCraftId) {
         return;
       }
-      const cost = (_a = this.data.craftList.find((x) => x.id === this.activeCraftId)) == null ? void 0 : _a.cost;
+      const cost = (_a = this.data.craftList.find((x) => x.id === this.activeCraftId)) == null ? void 0 : _a.goldCost;
       if (!cost) {
         console.error("something went wrong");
         return;
@@ -12240,7 +11734,7 @@
         return;
       }
       this.activeItem.mods = template.getItemMods(craftData);
-      this.game.statistics.statistics.Gold.subtract(cost);
+      Statistics_default.gameStats.Gold.subtract(cost);
       this.updateItemModList();
     }
     craftDescToHtml(id) {
@@ -12251,9 +11745,9 @@
     }
   };
   var Item = class {
-    constructor(items, name2) {
+    constructor(items, name) {
       this.items = items;
-      this.name = name2;
+      this.name = name;
       __publicField(this, "element");
       __publicField(this, "_mods", []);
       this.element = this.createElement();
@@ -12263,9 +11757,9 @@
       return this._mods;
     }
     set mods(v) {
-      this.items.game.player.modDB.removeBySource(this.name);
-      this._mods = v;
-      this.items.game.player.modDB.add(this._mods.flatMap((x) => x.copy().stats), this.name);
+      Player_default.modDB.removeBySource(this.name);
+      this._mods = v.map((x) => x.copy());
+      Player_default.modDB.add(this.name, ...this._mods.flatMap((x) => x.stats));
     }
     createElement() {
       const li = document.createElement("li");
@@ -12281,19 +11775,18 @@
     tryLoad() {
       var _a, _b, _c, _d;
       try {
-        const savedItem = (_c = (_b = (_a = this.items.game.saveObj) == null ? void 0 : _a.items) == null ? void 0 : _b.items) == null ? void 0 : _c.find((x) => x && x.name === this.name);
+        const savedItem = (_c = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.items) == null ? void 0 : _b.items) == null ? void 0 : _c.find((x) => x && x.name === this.name);
         if (!savedItem) {
           return;
         }
         const mods = ((_d = savedItem.modList) == null ? void 0 : _d.reduce((a, c) => {
           var _a2;
           if ((c == null ? void 0 : c.text) && c.values) {
-            const mod = (_a2 = this.items.modLists.find((x) => x.templateDesc === c.text)) == null ? void 0 : _a2.copy();
+            const mod = (_a2 = this.items.modLists.find((x) => x.groupIndex === (c.groupIndex || 0) && x.templateDesc === c.text)) == null ? void 0 : _a2.copy();
             if (!mod) {
               return a;
             }
             if (c.values.length !== mod.stats.length || c.values.some((x) => typeof x !== "number")) {
-              mod.stats.forEach((x) => x.value = x.min);
               a.push(mod);
               return a;
             }
@@ -12341,16 +11834,15 @@
 
   // src/game/components/Passives.ts
   var Passives = class extends Component {
-    constructor(game, data) {
-      super(game, "passives");
-      this.game = game;
+    constructor(data) {
+      super("passives");
       this.data = data;
       __publicField(this, "passives", []);
       __publicField(this, "passivesListContainer");
-      this.passivesListContainer = querySelector(".s-passive-list table", this.page);
+      this.passivesListContainer = this.page.querySelectorForce(".s-passive-list table");
       {
         for (const passiveListData of data.passiveLists) {
-          passiveListData.sort((a, b) => a.levelReq - b.levelReq);
+          passiveListData.sort((a, b) => a.points - b.points);
           for (const passiveData of passiveListData) {
             const passive = new Passive(this, passiveData, this.passives.length);
             passive.element.addEventListener("click", () => {
@@ -12358,26 +11850,26 @@
               this.updatePoints();
               this.updatePassiveList();
             });
-            this.game.statistics.statistics.Level.registerCallback(passiveData.levelReq, () => {
+            Statistics_default.gameStats.Level.registerCallback(passiveData.levelReq, () => {
               passive.element.classList.remove("hidden");
               highlightHTMLElement(this.menuItem, "click");
               highlightHTMLElement(passive.element, "mouseover");
             });
             this.passives.push(passive);
           }
-          querySelector(".s-passive-list table", this.page).append(...this.passives.map((x) => x.element));
+          this.page.querySelectorForce(".s-passive-list table").append(...this.passives.map((x) => x.element));
         }
       }
-      this.game.statistics.statistics.Level.addListener("change", () => {
+      Statistics_default.gameStats.Level.addListener("change", () => {
         this.updatePoints();
         this.updatePassiveList();
       });
-      querySelector("[data-reset]", this.page).addEventListener("click", () => this.resetPassives());
+      this.page.querySelectorForce("[data-reset]").addEventListener("click", () => this.resetPassives());
       this.updatePoints();
       this.updatePassiveList();
     }
     get maxPoints() {
-      return this.data.pointsPerLevel * this.game.statistics.statistics.Level.get() - 1;
+      return this.data.pointsPerLevel * Statistics_default.gameStats.Level.get() - 1;
     }
     get curPoints() {
       return this.maxPoints - this.passives.filter((x) => x.assigned).reduce((a, c) => a += c.data.points, 0);
@@ -12424,14 +11916,10 @@
       var _a, _b, _c;
       this.mod = new Modifier(data.mod);
       this.element = this.createElement();
-      highlightHTMLElement(this.element, "mouseover");
-      passives.game.statistics.statistics.Level.registerCallback(data.levelReq, () => {
-        this.element.classList.remove("hidden");
-      });
-      const savedList = (_b = (_a = passives.game.saveObj) == null ? void 0 : _a.passives) == null ? void 0 : _b.list;
+      const savedList = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.passives) == null ? void 0 : _b.list;
       if (savedList) {
         const desc = (_c = savedList.find((x) => x && x.index === index)) == null ? void 0 : _c.desc;
-        if (desc === data.mod && passives.curPoints >= data.points) {
+        if (desc === this.mod.templateDesc && passives.curPoints >= data.points) {
           this.assigned = true;
         }
       }
@@ -12440,14 +11928,12 @@
       return this._assigned;
     }
     set assigned(v) {
-      const modDB = this.passives.game.player.modDB;
+      const modDB = Player_default.modDB;
       const source = "Passives".concat("/", this.index.toFixed());
-      if (v) {
-        this._assigned = true;
-        const mods = this.mod.copy().stats;
-        modDB.add(mods, source);
+      this._assigned = v;
+      if (this._assigned) {
+        modDB.add(source, ...this.mod.stats);
       } else {
-        this._assigned = false;
         modDB.removeBySource(source);
       }
     }
@@ -12468,8 +11954,7 @@
     }
   };
   var Task = class {
-    constructor(game, text) {
-      this.game = game;
+    constructor(text) {
       __publicField(this, "text");
       __publicField(this, "description");
       __publicField(this, "textData");
@@ -12478,16 +11963,16 @@
       __publicField(this, "validator");
       __publicField(this, "taskValidators");
       this.taskValidators = [
-        new Validator(/^Reach Level {(\d+)}$/, this.game.statistics.statistics.Level),
-        new Validator(/^Deal Damage {(\d+)}$/, this.game.statistics.statistics["Total Damage"]),
-        new Validator(/^Deal Physical Damage {(\d+)}$/, this.game.statistics.statistics["Total Physical Damage"]),
-        new Validator(/^Deal Elemental Damage {(\d+)}$/, this.game.statistics.statistics["Total Elemental Damage"]),
-        new Validator(/^Deal Bleed Damage {(\d+)}$/, this.game.statistics.statistics["Total Bleed Damage"]),
-        new Validator(/^Deal Burn Damage {(\d+)}$/, this.game.statistics.statistics["Total Burn Damage"]),
-        new Validator(/^Perform Hits {(\d+)}$/, this.game.statistics.statistics.Hits),
-        new Validator(/^Perform Critical Hits {(\d+)}$/, this.game.statistics.statistics["Critical Hits"]),
-        new Validator(/^Generate Gold {(\d+)}$/, this.game.statistics.statistics["Gold Generated"]),
-        new Validator(/^Regenerate Mana {(\d+)}$/, this.game.statistics.statistics["Mana Generated"])
+        new Validator(/^Reach Level {(\d+)}$/, Statistics_default.gameStats.Level),
+        new Validator(/^Generate Gold {(\d+)}$/, Statistics_default.gameStats["Gold Generated"]),
+        new Validator(/^Deal Damage {(\d+)}$/, Player_default.stats["Total Damage"]),
+        new Validator(/^Deal Physical Damage {(\d+)}$/, Player_default.stats["Total Physical Damage"]),
+        new Validator(/^Deal Elemental Damage {(\d+)}$/, Player_default.stats["Total Elemental Damage"]),
+        new Validator(/^Deal Bleed Damage {(\d+)}$/, Player_default.stats["Total Bleed Damage"]),
+        new Validator(/^Deal Burn Damage {(\d+)}$/, Player_default.stats["Total Burn Damage"]),
+        new Validator(/^Perform Hits {(\d+)}$/, Player_default.stats.Hits),
+        new Validator(/^Perform Critical Hits {(\d+)}$/, Player_default.stats["Critical Hits"]),
+        new Validator(/^Regenerate Mana {(\d+)}$/, Player_default.stats["Mana Generated"])
       ];
       this.text = text;
       this.description = text.replace(/[{}]*/g, "");
@@ -12523,9 +12008,8 @@
 
   // src/game/components/Achievements.ts
   var Achievements = class extends Component {
-    constructor(game, data) {
-      super(game, "achievements");
-      this.game = game;
+    constructor(data) {
+      super("achievements");
       this.data = data;
       __publicField(this, "achievements", []);
       for (const achievementData of data.list) {
@@ -12533,19 +12017,19 @@
         this.achievements.push(achievement);
         achievement.updateLabel();
       }
-      this.game.gameLoop.subscribe(() => {
+      Game_default.gameLoop.subscribe(() => {
         this.achievements.forEach((x) => {
           x.tryCompletion();
         });
       }, { intervalMilliseconds: 1e3 });
-      this.game.visiblityObserver.registerLoop(this.page, (visible) => {
+      Game_default.visiblityObserver.registerLoop(this.page, (visible) => {
         if (visible) {
           this.achievements.forEach((x) => x.updateLabel());
         }
       }, { intervalMilliseconds: 1e3 });
       querySelector(".p-game .p-achievements ul").append(...this.achievements.map((x) => x.element));
     }
-    save(saveObj) {
+    save(_saveObj) {
     }
   };
   var Achievement = class {
@@ -12556,7 +12040,7 @@
       __publicField(this, "element");
       __publicField(this, "completed", false);
       this.element = this.createElement();
-      this.task = new Task(achievements.game, data.description);
+      this.task = new Task(data.description);
       this.task.startValue = 0;
       this.tryCompletion();
     }
@@ -12570,7 +12054,7 @@
       if (this.data.modList) {
         const modifiers = this.data.modList.flatMap((x) => new Modifier(x).stats);
         const source = `Achievement/${this.data.description}`;
-        this.achievements.game.player.modDB.add(modifiers, source);
+        Player_default.modDB.add(source, ...modifiers);
       }
       highlightHTMLElement(this.achievements.menuItem, "click");
       highlightHTMLElement(this.element, "mouseover");
@@ -12581,7 +12065,7 @@
       if (this.completed) {
         return;
       }
-      const label = querySelector("[data-label]", this.element);
+      const label = this.element.querySelectorForce("[data-label]");
       const descElement = document.createElement("span");
       descElement.textContent = this.task.textData.labelText + " ";
       descElement.setAttribute("data-desc", "");
@@ -12620,23 +12104,22 @@
 
   // src/game/components/Missions.ts
   var Missions = class extends Component {
-    constructor(game, data) {
-      super(game, "missions");
-      this.game = game;
+    constructor(data) {
+      super("missions");
       this.data = data;
       __publicField(this, "slots", []);
-      __publicField(this, "missionsListContainer", querySelector("ul[data-mission-list]", this.page));
+      __publicField(this, "missionsListContainer", this.page.querySelectorForce("ul[data-mission-list]"));
       for (const slotData of data.slots) {
-        game.statistics.statistics.Level.registerCallback(slotData.levelReq, () => {
+        Statistics_default.gameStats.Level.registerCallback(slotData.levelReq, () => {
           const slot = new MissionSlot(this, slotData.cost);
           this.slots.push(slot);
           this.missionsListContainer.appendChild(slot.element);
         });
       }
-      game.gameLoop.subscribe(() => {
+      Game_default.gameLoop.subscribe(() => {
         this.slots.forEach((x) => x.tryCompletion());
       }, { intervalMilliseconds: 1e3 });
-      game.visiblityObserver.registerLoop(this.page, (visible) => {
+      Game_default.visiblityObserver.registerLoop(this.page, (visible) => {
         if (visible) {
           this.slots.forEach((x) => x.updateLabel());
         }
@@ -12663,10 +12146,12 @@
       __publicField(this, "_element");
       __publicField(this, "completed", false);
       this._element = this.createElement();
-      missions.game.statistics.statistics.Gold.addListener("change", () => {
+      Statistics_default.gameStats.Gold.addListener("change", () => {
         this.updateNewButton();
       });
       this.tryLoad();
+      highlightHTMLElement(this.missions.menuItem, "click");
+      highlightHTMLElement(this.element, "mouseover");
     }
     get element() {
       return this._element;
@@ -12709,7 +12194,7 @@
       buttonNew.insertAdjacentHTML("beforeend", "<span>New</span>");
       buttonNew.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost></span>`);
       buttonNew.addEventListener("click", () => {
-        this.missions.game.statistics.statistics.Gold.subtract(this.newMissionCost);
+        Statistics_default.gameStats.Gold.subtract(this.newMissionCost);
         this.generateRandomMission();
       });
       this._element.appendChild(buttonClaim);
@@ -12719,13 +12204,13 @@
       if (!this._missionData) {
         return;
       }
-      this.missions.game.statistics.statistics.Gold.add(this._missionData.goldAmount);
+      Statistics_default.gameStats.Gold.add(this._missionData.goldAmount);
       this.generateRandomMission();
       this.completed = false;
     }
     generateRandomMission() {
       const missionDataArr = this.missions.data.missionLists.reduce((a, c) => {
-        const missionData = c.filter((x) => x.levelReq <= this.missions.game.statistics.statistics.Level.get()).sort((a2, b) => b.levelReq - a2.levelReq)[0];
+        const missionData = c.filter((x) => x.levelReq <= Statistics_default.gameStats.Level.get()).sort((a2, b) => b.levelReq - a2.levelReq)[0];
         if (missionData) {
           a.push(missionData);
         }
@@ -12740,11 +12225,11 @@
         throw Error("missing mission data");
       }
       const description = this._missionData.description || "Error";
-      this._task = new Task(this.missions.game, description);
-      const id = this.missions.game.gameLoop.subscribe(() => {
+      this._task = new Task(description);
+      const id = Game_default.gameLoop.subscribe(() => {
         var _a;
         if ((_a = this._task) == null ? void 0 : _a.completed) {
-          this.missions.game.gameLoop.unsubscribe(id);
+          Game_default.gameLoop.unsubscribe(id);
           this.updateSlot();
         }
       }, { intervalMilliseconds: 1e3 });
@@ -12759,7 +12244,7 @@
       if (!this._task) {
         return;
       }
-      const label = querySelector("[data-label]", this._element);
+      const label = this._element.querySelectorForce("[data-label]");
       const descElement = document.createElement("span");
       descElement.textContent = this._task.textData.labelText + " ";
       descElement.setAttribute("data-desc", "");
@@ -12777,17 +12262,17 @@
       if (!this._missionData || !this._task) {
         return;
       }
-      const element = querySelector('[data-trigger="claim"]', this._element);
-      querySelector("[data-cost]", element).textContent = this._missionData.goldAmount.toFixed();
+      const element = this._element.querySelectorForce('[data-trigger="claim"]');
+      element.querySelectorForce("[data-cost]").textContent = this._missionData.goldAmount.toFixed();
       element.disabled = !this._task.completed;
     }
     updateNewButton() {
       if (!this._missionData || !this._task) {
         return;
       }
-      const element = querySelector('[data-trigger="new"]', this._element);
-      querySelector("[data-cost]", element).textContent = this.newMissionCost.toFixed();
-      element.disabled = this._task.completed || this.missions.game.statistics.statistics.Gold.get() < this.newMissionCost;
+      const element = this._element.querySelectorForce('[data-trigger="new"]');
+      element.querySelectorForce("[data-cost]").textContent = this.newMissionCost.toFixed();
+      element.disabled = this._task.completed || Statistics_default.gameStats.Gold.get() < this.newMissionCost;
     }
     createElement() {
       const li = document.createElement("li");
@@ -12800,12 +12285,12 @@
       button.insertAdjacentHTML("beforeend", `<span class="g-gold" data-cost>${this.unlockCost}</span>`);
       button.setAttribute("data-trigger", "buy");
       button.addEventListener("click", () => {
-        this.missions.game.statistics.statistics.Gold.subtract(this.unlockCost);
+        Statistics_default.gameStats.Gold.subtract(this.unlockCost);
         this.unlock();
         this.generateRandomMission();
       });
       button.disabled = true;
-      this.missions.game.statistics.statistics.Gold.addListener("change", (amount) => {
+      Statistics_default.gameStats.Gold.addListener("change", (amount) => {
         button.disabled = amount < this.unlockCost;
       });
       li.appendChild(label);
@@ -12814,7 +12299,7 @@
     }
     tryLoad() {
       var _a, _b, _c;
-      const savedMission = (_c = (_b = (_a = this.missions.game.saveObj) == null ? void 0 : _a.missions) == null ? void 0 : _b.missions) == null ? void 0 : _c[this.missions.slots.length];
+      const savedMission = (_c = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.missions) == null ? void 0 : _b.missions) == null ? void 0 : _c[this.missions.slots.length];
       if (!savedMission) {
         return;
       }
@@ -12822,7 +12307,7 @@
       const missionData = this.missions.data.missionLists.flatMap((x) => x).find((x) => savedMission.desc && x.description === savedMission.desc);
       if (missionData) {
         this._missionData = missionData;
-        this._task = new Task(this.missions.game, missionData.description);
+        this._task = new Task(missionData.description);
         this._task.startValue = savedMission.startValue || 0;
         this.tryCompletion();
       } else {
@@ -12832,8 +12317,379 @@
     }
   };
 
+  // src/game/components/Minions.ts
+  var Minions = class extends Component {
+    constructor(config) {
+      var _a, _b;
+      super("minions");
+      this.config = config;
+      __publicField(this, "minions", []);
+      __publicField(this, "dataSlotListContainer");
+      __publicField(this, "slots", []);
+      __publicField(this, "activeSlot");
+      __publicField(this, "activeMinion");
+      __publicField(this, "view");
+      this.view = new View(this);
+      this.dataSlotListContainer = this.page.querySelectorForce("ul[data-slots]");
+      for (const data of config.list) {
+        const levelReq = Array.isArray(data) ? data[0].levelReq : 1;
+        Statistics_default.gameStats.Level.registerCallback(levelReq, () => {
+          const minion = new Minion(data);
+          this.minions.push(minion);
+          this.createMinionListItem(minion);
+        });
+      }
+      this.selectListItem(this.minions[0]);
+      this.page.querySelectorForce("[data-add-slot]").addEventListener("click", this.createSlot.bind(this));
+      this.page.querySelectorForce("[data-remove-slot]").addEventListener("click", this.removeSlot.bind(this));
+      Game_default.visiblityObserver.register(this.page, (visible) => {
+        if (visible) {
+          this.updateCounter();
+          if (this.activeMinion) {
+            this.view.show(this.activeMinion, -1);
+          }
+        }
+      });
+      Game_default.visiblityObserver.registerLoop(this.page, (visible) => {
+        if (!visible) {
+          return;
+        }
+        this.slots.forEach((x) => {
+          if (!x.minion) {
+            return;
+          }
+          x.updateProgressBar();
+        });
+      });
+      Player_default.onStatsUpdate.listen(() => {
+        this.fixStuff();
+      });
+      for (const slotData of ((_b = (_a = Game_default.saveObj) == null ? void 0 : _a.minions) == null ? void 0 : _b.minionSlots) || []) {
+        const slot = this.createSlot();
+        const minion = this.minions.find((x) => x.name === (slotData == null ? void 0 : slotData.name));
+        if (!minion) {
+          continue;
+        }
+        minion.setRankIndex((slotData == null ? void 0 : slotData.rankIndex) || 0);
+        slot.setMinion(minion);
+      }
+      this.selectSlot(this.slots[0]);
+      this.updateCounter();
+    }
+    get maxActiveMinions() {
+      return Player_default.stats["Maximum Minions"].get();
+    }
+    updateCounter() {
+      const active = this.slots.filter((x) => x.minion && x.minion.enabled).length;
+      const max = Player_default.stats["Maximum Minions"].get();
+      const text = `${active}/${max}`;
+      this.page.querySelectorForce(".s-toolbar [data-count]").textContent = text;
+    }
+    createMinionListItem(minion) {
+      const li = document.createElement("li");
+      li.classList.add("g-list-item");
+      li.setAttribute("data-name", minion.name || "unknown");
+      li.textContent = minion.name || "unknown";
+      li.addEventListener("click", () => {
+        this.selectListItem(minion);
+      });
+      highlightHTMLElement(this.menuItem, "click");
+      highlightHTMLElement(li, "mouseover");
+      this.page.querySelectorForce("[data-list]").appendChild(li);
+      return li;
+    }
+    createSlot() {
+      const slot = new Slot(this);
+      this.slots.push(slot);
+      this.dataSlotListContainer.appendChild(slot.element);
+      slot.element.addEventListener("click", () => this.selectSlot(slot));
+      slot.element.click();
+      this.updateCounter();
+      return slot;
+    }
+    selectSlot(slot) {
+      var _a;
+      if (!slot && this.activeSlot) {
+        this.activeSlot.setMinion();
+      }
+      this.activeSlot = slot;
+      this.slots.forEach((x) => x.element.classList.toggle("selected", x === slot));
+      this.selectListItem((_a = this.activeSlot) == null ? void 0 : _a.minion);
+      this.page.querySelectorForce("[data-remove-slot]").disabled = !this.activeSlot;
+    }
+    removeSlot() {
+      if (!this.activeSlot) {
+        return;
+      }
+      this.activeSlot.element.remove();
+      const slotIndex = this.slots.indexOf(this.activeSlot);
+      this.slots.splice(slotIndex, 1);
+      const newSlot = this.slots[Math.min(slotIndex, this.slots.length - 1)];
+      this.selectSlot(newSlot);
+      this.updateCounter();
+    }
+    selectListItem(minion) {
+      this.activeMinion = minion;
+      if (minion) {
+        this.page.querySelectorAll("[data-list] [data-name]").forEach((x) => {
+          x.classList.toggle("selected", x.getAttribute("data-name") === minion.ranks[0].config.name);
+        });
+        this.view.show(minion);
+      } else {
+        const element = this.page.querySelector("[data-list] [data-name]:first-child");
+        element == null ? void 0 : element.click();
+      }
+    }
+    fixStuff() {
+      this.minions.forEach((x) => x.disable());
+      for (const slot of this.slots) {
+        const minion = slot.minion;
+        if (!minion) {
+          continue;
+        }
+        const count = this.slots.filter((x) => x.minion && x.minion.enabled).length;
+        if (count < this.maxActiveMinions) {
+          minion.enable();
+        }
+      }
+      this.updateCounter();
+    }
+    save(saveObj) {
+      saveObj.minions = {
+        minionSlots: this.slots.reduce((a, c) => {
+          var _a, _b;
+          const minion = { name: (_a = c.minion) == null ? void 0 : _a.name, rankIndex: (_b = c.minion) == null ? void 0 : _b.rankIndex };
+          a.push(minion);
+          return a;
+        }, []),
+        minionList: this.minions.reduce((a, c) => {
+          const stats = Statistics_default.createStatsSaveObj(c.stats);
+          const name = c.name;
+          const ranks = c.ranks.filter((x) => x.unlocked).map((x) => x.config.name);
+          a.push({ name, ranks, stats });
+          return a;
+        }, [])
+      };
+    }
+  };
+  var Slot = class {
+    constructor(minions) {
+      this.minions = minions;
+      __publicField(this, "element");
+      __publicField(this, "progressBar");
+      __publicField(this, "_minion");
+      this.element = this.createElement();
+      this.progressBar = this.element.querySelectorForce("progress");
+    }
+    get minion() {
+      return this._minion;
+    }
+    setMinion(minion) {
+      this._minion = minion;
+      this.element.querySelectorForce("[data-name]").textContent = minion ? minion.rank.config.name : "[Empty]";
+      this.minions.fixStuff();
+    }
+    updateProgressBar() {
+      if (!this._minion) {
+        return;
+      }
+      const pct = this._minion.attackTime / this._minion.attackWaitTime;
+      if (!Number.isNaN(pct)) {
+        this.progressBar.value = pct;
+      }
+    }
+    createElement() {
+      const li = document.createElement("li");
+      li.classList.add("g-list-item");
+      li.insertAdjacentHTML("beforeend", `<div data-name>[Empty]</div`);
+      li.insertAdjacentHTML("beforeend", `<progress class="small" value="0" max="1"></progress>`);
+      return li;
+    }
+  };
+  var Minion = class extends MinionEntity {
+    constructor(configs) {
+      var _a, _b, _c, _d;
+      configs = Array.isArray(configs) ? configs : [configs];
+      super(configs[0].name);
+      __publicField(this, "ranks", []);
+      __publicField(this, "_rankIndex", 0);
+      __publicField(this, "_enabled", false);
+      const savedMinion = (_c = (_b = (_a = Game_default.saveObj) == null ? void 0 : _a.minions) == null ? void 0 : _b.minionList) == null ? void 0 : _c.find((x) => (x == null ? void 0 : x.name) === this.name);
+      for (const config of configs) {
+        this.ranks.push({
+          config,
+          mods: config.mods.map((x) => new Modifier(x)),
+          unlocked: !!((_d = savedMinion == null ? void 0 : savedMinion.ranks) == null ? void 0 : _d.find((x) => x === config.name)) || config.goldCost === 0
+        });
+      }
+      this.loadStats(savedMinion == null ? void 0 : savedMinion.stats);
+    }
+    get rankIndex() {
+      return this.ranks.indexOf(this.rank);
+    }
+    get rank() {
+      return this.ranks[this._rankIndex];
+    }
+    get enabled() {
+      return this._enabled;
+    }
+    setRankIndex(rankIndex) {
+      this._rankIndex = rankIndex;
+    }
+    getNextRank() {
+      return this.ranks[this._rankIndex + 1];
+    }
+    enable() {
+      this.applyModifiers();
+      this.beginAutoAttack();
+      Game_default.entityHandler.addEntity(this);
+      this._enabled = true;
+    }
+    disable() {
+      if (!this._enabled) {
+        return;
+      }
+      this._enabled = false;
+      this._modDB.clear();
+      this.stopAttacking();
+      Game_default.entityHandler.removeEntity(this);
+    }
+    applyModifiers() {
+      this.modDB.clear();
+      const minionModsFromPlayer = Player_default.modDB.modList.filter((x) => hasAnyFlag(x.keywords, 1 /* Global */, 2 /* Minion */));
+      const minionMods = this.rank.mods.flatMap((x) => x.copy().stats);
+      const sourceName = `Minion/${this.rank.config.name}`;
+      this.modDB.add(sourceName, ...[new StatModifier({ name: "AttackSpeed", value: this.rank.config.attackSpeed, valueType: "Base" })]);
+      this.modDB.add(sourceName, ...[new StatModifier({ name: "BaseDamageMultiplier", value: this.rank.config.baseDamageMultiplier, valueType: "Base" })]);
+      this.modDB.add(sourceName, ...[...minionModsFromPlayer, ...minionMods]);
+      this.updateStats();
+    }
+  };
+  var View = class {
+    constructor(minions) {
+      this.minions = minions;
+      __publicField(this, "activeMinion");
+      __publicField(this, "rankIndex", 0);
+      __publicField(this, "container");
+      __publicField(this, "decrementRankButton");
+      __publicField(this, "incrementRankButton");
+      __publicField(this, "addButton");
+      __publicField(this, "removeButton");
+      __publicField(this, "unlockButton");
+      this.container = this.minions.page.querySelectorForce("[data-view]");
+      this.decrementRankButton = this.container.querySelectorForce("[data-decrement]");
+      this.incrementRankButton = this.container.querySelectorForce("[data-increment]");
+      this.addButton = this.container.querySelectorForce("[data-add]");
+      this.removeButton = this.container.querySelectorForce("[data-remove]");
+      this.unlockButton = this.container.querySelectorForce("[data-unlock]");
+      this.decrementRankButton.addEventListener("click", () => {
+        this.show(this.activeMinion, this.rankIndex - 1);
+      });
+      this.incrementRankButton.addEventListener("click", () => {
+        this.show(this.activeMinion, this.rankIndex + 1);
+      });
+      this.addButton.addEventListener("click", () => {
+        var _a;
+        this.activeMinion.setRankIndex(this.rankIndex);
+        (_a = this.minions.activeSlot) == null ? void 0 : _a.setMinion(this.activeMinion);
+        this.show(this.activeMinion, this.rankIndex);
+      });
+      this.removeButton.addEventListener("click", () => {
+        var _a;
+        (_a = this.minions.activeSlot) == null ? void 0 : _a.setMinion(void 0);
+        this.show(this.activeMinion, this.rankIndex);
+      });
+      this.container.querySelectorForce("[data-unlock]").addEventListener("click", () => {
+        var _a;
+        const rank = (_a = this.activeMinion) == null ? void 0 : _a.ranks[this.rankIndex];
+        if (rank && this.activeMinion) {
+          Statistics_default.gameStats.Gold.subtract(rank.config.goldCost || 0);
+          rank.unlocked = true;
+          this.show(this.activeMinion, this.rankIndex);
+        }
+      });
+      Statistics_default.gameStats.Gold.addListener("change", (x) => {
+        var _a;
+        if (this.minions.page.classList.contains("hidden")) {
+          return;
+        }
+        const rank = (_a = this.activeMinion) == null ? void 0 : _a.ranks[this.rankIndex];
+        if (rank && !rank.unlocked) {
+          if (rank.config.goldCost <= x) {
+            this.unlockButton.disabled = false;
+          }
+        }
+      });
+    }
+    show(minion, rankIndex) {
+      var _a, _b, _c, _d;
+      if (typeof rankIndex === "number") {
+        this.rankIndex = rankIndex === -1 ? this.rankIndex : rankIndex;
+      } else {
+        this.rankIndex = minion.rankIndex;
+      }
+      this.activeMinion = minion;
+      const rank = minion.ranks[this.rankIndex];
+      if (!rank) {
+        throw RangeError("rank index out of bounds");
+      }
+      {
+        this.container.querySelectorForce("[data-title]").textContent = rank.config.name;
+        this.decrementRankButton.style.visibility = "hidden";
+        this.incrementRankButton.style.visibility = "hidden";
+        if (minion.ranks.length > 1) {
+          this.decrementRankButton.style.visibility = "visible";
+          this.incrementRankButton.style.visibility = "visible";
+          this.decrementRankButton.disabled = this.rankIndex <= 0;
+          this.incrementRankButton.disabled = !rank.unlocked || this.rankIndex >= minion.ranks.length - 1;
+        }
+      }
+      {
+        const table = this.container.querySelectorForce("table");
+        table.replaceChildren();
+        table.insertAdjacentHTML("beforeend", `<tr><td>Attack Speed</td><td>${rank.config.attackSpeed.toFixed(2)}</td></tr>`);
+        table.insertAdjacentHTML("beforeend", `<tr><td>Base Damage Multiplier</td><td>${rank.config.baseDamageMultiplier}%</td></tr>`);
+      }
+      {
+        const container = this.container.querySelectorForce("[data-mods]");
+        container.replaceChildren();
+        for (const mod of rank.mods) {
+          const element = document.createElement("div");
+          element.classList.add("g-mod-desc");
+          element.textContent = mod.desc;
+          container.appendChild(element);
+        }
+      }
+      this.addButton.disabled = !this.validateAddButton(minion, rank);
+      this.addButton.classList.toggle("hidden", !rank.unlocked);
+      if (((_b = (_a = this.minions.activeSlot) == null ? void 0 : _a.minion) == null ? void 0 : _b.rank) === rank) {
+        this.addButton.classList.add("hidden");
+      }
+      this.unlockButton.classList.toggle("hidden", rank.unlocked);
+      this.unlockButton.disabled = Statistics_default.gameStats.Gold.get() < (rank.config.goldCost || 0);
+      this.unlockButton.innerHTML = `<span>Unlock <span class="g-gold">${rank.config.goldCost}</span></span>`;
+      this.removeButton.classList.toggle("hidden", ((_d = (_c = this.minions.activeSlot) == null ? void 0 : _c.minion) == null ? void 0 : _d.rank) !== rank);
+    }
+    validateAddButton(minion, rank) {
+      var _a;
+      if (!rank.unlocked) {
+        return false;
+      }
+      if (!this.minions.activeSlot) {
+        return false;
+      }
+      if (((_a = this.minions.activeSlot.minion) == null ? void 0 : _a.rank) === rank) {
+        return false;
+      }
+      if (this.minions.slots.filter((x) => x !== this.minions.activeSlot).some((x) => x.minion === minion)) {
+        return false;
+      }
+      return true;
+    }
+  };
+
   // src/webComponents/html/skills.html
-  var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <button class="g-button" data-type="decrement" data-role="confirm"><</button>\n            <h3 class="title"></h3>\n            <button class="g-button" data-type="increment" data-role="confirm">></button>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-remove>Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-attack-skill-list data-tab-content="attack"></ul>\n        <ul data-buff-skill-list data-tab-content="buff"></ul>\n    </div>\n\n</div>';
+  var skills_default = '<div class="p-skills" data-tab-content="skills">\n    <div class="s-skill-slots">\n        <div class="s-attack-skill-slot" data-attack-skill-slot></div>\n        <ul data-buff-skill-slots></ul>\n    </div>\n    <div class="s-skill-info" data-skill-info>\n        <header>\n            <button class="g-button" data-type="decrement" data-role="confirm"><</button>\n            <h3 data-title></h3>\n            <button class="g-button" data-type="increment" data-role="confirm">></button>\n        </header>\n        <table>\n\n        </table>\n        <ul class="s-mods"></ul>\n        <footer>\n            <button class="g-button" data-automate>Automate</button>\n            <button class="g-button" data-trigger>Trigger</button>\n            <button class="g-button" data-cancel>Cancel</button>\n            <button class="g-button" data-unlock data-role="confirm">Unlock</button>\n            <button class="g-button" data-remove data-role="cancel">Remove</button>\n            <button class="g-button" data-enable data-role="confirm">Enable</button>\n        </footer>\n    </div>\n    <div class="s-skill-list">\n        <ul data-attack-skill-list data-tab-content="attack"></ul>\n        <ul data-buff-skill-list data-tab-content="buff"></ul>\n    </div>\n\n</div>';
 
   // src/webComponents/html/passives.html
   var passives_default = '<div class="p-passives hidden" data-tab-content="passives">\n    <header>\n        <div>Points: <span data-cur-points></span>/<span data-max-points></span></div>\n        <button class="g-button" data-reset>Reset</button>\n    </header>\n    <div class="s-passive-list">\n        <table> </table>\n    </div>\n</div>';
@@ -12847,7 +12703,10 @@
   // src/webComponents/html/achievements.html
   var achievements_default = '<div class="p-achievements hidden" data-tab-content="achievements">\n    <ul></ul>\n</div>';
 
-  // src/game/components/loader.ts
+  // src/webComponents/html/minions.html
+  var minions_default = '<div class="p-minions" data-tab-content="minions">\n    <div class="wrapper">\n        <div class="s-toolbar">\n            <button class="g-button" data-add-slot data-role="confirm">Add Slot</button>\n            <button class="g-button" data-remove-slot data-role="cancel">Remove Slot</button>\n            <span data-count>0/0</span>\n        </div>\n        <ul data-slots></ul>\n    </div>\n    <ul data-list></ul>\n    <div data-view>\n        <header>\n            <button class="g-button" data-decrement data-role="confirm"><</button>\n            <h3 data-title></h3>\n            <button class="g-button" data-increment data-role="confirm">></button>\n        </header>\n        <table data-stats></table>\n        <ul data-mods></ul>\n        <button class="g-button" data-unlock data-role="confirm">Unlock</button>\n        <button class="g-button" data-remove data-role="cancel">Remove</button>\n        <button class="g-button" data-add data-role="confirm">Add</button>\n    </div>\n</div>';
+
+  // src/game/components/componentHandler.ts
   var componentConfigs = {
     skills: {
       constr: Skills,
@@ -12869,20 +12728,25 @@
       html: missions_default,
       label: "Missions"
     },
+    minions: {
+      constr: Minions,
+      html: minions_default,
+      label: "Minions"
+    },
     achievements: {
       constr: Achievements,
       html: achievements_default,
       label: "Achievements"
     }
   };
-  function loadComponent(game, key) {
+  function loadComponent(key) {
     const gamePage = querySelector(".p-game");
-    const menuContainer = querySelector("[data-main-menu] .s-components", gamePage);
-    const mainView = querySelector("[data-main-view]", gamePage);
+    const menuContainer = gamePage.querySelectorForce("[data-main-menu] .s-components");
+    const mainView = gamePage.querySelectorForce("[data-main-view]");
     const { constr, html, label } = componentConfigs[key];
     const page = new DOMParser().parseFromString(html, "text/html").querySelector(`.p-${key}`);
     if (!page || !(page instanceof HTMLElement)) {
-      throw Error(`invalid html of component: ${name}`);
+      throw new CustomError(`invalid html of component: ${key}`);
     }
     mainView.appendChild(page);
     const menuItem = document.createElement("li");
@@ -12896,7 +12760,7 @@
       const sortedItems = [...menuContainer.children].sort((a, b) => sort(a.getAttribute("data-tab-target"), b.getAttribute("data-tab-target")));
       menuContainer.replaceChildren(...sortedItems);
     }
-    const instance = new constr(game, game.config.components[key]);
+    const instance = new constr(Game_default.config.components[key]);
     return instance;
   }
 
@@ -12912,10 +12776,10 @@
             <footer><small></small></footer>
         </div>
         <div class="backdrop"></div>`;
-    querySelector("header h3", element).innerText = opts.title || "";
-    querySelector("[data-body]", element).innerText = opts.body;
-    querySelector("footer small", element).innerText = opts.footerText || "";
-    querySelector(".backdrop", element).addEventListener("mousedown", () => {
+    element.querySelectorForce("header h3").innerText = opts.title || "";
+    element.querySelectorForce("[data-body]").innerText = opts.body;
+    element.querySelectorForce("footer small").innerText = opts.footerText || "";
+    element.querySelectorForce(".backdrop").addEventListener("mousedown", () => {
       element.remove();
     });
     const buttons = [];
@@ -12933,39 +12797,30 @@
       });
       buttons.push(button);
     }
-    querySelector(".s-buttons", element).append(...buttons);
+    element.querySelectorForce(".s-buttons").append(...buttons);
     document.body.appendChild(element);
   }
 
   // src/game/Game.ts
   var Game = class {
-    constructor(home) {
-      this.home = home;
-      __publicField(this, "page");
+    constructor() {
+      __publicField(this, "page", querySelector(".p-game"));
       __publicField(this, "gameLoop", new Loop());
-      __publicField(this, "enemy");
-      __publicField(this, "player");
-      __publicField(this, "statistics");
       __publicField(this, "visiblityObserver");
       __publicField(this, "componentsList", []);
+      __publicField(this, "entityHandler", new EntityHandler());
       __publicField(this, "onSave", new EventEmitter());
       __publicField(this, "_config");
       __publicField(this, "_saveObj");
-      this.page = querySelector(".p-game", new DOMParser().parseFromString(game_default, "text/html").body);
-      querySelector(".p-home").after(this.page);
       this.visiblityObserver = new VisibilityObserver(this.gameLoop);
-      this.page = querySelector(".p-game");
-      this.enemy = new Enemy(this);
-      this.player = new Player(this);
-      this.statistics = new Statistics(this);
       if (isLocalHost()) {
         this.setupDevHelpers();
       }
-      querySelector('[data-target="home"]', this.page).addEventListener("click", () => {
+      this.page.querySelectorForce('[data-target="home"]').addEventListener("click", () => {
         this.page.classList.add("hidden");
         querySelector(".p-home").classList.remove("hidden");
       });
-      registerTabs(querySelector("[data-main-menu]", this.page), querySelector("[data-main-view]", this.page));
+      registerTabs(this.page.querySelectorForce("[data-main-menu]"), this.page.querySelectorForce("[data-main-view]"));
     }
     get config() {
       return this._config;
@@ -12977,21 +12832,25 @@
       var _a;
       this._config = config;
       this._saveObj = saveObj;
-      querySelector("[data-config-name]", this.page).textContent = this._config.meta.name;
+      this.page.querySelectorForce("[data-config-name]").textContent = this._config.meta.name;
       this.reset();
       try {
-        this.enemy.init();
-        this.player.init();
-        this.statistics.init();
+        Statistics_default.init();
+        Enemy_default.init();
+        Player_default.init();
         this.initComponents();
       } catch (e) {
         this.reset();
-        throw new Error("Failed to initialize the game");
+        throw e;
       }
       this.setup();
       await this.save();
       this.gameLoop.subscribe(() => {
-        this.statistics.statistics["Time Played"].add(1);
+        Statistics_default.gameStats["Time Played"].add(1);
+        const amount = Statistics_default.gameStats["Gold Generation"].get();
+        Statistics_default.gameStats.Gold.add(amount);
+        Statistics_default.gameStats["Gold Generated"].add(amount);
+        Statistics_default.updateAll();
       }, { intervalMilliseconds: 1e3 });
       this.gameLoop.subscribe(() => {
         this.save();
@@ -12999,8 +12858,8 @@
       {
         const endPrompt = (_a = config.options) == null ? void 0 : _a.endPrompt;
         if (endPrompt) {
-          this.statistics.statistics.Level.addListener("change", (level) => {
-            if (level >= this.enemy.maxIndex + 1) {
+          Statistics_default.gameStats.Level.addListener("change", (level) => {
+            if (level > Enemy_default.maxIndex + 1) {
               customAlert({
                 title: endPrompt.title,
                 body: endPrompt.body,
@@ -13016,24 +12875,23 @@
       this.onSave.removeAllListeners();
       this.disposeComponents();
       this.visiblityObserver.disconnectAll();
+      this.entityHandler.reset();
       this.gameLoop.reset();
-      this.player.reset();
-      this.enemy.reset();
-      this.statistics.reset();
+      Player_default.reset();
+      Statistics_default.reset();
     }
     setup() {
-      this.statistics.setup();
-      this.enemy.setup();
-      this.player.setup();
+      Enemy_default.setup();
+      Player_default.setup();
       if (!isLocalHost()) {
         this.gameLoop.start();
       }
-      querySelector('[data-tab-target="combat"]', this.page).click();
+      this.page.querySelectorForce('[data-tab-target="combat"]').click();
       document.querySelectorAll("[data-highlight-notification]").forEach((x) => x.removeAttribute("data-highlight-notification"));
     }
     initComponents() {
       var _a;
-      const menuContainer = querySelector("[data-main-menu] .s-components", this.page);
+      const menuContainer = this.page.querySelectorForce("[data-main-menu] .s-components");
       menuContainer.replaceChildren();
       if (!((_a = this.config) == null ? void 0 : _a.components)) {
         return;
@@ -13043,8 +12901,8 @@
         if (!data) {
           continue;
         }
-        this.statistics.statistics.Level.registerCallback("levelReq" in data ? data.levelReq : 1, () => {
-          const component = loadComponent(this, key);
+        Statistics_default.gameStats.Level.registerCallback("levelReq" in data ? data.levelReq : 1, () => {
+          const component = loadComponent(key);
           this.componentsList.push(component);
         });
       }
@@ -13061,6 +12919,7 @@
       console.log("Press Space to toggle GameLoop");
       document.body.addEventListener("keydown", (x) => {
         if (x.code === "Space") {
+          x.preventDefault();
           if (this.gameLoop.running) {
             document.title = `Tinkerers Subject (Stopped)`;
             this.gameLoop.stop();
@@ -13078,12 +12937,13 @@
       const map = await saveManager_default.load("Game") || /* @__PURE__ */ new Map();
       const saveObj = map.get(this.config.meta.id) || { meta: __spreadValues({}, this.config.meta) };
       saveObj.meta.lastSavedAt = Date.now();
-      this.player.save(saveObj);
-      this.enemy.save(saveObj);
-      this.statistics.save(saveObj);
+      Player_default.save(saveObj);
+      Enemy_default.save(saveObj);
+      Statistics_default.save(saveObj);
       for (const componentData of this.componentsList) {
         componentData.save(saveObj);
       }
+      this._saveObj = saveObj;
       map.set(this.config.meta.id, saveObj);
       await saveManager_default.save("Game", Object.fromEntries(map));
     }
@@ -13131,6 +12991,720 @@
       return map.has(id);
     }
   };
+  var Game_default = new Game();
+
+  // src/utils/validateConfig.ts
+  var import_ajv = __toESM(require_ajv(), 1);
+
+  // public/gconfig/schemas/gameConfig.schema.json
+  var gameConfig_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    $id: "schemas/gconfig/gameConfig.schema.json",
+    required: ["enemies"],
+    type: "object",
+    properties: {
+      options: {
+        $ref: "definitions/options.schema.json#/definitions/options"
+      },
+      enemies: {
+        $ref: "definitions/enemies.schema.json#/definitions/enemies"
+      },
+      player: {
+        $ref: "definitions/player.schema.json#/definitions/player"
+      },
+      components: {
+        $ref: "definitions/components/components.schema.json#/definitions/components"
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/definitions.schema.json
+  var definitions_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/definitions.schema.json",
+    definitions: {
+      name: {
+        type: "string",
+        pattern: "^[A-Za-z 0-9]{3,16}$"
+      },
+      text: {
+        type: "string",
+        maxLength: 2048,
+        pattern: "^[A-Za-z 0-9 .,!*\\[\\]()/=%&{}?\\-:;'\\s]*$"
+      },
+      levelReq: {
+        type: "integer",
+        default: 1,
+        minimum: 1
+      },
+      goldCost: {
+        type: "integer",
+        default: 0,
+        minimum: 0,
+        description: "Gold required to unlock"
+      },
+      attackSpeed: {
+        type: "number",
+        minimum: 1e-3,
+        maximum: 10,
+        default: 1,
+        description: "Number of attacks per second"
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/player.schema.json
+  var player_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/player.schema.json",
+    type: "object",
+    definitions: {
+      player: {
+        type: "object",
+        properties: {
+          modList: {
+            type: "array",
+            anyOf: [
+              {
+                items: {
+                  oneOf: [
+                    {
+                      $ref: "mods.schema.json#/definitions/mod"
+                    },
+                    {
+                      type: "string",
+                      oneOf: [
+                        {
+                          description: "Base duration in seconds",
+                          enum: ["{#} Bleed Duration", "{#} Burn Duration", "{#} Poison Duration"]
+                        },
+                        { pattern: "^\\{(\\d+)\\} (Bleed|Burn|Poison) Duration$" }
+                      ],
+                      pattern: "^[^#]*$"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/enemies.schema.json
+  var enemies_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/enemies.schema.json",
+    type: "object",
+    definitions: {
+      enemies: {
+        type: "object",
+        required: ["enemyList"],
+        properties: {
+          enemyList: {
+            type: "array",
+            minItems: 1,
+            description: "Each element represents a level. The length should be maxLevel - 1 because the enemy at maxLevel cannot be killed. E.g. [1] when killed increments the level to 2",
+            items: {
+              type: "integer",
+              minimum: 1
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/options.schema.json
+  var options_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/options.schema.json",
+    type: "object",
+    definitions: {
+      options: {
+        type: "object",
+        properties: {
+          endPrompt: {
+            type: "object",
+            required: ["title", "body"],
+            properties: {
+              title: {
+                type: "string",
+                maxLength: 32,
+                minLength: 3,
+                pattern: "^[A-Za-z 0-9!]+$"
+              },
+              body: {
+                type: "string",
+                maxLength: 512,
+                $ref: "./definitions.schema.json#/definitions/text"
+              },
+              footer: {
+                type: "string",
+                maxLength: 128,
+                $ref: "./definitions.schema.json#/definitions/text"
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/tasks.schema.json
+  var tasks_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/tasks.schema.json",
+    type: "object",
+    definitions: {
+      tasks: {
+        type: "string",
+        anyOf: [
+          { enum: ["Reach Level {#}"] },
+          { pattern: "^Reach Level \\{\\d+\\}$" },
+          { enum: ["Deal Damage {#}", "Deal Physical Damage {#}", "Deal Elemental Damage {#}", "Deal Bleed Damage {#}", "Deal Burn Damage {#}"] },
+          { pattern: "^Deal( Physical| Elemental| Chaos| Bleed| Burn| Poison)? Damage \\{\\d+\\}$" },
+          { enum: ["Generate Gold {#}"] },
+          { pattern: "^Generate Gold \\{\\d+\\}$" },
+          { enum: ["Regenerate Mana {#}"] },
+          { pattern: "^Regenerate Mana \\{\\d+\\}$" },
+          { enum: ["Perform Hits {#}"] },
+          { pattern: "^Perform Hits \\{\\d+\\}$" },
+          { enum: ["Perform Critical Hits {#}"] },
+          { pattern: "^Perform Critical Hits \\{\\d+\\}$" }
+        ],
+        pattern: "^[^#]*$"
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/mods.schema.json
+  var mods_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/mods.schema.json",
+    type: "object",
+    definitions: {
+      mod: {
+        type: "string",
+        oneOf: [
+          { enum: ["Adds {#} To {#} Physical Damage", "Adds {#} To {#} Elemental Damage"] },
+          { pattern: "^Adds \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} To \\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} (Physical|Elemental) Damage$" },
+          { enum: ["{#}% Increased Physical Damage", "{#}% Increased Elemental Damage", "{#}% Increased Minion Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Physical|Elemental|Minion) Damage$" },
+          { enum: ["{#}% More Physical Damage", "{#}% More Elemental Damage", "{#}% More Minion Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Physical|Elemental|Minion) Damage$" },
+          { enum: ["{#}% More Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Damage$" },
+          { enum: ["+{#}% Hit Chance"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Hit Chance$" },
+          { enum: ["{#}% Increased Attack Speed"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Attack Speed$" },
+          { enum: ["{#}% More Attack Speed"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More Attack Speed$" },
+          { enum: ["+{#}% Critical Hit Chance"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Chance$" },
+          { enum: ["+{#}% Critical Hit Multiplier"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Critical Hit Multiplier$" },
+          { enum: ["+{#} Maximum Mana"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Mana$" },
+          { enum: ["{#}% Increased Maximum Mana"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Maximum Mana$" },
+          { enum: ["+{#} Mana Regeneration"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Mana Regeneration$" },
+          { enum: ["+{#} Gold Generation"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Gold Generation$" },
+          { enum: ["{#}% Increased Gold Generation"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased Gold Generation$" },
+          { enum: ["+{#}% Chance To Bleed", "+{#}% Chance To Burn", "+{#}% Chance To Poison"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Chance To (Bleed|Burn|Poison)$" },
+          { enum: ["+{#} Maximum Bleed Stack", "+{#} Maximum Burn Stack"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum (Bleed|Burn|Poison) Stack$" },
+          { enum: ["{#}% Increased Bleed Damage", "{#}% Increased Burn Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Damage$" },
+          { enum: ["{#}% More Bleed Damage", "{#}% More Burn Damage"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% More (Bleed|Burn|Poison) Damage$" },
+          { enum: ["{#}% Increased Bleed Duration", "{#}% Increased Burn Duration"] },
+          { pattern: "^\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\}% Increased (Bleed|Burn|Poison) Duration$" },
+          { enum: ["+{#} Maximum Minions"] },
+          { pattern: "^\\+\\{(\\d+(\\.\\d+)?)(-\\d+(\\.\\d+)?)?\\} Maximum Minions$" }
+        ],
+        pattern: "^[^#]*$"
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/components.schema.json
+  var components_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/components.schema.json",
+    type: "object",
+    definitions: {
+      components: {
+        type: "object",
+        additionalProperties: false,
+        required: ["skills"],
+        properties: {
+          skills: { $ref: "skills.schema.json#/definitions/skills" },
+          passives: { $ref: "passives.schema.json#/definitions/passives" },
+          items: { $ref: "items.schema.json#/definitions/items" },
+          missions: { $ref: "missions.schema.json#/definitions/missions" },
+          achievements: { $ref: "achievements.schema.json#/definitions/achievements" },
+          minions: { $ref: "minions.schema.json#/definitions/minions" }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/skills.schema.json
+  var skills_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/skills.schema.json",
+    type: "object",
+    definitions: {
+      skills: {
+        type: "object",
+        required: ["attackSkills"],
+        properties: {
+          attackSkills: {
+            type: "object",
+            required: ["skillList"],
+            properties: {
+              skillList: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  oneOf: [
+                    {
+                      allOf: [
+                        {
+                          type: "object",
+                          required: ["levelReq"]
+                        },
+                        {
+                          $ref: "#/definitions/attackSkill"
+                        }
+                      ]
+                    },
+                    {
+                      type: "array",
+                      minItems: 1,
+                      items: [
+                        {
+                          allOf: [
+                            {
+                              type: "object",
+                              required: ["levelReq"]
+                            },
+                            {
+                              $ref: "#/definitions/attackSkill"
+                            }
+                          ]
+                        }
+                      ],
+                      additionalItems: {
+                        $ref: "#/definitions/attackSkill"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          buffSkills: {
+            type: "object",
+            required: ["skillList", "skillSlots"],
+            properties: {
+              skillSlots: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "object",
+                  required: ["levelReq"],
+                  properties: {
+                    levelReq: {
+                      type: "integer",
+                      minimum: 1
+                    }
+                  }
+                }
+              },
+              skillList: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  oneOf: [
+                    {
+                      allOf: [
+                        {
+                          type: "object",
+                          required: ["levelReq"]
+                        },
+                        {
+                          $ref: "#/definitions/buffSkill"
+                        }
+                      ]
+                    },
+                    {
+                      type: "array",
+                      minItems: 1,
+                      items: [
+                        {
+                          allOf: [
+                            {
+                              type: "object",
+                              required: ["levelReq"]
+                            },
+                            {
+                              $ref: "#/definitions/buffSkill"
+                            }
+                          ]
+                        }
+                      ],
+                      additionalItems: {
+                        $ref: "#/definitions/buffSkill"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      attackSkill: {
+        type: "object",
+        required: ["name", "attackSpeed", "manaCost", "goldCost", "baseDamageMultiplier"],
+        properties: {
+          name: { type: "string" },
+          attackSpeed: { $ref: "../definitions.schema.json#/definitions/attackSpeed" },
+          manaCost: { type: "integer", minimum: 0 },
+          levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+          goldCost: { $ref: "../definitions.schema.json#/definitions/goldCost" },
+          baseDamageMultiplier: {
+            type: "integer",
+            minimum: 1,
+            default: 100,
+            description: "A multiplier used to balance the skill. A value of 100 is 100% of base damage."
+          },
+          mods: {
+            type: "array",
+            items: { $ref: "../mods.schema.json#/definitions/mod" }
+          }
+        }
+      },
+      buffSkill: {
+        type: "object",
+        required: ["name", "baseDuration", "manaCost", "goldCost", "mods"],
+        properties: {
+          name: { type: "string" },
+          baseDuration: { type: "integer" },
+          manaCost: { type: "integer" },
+          levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+          goldCost: { $ref: "../definitions.schema.json#/definitions/goldCost" },
+          mods: {
+            type: "array",
+            items: { $ref: "../mods.schema.json#/definitions/mod" }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/passives.schema.json
+  var passives_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/passives.schema.json",
+    type: "object",
+    definitions: {
+      passives: {
+        type: "object",
+        required: ["pointsPerLevel", "passiveLists"],
+        properties: {
+          pointsPerLevel: {
+            type: "number",
+            minimum: 1e-3,
+            default: 1
+          },
+          passiveLists: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "array",
+              minItems: 1,
+              items: {
+                type: "object",
+                required: ["levelReq", "mod", "points"],
+                properties: {
+                  levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+                  mod: { $ref: "../mods.schema.json#/definitions/mod" },
+                  points: { type: "integer", minimum: 1 }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/items.schema.json
+  var items_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/items.schema.json",
+    type: "object",
+    definitions: {
+      items: {
+        type: "object",
+        required: ["levelReq", "itemList", "craftList", "modLists"],
+        properties: {
+          levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+          itemList: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                levelReq: { type: "integer", minimum: 0 }
+              }
+            }
+          },
+          craftList: {
+            type: "array",
+            minItems: 1,
+            items: {
+              type: "object",
+              required: ["id", "levelReq", "goldCost"],
+              properties: {
+                id: {
+                  enum: [
+                    "reforge",
+                    "reforgeIncludePhysical",
+                    "reforgeIncludeElemental",
+                    "reforgeIncludeCritical",
+                    "reforgeIncludeMana",
+                    "reforgeIncludeBleed",
+                    "reforgeIncludeBurn",
+                    "reforgeIncludeMinion",
+                    "reforgeHigherChanceSameMods",
+                    "reforgeLowerChanceSameMods",
+                    "addRandom",
+                    "addPhysical",
+                    "addElemental",
+                    "addCritical",
+                    "addMana",
+                    "addBleed",
+                    "addBurn",
+                    "addMinion",
+                    "removeRandom",
+                    "removePhysical",
+                    "removeElemental",
+                    "removeCritical",
+                    "removeMana",
+                    "removeBleed",
+                    "removeBurn",
+                    "removeMinion",
+                    "removeRandomAddPhysical",
+                    "removeRandomAddElemental",
+                    "removeRandomAddCritical",
+                    "removeRandomAddMana",
+                    "removeRandomAddBleed",
+                    "removeRandomAddBurn",
+                    "removeRandomAddMinion"
+                  ]
+                },
+                levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+                goldCost: { $ref: "../definitions.schema.json#/definitions/goldCost" }
+              }
+            }
+          },
+          modLists: {
+            type: "array",
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["weight", "levelReq", "mod"],
+                properties: {
+                  weight: { type: "integer", minimum: 0 },
+                  levelReq: { type: "integer", minimum: 0 },
+                  mod: { $ref: "../mods.schema.json#/definitions/mod" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/missions.schema.json
+  var missions_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/missions.schema.json",
+    type: "object",
+    definitions: {
+      missions: {
+        type: "object",
+        required: ["levelReq", "slots", "missionLists", "goldCost"],
+        properties: {
+          levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+          goldCost: { $ref: "../definitions.schema.json#/definitions/goldCost" },
+          slots: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["levelReq", "goldCost"],
+              properties: {
+                levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+                goldCost: { $ref: "../definitions.schema.json#/definitions/goldCost" }
+              }
+            }
+          },
+          missionLists: {
+            type: "array",
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["levelReq", "goldAmount", "description"],
+                properties: {
+                  levelReq: { $ref: "../definitions.schema.json#/definitions/levelReq" },
+                  goldAmount: { type: "integer" },
+                  description: {
+                    $ref: "../tasks.schema.json#/definitions/tasks"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/achievements.schema.json
+  var achievements_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/achievements.schema.json",
+    type: "object",
+    definitions: {
+      achievements: {
+        type: "object",
+        required: ["list"],
+        properties: {
+          list: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["description"],
+              properties: {
+                description: {
+                  $ref: "../tasks.schema.json#/definitions/tasks"
+                },
+                modList: {
+                  type: "array",
+                  minItems: 1,
+                  description: "Each mod will be applied upon completing the achievement",
+                  items: {
+                    $ref: "../mods.schema.json#/definitions/mod"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // public/gconfig/schemas/definitions/components/minions.schema.json
+  var minions_schema_default = {
+    $schema: "http://json-schema.org/draft-07/schema",
+    $id: "schemas/gconfig/definitions/components/minions.schema.json",
+    type: "object",
+    definitions: {
+      minions: {
+        type: "object",
+        required: ["levelReq", "list"],
+        properties: {
+          levelReq: {
+            $ref: "../definitions.schema.json#/definitions/levelReq"
+          },
+          list: {
+            type: "array",
+            minItems: 1,
+            items: {
+              oneOf: [
+                {
+                  $ref: "#/definitions/minion"
+                },
+                {
+                  type: "array",
+                  minItems: 1,
+                  items: [
+                    {
+                      allOf: [
+                        {
+                          type: "object",
+                          required: ["levelReq"]
+                        },
+                        {
+                          $ref: "#/definitions/minion"
+                        }
+                      ]
+                    }
+                  ],
+                  additionalItems: {
+                    allOf: [
+                      { $ref: "#/definitions/minion" }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      minion: {
+        type: "object",
+        required: [
+          "name",
+          "attackSpeed",
+          "baseDamageMultiplier",
+          "mods",
+          "goldCost"
+        ],
+        properties: {
+          name: {
+            $ref: "../definitions.schema.json#/definitions/name"
+          },
+          levelReq: {
+            $ref: "../definitions.schema.json#/definitions/levelReq"
+          },
+          attackSpeed: {
+            $ref: "../definitions.schema.json#/definitions/attackSpeed"
+          },
+          baseDamageMultiplier: {
+            type: "integer",
+            minimum: 1,
+            default: 100,
+            description: "A multiplier used to balance the minion's damage. A value of 100 is 100% of base damage."
+          },
+          mods: {
+            type: "array",
+            items: { $ref: "../mods.schema.json#/definitions/mod" }
+          },
+          goldCost: {
+            $ref: "../definitions.schema.json#/definitions/goldCost"
+          }
+        }
+      }
+    }
+  };
+
+  // src/utils/validateConfig.ts
+  var configValidator = new import_ajv.default({ strictTuples: false, schemas: [definitions_schema_default, player_schema_default, enemies_schema_default, options_schema_default, tasks_schema_default, mods_schema_default, components_schema_default, skills_schema_default, passives_schema_default, items_schema_default, missions_schema_default, achievements_schema_default, minions_schema_default] }).compile(gameConfig_schema_default);
 
   // public/gconfig/configList.json
   var configList_default = {
@@ -13140,11 +13714,6 @@
         name: "Demo",
         rawUrl: "public/gconfig/configs/demo.json",
         description: "This is a short configuration for demonstration purposes."
-      },
-      {
-        name: "Demo 2 Extended",
-        rawUrl: "public/gconfig/configs/demo2.json",
-        description: "This demo extends the Demo with some new features. \n\n* Elemental Damage\n* Damage over time\n* Skill Ranks"
       }
     ]
   };
@@ -13154,9 +13723,7 @@
   var Home = class {
     constructor() {
       __publicField(this, "page", querySelector(".p-home"));
-      __publicField(this, "game");
       __publicField(this, "activeEntry", {});
-      this.game = new Game(this);
       this.setupEventListeners();
       querySelector("header [data-target]").classList.add("hidden");
       querySelector('.p-home > menu [data-type="new"]').click();
@@ -13165,14 +13732,16 @@
           const saves = await this.createEntries("saved");
           const ids = saves.map((x) => x.id ? x.id : void 0).filter((x) => typeof x === "string");
           for (const id of ids) {
-            await this.game.deleteSave(id);
+            await Game_default.deleteSave(id);
           }
         },
-        game: this.game
+        game: Game_default,
+        player: Player_default,
+        statistics: Statistics_default
       };
     }
     setupEventListeners() {
-      querySelector('[data-target="game"]', this.page).addEventListener("click", () => {
+      this.page.querySelectorForce('[data-target="game"]').addEventListener("click", () => {
         this.page.classList.add("hidden");
         querySelector(".p-game").classList.remove("hidden");
       });
@@ -13211,17 +13780,17 @@
             {
               label: "New",
               type: "confirm",
-              callback: this.startNewGame.bind(this, "new")
+              callback: () => this.startNewGame()
             },
             {
               label: "Override",
               type: "confirm",
-              callback: this.startSavedGame.bind(this, save2, true)
+              callback: () => this.startSavedGame(save2, true)
             },
             {
               label: "Continue",
               type: "confirm",
-              callback: this.startSavedGame.bind(this, save2)
+              callback: () => this.startSavedGame(save2)
             },
             {
               label: "Cancel",
@@ -13236,7 +13805,7 @@
     deleteSavedGame() {
       const deleteSave = async () => {
         if (this.activeEntry.id) {
-          await this.game.deleteSave(this.activeEntry.id);
+          await Game_default.deleteSave(this.activeEntry.id);
           this.populateEntryList("saved");
         }
       };
@@ -13248,7 +13817,7 @@
       });
     }
     async tryLoadRecentSave() {
-      const save2 = await this.game.getMostRecentSave();
+      const save2 = await Game_default.getMostRecentSave();
       if (!save2 || !save2.meta) {
         return false;
       }
@@ -13258,8 +13827,8 @@
     async populateEntryList(type) {
       var _a;
       const page = querySelector(`.p-home .p-${type}`);
-      const listContainer = querySelector(`.p-home [data-entry-list]`, page);
-      const infoContainer = querySelector(`.p-home [data-entry-info]`, page);
+      const listContainer = page.querySelectorForce(`.p-home [data-entry-list]`);
+      const infoContainer = page.querySelectorForce(`.p-home [data-entry-info]`);
       listContainer.classList.add("hidden");
       infoContainer.classList.add("hidden");
       const entries = await this.createEntries(type);
@@ -13284,21 +13853,21 @@
     createEntryListElements(entries, type) {
       const elements = [];
       for (const entry of entries) {
-        const { name: name2, rawUrl } = entry;
-        if (!name2 || !rawUrl) {
+        const { name, rawUrl } = entry;
+        if (!name || !rawUrl) {
           throw Error("invalid entry");
         }
         const li = document.createElement("li");
         li.classList.add("g-list-item");
         if (type === "new") {
           const suffix = rawUrl.startsWith("https") || !isLocalHost() ? "" : "(Local) ";
-          const label = suffix.concat(name2);
+          const label = suffix.concat(name);
           li.insertAdjacentHTML("beforeend", `<span>${label}</span>`);
         } else if (type === "saved" && "lastSavedAt" in entry) {
           const timeData = generateTime(entry.lastSavedAt);
           const timeSinceLastSaveText = `Last played: ${timeData.hours > 0 ? timeData.hours + "h " : ""}${timeData.mins}min`;
           li.insertAdjacentHTML("beforeend", `
-                <span>${name2}</span>
+                <span>${name}</span>
                 <span data-type="date">${timeSinceLastSaveText}</span>`);
         }
         li.addEventListener("click", () => {
@@ -13315,8 +13884,8 @@
         throw Error();
       }
       const infoContainer = querySelector(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
-      querySelector("[data-title]", infoContainer).textContent = entry.name;
-      querySelector("[data-desc]", infoContainer).textContent = entry.description || "";
+      infoContainer.querySelectorForce("[data-title]").textContent = entry.name;
+      infoContainer.querySelectorForce("[data-desc]").textContent = entry.description || "";
     }
     async createEntries(type) {
       try {
@@ -13333,13 +13902,13 @@
       }
     }
     async startNewGame() {
-      const { name: name2, rawUrl } = this.activeEntry;
-      if (!name2 || !rawUrl) {
+      const { name, rawUrl } = this.activeEntry;
+      if (!name || !rawUrl) {
         throw Error();
       }
-      let entry = {
+      const entry = {
         id: crypto.randomUUID(),
-        name: name2,
+        name,
         rawUrl,
         createdAt: 0,
         lastSavedAt: 0
@@ -13347,19 +13916,19 @@
       await this.startGame(entry);
     }
     async startSavedGame(save2, override = false) {
-      const { name: name2, rawUrl } = this.activeEntry;
-      if (!name2 || !rawUrl) {
+      const { name, rawUrl } = this.activeEntry;
+      if (!name || !rawUrl) {
         return;
       }
       const entry = {
         id: save2.meta.id,
         createdAt: override ? Date.now() : save2.meta.createdAt,
         lastSavedAt: override ? save2.meta.createdAt : 0,
-        name: name2,
+        name,
         rawUrl
       };
       if (override) {
-        await this.game.deleteSave(entry.id);
+        await Game_default.deleteSave(entry.id);
         await this.startGame(entry);
       } else {
         await this.startGame(entry, save2);
@@ -13368,7 +13937,7 @@
     async getConfig(url) {
       const config = await (await fetch(url)).json();
       if (!configValidator(config)) {
-        console.error(`${config.meta.name} is not valid`, configValidator.errors);
+        console.error(`config at: ${url} is not valid`, configValidator.errors);
         return false;
       }
       return config;
@@ -13380,7 +13949,7 @@
           return;
         }
         config.meta = entry;
-        await this.game.init(config, saveObj);
+        await Game_default.init(config, saveObj);
         const navBtn = querySelector("header [data-target]");
         navBtn.classList.remove("hidden");
         navBtn.click();
@@ -13390,14 +13959,14 @@
       }
     }
   };
+  var Home_default = new Home();
 
   // src/main.ts
   window.addEventListener("DOMContentLoaded", () => {
     init();
   });
   async function init() {
-    const home = new Home();
-    await home.tryLoadRecentSave();
+    await Home_default.tryLoadRecentSave();
     document.body.classList.remove("hidden");
   }
 })();
