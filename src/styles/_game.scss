@@ -1,5 +1,14 @@
 @use "common" as *;
 
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .p-game {
     display: grid;
     grid-template-columns: minmax(10em, min-content) 1fr minmax(15em, min-content);
@@ -73,6 +82,15 @@
         display: grid;
         grid-column: 2;
         min-height: 0;
+        & > div {
+            opacity: 0;
+            &:not(.hidden) {
+                animation-name: fade;
+                animation-duration: 0.17s;
+                animation-iteration-count: 1;
+                opacity: 1;
+            }
+        }
         .p-combat {
             ul {
                 li {
