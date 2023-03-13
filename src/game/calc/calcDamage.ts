@@ -49,7 +49,7 @@ export function calcAttack(source: Entity) {
         keywords: KeywordModifierFlag.Global
     };
 
-    if(source instanceof MinionEntity){
+    if (source instanceof MinionEntity) {
         config.keywords |= KeywordModifierFlag.Minion;
     }
 
@@ -155,7 +155,7 @@ export function calcAilmentDamage(source: Entity, type: AilmentType) {
         flags: 0,
         keywords: KeywordModifierFlag.Global
     };
-    if(source instanceof MinionEntity){
+    if (source instanceof MinionEntity) {
         config.keywords |= KeywordModifierFlag.Minion;
     }
     if (type === 'Bleed') {

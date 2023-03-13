@@ -30,7 +30,6 @@
         ],
         "@typescript-eslint/no-non-null-assertion": "off",
         "indent": ["error", 4],
-        "linebreak-style": ["error", "windows"],
         "semi": ["error", "always"],
         "array-bracket-newline": ["error", {"multiline": true}],
         "no-useless-concat": "error",

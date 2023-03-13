@@ -147,7 +147,7 @@
                         {
                             "name": "Bleed Attack",
                             "attackSpeed": 0.35,
-                            "baseDamageMultiplier": 300,
+                            "baseDamageMultiplier": 200,
                             "levelReq": 3,
                             "manaCost": 10,
                             "goldCost": 100,

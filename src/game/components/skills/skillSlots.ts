@@ -236,7 +236,7 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         }
 
         if (this === this.skills.activeSkillSlot) {
-            this.skills.skillViewer.createView(this._skill);
+            this.skills.skillViewer.createView(this._skill, -1);
         }
     }
 
