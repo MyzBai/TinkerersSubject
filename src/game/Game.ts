@@ -88,7 +88,7 @@ export class Game {
             const endPrompt = config.options?.endPrompt;
             if (endPrompt) {
                 Statistics.gameStats.Level.addListener('change', level => {
-                    if (level >= Enemy.maxIndex + 1) {
+                    if (level > Enemy.maxIndex + 1) {
                         customAlert({
                             title: endPrompt.title,
                             body: endPrompt.body,
