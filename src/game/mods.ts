@@ -120,7 +120,7 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     { desc: '+#% Chance To Bleed', tags: ['Attack', 'Bleed', 'Physical', 'Ailment'], stats: [{ name: 'BleedChance', valueType: 'Base', flags: StatModifierFlag.Bleed }], },
     { desc: '+#% Chance To Burn', tags: ['Attack', 'Burn', 'Elemental', 'Ailment'], stats: [{ name: 'BurnChance', valueType: 'Base', flags: StatModifierFlag.Burn }], },
     { desc: '# Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment', "Global", "Physical"], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlag.Bleed, keywords: KeywordModifierFlag.Global }], },
-    { desc: '# Burn Duration', tags: ['Duration', 'Burn', 'Ailment', "Global", "Elemental"], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlag.Burn }], },
+    { desc: '# Burn Duration', tags: ['Duration', 'Burn', 'Ailment', "Global", "Elemental"], stats: [{ name: 'Duration', valueType: 'Base', flags: StatModifierFlag.Burn, keywords: KeywordModifierFlag.Global }], },
     { desc: '#% Increased Bleed Duration', tags: ['Duration', 'Bleed', 'Ailment', 'Global', "Physical"], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlag.Bleed, keywords: KeywordModifierFlag.Global }], },
     { desc: '#% Increased Burn Duration', tags: ['Duration', 'Burn', 'Ailment', 'Global', "Elemental"], stats: [{ name: 'Duration', valueType: 'Inc', flags: StatModifierFlag.Burn, keywords: KeywordModifierFlag.Global }], },
     { desc: '+# Maximum Bleed Stack', tags: ['Bleed', 'Ailment', 'Global', "Physical"], stats: [{ name: 'AilmentStack', valueType: 'Base', flags: StatModifierFlag.Bleed, keywords: KeywordModifierFlag.Global }], },
