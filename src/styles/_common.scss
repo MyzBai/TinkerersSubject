@@ -108,7 +108,7 @@ generic-modal {
                 padding-bottom: 1em;
                 text-align: center;
             }
-            [data-body]{
+            [data-body] {
                 white-space: break-spaces;
             }
             footer {
@@ -160,7 +160,7 @@ dialog[data-modal] {
                 background-color: $color-modal-cancel-bg;
             }
         }
-        footer{
+        footer {
             padding-top: $padding-container;
         }
     }
@@ -217,22 +217,31 @@ progress[value] {
 }
 /*#endregion Scroll Bar*/
 
-[data-tag="gold"]{
+[data-tag="gold"] {
     color: $color-gold-fg;
 }
 
-[data-mod-tag=physical]{
+[data-mod-tag="physical"] {
     color: $color-mod-tag-physical;
 }
-[data-mod-tag=elemental]{
+[data-mod-tag="elemental"] {
     color: $color-mod-tag-elemental;
 }
-[data-mod-tag=critical]{
+[data-mod-tag="critical"] {
     color: $color-mod-tag-critical;
 }
-[data-mod-tag=mana]{
+[data-mod-tag="mana"] {
     color: $color-mod-tag-mana;
 }
-[data-mod-tag=speed]{
+[data-mod-tag="speed"] {
     color: $color-mod-tag-speed;
+}
+[data-mod-tag="bleed"] {
+    color: $color-mod-tag-bleed;
+}
+[data-mod-tag="burn"] {
+    color: $color-mod-tag-burn;
+}
+[data-mod-tag="minion"] {
+    color: $color-mod-tag-minion;
 }

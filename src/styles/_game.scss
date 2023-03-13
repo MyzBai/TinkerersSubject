@@ -242,6 +242,10 @@
                 text-align: center;
                 padding: 1em;
                 overflow-y: auto;
+
+                .g-mod-desc {
+                    cursor: default;
+                }
             }
 
             .s-craft-container {
@@ -417,11 +421,10 @@
             grid-auto-flow: column;
 
             .wrapper {
-
-                .s-toolbar{
+                .s-toolbar {
                     display: grid;
                     grid-template-columns: auto auto 1fr;
-                    span{
+                    span {
                         text-align: center;
                         align-self: center;
                     }
@@ -518,10 +521,10 @@
 
                     li {
                         pointer-events: all;
-                        &.selected{
+                        &.selected {
                             background-color: #131518;
                         }
-                        &.suppressed{
+                        &.suppressed {
                             opacity: 0.5;
                         }
                     }

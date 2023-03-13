@@ -1,6 +1,5 @@
 @use "variables" as *;
 
-
 .g-alert-window {
     position: fixed;
     inset: 0;
@@ -27,7 +26,7 @@
             text-align: center;
         }
         [data-body] {
-            white-space: break-spaces;
+            white-space: normal;
             overflow-y: auto;
             min-height: 0;
             border-top: 1px solid $color-border-highlight;
@@ -111,13 +110,11 @@
 
 .g-accordion {
     position: relative;
-    cursor: default;
     .header {
         display: flex;
         background-color: $color-accordion-header-bg;
         padding: $padding-list-item;
         margin-bottom: 1px;
-        cursor: default;
         user-select: none;
         & > * {
             pointer-events: none;
@@ -163,12 +160,7 @@
 .g-button {
     display: inline-block;
     padding: $padding-button;
-    cursor: default;
-    user-select: none;
-    // border-radius: 3px;
     color: #c9d1d9;
-    // background-color: #21262d;
-    // border-color: rgba(240, 246, 252, 0.1);
     &:hover {
         background-color: $color-action-list-item-default-hover-bg;
     }
@@ -213,7 +205,6 @@
 
 .g-list-item {
     padding: $padding-button;
-    cursor: default;
     user-select: none;
     &.selected {
         background-color: $color-action-list-item-default-selected-bg;
@@ -267,13 +258,10 @@
     color: $color-gold-fg;
 }
 
-
-.g-progress-bar{
-
-    &.small{
+.g-progress-bar {
+    &.small {
         display: block;
         width: 100%;
         height: 5px;
     }
-
 }
