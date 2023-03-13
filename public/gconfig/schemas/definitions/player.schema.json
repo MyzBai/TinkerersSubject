@@ -20,8 +20,8 @@
                                         "oneOf": [
                                             {
                                                 "description": "Base duration in seconds",
-                                                "enum": [ "+{#} Bleed Duration", "+{#} Burn Duration", "+{#} Poison Duration" ]
-                                            }, { "pattern": "^\\+\\{(\\d+)\\} (Bleed|Burn|Poison) Duration$" }
+                                                "enum": [ "{#} Bleed Duration", "{#} Burn Duration", "{#} Poison Duration" ]
+                                            }, { "pattern": "^\\{(\\d+)\\} (Bleed|Burn|Poison) Duration$" }
                                         ],
                                         "pattern": "^[^#]*$"
                                     }

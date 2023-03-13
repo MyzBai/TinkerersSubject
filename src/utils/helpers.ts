@@ -1,6 +1,21 @@
+import CustomError from "./CustomError";
 
+declare global {
+    interface HTMLElement {
+        querySelectorForce<E extends Element = Element>(selectors: string): E;
+    }
+}
 
+HTMLElement.prototype.querySelectorForce = function <E extends Element = Element>(this: HTMLElement, selectors: string) {
+    const element = this.querySelector<E>(selectors);
+    if (!element) {
+        throw new CustomError(`HTMLElement with selectors ${selectors} could not be found!`);
+    }
+    return element;
+};
 
+export const hasFlags = (a: number, b: number) => (a & b) === b;
+export const hasAnyFlag = (a: number, ...b: number[]) => b.some(x => (a & x) === x);
 export const avg = (a: number, b: number) => (a + b) / 2;
 export const randomRange = (min: number, max: number) => Math.random() * (max - min) + min;
 export const randomRangeInt = (min: number, max: number) => Math.floor(randomRange(min, max));
@@ -10,10 +25,10 @@ export const invLerp = (a: number, b: number, v: number) => (v - a) / (b - a);
 export const remap = (iMin: number, iMax: number, oMin: number, oMax: number, v: number) => lerp(oMin, oMax, invLerp(iMin, iMax, v));
 export const isLocalHost = () => location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
-export function querySelector<T extends HTMLElement>(selectors: string, parent?: HTMLElement) {
-    const element = (parent || document).querySelector<T>(selectors);
+export function querySelector<T extends HTMLElement>(selectors: string) {
+    const element = document.querySelector<T>(selectors);
     if (!element) {
-        throw Error(`HTMLElement with selectors ${selectors} could not be found!`);
+        throw new CustomError(`HTMLElement with selectors ${selectors} could not be found!`);
     }
     return element;
 }

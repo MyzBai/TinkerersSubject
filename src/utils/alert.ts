@@ -1,11 +1,8 @@
-import { querySelector } from "./helpers";
-
-
-interface Button{
+interface Button {
     label: string;
     type: 'confirm' | 'cancel';
-    callback?: (args?: any) => void;
-    args?: any;
+    callback?: (args?: unknown) => void;
+    args?: unknown;
 }
 interface AlertParams {
     title?: string;
@@ -26,11 +23,11 @@ export default function customAlert(opts: AlertParams) {
         </div>
         <div class="backdrop"></div>`;
 
-    querySelector('header h3', element).innerText = opts.title || '';
-    querySelector('[data-body]', element).innerText = opts.body;
-    querySelector('footer small', element).innerText = opts.footerText || '';
+    element.querySelectorForce<HTMLElement>('header h3').innerText = opts.title || '';
+    element.querySelectorForce<HTMLElement>('[data-body]').innerText = opts.body;
+    element.querySelectorForce<HTMLElement>('footer small').innerText = opts.footerText || '';
 
-    querySelector('.backdrop', element).addEventListener('mousedown', () => {
+    element.querySelectorForce('.backdrop').addEventListener('mousedown', () => {
         element.remove();
     });
 
@@ -49,7 +46,7 @@ export default function customAlert(opts: AlertParams) {
         buttons.push(button);
 
     }
-    querySelector('.s-buttons', element).append(...buttons);
+    element.querySelectorForce('.s-buttons').append(...buttons);
 
     document.body.appendChild(element);
 }

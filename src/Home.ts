@@ -1,24 +1,21 @@
+import Game, { GameConfig, MetaConfig, Save } from "@src/game/Game";
 import { generateTime, isLocalHost, querySelector, registerTabs } from "./utils/helpers";
-import type GConfig from "@src/types/gconfig/gameConfig";
 import { configValidator } from "@src/utils/validateConfig";
-import Game from "@src/game/Game";
 import configList from '@public/gconfig/configList.json';
 import saveManager from "@src/utils/saveManager";
 import customAlert from "./utils/alert";
-import type MetaConfig from "./types/gconfig/meta";
-import type GameSave from "./types/save/save";
+import Statistics from "./game/Statistics";
+import Player from "./game/Player";
 
 const entryTypes = ['new', 'saved'] as const;
 type EntryType = typeof entryTypes[number];
 
 type Entry = Partial<MetaConfig & { description: string }>
 
-export default class Home {
+export class Home {
     private readonly page = querySelector('.p-home');
-    readonly game: Game;
     private activeEntry: Entry = {};
     constructor() {
-        this.game = new Game(this);
         this.setupEventListeners();
 
         querySelector('header [data-target]').classList.add('hidden');
@@ -29,16 +26,18 @@ export default class Home {
                 const saves = await this.createEntries('saved') as DeepPartial<MetaConfig>[];
                 const ids = saves.map(x => x.id ? x.id : undefined).filter((x): x is Exclude<string, null | undefined> => typeof x === 'string');
                 for (const id of ids) {
-                    await this.game.deleteSave(id);
+                    await Game.deleteSave(id);
                 }
             },
-            game: this.game
-        }
+            game: Game,
+            player: Player,
+            statistics: Statistics
+        };
     }
 
     private setupEventListeners() {
 
-        querySelector('[data-target="game"]', this.page).addEventListener('click', () => {
+        this.page.querySelectorForce('[data-target="game"]').addEventListener('click', () => {
             this.page.classList.add('hidden');
             querySelector('.p-game').classList.remove('hidden');
         });
@@ -55,7 +54,7 @@ export default class Home {
         querySelector('.p-home .p-new [data-entry-info] [data-start]').addEventListener('click', this.startNewConfigCallback.bind(this));
         //start saved config button
         querySelector('.p-home .p-saved [data-entry-info] [data-start]').addEventListener('click', async () => {
-            const map = await saveManager.load('Game');
+            const map = await saveManager.load<Save>('Game');
             if (map && this.activeEntry.id) {
                 const save = map.get(this.activeEntry.id);
                 if (save) {
@@ -72,7 +71,7 @@ export default class Home {
             console.error('no entry selected');
             return;
         }
-        const map = await saveManager.load('Game');
+        const map = await saveManager.load<Save>('Game');
         const save = map ? Array.from(map).find(([_key, value]) => value.meta.name === this.activeEntry.name)?.[1] : undefined;
         if (save && save.meta) {
             customAlert({
@@ -80,17 +79,18 @@ export default class Home {
                 body: "You already have a save with this configuration.\n\nNew - Start a new game with a new save file\nOverride - Start a new game and override save file\nContinue - Start from save file",
                 buttons: [
                     {
-                        label: 'New', type: 'confirm', callback: this.startNewGame.bind(this, 'new')
+                        label: 'New', type: 'confirm', callback: () => this.startNewGame()
                     },
                     {
-                        label: 'Override', type: 'confirm', callback: this.startSavedGame.bind(this, save, true)
+                        label: 'Override', type: 'confirm', callback: () => this.startSavedGame(save, true)
                     },
                     {
-                        label: 'Continue', type: 'confirm', callback: this.startSavedGame.bind(this, save)
+                        label: 'Continue', type: 'confirm', callback: () => this.startSavedGame(save)
                     },
                     {
                         label: 'Cancel', type: 'cancel'
-                    }]
+                    }
+                ]
             });
         } else {
             await this.startNewGame();
@@ -100,7 +100,7 @@ export default class Home {
     private deleteSavedGame() {
         const deleteSave = async () => {
             if (this.activeEntry.id) {
-                await this.game.deleteSave(this.activeEntry.id);
+                await Game.deleteSave(this.activeEntry.id);
                 this.populateEntryList('saved');
             }
         };
@@ -113,7 +113,7 @@ export default class Home {
     }
 
     async tryLoadRecentSave() {
-        const save = await this.game.getMostRecentSave();
+        const save = await Game.getMostRecentSave();
         if (!save || !save.meta) {
             return false;
         }
@@ -123,8 +123,8 @@ export default class Home {
 
     async populateEntryList(type: EntryType) {
         const page = querySelector(`.p-home .p-${type}`);
-        const listContainer = querySelector(`.p-home [data-entry-list]`, page);
-        const infoContainer = querySelector(`.p-home [data-entry-info]`, page);
+        const listContainer = page.querySelectorForce(`.p-home [data-entry-list]`);
+        const infoContainer = page.querySelectorForce(`.p-home [data-entry-info]`);
         listContainer.classList.add('hidden');
         infoContainer.classList.add('hidden');
         const entries = await this.createEntries(type);
@@ -133,8 +133,8 @@ export default class Home {
         if (elements.length === 0) {
             let msg = '';
             switch (type) {
-                case 'new': msg = 'Configuration list is empty'; break;
-                case 'saved': msg = 'There are no saved games'; break;
+            case 'new': msg = 'Configuration list is empty'; break;
+            case 'saved': msg = 'There are no saved games'; break;
             }
             listContainer.textContent = msg;
         }
@@ -179,8 +179,8 @@ export default class Home {
             throw Error();
         }
         const infoContainer = querySelector(`.p-home [data-tab-content="${type}"] [data-entry-info]`);
-        querySelector('[data-title]', infoContainer).textContent = entry.name;
-        querySelector('[data-desc]', infoContainer).textContent = entry.description || '';
+        infoContainer.querySelectorForce('[data-title]').textContent = entry.name;
+        infoContainer.querySelectorForce('[data-desc]').textContent = entry.description || '';
     }
 
     private async createEntries(type: EntryType) {
@@ -188,7 +188,7 @@ export default class Home {
             if (type === 'new') {
                 return configList.list.map<Entry>(x => ({ ...x, id: '' }));
             }
-            const map = await saveManager.load('Game');
+            const map = await saveManager.load<Save>('Game');
             if (!map) {
                 return [];
             }
@@ -205,17 +205,17 @@ export default class Home {
         if (!name || !rawUrl) {
             throw Error();
         }
-        let entry: MetaConfig = {
+        const entry: MetaConfig = {
             id: crypto.randomUUID(),
             name,
             rawUrl,
             createdAt: 0,
             lastSavedAt: 0,
-        }
+        };
         await this.startGame(entry);
     }
 
-    async startSavedGame(save: GameSave, override = false) {
+    async startSavedGame(save: Save, override = false) {
         const { name, rawUrl } = this.activeEntry;
         if (!name || !rawUrl) {
             return;
@@ -229,7 +229,7 @@ export default class Home {
         };
 
         if (override) {
-            await this.game.deleteSave(entry.id);
+            await Game.deleteSave(entry.id);
             await this.startGame(entry);
         } else {
             await this.startGame(entry, save);
@@ -238,22 +238,22 @@ export default class Home {
     }
 
     async getConfig(url: string) {
-        const config = await (await fetch(url)).json() as GConfig;
+        const config = await (await fetch(url)).json() as GameConfig;
         if (!configValidator(config)) {
-            console.error(`${config.meta.name} is not valid`, configValidator.errors);
+            console.error(`config at: ${url} is not valid`, configValidator.errors);
             return false;
         }
         return config;
     }
 
-    async startGame(entry: MetaConfig, saveObj?: GameSave) {
+    async startGame(entry: MetaConfig, saveObj?: Save) {
         try {
             const config = await this.getConfig(entry.rawUrl);
             if (!config) {
                 return;
             }
             config.meta = entry;
-            await this.game.init(config, saveObj);
+            await Game.init(config, saveObj);
             const navBtn = querySelector('header [data-target]');
             navBtn.classList.remove('hidden');
             navBtn.click();
@@ -264,3 +264,5 @@ export default class Home {
 
     }
 }
+
+export default new Home();

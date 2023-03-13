@@ -1,37 +1,38 @@
-import type GameSave from '@src/types/save/save';
 import localforage from 'localforage';
 
 type SaveType = 'Game';
 
-export default { save, load }
+export default { save, load };
 
-export async function save(type: SaveType, object: Object) {
+export async function save<T>(type: SaveType, object: object) {
     try {
         switch (type) {
-            case 'Game': return await saveBlob('ts-game', object);
+        case 'Game': return await saveBlob('ts-game', object) as T;
         }
     } catch (e) {
         console.error(e);
     }
 }
 
-export async function load(type: SaveType) {
+export async function load<T>(type: SaveType) {
     try {
         switch (type) {
-            case 'Game':
-                const blob = await loadBlob('ts-game') as { [K: string]: GameSave };
-                if (blob) {
-                    return new Map(Object.entries(blob));
-                }
-                return null;
-            default: return null;
+        case 'Game':
+        {
+            const blob = await loadBlob('ts-game') as { [K: string]: T };
+            if (blob) {
+                return new Map(Object.entries(blob));
+            }
+            return null;
+        }
+        default: return null;
         }
     } catch (e) {
         console.error(e);
     }
 }
 
-async function saveBlob(key: string, object: Object) {
+async function saveBlob(key: string, object: object) {
     const str = window.btoa(JSON.stringify(object));
     const blob = new Blob([str], { type: 'text/plain' });
     return await localforage.setItem<Blob>(key, blob);
@@ -43,5 +44,5 @@ async function loadBlob(key: string) {
         return blob;
     }
     const str = await blob.text();
-    return JSON.parse(window.atob(str)) as Object;
+    return JSON.parse(window.atob(str)) as object;
 }

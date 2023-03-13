@@ -57,7 +57,7 @@ export default class Value {
                 callback(this.value);
                 this.removeListener('change', listener);
             }
-        }
+        };
         this.addListener('change', listener);
     }
 }

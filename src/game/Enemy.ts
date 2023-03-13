@@ -1,18 +1,19 @@
-import type GameSave from "@src/types/save/save";
 import { clamp, querySelector } from "@src/utils/helpers";
-import { AilmentData, Ailments } from "./Ailments";
-import type Game from "./Game";
+import Ailments, { AilmentData } from "./Ailments";
+import type Entity from "./Entity";
+import Game, { Save } from "./Game";
+import Statistics from "./Statistics";
 
-export default class Enemy {
+class Enemy {
     private readonly ailments: Ailments;
     private _index: number;
     private healthList: number[] = [];
     private _health = 0;
     private readonly healthBar: HTMLProgressElement;
-    constructor(readonly game: Game) {
-        this.ailments = new Ailments(this.game);
+    constructor() {
+        this.ailments = new Ailments();
         this._index = 0;
-        this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]', this.game.page);
+        this.healthBar = querySelector<HTMLProgressElement>('[data-health-bar]');
     }
     get index() {
         return this._index;
@@ -31,29 +32,27 @@ export default class Enemy {
     }
 
     init() {
-        this.game.onSave.listen(this.save.bind(this));
-        this.game.gameLoop.subscribeAnim(() => {
+        Game.onSave.listen(this.save.bind(this));
+        Game.gameLoop.subscribeAnim(() => {
             this.updateHealthBar();
         });
 
-        this.game.statistics.statistics.Level.addListener('change', level => {
+        Statistics.gameStats.Level.addListener('change', level => {
             this._index = clamp(level, 1, this.maxIndex + 1) - 1;
             this.spawn();
         });
 
-        this.healthList = this.game.config!.enemies.enemyList;
-        this._index = this.game.saveObj?.enemy?.index || 0;
+        this.healthList = Game.config!.enemies.enemyList;
+        this._index = Game.saveObj?.enemy?.index || 0;
+
+        this.ailments.init();
     }
 
     setup() {
         this.spawn();
-        this.health = this.game.saveObj?.enemy?.health || this.maxHealth;
+        this.health = Game.saveObj?.enemy?.health || this.maxHealth;
         this.updateHealthBar();
-        this.ailments.setup();
-    }
-
-    reset() {
-
+        // this.ailments.setup();
     }
 
     setIndex(index: number) {
@@ -65,7 +64,7 @@ export default class Enemy {
         if (this.index === this.maxIndex + 1) {
             this.healthBar.textContent = 'Dummy (Cannot die)';
         }
-        this.ailments.reset();
+        // this.ailments.reset();
     }
 
     dealDamage(amount: number) {
@@ -77,7 +76,7 @@ export default class Enemy {
         if (this.health <= 0) {
             this.health = 0;
             this._index++;
-            this.game.statistics.statistics.Level.add(1);
+            Statistics.gameStats.Level.add(1);
         }
     }
 
@@ -85,22 +84,15 @@ export default class Enemy {
         this.dealDamage(damage);
     }
 
-    applyAilments(instances: AilmentData[]) {
-        for (const instance of instances) {
-            this.ailments.add(instance);
-        }
+    applyAilments(source: Entity, ...instances: AilmentData[]) {
+        this.ailments.addAilments(source, ...instances);
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.enemy = {
             index: this.index,
             health: this.health,
             dummyDamage: 0,
-            ailments: this.ailments.handlers.reduce<Required<GameSave>['enemy']['ailments']>((a, c) => {
-                a?.push({ type: c.type, instances: c.instances.map(x => ({ time: x.time, damageFac: x.damageFac })) });
-                return a;
-            }, [])
-
         };
     }
 
@@ -109,3 +101,13 @@ export default class Enemy {
         this.healthBar.value = pct;
     }
 }
+
+export default new Enemy();
+
+export interface EnemySave {
+    index?: number;
+    health?: number;
+    dummyDamage?: number;
+    // ailments: AilmentSave[];
+}
+

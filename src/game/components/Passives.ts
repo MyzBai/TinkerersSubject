@@ -1,24 +1,23 @@
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import Component from "./Component";
-import type Game from "../Game";
+import Game, { Save } from "../Game";
 import { Modifier } from "../mods";
-import type PassivesConfig from "@src/types/gconfig/passives";
-import type { PassiveConfig } from "@src/types/gconfig/passives";
-import type GameSave from "@src/types/save/save";
+import Statistics from "../Statistics";
+import Player from "../Player";
 
 export default class Passives extends Component {
 
     readonly passives: Passive[] = [];
     readonly passivesListContainer: HTMLElement;
-    constructor(readonly game: Game, readonly data: PassivesConfig) {
-        super(game, 'passives');
+    constructor(readonly data: PassivesConfig) {
+        super('passives');
 
-        this.passivesListContainer = querySelector('.s-passive-list table', this.page);
+        this.passivesListContainer = this.page.querySelectorForce('.s-passive-list table');
 
         {
             //init passive list
             for (const passiveListData of data.passiveLists) {
-                passiveListData.sort((a, b) => a.levelReq - b.levelReq);
+                passiveListData.sort((a, b) => a.points - b.points);
                 for (const passiveData of passiveListData) {
                     const passive = new Passive(this, passiveData, this.passives.length);
                     passive.element.addEventListener('click', () => {
@@ -26,30 +25,30 @@ export default class Passives extends Component {
                         this.updatePoints();
                         this.updatePassiveList();
                     });
-                    this.game.statistics.statistics.Level.registerCallback(passiveData.levelReq, () => {
+                    Statistics.gameStats.Level.registerCallback(passiveData.levelReq, () => {
                         passive.element.classList.remove('hidden');
                         highlightHTMLElement(this.menuItem, 'click');
                         highlightHTMLElement(passive.element, 'mouseover');
                     });
                     this.passives.push(passive);
                 }
-                querySelector('.s-passive-list table', this.page).append(...this.passives.map(x => x.element));
+                this.page.querySelectorForce('.s-passive-list table').append(...this.passives.map(x => x.element));
             }
         }
 
-        this.game.statistics.statistics.Level.addListener('change', () => {
+        Statistics.gameStats.Level.addListener('change', () => {
             this.updatePoints();
             this.updatePassiveList();
         });
 
-        querySelector('[data-reset]', this.page).addEventListener('click', () => this.resetPassives());
+        this.page.querySelectorForce('[data-reset]').addEventListener('click', () => this.resetPassives());
 
         this.updatePoints();
         this.updatePassiveList();
     }
 
     get maxPoints() {
-        return this.data.pointsPerLevel * this.game.statistics.statistics.Level.get() - 1;
+        return this.data.pointsPerLevel * Statistics.gameStats.Level.get() - 1;
     }
     get curPoints() {
         return this.maxPoints - this.passives.filter(x => x.assigned).reduce((a, c) => a += c.data.points, 0);
@@ -61,15 +60,15 @@ export default class Passives extends Component {
         this.updatePoints();
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.passives = {
-            list: this.passives.reduce<Required<GameSave>['passives']['list']>((a, c) => {
+            list: this.passives.reduce<Required<Save>['passives']['list']>((a, c) => {
                 if (c.assigned) {
                     a.push({ desc: c.mod.templateDesc, index: c.index });
                 }
                 return a;
             }, [])
-        }
+        };
     }
 
     private updatePoints() {
@@ -98,15 +97,11 @@ class Passive {
         this.mod = new Modifier(data.mod);
 
         this.element = this.createElement();
-        highlightHTMLElement(this.element, 'mouseover');
-        passives.game.statistics.statistics.Level.registerCallback(data.levelReq, () => {
-            this.element.classList.remove('hidden');
-        });
 
-        const savedList = passives.game.saveObj?.passives?.list;
+        const savedList = Game.saveObj?.passives?.list;
         if (savedList) {
             const desc = savedList.find(x => x && x.index === index)?.desc;
-            if (desc === data.mod && passives.curPoints >= data.points) {
+            if (desc === this.mod.templateDesc && passives.curPoints >= data.points) {
                 this.assigned = true;
             }
         }
@@ -117,14 +112,12 @@ class Passive {
     }
 
     set assigned(v: boolean) {
-        const modDB = this.passives.game.player.modDB;
+        const modDB = Player.modDB;
         const source = 'Passives'.concat('/', this.index.toFixed());
-        if (v) {
-            this._assigned = true;
-            const mods = this.mod.copy().stats;
-            modDB.add(mods, source);
+        this._assigned = v;
+        if (this._assigned) {
+            modDB.add(source, ...this.mod.stats);
         } else {
-            this._assigned = false;
             modDB.removeBySource(source);
         }
     }
@@ -136,4 +129,26 @@ class Passive {
         row.insertAdjacentHTML('beforeend', `<td>${this.data.points}</td>`);
         return row;
     }
+}
+
+//config
+export interface PassivesConfig {
+    pointsPerLevel: number;
+    passiveLists: PassiveConfig[][];
+}
+
+export interface PassiveConfig{
+    levelReq: number;
+    points: number;
+    mod: string;
+}
+
+//save
+export interface PassivesSave {
+    list: PassiveSave[];
+}
+
+interface PassiveSave {
+    index: number;
+    desc: string;
 }

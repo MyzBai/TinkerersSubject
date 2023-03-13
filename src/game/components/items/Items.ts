@@ -1,30 +1,29 @@
 import Component from "@src/game/components/Component";
-import type Game from "@src/game/Game";
+import Game, { Save } from "@src/game/Game";
 import { Modifier } from "@src/game/mods";
-import type { ItemModConfig } from "@src/types/gconfig/items";
-import type ItemsConfig from "@src/types/gconfig/items";
-import type GameSave from "@src/types/save/save";
+import Player from "@src/game/Player";
+import Statistics from "@src/game/Statistics";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import { CraftData, CraftId, craftTemplates } from "./crafting";
-import CraftPresets from "./CraftPresets";
+import CraftPresets, { CraftPresetSave } from "./CraftPresets";
 
 
 export type ModTables = { [K in keyof ItemsConfig['modLists']]: ItemModifier[] }
 
 export default class Items extends Component {
     private readonly itemsPage = querySelector('.p-game .p-items');
-    private readonly itemListContainer = querySelector('[data-item-list]', this.itemsPage);
-    private readonly itemModListContainer = querySelector('[data-mod-list]', this.itemsPage);
-    private readonly itemCraftTableContainer = querySelector('.s-craft-container [data-craft-list] table', this.itemsPage);
-    private readonly craftButton = querySelector<HTMLButtonElement>('.s-craft-container [data-craft-button]', this.itemsPage);
-    private readonly craftMessageElement = querySelector<HTMLButtonElement>('[data-craft-message]', this.itemsPage);
+    private readonly itemListContainer = this.itemsPage.querySelectorForce('[data-item-list]');
+    private readonly itemModListContainer = this.itemsPage.querySelectorForce('[data-mod-list]');
+    private readonly itemCraftTableContainer = this.itemsPage.querySelectorForce('.s-craft-container [data-craft-list] table');
+    private readonly craftButton = this.itemsPage.querySelectorForce<HTMLButtonElement>('.s-craft-container [data-craft-button]');
+    private readonly craftMessageElement = this.itemsPage.querySelectorForce<HTMLButtonElement>('[data-craft-message]');
     readonly items: Item[] = [];
     private activeItem: Item;
     private activeCraftId?: CraftId;
     readonly modLists: ItemModifier[];
     private presets: CraftPresets;
-    constructor(readonly game: Game, readonly data: ItemsConfig) {
-        super(game, 'items');
+    constructor(readonly data: ItemsConfig) {
+        super('items');
         this.presets = new CraftPresets(this);
         this.modLists = data.modLists.flatMap(group => group.map(mod => new ItemModifier(mod, group)));
 
@@ -44,30 +43,37 @@ export default class Items extends Component {
         this.createCraftListItems(data.craftList);
         this.updateCraftList(this.presets.activePreset?.ids);
 
-        this.game.visiblityObserver.register(this.page, visible => {
+        Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
                 this.updateCraftButton();
             }
-        })
+        });
 
-        this.game.statistics.statistics.Gold.addListener('change', () => {
+        Statistics.gameStats.Gold.addListener('change', () => {
             if (this.page.classList.contains('hidden')) {
                 return;
             }
             this.updateCraftButton();
         });
 
-        game.statistics.statistics.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
+        Statistics.gameStats.Level.addListener('change', () => this.updateCraftList(this.presets.activePreset?.ids));
         this.craftButton.addEventListener('click', () => this.performCraft());
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.items = {
-            items: this.items.reduce<Required<GameSave>['items']['items']>((a, c) => {
-                a.push({ name: c.name, modList: c.mods.map(x => ({ text: x.templateDesc, values: x.stats.map(x => x.value) })) });
+            items: this.items.reduce<Required<Save>['items']['items']>((a, c) => {
+                a.push({
+                    name: c.name,
+                    modList: c.mods.map(x => ({
+                        text: x.templateDesc,
+                        groupIndex: x.groupIndex,
+                        values: x.stats.map(x => x.value)
+                    }))
+                });
                 return a;
             }, []),
-            craftPresets: this.presets.presets.reduce<Required<GameSave>['items']['craftPresets']>((a, c) => {
+            craftPresets: [...this.presets.presets].slice(1).reduce<Required<Save>['items']['craftPresets']>((a, c) => {
                 a.push({ name: c.name, ids: c.ids });
                 return a;
             }, [])
@@ -95,7 +101,7 @@ export default class Items extends Component {
 
     private createItems() {
         for (const itemData of this.data.itemList) {
-            this.game.statistics.statistics.Level.registerCallback(itemData.levelReq, () => {
+            Statistics.gameStats.Level.registerCallback(itemData.levelReq, () => {
                 const item = new Item(this, itemData.name);
                 this.items.push(item);
                 this.itemListContainer.appendChild(item.element);
@@ -108,22 +114,24 @@ export default class Items extends Component {
     private createCraftListItems(craftDataList: ItemsConfig['craftList']) {
         const rows = [] as HTMLTableRowElement[];
         for (const craftData of craftDataList) {
-            const { cost, id, levelReq } = craftData;
+            const { goldCost, id, levelReq } = craftData;
             const tr = document.createElement('tr');
             tr.classList.add('g-list-item', 'hidden');
             tr.setAttribute('data-id', id);
-            tr.setAttribute('data-cost', cost.toFixed());
+            tr.setAttribute('data-cost', goldCost.toFixed());
             const label = this.craftDescToHtml(id);
-            tr.insertAdjacentHTML('beforeend', `<tr><td>${label}</td><td class="g-gold" data-cost>${cost}</td></tr>`);
+            tr.insertAdjacentHTML('beforeend', `<tr><td>${label}</td><td class="g-gold" data-cost>${goldCost}</td></tr>`);
             tr.addEventListener('click', () => {
                 rows.forEach(x => x.classList.toggle('selected', x === tr));
                 this.activeCraftId = id;
                 this.updateCraftButton();
             });
 
-            this.game.statistics.statistics.Level.registerCallback(levelReq, () => {
+            Statistics.gameStats.Level.registerCallback(levelReq, () => {
                 tr.setAttribute('data-enabled', '');
+
                 highlightHTMLElement(this.menuItem, 'click');
+                highlightHTMLElement(this.presets.presets[0]!.element, 'mouseover');
                 highlightHTMLElement(tr, 'mouseover');
             });
             rows.push(tr);
@@ -149,8 +157,8 @@ export default class Items extends Component {
     private generateCraftData(): CraftData {
         return {
             itemModList: this.activeItem.mods,
-            modList: this.modLists.filter(x => x.levelReq <= this.game.statistics.statistics.Level.get())
-        }
+            modList: this.modLists.filter(x => x.levelReq <= Statistics.gameStats.Level.get())
+        };
     }
 
     private updateCraftButton() {
@@ -160,7 +168,7 @@ export default class Items extends Component {
             }
             const costAttr = querySelector(`[data-id="${this.activeCraftId}"]`).getAttribute('data-cost');
             const cost = Number(costAttr);
-            if (cost > this.game.statistics.statistics.Gold.get()) {
+            if (cost > Statistics.gameStats.Gold.get()) {
                 return 'Not Enough Gold';
             }
             const template = craftTemplates[this.activeCraftId];
@@ -170,7 +178,7 @@ export default class Items extends Component {
                 return validator.errors[0];
             }
             return true;
-        }
+        };
 
         const msg = validate();
         this.craftMessageElement.textContent = typeof (msg) === 'string' ? msg : '';
@@ -181,7 +189,7 @@ export default class Items extends Component {
         if (!this.activeCraftId) {
             return;
         }
-        const cost = this.data.craftList.find(x => x.id === this.activeCraftId)?.cost;
+        const cost = this.data.craftList.find(x => x.id === this.activeCraftId)?.goldCost;
         if (!cost) {
             console.error('something went wrong');
             return;
@@ -194,7 +202,7 @@ export default class Items extends Component {
             return;
         }
         this.activeItem.mods = template.getItemMods(craftData);
-        this.game.statistics.statistics.Gold.subtract(cost);
+        Statistics.gameStats.Gold.subtract(cost);
 
         this.updateItemModList();
     }
@@ -215,11 +223,13 @@ class Item {
 
         this.tryLoad();
     }
-    get mods() { return this._mods; }
+    get mods() {
+        return this._mods;
+    }
     set mods(v: ItemModifier[]) {
-        this.items.game.player.modDB.removeBySource(this.name);
-        this._mods = v;
-        this.items.game.player.modDB.add(this._mods.flatMap(x => x.copy().stats), this.name);
+        Player.modDB.removeBySource(this.name);
+        this._mods = v.map(x => x.copy());
+        Player.modDB.add(this.name, ...this._mods.flatMap(x => x.stats));
     }
     private createElement() {
         const li = document.createElement('li');
@@ -235,18 +245,18 @@ class Item {
 
     private tryLoad() {
         try {
-            const savedItem = this.items.game.saveObj?.items?.items?.find(x => x && x.name === this.name);
+            const savedItem = Game.saveObj?.items?.items?.find(x => x && x.name === this.name);
             if (!savedItem) {
                 return;
             }
             const mods = savedItem.modList?.reduce<ItemModifier[]>((a, c) => {
                 if (c?.text && c.values) {
-                    const mod = this.items.modLists.find(x => x.templateDesc === c.text)?.copy();
+                    const mod = this.items.modLists.find(x => x.groupIndex === (c.groupIndex || 0) && x.templateDesc === c.text)?.copy();
                     if (!mod) {
                         return a;
                     }
+
                     if (c.values.length !== mod.stats.length || c.values.some(x => typeof x !== 'number')) {
-                        mod.stats.forEach(x => x.value = x.min);
                         a.push(mod);
                         return a;
                     }
@@ -291,4 +301,44 @@ export class ItemModifier extends Modifier {
         copy.stats.forEach((v, i) => v.value = this.stats[i]?.value || v.min);
         return copy;
     }
+}
+
+//config
+export interface ItemsConfig {
+    levelReq: number;
+    itemList: ItemConfig[];
+    modLists: ItemModConfig[][];
+    craftList: CraftConfig[];
+}
+
+interface ItemConfig {
+    name: string;
+    levelReq: number;
+}
+
+interface ItemModConfig {
+    levelReq: number;
+    weight: number;
+    mod: string;
+}
+
+interface CraftConfig {
+    id: CraftId;
+    levelReq: number;
+    goldCost: number;
+}
+
+//save
+export interface ItemsSave {
+    items: ItemSave[];
+    craftPresets: CraftPresetSave[];
+}
+
+interface ItemSave {
+    name: string;
+    modList: {
+        values: number[];
+        groupIndex: number;
+        text: string;
+    }[];
 }

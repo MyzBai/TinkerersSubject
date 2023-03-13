@@ -7,9 +7,7 @@ interface Instance {
     callback: Callback;
     options?: Options;
 }
-interface AnimInstance extends Instance {
-
-}
+type AnimInstance = Instance
 export interface Options {
     intervalMilliseconds: number;
 }
@@ -18,15 +16,12 @@ const TARGET_FRAME_TIME = 1000 / 30;
 const DELTA_TIME_SECONDS = TARGET_FRAME_TIME / 1000;
 
 export default class Loop {
-    public running: boolean = false;
+    public running = false;
 
     private readonly instances = new Map<string, Instance>();
     private readonly animInstances = new Map<string, AnimInstance>();
     private loopId = 0;
     private animLoopId = 0;
-    constructor() {
-
-    }
 
     subscribe(callback: Callback, options?: Options) {
         const id = crypto.randomUUID();
@@ -78,28 +73,28 @@ export default class Loop {
         const loop = () => {
             this.loopId = window.setTimeout(() => {
                 let diff = performance.now() - now + remainder;
-                
+
                 now = performance.now();
-    
+
                 while (diff >= TARGET_FRAME_TIME) {
                     diff -= TARGET_FRAME_TIME;
 
                     this.instances.forEach(instance => {
                         instance.time += TARGET_FRAME_TIME;
-                        let ms = instance.options?.intervalMilliseconds || 0;
+                        const ms = instance.options?.intervalMilliseconds || 0;
                         if (instance.time > ms) {
                             instance.callback(DELTA_TIME_SECONDS);
                             instance.time -= ms || instance.time;
                         }
                     });
-                    if(diff > 2000){
+                    if (diff > 2000) {
                         diff = 0;
                     }
                 }
                 remainder = diff;
                 loop();
             }, TARGET_FRAME_TIME);
-        }
+        };
         loop();
     }
 
@@ -111,7 +106,7 @@ export default class Loop {
             const dt = (now - lastTime);
             this.animInstances.forEach(instance => {
                 instance.time += dt;
-                let ms = instance.options?.intervalMilliseconds || 0;
+                const ms = instance.options?.intervalMilliseconds || 0;
                 if (instance.time > ms) {
                     instance.callback(dt / 1000);
                     instance.time = 0;
@@ -119,7 +114,7 @@ export default class Loop {
             });
             lastTime = now;
             this.animLoopId = requestAnimationFrame(loop);
-        }
+        };
         this.animLoopId = requestAnimationFrame(loop);
     }
 }

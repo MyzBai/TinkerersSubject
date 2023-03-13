@@ -217,6 +217,9 @@ progress[value] {
 }
 /*#endregion Scroll Bar*/
 
+[data-tag="gold"]{
+    color: $color-gold-fg;
+}
 
 [data-mod-tag=physical]{
     color: $color-mod-tag-physical;

@@ -16,26 +16,5 @@
         "components": {
             "$ref": "definitions/components/components.schema.json#/definitions/components"
         }
-    },
-    "definitions": {
-        "name": {
-            "type": "string",
-            "pattern": "^[A-Za-z 0-9]{3,16}$"
-        },
-        "text": {
-            "type": "string",
-            "maxLength": 2048,
-            "pattern": "^[A-Za-z 0-9 .,!*\\[\\]()/=%&{}?\\-:;'\\s]*$"
-        },
-        "levelReq": {
-            "type": "integer",
-            "default": 1,
-            "minimum": 1
-        },
-        "goldCost": {
-            "type": "integer",
-            "default": 0,
-            "minimum": 0
-        }
     }
 }

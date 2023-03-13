@@ -1,60 +1,68 @@
-import type GameSave from "@src/types/save/save";
 import { querySelector } from "@src/utils/helpers";
 import Value from "@utils/Value";
-import { calcPlayerStats } from "./calc/calcMod";
-import type Game from "./Game";
+import { calcModTotal, Configuration } from "./calc/calcMod";
+import type Entity from "./Entity";
+import Game, { Save } from "./Game";
+import { KeywordModifierFlag } from "./mods";
+import Player from "./Player";
 
-export type StatisticsList = [string, Statistics, boolean][];
+interface StatisticsGroup {
+    pageGroup: HTMLElement;
+    sideGroup: HTMLElement;
+    stats: StatisticsObject['stats'];
+}
 
-interface StatisticParams {
+interface StatisticOptions {
     defaultValue?: number;
     sticky?: boolean;
     format?: 'none' | 'pct' | 'time' | 'seconds';
+    formatColor?: 'gold';
     decimals?: number;
-    save?: boolean;
+}
+
+
+interface StatisticsObject {
+    stats: Record<string, Statistic>;
 }
 
 export class Statistic extends Value {
     sticky: boolean;
-    readonly decimals: number;
-    readonly format: StatisticParams['format'];
-    readonly save: boolean;
-    constructor(private readonly args?: StatisticParams) {
-        super(args?.defaultValue || 0);
-        this.sticky = args?.sticky || false;
-        this.format = args?.format || 'none';
-        this.decimals = args?.decimals || 0;
-        this.save = args?.save || false;
+    constructor(readonly opts: StatisticOptions = {}) {
+        super(opts?.defaultValue || 0);
+        this.sticky = opts.sticky || false;
     }
 
     reset(): void {
         super.reset();
-        this.sticky = this.args?.sticky || false;
+        this.sticky = this.opts.sticky || false;
     }
 }
 
-export default class Statistics {
-    public readonly statistics = {
-        'Level': new Statistic({ defaultValue: 1, sticky: true, save: true }),
-        'Gold': new Statistic({ defaultValue: 0, sticky: true, save: true }),
-        'Gold Generation': new Statistic({ defaultValue: 0, sticky: true, format: 'seconds' }),
+export class GameStatistics implements StatisticsObject {
+    readonly stats = {
+        'Time Played': new Statistic({ format: 'time' }),
+        'Level': new Statistic({ sticky: true }),
+        'Gold': new Statistic({ sticky: true, formatColor: 'gold' }),
+        'Gold Generation': new Statistic({ sticky: true, format: 'seconds' }),
+        'Gold Generated': new Statistic(),
+    } as const;
+}
+
+export class EntityStatistics implements StatisticsObject {
+    readonly stats = {
         'Dps': new Statistic({ sticky: true }),
         'Hit Chance': new Statistic({ sticky: true, format: 'pct' }),
-        'Attack Speed': new Statistic({ defaultValue: Number.MAX_VALUE, sticky: true, decimals: 2 }),
+        'Attack Speed': new Statistic({ sticky: true, decimals: 2 }),
 
         //Attack
         'Attack Dps': new Statistic(),
-        'Average Attack Damage': new Statistic(),
-        'Average Physical Attack Damage': new Statistic(),
-        'Average Elemental Attack Damage': new Statistic(),
+        'Attack Damage': new Statistic(),
+        'Physical Attack Damage': new Statistic(),
+        'Elemental Attack Damage': new Statistic(),
         //Crit
         'Critical Hit Chance': new Statistic({ format: 'pct' }),
-        'Critical Hit Multiplier': new Statistic({ format: 'pct' }),
-        //Mana
-        'Maximum Mana': new Statistic(),
-        'Mana Regeneration': new Statistic(),
-        'Attack Mana Cost': new Statistic(),
-        'Current Mana': new Statistic({ save: false }),
+        'Critical Hit Multiplier': new Statistic({ defaultValue: 1, format: 'pct' }),
+
         //Bleed
         'Bleed Chance': new Statistic({ format: 'pct' }),
         'Bleed Dps': new Statistic(),
@@ -66,173 +74,321 @@ export default class Statistics {
         'Burn Duration': new Statistic({ format: 'seconds' }),
         'Maximum Burn Stacks': new Statistic(),
 
+        //Accumulation
+        'Hits': new Statistic(),
+        'Critical Hits': new Statistic(),
+        'Total Damage': new Statistic(),
+        'Total Physical Damage': new Statistic(),
+        'Total Elemental Damage': new Statistic(),
+        'Total Bleed Damage': new Statistic(),
+        'Total Burn Damage': new Statistic(),
+    } as const;
+}
+
+export class PlayerStatistics implements EntityStatistics {
+    stats = {
+        ...new EntityStatistics().stats,
+        'Current Mana': new Statistic(),
+        //Mana
+        'Maximum Mana': new Statistic(),
+        'Mana Regeneration': new Statistic(),
+        'Attack Mana Cost': new Statistic(),
         //Other
         'Skill Duration Multiplier': new Statistic({ format: 'pct' }),
 
         //Accumulation
-        'Time Played': new Statistic({ save: true, format: 'time' }),
-        'Gold Generated': new Statistic({ save: true }),
-        'Mana Generated': new Statistic({ save: true }),
-        'Hits': new Statistic({ save: true }),
-        'Critical Hits': new Statistic({ save: true }),
-        'Total Damage': new Statistic({ save: true }),
-        'Total Physical Damage': new Statistic({ save: true }),
-        'Total Elemental Damage': new Statistic({ save: true }),
-        'Total Bleed Damage': new Statistic({ save: true }),
-        'Total Burn Damage': new Statistic({ save: true }),
-    } as const;
+        'Mana Generated': new Statistic(),
+        'Maximum Minions': new Statistic()
+    };
+}
+
+export class MinionStatistics implements EntityStatistics {
+    stats = {
+        ...new EntityStatistics().stats,
+    };
+}
+
+export class Statistics {
     private readonly page = querySelector('.p-game .p-statistics');
     private readonly pageListContainer: HTMLElement;
     private readonly sideListContainer: HTMLElement;
-    private statsUpdateId = -1;
-    constructor(readonly game: Game) {
-        this.pageListContainer = querySelector('ul', this.page);
-        this.sideListContainer = querySelector('.s-stats', this.game.page);
-        this.createStatisticsElements();
-        this.createSideListItems();
-
-        game.player.modDB.onChange.listen(async () => {
-            return new Promise((resolve) => {
-                clearTimeout(this.statsUpdateId);
-                this.statsUpdateId = window.setTimeout(async () => {
-                    calcPlayerStats(this.game);
-                    resolve();
-                }, 1);
-            });
-        });
+    readonly gameStats = new GameStatistics().stats;
+    private statisticsGroups = new Map<string, StatisticsGroup>();
+    private updateStatsCallback = (x: Entity) => this.updateGroup(x.name, x.stats);
+    constructor() {
+        this.pageListContainer = this.page.querySelectorForce('ul');
+        this.sideListContainer = querySelector('.p-game .s-stats ul');
     }
 
     init() {
-        this.game.onSave.listen(this.save.bind(this));
+        Game.onSave.listen(this.save.bind(this));
+        this.gameStats.Level.set(1);
 
-        this.game.saveObj?.statistics?.statistics?.forEach(x => {
-            if (!x) {
-                return;
-            }
-            const key = x.name as keyof Statistics['statistics'] | undefined;
-            const statistic = Object.entries(this.statistics).find(x => x[0] === key)?.[1];
-            if (!statistic) {
-                return;
-            }
-            statistic.set(x.value || statistic.defaultValue);
-            statistic.sticky = x.sticky || false;
-        });
-        this.game.visiblityObserver.registerLoop(this.page, visible => {
+        if (Game.saveObj?.statistics?.gameStatistics) {
+            Object.entries(Game.saveObj?.statistics?.gameStatistics).forEach(([key, value]) => {
+                const stat = this.gameStats[key as keyof GameStatistics['stats']] as Statistic | undefined;
+                if (stat) {
+                    stat.set(value?.value || stat.defaultValue);
+                    stat.sticky = value?.sticky || false;
+                }
+            });
+        }
+
+        Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
-                this.updatePageStatisticsUI();
-            }
-        }, { intervalMilliseconds: 1000 });
-
-        this.game.visiblityObserver.registerLoop(this.game.page, visible => {
-            if (visible) {
-                this.updateSideStatisticsUI();
+                for (const key of this.statisticsGroups.keys()) {
+                    this.updatePageGroup(key);
+                }
             }
         });
 
-        this.statistics.Gold.addListener('change', () => {
-            this.updateSideStatisticsUI();
+        Player.onStatsUpdate.listen(() => {
+            this.calcGlobalStats();
+            this.updateGroup('Global', this.gameStats);
         });
 
-        calcPlayerStats(this.game);
+        Game.entityHandler.onEntityChanged.listen(x => {
+            if (Game.entityHandler.has(x.name)) {
+                x.onStatsUpdate.listen(this.updateStatsCallback);
+                this.createGroup(x.name, x.stats);
+            } else {
+                x.onStatsUpdate.removeListener(this.updateStatsCallback);
+                this.removeGroup(x.name);
+            }
+        });
+
+        this.createGroup('Global', this.gameStats);
     }
 
-    setup() {
-        calcPlayerStats(this.game);
-        this.updatePageStatisticsUI();
-        this.updateSideStatisticsUI();
+    updateAll() {
+        this.updateGroup('Global', this.gameStats);
+        Game.entityHandler.entities.forEach(x => {
+            this.updateGroup(x.name, x.stats);
+        });
+    }
+
+    private createGroup(name: string, stats: StatisticsObject['stats']) {
+        if (this.statisticsGroups.has(name)) {
+            return;
+        }
+
+        const pageGroup = this.createPageListGroup(name, stats);
+        const sideGroup = this.createSideListGroup(name, stats);
+        if (!pageGroup || !sideGroup) {
+            throw Error();
+        }
+        pageGroup.classList.remove('hidden');
+        sideGroup.classList.remove('hidden');
+        if (Game.saveObj?.statistics) {
+            this.pageListContainer.querySelector(`[data-name="${name}"] .header`)?.toggleAttribute('data-open', Game.saveObj.statistics.groups?.[name]?.pageHeader);
+            this.sideListContainer.querySelector(`[data-name="${name}"] .header`)?.toggleAttribute('data-open', Game.saveObj.statistics.groups?.[name]?.sideHeader);
+        }
+        this.statisticsGroups.set(name, { pageGroup, sideGroup, stats });
+        this.updateGroup(name, stats);
+    }
+
+    private updateGroup(name: string, stats: StatisticsObject['stats']) {
+        if (!this.statisticsGroups.has(name)) {
+            const pageGroup = this.pageListContainer.querySelector<HTMLElement>(`[data-name="${name}"]`);
+            const sideGroup = this.sideListContainer.querySelector<HTMLElement>(`[data-name="${name}"]`);
+            if (!pageGroup || !sideGroup) {
+                this.createGroup(name, stats);
+                return;
+            }
+            this.statisticsGroups.set(name, { pageGroup, sideGroup, stats });
+        }
+        if (!this.page.classList.contains('hidden')) {
+            this.updatePageGroup(name);
+        }
+        this.updateSideGroup(name);
+    }
+
+    removeGroup(name: string) {
+        const group = this.statisticsGroups.get(name);
+        group?.pageGroup.classList.add('hidden');
+        group?.sideGroup.classList.add('hidden');
+        this.statisticsGroups.delete(name);
+    }
+
+    private calcGlobalStats() {
+        const config: Configuration = {
+            statModList: Player.modDB.modList.filter(x => x.keywords === KeywordModifierFlag.Global),
+            flags: 0,
+            keywords: KeywordModifierFlag.Global
+        };
+        const v = calcModTotal('GoldGeneration', config);
+        this.gameStats["Gold Generation"].set(v);
     }
 
     reset() {
-        Object.values(this.statistics).forEach(x => x.reset());
+        Object.values(this.gameStats).forEach(x => x.reset());
+        this.statisticsGroups.clear();
+        this.pageListContainer.replaceChildren();
+        this.sideListContainer.replaceChildren();
     }
 
-    private createStatisticsElements() {
-        const elements: HTMLLIElement[] = [];
-        for (const [key, value] of Object.entries(this.statistics)) {
+    private createPageListGroup(label: string, stats: StatisticsObject['stats']) {
+        const group = this.createAccordion(label, stats) || null;
+        if (group) {
+            this.pageListContainer.appendChild(group);
+        }
+        group?.querySelectorAll(`[data-stat]`).forEach(element => {
+            const statName = element.getAttribute('data-stat') as keyof StatisticsObject['stats'];
+            const stat = stats[statName];
+            if (!stat) {
+                return;
+            }
+            element.classList.toggle('selected', stat.sticky);
+            element.addEventListener('click', () => {
+                if (!stat) {
+                    return;
+                }
+                stat.sticky = !stat.sticky;
+                element.classList.toggle('selected', stat.sticky);
+                const stats = this.statisticsGroups.get(label)?.stats;
+                if (stats)
+                    this.updateGroup(label, stats);
+            });
+        });
+        return group;
+    }
+
+    private createSideListGroup(label: string, stats: StatisticsObject['stats']) {
+        const group = this.createAccordion(label, stats) || null;
+        if (group) {
+            this.sideListContainer.appendChild(group);
+        }
+        return group;
+    }
+
+    private createAccordion(label: string, stats: StatisticsObject['stats']) {
+        const accordion = document.createElement('li');
+        accordion.classList.add('g-accordion');
+        accordion.setAttribute('data-name', label);
+        const header = document.createElement('div');
+        accordion.appendChild(header);
+        header.classList.add('header');
+        header.insertAdjacentHTML('beforeend', `<div data-label>${label}</div>`);
+
+        const content = document.createElement('ul');
+        accordion.appendChild(content);
+        content.classList.add('content');
+
+        for (const [key, value] of Object.entries(stats)) {
             const element = document.createElement('li');
             element.classList.add('g-field', 'g-list-item');
             element.setAttribute('data-stat', key);
             element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
-            element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
-            switch (value.format) {
-                case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
-                case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
+            element.insertAdjacentHTML('beforeend', `<var data-format="${value.opts.format}"></var>`);
+            if (value.opts.formatColor) {
+                element.querySelectorForce('var').setAttribute('data-tag', value.opts.formatColor || '');
             }
-            if (value.format === 'pct') {
+            switch (value.opts.format) {
+            case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
+            case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
             }
-            element.addEventListener('click', () => {
-                value.sticky = !value.sticky;
-                this.updatePageStatisticsUI();
-                this.updateSideStatisticsUI();
-            });
-            elements.push(element);
+            content.appendChild(element);
         }
-        this.pageListContainer.replaceChildren(...elements);
+        header.insertAdjacentHTML('beforeend', `<i></i>`);
+        header.addEventListener('click', () => {
+            header.toggleAttribute('data-open');
+            const group = this.statisticsGroups.get(label);
+            if (group) {
+                this.updatePageGroup(label);
+                this.updateSideGroup(label);
+            }
+        });
+        header.click(); //open by default
+        return accordion;
     }
 
-    private createSideListItems() {
-        const elements: HTMLElement[] = [];
-        for (const [key, value] of Object.entries(this.statistics)) {
-            const element = document.createElement('li');
-            element.classList.add('g-field');
-            element.setAttribute('data-stat', key);
-
-
-            element.insertAdjacentHTML('beforeend', `<div>${key}</div>`);
-            element.insertAdjacentHTML('beforeend', `<var data-format="${value.format}"></var>`);
-            if (value.format === 'pct') {
-                element.insertAdjacentHTML('beforeend', '%');
-            }
-            elements.push(element);
+    private updatePageGroup(name: keyof StatisticsObject['stats']) {
+        if (this.page.classList.contains('hidden')) {
+            return;
         }
-        this.sideListContainer.replaceChildren(...elements);
-    }
-
-    private updatePageStatisticsUI() {
-        for (const [key, statistic] of Object.entries(this.statistics)) {
-            const element = querySelector(`li[data-stat="${key}"]`, this.pageListContainer);
-            element.classList.toggle('selected', statistic.sticky);
-            this.updateListItem(element, statistic);
+        const group = this.statisticsGroups.get(name);
+        if (!group) {
+            return;
         }
-    }
-
-    private updateSideStatisticsUI() {
-        for (const [key, statistic] of Object.entries(this.statistics)) {
-            const element = querySelector(`li[data-stat="${key}"]`, this.sideListContainer);
-            element.classList.toggle('hidden', !statistic.sticky);
-            if (!statistic.sticky) {
-                continue;
+        for (const [key, stat] of Object.entries(group.stats)) {
+            const element = group.pageGroup.querySelector<HTMLElement>(`[data-stat="${key}"]`);
+            const varElement = element?.querySelector('var');
+            if (!element || !varElement) {
+                return;
             }
-            this.updateListItem(element, statistic);
+            element.classList.toggle('suppressed', stat.get() === stat.defaultValue);
+
+            varElement.textContent = this.formatVariableText(stat);
         }
     }
 
-    private updateListItem(element: HTMLElement, statistic: Statistic) {
-        const variableElement = querySelector('var', element);
-        const type = variableElement.getAttribute('data-format');
-        let value: number | string = statistic.get();
-        switch (type) {
-            case 'time':
+    private updateSideGroup(name: keyof StatisticsObject['stats']) {
+        const group = this.statisticsGroups.get(name);
+        if (!group) {
+            return;
+        }
+        for (const [key, stat] of Object.entries(group.stats)) {
+            const element = group.sideGroup.querySelector<HTMLElement>(`[data-stat="${key}"]`);
+            const varElement = element?.querySelector('var');
+            if (!element || !varElement) {
+                return;
+            }
+            element.classList.toggle('hidden', !stat.sticky);
+            varElement.textContent = this.formatVariableText(stat);
+        }
+    }
+
+    private formatVariableText(statistic: Statistic) {
+        const value = statistic.get();
+        const { format, decimals } = statistic.opts;
+        let text = value.toFixed(decimals);
+        switch (format) {
+        case 'time':
+            {
                 const date = new Date(0);
                 date.setSeconds(value);
-                const str = date.toISOString().substring(11, 19);
-                value = str;
-                break;
-            case 'pct':
-                value *= 100;
-                break;
-            default:
-                value = value.toFixed(statistic.decimals)
+                text = date.toISOString().substring(11, 19);
+            }
+            break;
+        case 'pct':
+            text = (value * 100).toFixed(decimals);
+            break;
         }
-        variableElement.textContent = typeof value === 'number' ? value.toFixed(statistic.decimals) : value;
+        return text;
     }
 
-    save(saveObj: GameSave) {
+    save(saveObj: Save) {
         saveObj.statistics = {
-            statistics: Object.entries(this.statistics).reduce<Required<GameSave>['statistics']['statistics']>((a, c) => {
-                a.push({ name: c[0] as keyof Statistics['statistics'], sticky: c[1].sticky, value: c[1].get() });
+            gameStatistics: this.createStatsSaveObj(this.gameStats),
+            groups: [...this.statisticsGroups.entries()].reduce((a, [key, group]) => {
+                a[key] = {
+                    pageHeader: group.pageGroup.querySelector('.header[data-open]') !== null,
+                    sideHeader: group.sideGroup.querySelector('.header[data-open]') !== null
+                };
                 return a;
-            }, [])
-        }
+            }, {} as StatisticsSave['groups']),
+        };
     }
+
+    createStatsSaveObj<T extends Record<string, Statistic>>(stats: T) {
+        return Object.entries(stats).reduce((a, [key, value]) => {
+            a[key as keyof T] = { value: value.get(), sticky: value.sticky };
+            return a;
+        }, {} as Record<keyof T, StatisticSave>);
+    }
+}
+
+export default new Statistics();
+
+
+//save
+
+export interface StatisticsSave {
+    gameStatistics: Record<keyof GameStatistics['stats'], StatisticSave>;
+    groups: Record<string, { pageHeader: boolean; sideHeader: boolean }>;
+}
+
+export interface StatisticSave {
+    value: number;
+    sticky: boolean;
 }

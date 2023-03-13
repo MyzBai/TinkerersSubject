@@ -1,3 +1,5 @@
+import Game from "@src/game/Game";
+import Statistics from "@src/game/Statistics";
 import { querySelector } from "@src/utils/helpers";
 import type { CraftId } from "./crafting";
 import type Items from "./Items";
@@ -8,42 +10,45 @@ export default class CraftPresets {
     private readonly modal: HTMLDialogElement;
     constructor(readonly items: Items) {
 
-        this.modal = querySelector<HTMLDialogElement>('.p-game .p-items [data-preset-modal]', this.items.page);
+        this.modal = this.items.page.querySelectorForce<HTMLDialogElement>('.p-game .p-items [data-preset-modal]');
 
         //new preset button
-        querySelector('.s-preset-container [data-new]', this.items.page).addEventListener('click', () => {
+        querySelector('.s-preset-container [data-new]').addEventListener('click', () => {
             const preset = this.newPreset();
             this.editActivePreset();
             preset.element.click();
         });
         //edit preset button
-        querySelector('.s-preset-container [data-edit]', this.items.page).addEventListener('click', () => this.editActivePreset());
+        querySelector('.s-preset-container [data-edit]').addEventListener('click', () => this.editActivePreset());
 
         //preset modal apply button
-        querySelector('[data-apply]', this.modal).addEventListener('click', () => {
+        this.modal.querySelectorForce('[data-apply]').addEventListener('click', () => {
             if (!this.activePreset) {
                 return;
             }
             const newIds = [...this.modal.querySelectorAll<HTMLTableRowElement>('[data-craft-list] table [data-id]')].filter(x => x.classList.contains('selected')).map(x => x.getAttribute('data-id'));
             this.activePreset!.ids = newIds as CraftId[];
-            const name = querySelector<HTMLInputElement>('input[data-name]', this.modal).value;
+            const name = this.modal.querySelector<HTMLInputElement>('input[data-name]')!.value;
             if (name !== this.activePreset.name) {
                 this.activePreset.name = name;
             }
             this.selectPreset(this.activePreset);
         });
         //preset modal delete button
-        querySelector('[data-delete]', this.modal).addEventListener('click', () => this.deleteActivePreset());
+        this.modal.querySelectorForce('[data-delete]').addEventListener('click', () => this.deleteActivePreset());
 
-        if (items.game.saveObj?.items?.craftPresets) {
-            for (const savedPreset of items.game.saveObj.items?.craftPresets) {
-                if(savedPreset?.name && savedPreset.ids){
-                    this.newPreset(savedPreset.name, savedPreset.ids as CraftId[]);
-                }
+        this.createDefaultPreset();
+        for (const savedPreset of Game.saveObj?.items?.craftPresets || []) {
+            if (savedPreset?.name && savedPreset.ids) {
+                this.newPreset(savedPreset.name, savedPreset.ids as CraftId[]);
             }
-        } else {
-            this.newPreset('Default', items.data.craftList.map(x => x.id));
         }
+    }
+
+    private createDefaultPreset() {
+        const preset = this.newPreset('Default');
+        preset.editable = false;
+        this.selectPreset(preset);
     }
 
     newPreset(name = 'New', ids: CraftId[] = this.items.data.craftList.map(x => x.id)) {
@@ -61,7 +66,8 @@ export default class CraftPresets {
     selectPreset(preset?: CraftPreset) {
         this.activePreset = preset;
         this.items.updateCraftList(this.activePreset?.ids);
-        querySelector<HTMLButtonElement>('.s-preset-container [data-edit]', this.items.page).disabled = typeof this.activePreset === 'undefined';
+        const canEdit = typeof this.activePreset !== 'undefined' && this.activePreset.editable;
+        this.items.page.querySelector<HTMLButtonElement>('.s-preset-container [data-edit]')!.disabled = !canEdit;
     }
 
     editActivePreset() {
@@ -70,8 +76,8 @@ export default class CraftPresets {
         }
         const modal = querySelector<HTMLDialogElement>('.p-game .p-items [data-preset-modal]');
 
-        querySelector<HTMLInputElement>('input[data-name]', modal).value = this.activePreset?.name;
-        const filteredCraftList = this.items.data.craftList.filter(x => x.levelReq <= this.items.game.statistics.statistics.Level.get());
+        modal.querySelector<HTMLInputElement>('input[data-name]')!.value = this.activePreset?.name;
+        const filteredCraftList = this.items.data.craftList.filter(x => x.levelReq <= Statistics.gameStats.Level.get());
         const rows = [] as HTMLTableRowElement[];
         for (const craftData of filteredCraftList) {
             const label = this.items.craftDescToHtml(craftData.id);
@@ -82,14 +88,14 @@ export default class CraftPresets {
             row.insertAdjacentHTML('beforeend', `
                 <td>${label}</td>
                 <td>${craftData.levelReq}</td>
-                <td class="g-gold">${craftData.cost}</td>`);
+                <td class="g-gold">${craftData.goldCost}</td>`);
             row.addEventListener('click', () => {
                 row.classList.toggle('selected', !row.classList.contains('selected'));
-            })
+            });
             rows.push(row);
         }
 
-        querySelector<HTMLTableElement>('[data-craft-list] table tbody', modal).replaceChildren(...rows);
+        modal.querySelector<HTMLTableElement>('[data-craft-list] table tbody')!.replaceChildren(...rows);
         modal.showModal();
     }
 
@@ -99,7 +105,7 @@ export default class CraftPresets {
         }
         this.activePreset.element.remove();
         this.presets.splice(this.presets.indexOf(this.activePreset), 1);
-        if(this.presets.length === 0){
+        if (this.presets.length === 0) {
             this.items.updateCraftList();
             this.selectPreset(undefined);
         } else {
@@ -110,10 +116,10 @@ export default class CraftPresets {
 
 class CraftPreset {
     readonly element: HTMLLIElement;
+    editable = true;
     constructor(private _name: string, public ids: CraftId[]) {
         this.element = this.createElement();
     }
-
     get name() {
         return this._name;
     }
@@ -127,4 +133,9 @@ class CraftPreset {
         li.textContent = this.name;
         return li;
     }
+}
+
+export interface CraftPresetSave {
+    name: string;
+    ids: CraftId[];
 }

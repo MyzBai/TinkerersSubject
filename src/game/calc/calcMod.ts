@@ -1,7 +1,9 @@
-import { avg, clamp } from "@utils/helpers";
-import type Game from "../Game";
-import { StatModifier, StatModifierFlags, StatName, StatModifierValueType } from "../mods";
-import { calcAilmentBaseDamage, calcBaseDamage, ConversionTable } from "./calcDamage";
+import { avg, clamp, hasFlags } from "@utils/helpers";
+import type { MinionEntity, PlayerEntity } from "../Entity";
+import type Entity from "../Entity";
+import { StatModifier, StatModifierFlag, StatName, StatModifierValueType, KeywordModifierFlag } from "../mods";
+import Player from "../Player";
+import { calcAilmentBaseDamage, calcBaseAttackDamage, ConversionTable } from "./calcDamage";
 
 export type CalcMinMax = (min: number, max: number) => number;
 
@@ -9,18 +11,12 @@ export interface Configuration {
     statModList: StatModifier[];
     flags: number;
     conversionTable?: ConversionTable;
+    source?: Entity;
+    keywords: KeywordModifierFlag;
 }
 
-
-export function calcPlayerStats(game: Game) {
-    const player = game.player;
-    const statistics = game.statistics.statistics;
-
-    const config: Configuration = {
-        statModList: player.modDB.modList,
-        flags: 0
-    };
-
+export function calculateEntityStats(config: Configuration & { source: Entity }) {
+    const statistics = config.source.stats;
     //Hit Chance
     const hitChance = calcModTotal('HitChance', config) / 100;
     statistics['Hit Chance'].set(hitChance);
@@ -30,13 +26,6 @@ export function calcPlayerStats(game: Game) {
     const attackSpeed = calcModTotal('AttackSpeed', config);
     statistics['Attack Speed'].set(attackSpeed);
 
-    //Mana
-    const maxMana = calcModTotal('MaxMana', config);
-    statistics['Maximum Mana'].set(maxMana);
-    const manaRegen = calcModTotal('ManaRegen', config);
-    statistics['Mana Regeneration'].set(manaRegen);
-    const attackManaCost = calcModTotal('AttackManaCost', config);
-    statistics['Attack Mana Cost'].set(attackManaCost);
     //Crit
     const critChance = calcModTotal('CritChance', config) / 100;
     statistics['Critical Hit Chance'].set(critChance);
@@ -46,21 +35,21 @@ export function calcPlayerStats(game: Game) {
 
     let attackDps = 0;
     {
-        config.flags = StatModifierFlags.Attack;
-        const baseDamageResult = calcBaseDamage(config, avg);
+        config.flags = StatModifierFlag.Attack;
+        const baseDamageResult = calcBaseAttackDamage(config, avg);
         const critDamageMultiplier = 1 + (clampedCritChance * critMulti);
         attackDps = baseDamageResult.totalBaseDamage * clampedHitChance * attackSpeed * critDamageMultiplier;
 
         statistics['Attack Dps'].set(attackDps);
-        statistics['Average Attack Damage'].set(baseDamageResult.totalBaseDamage);
-        statistics['Average Physical Attack Damage'].set(baseDamageResult.physicalDamage);
-        statistics['Average Elemental Attack Damage'].set(baseDamageResult.elementalDamage);
+        statistics['Attack Damage'].set(baseDamageResult.totalBaseDamage);
+        statistics['Physical Attack Damage'].set(baseDamageResult.physicalDamage);
+        statistics['Elemental Attack Damage'].set(baseDamageResult.elementalDamage);
     }
 
     //bleed
     let bleedDps = 0, bleedChance = 0, maxBleedStacks = 0, bleedDuration = 0;
     {
-        config.flags = StatModifierFlags.Physical | StatModifierFlags.Bleed;
+        config.flags = StatModifierFlag.Physical | StatModifierFlag.Bleed;
         bleedChance = calcModTotal('BleedChance', config) / 100;
         maxBleedStacks = calcModTotal('AilmentStack', config);
         bleedDuration = calcModTotal('Duration', config);
@@ -80,7 +69,7 @@ export function calcPlayerStats(game: Game) {
     //burn
     let burnDps = 0, burnChance = 0, maxBurnStacks = 0, burnDuration = 0;
     {
-        config.flags = StatModifierFlags.Elemental | StatModifierFlags.Burn;
+        config.flags = StatModifierFlag.Elemental | StatModifierFlag.Burn;
         burnChance = calcModTotal('BurnChance', config) / 100;
         maxBurnStacks = calcModTotal('AilmentStack', config);
         burnDuration = calcModTotal('Duration', config);
@@ -100,13 +89,47 @@ export function calcPlayerStats(game: Game) {
     const ailmentDps = bleedDps + burnDps;
 
     const dps = (attackDps + ailmentDps);
-    statistics['Dps'].set(dps);
+    statistics.Dps.set(dps);
+}
 
-    const skillDurationMultiplier = calcModIncMore('Duration', 1, Object.assign({}, config, { flags: StatModifierFlags.Skill }));
+export function calcPlayerStats(player: PlayerEntity) {
+    const statistics = player.stats;
+
+    const config = {
+        statModList: Player.modDB.modList,
+        flags: 0,
+        source: player,
+        keywords: KeywordModifierFlag.Global
+    } satisfies Configuration;
+
+    //Mana
+    const maxMana = calcModTotal('MaxMana', config);
+    statistics['Maximum Mana'].set(maxMana);
+    const manaRegen = calcModTotal('ManaRegen', config);
+    statistics['Mana Regeneration'].set(manaRegen);
+    const attackManaCost = calcModTotal('AttackManaCost', config);
+    statistics['Attack Mana Cost'].set(attackManaCost);
+
+    calculateEntityStats(config);
+
+    config.flags |= StatModifierFlag.Skill;
+    const skillDurationMultiplier = calcModIncMore('Duration', 1, config);
+    config.flags &= ~StatModifierFlag.Skill;
+
     statistics['Skill Duration Multiplier'].set(skillDurationMultiplier);
 
-    const goldGeneration = calcModTotal('GoldGeneration', config);
-    statistics['Gold Generation'].set(goldGeneration);
+    const maxMinions = calcModBase('MinionCount', config);
+    statistics['Maximum Minions'].set(maxMinions);
+}
+
+export function calcMinionStats(minion: MinionEntity) {
+    const config = {
+        statModList: minion.modDB.modList,
+        flags: 0,
+        source: minion,
+        keywords: KeywordModifierFlag.Global | KeywordModifierFlag.Minion
+    } satisfies Configuration;
+    calculateEntityStats(config);
 }
 
 
@@ -139,22 +162,21 @@ export function calcModSum(valueType: StatModifierValueType, name: StatName | St
 
     name = Array.isArray(name) ? name : [name]; // force array
     let result = valueType === 'More' ? 1 : 0;
-    const hasFlag = (a: number, b: number) => {
-        return (a & b) === b;
-    }
-
     const filteredModList = config.statModList.filter(x => {
         if (!name.includes(x.name)) {
             return false;
         }
         if (x.valueType !== valueType)
             return false;
-        if (!hasFlag(config.flags, x.flags || 0))
+        if (!hasFlags(config.keywords, x.keywords)) {
+            return false;
+        }
+        if (!hasFlags(config.flags, x.flags || 0))
             return false;
         return true;
     });
     for (const mod of filteredModList) {
-        let value = mod.value;
+        const value = mod.value;
         if (valueType === 'More') {
             result *= 1 + value / 100;
         } else {
