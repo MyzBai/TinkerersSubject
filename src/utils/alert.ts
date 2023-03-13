@@ -6,7 +6,8 @@ interface Button {
 }
 interface AlertParams {
     title?: string;
-    body: string;
+    body?: string;
+    bodyHtml?: string;
     buttons?: Button[]
     footerText?: string;
 }
@@ -24,7 +25,10 @@ export default function customAlert(opts: AlertParams) {
         <div class="backdrop"></div>`;
 
     element.querySelectorForce<HTMLElement>('header h3').innerText = opts.title || '';
-    element.querySelectorForce<HTMLElement>('[data-body]').innerText = opts.body;
+    element.querySelectorForce<HTMLElement>('[data-body]').innerText = opts.body || '';
+    if (opts.bodyHtml) {
+        element.querySelectorForce<HTMLElement>('[data-body]').innerHTML = opts.bodyHtml;
+    }
     element.querySelectorForce<HTMLElement>('footer small').innerText = opts.footerText || '';
 
     element.querySelectorForce('.backdrop').addEventListener('mousedown', () => {
