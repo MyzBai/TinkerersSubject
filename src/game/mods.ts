@@ -134,6 +134,10 @@ export const modTemplates: ReadonlyArray<ModTemplate> = [
     { desc: '#% More Minion Damage', tags: ['Minion', 'Damage'], stats: [{ name: 'Damage', valueType: 'More', keywords: KeywordModifierFlag.Minion }] },
 ];
 
+export function getFormattedTag(tag: ModifierTag) {
+    return `<span data-mod-tag="${tag.toLowerCase()}">${tag}</span>`;
+}
+
 export class Modifier {
     readonly text: string;
     readonly template: ModTemplate;
