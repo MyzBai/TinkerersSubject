@@ -1,8 +1,9 @@
 import Component from "@src/game/components/Component";
 import Game, { Save } from "@src/game/Game";
-import { Modifier } from "@src/game/mods";
+import { getFormattedTag, Modifier, ModifierTag } from "@src/game/mods";
 import Player from "@src/game/Player";
 import Statistics from "@src/game/Statistics";
+import customAlert from "@src/utils/alert";
 import { highlightHTMLElement, querySelector } from "@src/utils/helpers";
 import { CraftData, CraftId, craftTemplates } from "./crafting";
 import CraftPresets, { CraftPresetSave } from "./CraftPresets";
@@ -94,6 +95,14 @@ export default class Items extends Component {
             const element = document.createElement('li');
             element.classList.add('g-mod-desc');
             element.textContent = desc;
+            element.addEventListener('click', () => {
+                customAlert({
+                    title: desc,
+                    bodyHtml: `
+                        <span style="display: block;">Tags: ${itemMod.tags.reduce((a, c) => a += `${getFormattedTag(c)} | `, '').slice(0, -3)}</span>\n
+                        <span style="display: block;">Tier: ${itemMod.tier}</span>`
+                });
+            });
             elements.push(element);
         }
         this.itemModListContainer.replaceChildren(...elements);
@@ -210,7 +219,7 @@ export default class Items extends Component {
     craftDescToHtml(id: CraftId) {
         return craftTemplates[id].desc.replace(/\[\w+\]/g, (x) => {
             const tag = x.substring(1, x.length - 1);
-            return `<span data-mod-tag="${tag}">${tag}</span>`;
+            return getFormattedTag(tag as ModifierTag);
         });
     }
 }
@@ -282,20 +291,24 @@ class Item {
 }
 
 export class ItemModifier extends Modifier {
-    private readonly itemModData: ItemModConfig;
     public readonly levelReq: number;
     public weight: number;
     readonly groupIndex: number;
     readonly modGroup: ItemModConfig[];
-    constructor(itemModData: ItemModConfig, modGroup: ItemModConfig[]) {
+    constructor(private readonly itemModData: ItemModConfig, modGroup: ItemModConfig[]) {
         super(itemModData.mod);
-        this.itemModData = itemModData;
         this.levelReq = itemModData.levelReq;
         this.weight = itemModData.weight;
         this.groupIndex = modGroup.findIndex(x => x === itemModData);
         this.modGroup = modGroup;
     }
 
+    get tier() {
+        const level = Statistics.gameStats.Level.get();
+        const items = this.modGroup.filter(x => x.levelReq <= level);
+        const index = items.indexOf(this.itemModData);
+        return items.length - index;
+    }
     copy(): ItemModifier {
         const copy = new ItemModifier(this.itemModData, this.modGroup);
         copy.stats.forEach((v, i) => v.value = this.stats[i]?.value || v.min);
