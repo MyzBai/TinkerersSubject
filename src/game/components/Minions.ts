@@ -37,7 +37,7 @@ export default class Minions extends Component {
         Game.visiblityObserver.register(this.page, visible => {
             if (visible) {
                 this.updateCounter();
-                if(this.activeMinion){
+                if (this.activeMinion) {
                     this.view.show(this.activeMinion, -1);
                 }
             }
@@ -73,7 +73,9 @@ export default class Minions extends Component {
         this.updateCounter();
     }
 
-    get maxActiveMinions() { return Player.stats["Maximum Minions"].get(); }
+    get maxActiveMinions() {
+        return Player.stats["Maximum Minions"].get();
+    }
 
     updateCounter() {
         const active = this.slots.filter(x => x.minion && x.minion.enabled).length;
@@ -169,7 +171,7 @@ export default class Minions extends Component {
                 const stats = Statistics.createStatsSaveObj(c.stats);
                 const name = c.name;
                 const ranks = c.ranks.filter(x => x.unlocked).map(x => x.config.name);
-                a.push({ name, ranks, stats })
+                a.push({ name, ranks, stats });
                 return a;
             }, [] as MinionSave[])
         };
@@ -243,7 +245,9 @@ class Minion extends MinionEntity {
     get rank() {
         return this.ranks[this._rankIndex]!;
     }
-    get enabled() { return this._enabled; }
+    get enabled() {
+        return this._enabled;
+    }
 
     setRankIndex(rankIndex: number) {
         this._rankIndex = rankIndex;

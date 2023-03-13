@@ -230,12 +230,12 @@ export class BuffSkillSlot implements SkillSlot, Triggerable {
         this.removeModifiers();
         this.progressBar.value = 0;
         this._running = false;
-      
+
         if (this._automate) {
             this.tryTriggerLoop();
         }
-                
-        if(this === this.skills.activeSkillSlot){
+
+        if (this === this.skills.activeSkillSlot) {
             this.skills.skillViewer.createView(this._skill);
         }
     }

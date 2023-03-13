@@ -46,8 +46,12 @@ export class Player extends PlayerEntity {
         this.updateStats();
     }
 
-    get attackTime() { return this._attackTime; }
-    get attackWaitTime() { return this._attackWaitTime; }
+    get attackTime() {
+        return this._attackTime;
+    }
+    get attackWaitTime() {
+        return this._attackWaitTime;
+    }
 
     reset() {
         super.reset();

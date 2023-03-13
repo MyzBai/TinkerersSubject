@@ -1,7 +1,7 @@
 import { querySelector } from "@src/utils/helpers";
 import Value from "@utils/Value";
 import { calcModTotal, Configuration } from "./calc/calcMod";
-import Entity from "./Entity";
+import type Entity from "./Entity";
 import Game, { Save } from "./Game";
 import { KeywordModifierFlag } from "./mods";
 import Player from "./Player";
@@ -99,13 +99,13 @@ export class PlayerStatistics implements EntityStatistics {
         //Accumulation
         'Mana Generated': new Statistic(),
         'Maximum Minions': new Statistic()
-    }
+    };
 }
 
 export class MinionStatistics implements EntityStatistics {
     stats = {
         ...new EntityStatistics().stats,
-    }
+    };
 }
 
 export class Statistics {
@@ -126,7 +126,7 @@ export class Statistics {
 
         if (Game.saveObj?.statistics?.gameStatistics) {
             Object.entries(Game.saveObj?.statistics?.gameStatistics).forEach(([key, value]) => {
-                const stat = this.gameStats[key as keyof GameStatistics['stats']] as Statistic | undefined;;
+                const stat = this.gameStats[key as keyof GameStatistics['stats']] as Statistic | undefined;
                 if (stat) {
                     stat.set(value?.value || stat.defaultValue);
                     stat.sticky = value?.sticky || false;
@@ -162,7 +162,7 @@ export class Statistics {
 
     updateAll() {
         this.updateGroup('Global', this.gameStats);
-        Game.entityHandler.query(Entity).forEach(x => {
+        Game.entityHandler.entities.forEach(x => {
             this.updateGroup(x.name, x.stats);
         });
     }
@@ -215,7 +215,7 @@ export class Statistics {
             statModList: Player.modDB.modList.filter(x => x.keywords === KeywordModifierFlag.Global),
             flags: 0,
             keywords: KeywordModifierFlag.Global
-        }
+        };
         const v = calcModTotal('GoldGeneration', config);
         this.gameStats["Gold Generation"].set(v);
     }
@@ -284,8 +284,8 @@ export class Statistics {
                 element.querySelectorForce('var').setAttribute('data-tag', value.opts.formatColor || '');
             }
             switch (value.opts.format) {
-                case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
-                case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
+            case 'pct': element.insertAdjacentHTML('beforeend', '%'); break;
+            case 'seconds': element.insertAdjacentHTML('beforeend', 's'); break;
             }
             content.appendChild(element);
         }
@@ -343,16 +343,16 @@ export class Statistics {
         const { format, decimals } = statistic.opts;
         let text = value.toFixed(decimals);
         switch (format) {
-            case 'time':
-                {
-                    const date = new Date(0);
-                    date.setSeconds(value);
-                    text = date.toISOString().substring(11, 19);
-                }
-                break;
-            case 'pct':
-                text = (value * 100).toFixed(decimals);
-                break;
+        case 'time':
+            {
+                const date = new Date(0);
+                date.setSeconds(value);
+                text = date.toISOString().substring(11, 19);
+            }
+            break;
+        case 'pct':
+            text = (value * 100).toFixed(decimals);
+            break;
         }
         return text;
     }
@@ -367,14 +367,14 @@ export class Statistics {
                 };
                 return a;
             }, {} as StatisticsSave['groups']),
-        }
+        };
     }
 
     createStatsSaveObj<T extends Record<string, Statistic>>(stats: T) {
         return Object.entries(stats).reduce((a, [key, value]) => {
             a[key as keyof T] = { value: value.get(), sticky: value.sticky };
             return a;
-        }, {} as Record<keyof T, StatisticSave>)
+        }, {} as Record<keyof T, StatisticSave>);
     }
 }
 

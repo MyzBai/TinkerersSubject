@@ -77,12 +77,12 @@ export default class SkillViewer {
 
 
         Statistics.gameStats.Gold.addListener('change', x => {
-            if(this.skills.page.classList.contains('hidden')){
+            if (this.skills.page.classList.contains('hidden')) {
                 return;
             }
             const rank = this.skills.activeSkill.ranks[this.rankIndex];
-            if(rank && !rank.unlocked){
-                if(rank.config.goldCost <= x){
+            if (rank && !rank.unlocked) {
+                if (rank.config.goldCost <= x) {
                     this.unlockButton.disabled = false;
                 }
             }
@@ -163,13 +163,13 @@ export default class SkillViewer {
         this.automateButton.classList.add('hidden');
         this.removeButton.classList.add('hidden');
 
-        if(activeSkillSlot instanceof BuffSkillSlot && activeSkillSlot.skill?.rank === rank){
+        if (activeSkillSlot instanceof BuffSkillSlot && activeSkillSlot.skill?.rank === rank) {
 
             this.triggerButton.classList.toggle('hidden', activeSkillSlot.running);
             this.triggerButton.disabled = !activeSkillSlot.canTrigger;
             this.cancelButton.classList.toggle('hidden', !activeSkillSlot.running);
             this.cancelButton.disabled = activeSkillSlot.automate;
-            
+
             this.automateButton.classList.remove('hidden');
             this.automateButton.disabled = !activeSkillSlot.canAutomate;
             this.automateButton.textContent = `Auto ${activeSkillSlot.automate ? 'On' : 'Off'}`;

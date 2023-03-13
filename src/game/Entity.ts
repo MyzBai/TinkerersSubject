@@ -10,8 +10,9 @@ import { EntityStatistics, MinionStatistics, PlayerStatistics, Statistic, Statis
 export class EntityHandler {
     readonly onEntityChanged = new EventEmitter<Entity>();
     private _entities = new Map<string, Entity>;
-    constructor() {
 
+    get entities() {
+        return Object.values(this._entities);
     }
 
     addEntity(entity: Entity) {
@@ -24,12 +25,9 @@ export class EntityHandler {
         this.onEntityChanged.invoke(entity);
     }
 
-    has(name: string) { return this._entities.has(name); }
-
-    query(constr: Function = Entity) {
-        return [...this._entities.values()].filter(x => x instanceof constr);
+    has(name: string) {
+        return this._entities.has(name);
     }
-    queryByName(name: string) { return this._entities.get(name); }
 
     reset() {
         this._entities.clear();
@@ -49,9 +47,15 @@ export default abstract class Entity {
 
     }
 
-    get modDB() { return this._modDB; }
-    get attackTime() { return this._attackTime; }
-    get attackWaitTime() { return this._attackWaitTime; }
+    get modDB() {
+        return this._modDB;
+    }
+    get attackTime() {
+        return this._attackTime;
+    }
+    get attackWaitTime() {
+        return this._attackWaitTime;
+    }
 
     protected abstract canAttack: boolean;
     protected abstract updateStats(): void;
@@ -122,7 +126,7 @@ export default abstract class Entity {
                     if (index !== -1) {
                         this.ailments.splice(index, 1);
                     }
-                }
+                };
             }
             this.ailments.push(...result.ailments);
             Enemy.applyAilments(this, ...result.ailments);
@@ -175,7 +179,9 @@ export class MinionEntity extends Entity {
     constructor(name: string) {
         super(name);
     }
-    protected get canAttack() { return true; }
+    protected get canAttack() {
+        return true;
+    }
     updateStats(): void {
         calcMinionStats(this);
         this.onStatsUpdate.invoke(this);
