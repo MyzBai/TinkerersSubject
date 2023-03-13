@@ -3,6 +3,7 @@ import { CalcMinMax, calcModBase, calcModIncMore, calcModTotal, Configuration } 
 import { randomRange } from '@utils/helpers';
 import type Entity from "../Entity";
 import type { AilmentData, AilmentType } from "../Ailments";
+import { MinionEntity } from "../Entity";
 
 type ConversionValues = Partial<Record<keyof typeof DamageTypeFlags | 'multi', number>>;
 export type ConversionTable = Partial<Record<keyof typeof DamageTypeFlags, ConversionValues>>;
@@ -47,6 +48,10 @@ export function calcAttack(source: Entity) {
         flags: StatModifierFlag.Attack,
         keywords: KeywordModifierFlag.Global
     };
+
+    if(source instanceof MinionEntity){
+        config.keywords |= KeywordModifierFlag.Minion;
+    }
 
     //Hit
     const hitChance = calcModTotal('HitChance', config) / 100;
@@ -150,6 +155,9 @@ export function calcAilmentDamage(source: Entity, type: AilmentType) {
         flags: 0,
         keywords: KeywordModifierFlag.Global
     };
+    if(source instanceof MinionEntity){
+        config.keywords |= KeywordModifierFlag.Minion;
+    }
     if (type === 'Bleed') {
         config.flags = StatModifierFlag.Bleed | StatModifierFlag.Physical;
         const { min, max } = calcAilmentBaseDamage('Physical', config);
