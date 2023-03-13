@@ -1192,7 +1192,7 @@
                     {
                         "name": "Golem III",
                         "attackSpeed": 0.8,
-                        "baseDamageMultiplier": 300,
+                        "baseDamageMultiplier": 275,
                         "goldCost": 500,
                         "mods": [
                             "+{50}% Hit Chance",
@@ -1203,7 +1203,7 @@
                     {
                         "name": "Golem IV",
                         "attackSpeed": 0.8,
-                        "baseDamageMultiplier": 350,
+                        "baseDamageMultiplier": 300,
                         "goldCost": 2000,
                         "mods": [
                             "+{60}% Hit Chance",
@@ -1290,7 +1290,7 @@
                     {
                         "name": "Wolf III",
                         "attackSpeed": 1.2,
-                        "baseDamageMultiplier": 180,
+                        "baseDamageMultiplier": 150,
                         "goldCost": 500,
                         "mods": [
                             "+{80}% Hit Chance",
@@ -1302,13 +1302,64 @@
                     {
                         "name": "Wolf IV",
                         "attackSpeed": 1.3,
-                        "baseDamageMultiplier": 200,
+                        "baseDamageMultiplier": 175,
                         "goldCost": 1000,
                         "mods": [
                             "+{90}% Hit Chance",
                             "Adds {32} To {44} Physical Damage",
                             "+{35}% Chance To Bleed",
                             "{80}% More Bleed Damage"
+                        ]
+                    }
+                ],
+                [
+                    {
+                        "name": "Burning Giant",
+                        "attackSpeed": 0.5,
+                        "baseDamageMultiplier": 325,
+                        "goldCost": 100,
+                        "levelReq": 1,
+                        "mods": [
+                            "+{70}% Hit Chance",
+                            "Adds {15} To {22} Elemental Damage",
+                            "+{30}% Chance To Burn",
+                            "{50}% More Burn Damage"
+                        ]
+                    },
+                    {
+                        "name": "Burning Giant II",
+                        "attackSpeed": 0.5,
+                        "baseDamageMultiplier": 350,
+                        "goldCost": 200,
+                        "mods": [
+                            "+{70}% Hit Chance",
+                            "Adds {25} To {38} Elemental Damage",
+                            "+{30}% Chance To Burn",
+                            "{80}% More Burn Damage"
+                        ]
+                    },
+                    {
+                        "name": "Burning Giant III",
+                        "attackSpeed": 0.5,
+                        "baseDamageMultiplier": 375,
+                        "goldCost": 500,
+                        "mods": [
+                            "+{70}% Hit Chance",
+                            "Adds {40} To {62} Elemental Damage",
+                            "+{30}% Chance To Burn",
+                            "{100}% More Burn Damage"
+                        ]
+                    },
+                    {
+                        "name": "Burning Giant IV",
+                        "attackSpeed": 0.5,
+                        "baseDamageMultiplier": 400,
+                        "goldCost": 1000,
+                        "mods": [
+                            "+{70}% Hit Chance",
+                            "Adds {53} To {80} Elemental Damage",
+                            "+{30}% Chance To Burn",
+                            "{130}% More Burn Damage"
                         ]
                     }
                 ]
