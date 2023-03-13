@@ -9331,8 +9331,8 @@
             if (instance.damage) {
               const damage = instance.damage * dt;
               this.dealDamage(source, damage, instance.type);
-              instance.source.stats["Total Physical Damage"].add(damage);
-              instance.source.stats["Total Bleed Damage"].add(damage);
+              instance.source.stats[`Total ${instance.type} Damage`].add(damage);
+              instance.source.stats[`Total ${instance.type} Damage`].add(damage);
               instance.source.stats["Total Damage"].add(damage);
             }
           }
@@ -10740,7 +10740,7 @@
         this.tryTriggerLoop();
       }
       if (this === this.skills.activeSkillSlot) {
-        this.skills.skillViewer.createView(this._skill);
+        this.skills.skillViewer.createView(this._skill, -1);
       }
     }
     cancel() {
